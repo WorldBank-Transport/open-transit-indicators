@@ -26,7 +26,7 @@ DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
 DB_USER=$DB_NAME
 
-# Set the install type
+# Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
 
 #########################
@@ -102,6 +102,31 @@ pushd $DJANGO_ROOT
         echo "Couldn't find settings file for the install type $INSTALL_TYPE" >&2
         exit 1
     fi
+    
+    # Generate a unique key for each provision; don't regenerate on each new provision..
+    keyfile='transit_indicators/settings/secret_key.py'
+    if [ ! -e "$keyfile" ]; then
+        echo '# This file created automatically during the provision process.' > $keyfile
+        KEY=$(< /dev/urandom tr -dc '_!@#$%^&*(\-_=+)a-z-0-9' | head -c50;)
+        echo "SECRET_KEY = '$KEY'" >> $keyfile
+    fi
+
+    # Write out database settings that match what this script is setting up.
+    db_conf_file='transit_indicators/settings/db_settings.py'
+    db_conf="# Database settings for Django; this file is created automatically by the provision
+# script and will be overwritten if you re-run provision.sh.
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '$DB_NAME',
+        'USER': '$DB_USER',
+        'PASSWORD': '$DB_PASS',
+        'HOST': '127.0.0.1',
+        'PORT': '5432'
+    }
+}"
+    echo "$db_conf" > "$db_conf_file"
     python manage.py migrate --noinput
 popd
 

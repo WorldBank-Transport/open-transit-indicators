@@ -11,15 +11,14 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+# Import stuff created by the provision script
+from secret_key import *
+from db_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
-# Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'a)6d+o+7gpa!&xo_ya5vy8w*kc(0781ot5gi^%2_$crwlx2hf='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -54,20 +53,6 @@ ROOT_URLCONF = 'transit_indicators.urls'
 
 WSGI_APPLICATION = 'transit_indicators.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/dev/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'transit_indicators',
-        'USER': 'transit_indicators',
-        'PASSWORD': 'transit_indicators',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
-    }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
