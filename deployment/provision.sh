@@ -10,9 +10,14 @@ set -o errexit
 
 # Needs to install software, so root privileges required.
 if [ `whoami` != "root" ]; then
-    echo "This installation script must be run as root; please use 'sudo provision.sh'"
+    echo "This installation script must be run as root; please use 'sudo provision.sh'" >&2
     exit 1
 fi
+if [ $# -eq 0 ]; then
+    echo 'Must provide an installation type, e.g. development. Aborting.' >&2
+    exit 1
+fi
+
 
 TEMP_ROOT="/tmp"
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
@@ -20,6 +25,9 @@ DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
 DB_USER=$DB_NAME
+
+# Set the install type
+INSTALL_TYPE=$1
 
 #########################
 # Project Dependencies  #
@@ -58,7 +66,7 @@ pushd $TEMP_ROOT
         popd
         rm -rf Django-1.7b1 Django-1.7b1.tar.gz
     else
-        echo "Django already found, skipping."
+        echo 'Django already found, skipping.'
     fi
 popd
 
@@ -84,10 +92,20 @@ popd
 # Django setup          #
 #########################
 pushd $DJANGO_ROOT
+    # Try to create a settings file for the specified install type
+    if [ -e "transit_indicators/settings/$INSTALL_TYPE.py" ]; then
+        init="transit_indicators/settings/__init__.py"
+        echo '# This file generated automatically during the install process' > $init
+        echo '# It will be overwritten if you re-run provision.sh' >> $init
+        echo "from $INSTALL_TYPE import "'*' >> $init
+    else
+        echo "Couldn't find settings file for the install type $INSTALL_TYPE" >&2
+        exit 1
+    fi
     python manage.py migrate --noinput
 popd
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
 echo 'Setup completed successfully.'
-echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.'
+echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.' >&2

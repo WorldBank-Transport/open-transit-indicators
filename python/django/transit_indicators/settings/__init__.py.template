@@ -1,0 +1,3 @@
+# This file will be copied by the provision script and import from the proper settings file
+# for the desired environment, e.g. from development import *. This determines which settings
+# will be used by the installation.
