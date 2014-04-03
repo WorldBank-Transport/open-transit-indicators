@@ -15,6 +15,7 @@ if [ `whoami` != "root" ]; then
 fi
 
 TEMP_ROOT="/tmp"
+DJANGO_ROOT="$PROJECT_ROOT/python/django"
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
@@ -74,10 +75,16 @@ gem install -v 3.3.4 sass
 # Database setup        #
 #########################
 # Set up empty database with spatial extension
-# TODO add Django syncdb once we have a Django app.
 pushd $PROJECT_ROOT
     # Needs to run as postgres user, which is only possible via a separate script.
     sudo -u postgres ./deployment/setup_db.sh $DB_NAME $DB_USER $DB_PASS
+popd
+
+#########################
+# Django setup          #
+#########################
+pushd $DJANGO_ROOT
+    python manage.py migrate --noinput
 popd
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
