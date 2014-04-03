@@ -71,7 +71,7 @@ pushd $TEMP_ROOT
 popd
 
 # Install other Python dependencies via pip
-pip install -r $PROJECT_ROOT/deployment/requirements.txt
+pip install -r "$PROJECT_ROOT/deployment/requirements.txt"
 
 # Install node dependencies
 npm install -g grunt-cli
