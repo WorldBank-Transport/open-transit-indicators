@@ -15,11 +15,11 @@ else
     echo 'Spatial template already exists; not creating it.'
 fi
 
-# Set up the 
+# Set up the database user
 # Test lifted from
 # http://stackoverflow.com/questions/8546759/how-to-check-if-a-postgres-user-exists
 has_db_user=`psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'"`
-if [ 1 -ne "$has_db_user" ]; then
+if [ "1" != "$has_db_user" ]; then
     createuser $DB_USER --no-superuser --no-createdb --no-createrole
     psql -d postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';"
 else

@@ -1,3 +1,4 @@
-# This file will be copied by the provision script and import from the proper settings file
-# for the desired environment, e.g. from development import *. This determines which settings
-# will be used by the installation.
+# The provision script will create an __init__.py file that will look something like this:
+# from development import *
+#
+# This will switch between different settings for different types of installations.
