@@ -1,0 +1,4 @@
+# The provision script will create an __init__.py file that will look something like this:
+# from development import *
+#
+# This will switch between different settings for different types of installations.

@@ -57,3 +57,9 @@ nosetests.xml
 
 # OS X crap
 .DS_Store
+
+
+# Files created by provision script
+python/django/transit_indicators/settings/secret_key.py
+python/django/transit_indicators/settings/db_settings.py
+python/django/transit_indicators/settings/__init__.py

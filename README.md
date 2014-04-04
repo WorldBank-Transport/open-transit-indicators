@@ -24,4 +24,7 @@ located in `/home/myusername/open-transit-indicators`, the line should become
 `PROJECT_ROOT="/home/myusername/open-transit-indicators"`
 
 2. From the repository folder (project directory), issue the command:
-`sudo ./deployment/provision.sh`. You may need to enter your password.
+`sudo ./deployment/provision.sh development`. You may need to enter your password.
+This will create a development installation of the program. If you are simply planning to
+use the program (rather than make changes to it), run `sudo ./deployment/provision.sh production`
+instead.
