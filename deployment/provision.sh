@@ -18,9 +18,14 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-
-TEMP_ROOT="/tmp"
+#########################################
+# Installation configuration parameters #
+#########################################
+TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
+UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
+
+WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
@@ -93,7 +98,7 @@ popd
 #########################
 pushd $DJANGO_ROOT
     # Try to create a settings file for the specified install type
-    if [ -e "transit_indicators/settings/$INSTALL_TYPE.py" ]; then
+    if [ -f "transit_indicators/settings/$INSTALL_TYPE.py" ]; then
         init="transit_indicators/settings/__init__.py"
         echo '# This file generated automatically during the install process' > $init
         echo '# It will be overwritten if you re-run provision.sh' >> $init
@@ -105,16 +110,16 @@ pushd $DJANGO_ROOT
     
     # Generate a unique key for each provision; don't regenerate on each new provision..
     keyfile='transit_indicators/settings/secret_key.py'
-    if [ ! -e "$keyfile" ]; then
+    if [ ! -f "$keyfile" ]; then
         echo '# This file created automatically during the provision process.' > $keyfile
         KEY=$(< /dev/urandom tr -dc '_!@#$%^&*(\-_=+)a-z-0-9' | head -c50;)
         echo "SECRET_KEY = '$KEY'" >> $keyfile
     fi
 
     # Write out database settings that match what this script is setting up.
-    db_conf_file='transit_indicators/settings/db_settings.py'
-    db_conf="# Database settings for Django; this file is created automatically by the provision
-# script and will be overwritten if you re-run provision.sh.
+    django_conf_file='transit_indicators/settings/provision_settings.py'
+    django_conf="# Additional settings for Django; this file is created automatically
+# by the provision script and will be overwritten if you re-run provision.sh.
 
 DATABASES = {
     'default': {
@@ -125,8 +130,17 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
-}"
-    echo "$db_conf" > "$db_conf_file"
+}
+
+MEDIA_ROOT = '$UPLOADS_ROOT'
+"
+    echo "$django_conf" > "$django_conf_file"
+
+    # Create folder to hold user uploads
+    if [ ! -d "$UPLOADS_ROOT" ]; then
+        mkdir $UPLOADS_ROOT
+        chown $WEB_USER:$WEB_USER $UPLOADS_ROOT
+    fi
     python manage.py migrate --noinput
 popd
 
