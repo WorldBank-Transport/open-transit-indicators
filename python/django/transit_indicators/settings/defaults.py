@@ -13,7 +13,7 @@ import os
 
 # Import stuff created by the provision script
 from secret_key import *
-from db_settings import *
+from provision_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -37,7 +37,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
+
+    'datasources',
 )
 
 MIDDLEWARE_CLASSES = (
