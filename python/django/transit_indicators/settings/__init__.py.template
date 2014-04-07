@@ -2,3 +2,5 @@
 # from development import *
 #
 # This will switch between different settings for different types of installations.
+
+from __future__ import absolute_import

@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'rest_framework',
 
     'datasources',
+    'transit_indicators',
 )
 
 MIDDLEWARE_CLASSES = (
