@@ -3,6 +3,7 @@ import tempfile
 
 from django.test import TestCase
 
+from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
@@ -30,11 +31,13 @@ class GTFSFeedTestCase(TestCase):
             # Test that uploading a file with an extension other than .zip
             # fails
             response = self.client.post(self.url, {'source_file': badfile})
-            self.assertEqual(response.status_code, 400, response.content)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                             response.content)
 
         with open(goodfile_path, 'r') as goodfile:
             # Test that uploading a file with a .zip extension succeeds
             response = self.client.post(self.url, {'source_file': goodfile})
-            self.assertEqual(response.status_code, 201, response.content)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED,
+                             response.content)
 
         rmtree(temp_dir)
