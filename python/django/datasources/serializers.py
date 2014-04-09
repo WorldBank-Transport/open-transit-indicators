@@ -8,6 +8,7 @@ from models import GTFSFeed
 class GTFSFeedSerializer(serializers.ModelSerializer):
     class Meta:
         model = GTFSFeed
+        read_only_fields = ('is_valid', 'validation_results_file')
 
     def validate_source_file(self, attrs, source):
         """ Basic validation to ensure the file name ends in .zip. """

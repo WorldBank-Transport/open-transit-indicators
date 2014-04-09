@@ -25,11 +25,12 @@ TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
-
+WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
 DB_USER=$DB_NAME
+VHOST_NAME=$DB_NAME
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -62,6 +63,14 @@ apt-get -y install python-dev
 
 add-apt-repository -y ppa:chris-lea/node.js
 add-apt-repository -y ppa:ubuntugis/ppa
+add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
+
+# add public key for RabbitMQ
+pushd $TEMP_ROOT
+    wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+    apt-key add rabbitmq-signing-key-public.asc
+    rm rabbitmq-signing-key-public.asc
+popd
 
 # Install dependencies available via apt
 # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
@@ -73,7 +82,8 @@ apt-get -y install \
     postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
     nodejs \
     ruby1.9.3 rubygems \
-    openjdk-7-jre scala
+    openjdk-7-jre scala \
+    rabbitmq-server
 
 # Install Django
 # TODO remove this once 1.7 is released and we can install using pip.
@@ -113,6 +123,13 @@ pushd $PROJECT_ROOT
 popd
 
 #########################
+# RabbitMQ setup        #
+#########################
+pushd $PROJECT_ROOT
+    sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
+popd
+
+#########################
 # Django setup          #
 #########################
 pushd $DJANGO_ROOT
@@ -126,7 +143,7 @@ pushd $DJANGO_ROOT
         echo "Couldn't find settings file for the install type $INSTALL_TYPE" >&2
         exit 1
     fi
-    
+
     # Generate a unique key for each provision; don't regenerate on each new provision..
     keyfile='transit_indicators/settings/secret_key.py'
     if [ ! -f "$keyfile" ]; then
@@ -152,6 +169,9 @@ DATABASES = {
 }
 
 MEDIA_ROOT = '$UPLOADS_ROOT'
+
+# RabbitMQ settings
+BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@127.0.0.1:5672/$VHOST_NAME'
 "
     echo "$django_conf" > "$django_conf_file"
 
@@ -162,6 +182,19 @@ MEDIA_ROOT = '$UPLOADS_ROOT'
     fi
     python manage.py migrate --noinput
 popd
+
+#########################
+# Feed validator setup  #
+#########################
+# install Google's transit feed validator
+# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+pushd $TEMP_ROOT
+    wget https://googletransitdatafeed.googlecode.com/files/transitfeed-1.2.12.tar.gz
+    tar xzf transitfeed-1.2.12.tar.gz
+    pushd transitfeed-1.2.12
+        sudo python setup.py install
+    popd
+    rm -rf transitfeed-1.2.12 transitfeed-1.2.12.tar.gz
 
 #########################
 # Angular setup         #
