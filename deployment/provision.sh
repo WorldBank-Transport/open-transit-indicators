@@ -24,7 +24,7 @@ fi
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
-
+ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
@@ -34,6 +34,25 @@ VHOST_NAME=$DB_NAME
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
+case "$INSTALL_TYPE" in 
+    "development")
+        echo "Selecting development installation"
+        WEB_USER='vagrant' # User under which web service runs.
+        ;;
+    "production")
+        echo "Selecting production installation"
+        # TODO: Set variables for production deployment here
+        ;;
+    "jenkins")
+        echo "Selecting CI installation"
+        # TODO: Set variables for jenkins deployment here
+        ;;
+    *)
+        echo "Invalid installation type; should be one of development / production / jenkins" >&2
+        exit 1
+        ;;
+esac
+
 
 #########################
 # Project Dependencies  #
@@ -77,7 +96,7 @@ pushd $TEMP_ROOT
         wget https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz
         tar xzvf Django-1.7b1.tar.gz
         pushd Django-1.7b1
-            sudo python setup.py install
+            python setup.py install
         popd
         rm -rf Django-1.7b1 Django-1.7b1.tar.gz
     else
@@ -89,7 +108,7 @@ popd
 pip install -r "$PROJECT_ROOT/deployment/requirements.txt"
 
 # Install node dependencies
-npm install -g grunt-cli
+npm install -g grunt-cli yo generator-angular
 
 # Install ruby gems
 gem install -v 3.3.4 sass
@@ -159,11 +178,14 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@127.0.0.1:5672/$VHOST_NAME'
     # Create folder to hold user uploads
     if [ ! -d "$UPLOADS_ROOT" ]; then
         mkdir $UPLOADS_ROOT
-        chown $WEB_USER:$WEB_USER $UPLOADS_ROOT
+        chown "$WEB_USER":"$WEB_USER" $UPLOADS_ROOT
     fi
     python manage.py migrate --noinput
 popd
 
+#########################
+# Feed validator setup  #
+#########################
 # install Google's transit feed validator
 # docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
 pushd $TEMP_ROOT
@@ -173,6 +195,14 @@ pushd $TEMP_ROOT
         sudo python setup.py install
     popd
     rm -rf transitfeed-1.2.12 transitfeed-1.2.12.tar.gz
+
+#########################
+# Angular setup         #
+#########################
+pushd "$ANGULAR_ROOT"
+    # Bower gets angry if you run it as root, so external script again.
+    # Hu preserves home directory settings.
+    sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh
 popd
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
