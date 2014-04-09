@@ -1,0 +1,13 @@
+{
+ "catalog": "Catalog of Open Transit Data",
+ "stores": [
+  {
+   "store": "opentransitgt:fs",
+   "params": {
+     "type": "fs",
+     "path": "arg",
+     "cacheAll": "no"
+    }
+  }
+ ]
+}

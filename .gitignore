@@ -63,3 +63,12 @@ nosetests.xml
 python/django/transit_indicators/settings/secret_key.py
 python/django/transit_indicators/settings/provision_settings.py
 python/django/transit_indicators/settings/__init__.py
+
+# Scala build artifacts
+project/boot
+project/plugins/project
+project/plugins/target
+project/target
+target
+.lib
+.tmp
