@@ -20,4 +20,5 @@ class DataSource(models.Model):
 class GTFSFeed(DataSource):
     """Represents a GTFS Feed (a zip file)."""
     is_valid = models.NullBooleanField()
+    validation_summary = models.CharField(max_length=255, blank=True, default='')
     validation_results_file = models.FileField(null=True, blank=True)
