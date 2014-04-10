@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Windshaft Example</title>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="OpenLayers.js"></script>
+    <script>
+
+    // Fun. We can't just use lat/lon like every other mapping library
+    var fromProjection = new OpenLayers.Projection("EPSG:4326");
+    var toProjection = new OpenLayers.Projection("EPSG:900913");
+    var position = new OpenLayers.LonLat(-3.703194, 40.428133).transform(fromProjection, toProjection);
+
+    function callback(data, location, pixel) {
+        console.log(data);
+        var mapGid = document.getElementById('map-gid');
+    }
+
+    function init() {
+
+        var layers = [];
+        var baseLayer = new OpenLayers.Layer.OSM();
+        layers.push(baseLayer);
+
+        var baseUrl = 'http://localhost:4040/database/transit_indicators/table/test_windshaft/${z}/${x}/${y}';
+
+        // add layer of points
+        var pointsLayerUrl = baseUrl + '.png';
+        var pointsLayer = new OpenLayers.Layer.XYZ('Test Tile Layer', pointsLayerUrl, {
+            isBaseLayer: false,
+            sphericalMercator: true
+        }); 
+        layers.push(pointsLayer);
+        
+        // create map
+        var map = new OpenLayers.Map('map', {
+            layers: layers,
+            projection: "EPSG:3857"
+        });
+        // You have to call setCenter after adding a layer. Otherwise KABOOM.
+        map.setCenter(position, 12);
+    }
+
+    </script>
+</head>
+<body onload="init()">
+    <div id="map" style="width: 800px; height: 600px"></div>
+    <br />
+    <p id="map-gid"></p>
+
+</body>
+</html>
+

@@ -77,6 +77,7 @@ popd
 # Install dependencies available via apt
 # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
 apt-get update
+apt-get -y upgrade
 apt-get -y install \
     git \
     python-pip \
@@ -260,6 +261,11 @@ pushd /var/local
         # create server script; run Windshaft with 'node server.js'
         echo "$windshaft_conf" > ./server.js
     popd
+popd
+
+# create test table for Windshaft
+pushd $PROJECT_ROOT
+    sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
 popd
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
