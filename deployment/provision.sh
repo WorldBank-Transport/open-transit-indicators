@@ -26,6 +26,7 @@ HOST='127.0.0.1'  # TODO: set for production / jenkins
 
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
+DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
@@ -43,13 +44,17 @@ REDIS_PORT='6379'
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
-case "$INSTALL_TYPE" in 
+case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         WEB_USER='vagrant' # User under which web service runs.
+        ANGULAR_STATIC="$ANGULAR_ROOT/app"
+        GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
         ;;
     "production")
         echo "Selecting production installation"
+        ANGULAR_STATIC="$ANGULAR_ROOT/dist"
+        GUNICORN_MAX_REQUESTS=""
         # TODO: Set variables for production deployment here
         ;;
     "jenkins")
@@ -74,6 +79,7 @@ add-apt-repository -y ppa:chris-lea/node.js
 add-apt-repository -y ppa:ubuntugis/ppa
 add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
 add-apt-repository -y ppa:mapnik/v2.2.0
+add-apt-repository -y ppa:gunicorn/ppa
 
 # add public key for RabbitMQ
 pushd $TEMP_ROOT
@@ -96,6 +102,9 @@ apt-get -y install \
     openjdk-7-jre scala \
     rabbitmq-server \
     libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server
+    nginx \
+    gunicorn \
+    rabbitmq-server
 
 # Install Django
 # TODO remove this once 1.7 is released and we can install using pip.
@@ -245,6 +254,76 @@ then
         sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
     popd
 fi
+
+#########################
+# Gunicorn setup        #
+#########################
+echo ''
+echo 'Copying gunicorn upstart script'
+gunicorn_conf="start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/bin/gunicorn --workers 3 --log-file /var/log/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+"
+gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
+echo "$gunicorn_conf" > "$gunicorn_conf_file"
+service oti-gunicorn restart
+echo 'Gunicorn now running'
+
+#########################
+# Nginx setup           #
+#########################
+echo ''
+echo 'Setting up nginx'
+
+nginx_conf="server {
+    root $ANGULAR_STATIC;
+    index index.html index.htm;
+
+    charset utf-8;
+
+    listen 80;
+    server_name _;
+
+    gzip on;
+    gzip_static on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_types application/x-javascript application/json text/css text/plain;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    location /gt {
+        proxy_pass $GEOTRELLIS_HOST;
+        proxy_redirect off;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+
+    location /api {
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$http_host;
+        proxy_pass http://unix:/tmp/gunicorn.sock:;
+    }
+
+    location /static {
+        alias $DJANGO_STATIC_FILES_ROOT;
+    }
+}
+"
+nginx_conf_file="/etc/nginx/sites-enabled/oti"
+echo "$nginx_conf" > "$nginx_conf_file"
+
+echo 'Restarting nginx'
+service nginx restart
+echo 'Nginx now running'
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
