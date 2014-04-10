@@ -59,6 +59,8 @@ nosetests.xml
 # OS X crap
 .DS_Store
 
+# Generated Static Files
+static/
 
 # Files created by provision script
 python/django/transit_indicators/settings/secret_key.py
