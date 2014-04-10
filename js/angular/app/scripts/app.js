@@ -3,5 +3,6 @@
 angular
   .module('angularApp', [
     'ngCookies',
-    'ngResource'
+    'ngResource',
+    'angularFileUpload'
   ]);
