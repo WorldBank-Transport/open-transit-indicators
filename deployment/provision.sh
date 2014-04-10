@@ -25,6 +25,7 @@ TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
+WINDSHAFT_ROOT='/var/local/Windshaft'  # Going to check out 'Windshaft' repo into /var/local
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
@@ -64,6 +65,7 @@ apt-get -y install python-dev
 add-apt-repository -y ppa:chris-lea/node.js
 add-apt-repository -y ppa:ubuntugis/ppa
 add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
+add-apt-repository -y ppa:mapnik/v2.2.0
 
 # add public key for RabbitMQ
 pushd $TEMP_ROOT
@@ -83,7 +85,8 @@ apt-get -y install \
     nodejs \
     ruby1.9.3 rubygems \
     openjdk-7-jre scala \
-    rabbitmq-server
+    rabbitmq-server \
+    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server
 
 # Install Django
 # TODO remove this once 1.7 is released and we can install using pip.
@@ -203,6 +206,60 @@ pushd "$ANGULAR_ROOT"
     # Bower gets angry if you run it as root, so external script again.
     # Hu preserves home directory settings.
     sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh
+popd
+
+#########################
+# Windshaft setup       #
+#########################
+windshaft_conf="// This file is created automatically by the provision script and will be overwritten 
+// if you re-run provision.sh.
+// Note, currently to run this server your table must have a column called 
+// the_geom_webmercator with SRID of 3857.
+
+var Windshaft = require('./lib/windshaft');
+var _         = require('underscore');
+var config = {
+    base_url: '/database/:dbname/table/:table',
+    base_url_notable: '/database/:dbname',
+    grainstore: {
+                 datasource: {
+                    user:'$DB_USER',
+                    password:'$DB_PASS',
+                    host: '127.0.0.1',
+                    port: 5432
+                 }
+    }, //see grainstore npm for other options
+    redis: {host: '127.0.0.1', port: 6379},
+    enable_cors: true,
+    req2params: function(req, callback){
+
+        // no default interactivity. to enable specify the database column you'd like to interact with
+        req.params.interactivity = null;
+
+        // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
+        req.params =  _.extend({}, req.params);
+        _.extend(req.params, req.query);
+
+        // send the finished req object on
+        callback(null,req);
+    }
+};
+
+// Initialize tile server on port 4000
+var ws = new Windshaft.Server(config);
+ws.listen(4000);
+
+console.log('map tiles are now being served out of: http://127.0.0.1:4000' + config.base_url + '/:z/:x/:y');"
+
+pushd /var/local
+    rm -rf Windshaft
+    git clone https://github.com/CartoDB/Windshaft.git
+    pushd Windshaft
+        git checkout 0de3b48cbd96f4949baa59ced8a75a327398d77a  # last known passing build
+        npm install
+        # create server script; run Windshaft with 'node server.js'
+        echo "$windshaft_conf" > ./server.js
+    popd
 popd
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
