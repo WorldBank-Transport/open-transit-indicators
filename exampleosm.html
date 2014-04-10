@@ -36,13 +36,43 @@
         }); 
         layers.push(pointsLayer);
         
+        // add utfgrid layer
+        var utfgridLayerUrl = baseUrl + '.grid.json?interactivity=cartodb_id,address';
+        console.log(utfgridLayerUrl);
+
+        var utfgridLayer = new OpenLayers.Layer.UTFGrid({
+            url: utfgridLayerUrl,
+            useJSONP: true,
+            displayInLayerSwitcher: false,
+            utfgridResolution: 4
+        }); 
+        layers.push(utfgridLayer);
+        
+        
         // create map
         var map = new OpenLayers.Map('map', {
             layers: layers,
             projection: "EPSG:3857"
         });
         // You have to call setCenter after adding a layer. Otherwise KABOOM.
-        map.setCenter(position, 12);
+        map.setCenter(position, 13);
+        
+        // add utfgrid layer control
+        var addrElem = document.getElementById('show-address');
+        var utfgridControl = new OpenLayers.Control.UTFGrid({
+            handlerMode: 'hover',
+            layers: [utfgridLayer],
+            callback: function(data) {
+                if (data && data['2'].data) {
+                    console.log(data['2'].data.address);
+                    addrElem.textContent = data['2'].data.address;
+                } else {
+                    addrElem.textContent = '';
+                }
+            }
+        });
+        map.addControl(utfgridControl);
+
     }
 
     </script>
@@ -51,6 +81,7 @@
     <div id="map" style="width: 800px; height: 600px"></div>
     <br />
     <p id="map-gid"></p>
+    <h4 id="show-address"><h4>
 
 </body>
 </html>
