@@ -21,16 +21,25 @@ fi
 #########################################
 # Installation configuration parameters #
 #########################################
+
+HOST='127.0.0.1'  # TODO: set for production / jenkins
+
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
+WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
 DB_USER=$DB_NAME
+DB_HOST=$HOST
+DB_PORT='5432'
 VHOST_NAME=$DB_NAME
+
+REDIS_HOST=$HOST
+REDIS_PORT='6379'
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -64,6 +73,7 @@ apt-get -y install python-dev
 add-apt-repository -y ppa:chris-lea/node.js
 add-apt-repository -y ppa:ubuntugis/ppa
 add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
+add-apt-repository -y ppa:mapnik/v2.2.0
 
 # add public key for RabbitMQ
 pushd $TEMP_ROOT
@@ -75,6 +85,7 @@ popd
 # Install dependencies available via apt
 # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
 apt-get update
+apt-get -y upgrade
 apt-get -y install \
     git \
     python-pip \
@@ -83,7 +94,8 @@ apt-get -y install \
     nodejs \
     ruby1.9.3 rubygems \
     openjdk-7-jre scala \
-    rabbitmq-server
+    rabbitmq-server \
+    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server
 
 # Install Django
 # TODO remove this once 1.7 is released and we can install using pip.
@@ -163,8 +175,8 @@ DATABASES = {
         'NAME': '$DB_NAME',
         'USER': '$DB_USER',
         'PASSWORD': '$DB_PASS',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
+        'HOST': '$DB_HOST',
+        'PORT': '$DB_PORT'
     }
 }
 
@@ -204,6 +216,35 @@ pushd "$ANGULAR_ROOT"
     # Hu preserves home directory settings.
     sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh
 popd
+
+#########################
+# Windshaft setup       #
+#########################
+windshaft_conf='// This file created by provision.sh, and will be overwritten if reprovisioned.
+{
+    "redis_host": "$REDIS_HOST",
+    "redis_port": "$REDIS_PORT",
+    "db_user": "$DB_USER",
+    "db_pass": "$DB_PASS",
+    "db_host": "$DB_HOST",
+    "db_port": "$DB_PORT",
+}
+'
+
+pushd $WINDSHAFT_ROOT
+    echo "$windshaft_conf" > settings.json
+    npm install
+popd
+
+# create test table for Windshaft
+# TODO:  eventually make something for real data instead
+if [ "$INSTALL_TYPE" == "development" ]
+then
+    echo "Adding test table for Windshaft."
+    pushd $PROJECT_ROOT
+        sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
+    popd
+fi
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
