@@ -1,0 +1,17 @@
+{
+    "name": "open-transit-indicators-tiler",
+    "version": "0.0.1-SNAPSHOT",
+    "description": "Wraps Windshaft to provide map tiles for Open Transit Indicators",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WorldBank-Transport/open-transit-indicators"
+    },
+    "dependencies": {
+        "windshaft": "git+https://github.com/CartoDB/Windshaft.git#0de3b48cbd96f4949baa59ced8a75a327398d77a"
+    },
+    "main": "./server.js",
+    "licenses": [{
+        "type": "BSD",
+        "url": "https://github.com/Vizzuality/Windshaft/blob/master/LICENCE"
+    }]
+}

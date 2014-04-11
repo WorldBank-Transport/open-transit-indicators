@@ -21,17 +21,25 @@ fi
 #########################################
 # Installation configuration parameters #
 #########################################
+
+HOST='127.0.0.1'  # TODO: set for production / jenkins
+
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
-WINDSHAFT_ROOT='/var/local/Windshaft'  # Going to check out 'Windshaft' repo into /var/local
+WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
 DB_USER=$DB_NAME
+DB_HOST=$HOST
+DB_PORT='5432'
 VHOST_NAME=$DB_NAME
+
+REDIS_HOST=$HOST
+REDIS_PORT='6379'
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -167,8 +175,8 @@ DATABASES = {
         'NAME': '$DB_NAME',
         'USER': '$DB_USER',
         'PASSWORD': '$DB_PASS',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
+        'HOST': '$DB_HOST',
+        'PORT': '$DB_PORT'
     }
 }
 
@@ -212,61 +220,31 @@ popd
 #########################
 # Windshaft setup       #
 #########################
-windshaft_conf="// This file is created automatically by the provision script and will be overwritten 
-// if you re-run provision.sh.
-// Note, currently to run this server your table must have a column called 
-// the_geom_webmercator with SRID of 3857.
+windshaft_conf='// This file created by provision.sh, and will be overwritten if reprovisioned.
+{
+    "redis_host": "$REDIS_HOST",
+    "redis_port": "$REDIS_PORT",
+    "db_user": "$DB_USER",
+    "db_pass": "$DB_PASS",
+    "db_host": "$DB_HOST",
+    "db_port": "$DB_PORT",
+}
+'
 
-var Windshaft = require('./lib/windshaft');
-var _         = require('underscore');
-var config = {
-    base_url: '/database/:dbname/table/:table',
-    base_url_notable: '/database/:dbname',
-    grainstore: {
-                 datasource: {
-                    user:'$DB_USER',
-                    password:'$DB_PASS',
-                    host: '127.0.0.1',
-                    port: 5432
-                 }
-    }, //see grainstore npm for other options
-    redis: {host: '127.0.0.1', port: 6379},
-    enable_cors: true,
-    req2params: function(req, callback){
-
-        // specify the database column you'd like to interact with
-        req.params.interactivity = ['cartodb_id'];
-
-        // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
-        req.params =  _.extend({}, req.params);
-        _.extend(req.params, req.query);
-
-        // send the finished req object on
-        callback(null,req);
-    }
-};
-
-// Initialize tile server on port 4000
-var ws = new Windshaft.Server(config);
-ws.listen(4000);
-
-console.log('map tiles are now being served out of: http://127.0.0.1:4000' + config.base_url + '/:z/:x/:y');"
-
-pushd /var/local
-    rm -rf Windshaft
-    git clone https://github.com/CartoDB/Windshaft.git
-    pushd Windshaft
-        git checkout 0de3b48cbd96f4949baa59ced8a75a327398d77a  # last known passing build
-        npm install
-        # create server script; run Windshaft with 'node server.js'
-        echo "$windshaft_conf" > ./server.js
-    popd
+pushd $WINDSHAFT_ROOT
+    echo "$windshaft_conf" > settings.json
+    npm install
 popd
 
 # create test table for Windshaft
-pushd $PROJECT_ROOT
-    sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
-popd
+# TODO:  eventually make something for real data instead
+if [ "$INSTALL_TYPE" == "development" ]
+then
+    echo "Adding test table for Windshaft."
+    pushd $PROJECT_ROOT
+        sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
+    popd
+fi
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
