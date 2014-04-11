@@ -41,6 +41,11 @@ VHOST_NAME=$DB_NAME
 
 REDIS_HOST=$HOST
 REDIS_PORT='6379'
+VHOST_NAME=$DB_NAME
+
+GEOTRELLIS_HOST="http://127.0.0.1:8001"
+RABBIT_MQ_HOST="127.0.0.1"
+RABBIT_MQ_PORT="5672"
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -192,7 +197,7 @@ DATABASES = {
 MEDIA_ROOT = '$UPLOADS_ROOT'
 
 # RabbitMQ settings
-BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@127.0.0.1:5672/$VHOST_NAME'
+BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_NAME'
 "
     echo "$django_conf" > "$django_conf_file"
 
