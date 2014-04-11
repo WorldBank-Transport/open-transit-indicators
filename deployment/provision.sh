@@ -27,6 +27,7 @@ HOST='127.0.0.1'  # TODO: set for production / jenkins
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
+GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
@@ -248,6 +249,24 @@ then
 fi
 
 #########################
+# GeoTrellis setup      #
+#########################
+echo 'Setting up geotrellis'
+geotrellis_conf="start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $GEOTRELLIS_ROOT
+
+exec ./sbt run
+"
+geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
+echo "$geotrellis_conf" > "$geotrellis_conf_file"
+service oti-geotrellis restart
+echo "Geotrellis service now running"
+
+#########################
 # Gunicorn setup        #
 #########################
 echo ''
@@ -291,7 +310,7 @@ nginx_conf="server {
         try_files \$uri \$uri/ /index.html;
     }
 
-    location /gt {
+    location (/gt) {
         proxy_pass $GEOTRELLIS_HOST;
         proxy_redirect off;
         proxy_set_header Host \$host;
