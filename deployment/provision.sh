@@ -215,7 +215,7 @@ popd
 pushd "$ANGULAR_ROOT"
     # Bower gets angry if you run it as root, so external script again.
     # Hu preserves home directory settings.
-    sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh
+    sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh "$INSTALL_TYPE"
 popd
 
 #########################

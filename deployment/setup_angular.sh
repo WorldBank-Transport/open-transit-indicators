@@ -5,3 +5,10 @@ set -o errexit
 
 bower install --config.interactive=false
 npm install
+
+INSTALL_TYPE=$1
+
+if [ "$INSTALL_TYPE" = "production" ]
+then
+    grunt build
+fi
