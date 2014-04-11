@@ -210,19 +210,6 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 popd
 
 #########################
-# Feed validator setup  #
-#########################
-# install Google's transit feed validator
-# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
-pushd $TEMP_ROOT
-    wget https://googletransitdatafeed.googlecode.com/files/transitfeed-1.2.12.tar.gz
-    tar xzf transitfeed-1.2.12.tar.gz
-    pushd transitfeed-1.2.12
-        sudo python setup.py install
-    popd
-    rm -rf transitfeed-1.2.12 transitfeed-1.2.12.tar.gz
-
-#########################
 # Angular setup         #
 #########################
 pushd "$ANGULAR_ROOT"
