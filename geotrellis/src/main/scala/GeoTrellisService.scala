@@ -17,11 +17,14 @@ trait GeoTrellisService extends HttpService {
   def rootRoute = pingRoute
 
   // Endpoint for testing: browsing to /ping should return the text
-  def pingRoute = path("ping") {
-    get {
-      complete("pong!")
+  def pingRoute =
+    pathPrefix("gt") {
+      path("ping") {
+        get {
+          complete("pong!")
+        }
+      }
     }
-  }
 
   // This will be picked up by the runRoute(_) and used to intercept Exceptions
   implicit def OpenTransitGeoTrellisExceptionHandler(implicit log: LoggingContext) =
