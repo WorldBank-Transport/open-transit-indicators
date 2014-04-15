@@ -17,11 +17,13 @@ angular.module('transitIndicators')
  * in the problem table. Each class has a color associated
  * with it via bootstrap
  *
- * @param input <object> expects GTFSFeed problem object
+ * @param input <string> expects GTFSFeed problem type string
+ *     that should either be 'war' or 'err' depending on the
+ *     type of problem
  */
 .filter('problem_type', function() {
     return function(input) {
-        return input.type === 'war' ? 'danger' : 'warning';
+        return input === 'war' ? 'warning' : 'danger';
     };
 })
 /**
@@ -105,7 +107,7 @@ angular.module('transitIndicators')
 
 	/**
 	 * Helper method to get uploads using GTFSUploadService
-	 * 
+	 *
 	 * Broken out into a separate method because this is called
 	 * when the refresh button is clicked
 	 */

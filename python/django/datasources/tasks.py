@@ -64,23 +64,24 @@ def validate_gtfs(gtfsfeed_id):
     logger.debug('Finished loading gtfs file')
 
     # save individual problems in database
-    gtfsfeedproblems = []
+    problem_count = 0
     for problem in accumulator.problems:
         type = (GTFSFeedProblem.ProblemTypes.WARNING
                 if problem.IsWarning()
                 else GTFSFeedProblem.ProblemTypes.ERROR)
         description = problem.FormatProblem()
         title = get_problem_title(problem)
-        gtfsfeedproblem = GTFSFeedProblem(
+        obj, created = GTFSFeedProblem.objects.get_or_create(
             gtfsfeed=gtfsfeed,
             description=description,
             title=title,
             type=type)
-        gtfsfeedproblems.append(gtfsfeedproblem)
+        if created:
+            problem_count += 1
+
     logger.debug('Found %s problems in %s gtfs file',
-                 len(gtfsfeedproblems),
+                 problem_count,
                  gtfsfeed.source_file)
-    GTFSFeedProblem.objects.bulk_create(gtfsfeedproblems)
 
     # Update processing status
     gtfsfeed.is_processed = True

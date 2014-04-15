@@ -49,6 +49,8 @@ GEOTRELLIS_HOST="http://127.0.0.1:8001"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 
+GUNICORN_WORKERS=3
+
 # Create logs directory
 mkdir -p $LOG_ROOT
 
@@ -305,7 +307,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers 3 --log-file $LOG_ROOT/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
