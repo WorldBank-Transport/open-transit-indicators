@@ -31,6 +31,7 @@ GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
+LOG_ROOT="$PROJECT_ROOT/logs"
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
@@ -47,6 +48,9 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_HOST="http://127.0.0.1:8001"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
+
+# Create logs directory
+mkdir -p $LOG_ROOT
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -211,6 +215,29 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 popd
 
 #########################
+# Celery setup          #
+#########################
+echo ''
+echo "Setting up celery upstart service"
+
+celery_conf="
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+"
+
+celery_conf_file="/etc/init/oti-celery.conf"
+echo "$celery_conf" > "$celery_conf_file"
+service oti-celery restart
+
+echo "Finished setting up celery and background process started"
+
+#########################
 # Angular setup         #
 #########################
 pushd "$ANGULAR_ROOT"
@@ -278,7 +305,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers 3 --log-file /var/log/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+exec /usr/bin/gunicorn --workers 3 --log-file $LOG_ROOT/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
