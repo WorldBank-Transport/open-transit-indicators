@@ -1,8 +1,9 @@
 'use strict';
 
 angular
-  .module('angularApp', [
-    'ngCookies',
-    'ngResource',
-    'angularFileUpload'
+  .module('transitIndicators', [
+      'ngCookies',
+      'ngResource',
+      'angularFileUpload',
+      'ui.bootstrap'
   ]);
