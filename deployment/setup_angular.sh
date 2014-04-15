@@ -11,4 +11,6 @@ INSTALL_TYPE=$1
 if [ "$INSTALL_TYPE" = "production" ]
 then
     grunt build
+else
+    grunt compass
 fi

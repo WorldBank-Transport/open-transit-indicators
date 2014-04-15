@@ -101,7 +101,6 @@ popd
 # Install dependencies available via apt
 # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
 apt-get update
-apt-get -y upgrade
 apt-get -y install \
     git \
     python-pip \
@@ -111,7 +110,7 @@ apt-get -y install \
     ruby1.9.3 rubygems \
     openjdk-7-jre scala \
     rabbitmq-server \
-    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server
+    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
     nginx \
     gunicorn \
     rabbitmq-server
@@ -143,6 +142,7 @@ npm install -g grunt-cli yo generator-angular
 
 # Install ruby gems
 gem install -v 3.3.4 sass
+gem install -v 0.12.5 compass
 
 #########################
 # Database setup        #
@@ -249,16 +249,16 @@ popd
 #########################
 # Windshaft setup       #
 #########################
-windshaft_conf='// This file created by provision.sh, and will be overwritten if reprovisioned.
+windshaft_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
 {
-    "redis_host": "$REDIS_HOST",
-    "redis_port": "$REDIS_PORT",
-    "db_user": "$DB_USER",
-    "db_pass": "$DB_PASS",
-    "db_host": "$DB_HOST",
-    "db_port": "$DB_PORT",
+    \"redis_host\": \"$REDIS_HOST\",
+    \"redis_port\": \"$REDIS_PORT\",
+    \"db_user\": \"$DB_USER\",
+    \"db_pass\": \"$DB_PASS\",
+    \"db_host\": \"$DB_HOST\",
+    \"db_port\": \"$DB_PORT\",
 }
-'
+"
 
 pushd $WINDSHAFT_ROOT
     echo "$windshaft_conf" > settings.json
@@ -270,7 +270,7 @@ popd
 if [ "$INSTALL_TYPE" == "development" ]
 then
     echo "Adding test table for Windshaft."
-    pushd $PROJECT_ROOT
+    pushd $PROJECT_ROOT/deployment
         sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
     popd
 fi
@@ -337,7 +337,7 @@ nginx_conf="server {
         try_files \$uri \$uri/ /index.html;
     }
 
-    location (/gt) {
+    location /gt {
         proxy_pass $GEOTRELLIS_HOST;
         proxy_redirect off;
         proxy_set_header Host \$host;
@@ -358,6 +358,9 @@ nginx_conf="server {
 "
 nginx_conf_file="/etc/nginx/sites-enabled/oti"
 echo "$nginx_conf" > "$nginx_conf_file"
+
+echo 'Removing default nginx config'
+rm /etc/nginx/sites-enabled/default
 
 echo 'Restarting nginx'
 service nginx restart
