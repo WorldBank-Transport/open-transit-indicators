@@ -50,6 +50,9 @@ nosetests.xml
 # ignore django collect static
 /static/django
 
+# ignore logs
+logs/
+
 # Editor crap
 *.swp
 *.swo
@@ -75,3 +78,4 @@ project/target
 target
 .lib
 .tmp
+/js/angular/app/styles/main.css

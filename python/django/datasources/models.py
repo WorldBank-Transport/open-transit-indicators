@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
 class DataSource(models.Model):
     """Base model for data source models.
 
@@ -20,5 +21,21 @@ class DataSource(models.Model):
 class GTFSFeed(DataSource):
     """Represents a GTFS Feed (a zip file)."""
     is_valid = models.NullBooleanField()
-    validation_summary = models.CharField(max_length=255, blank=True, default='')
-    validation_results_file = models.FileField(null=True, blank=True)
+    is_processed = models.BooleanField(default=False)
+
+
+class GTFSFeedProblem(models.Model):
+    """Problem (either a warning or error) for a GTSFeed object"""
+
+    class ProblemTypes(object):
+        ERROR = 'err'
+        WARNING = 'war'
+        CHOICES = (
+            (ERROR, 'Error'),
+            (WARNING, 'Warning'),
+        )
+    type = models.CharField(max_length=3,
+                            choices=ProblemTypes.CHOICES)
+    description = models.TextField()
+    title = models.CharField(max_length=255)
+    gtfsfeed = models.ForeignKey(GTFSFeed)

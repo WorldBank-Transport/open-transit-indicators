@@ -7,6 +7,7 @@
         "url": "https://github.com/WorldBank-Transport/open-transit-indicators"
     },
     "dependencies": {
+        "mapnik": "0.7.25",
         "windshaft": "git+https://github.com/CartoDB/Windshaft.git#0de3b48cbd96f4949baa59ced8a75a327398d77a"
     },
     "main": "./server.js",

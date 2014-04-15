@@ -31,6 +31,7 @@ GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
+LOG_ROOT="$PROJECT_ROOT/logs"
 WEB_USER='vagrant' # User under which web service runs.
 
 DB_NAME="transit_indicators"
@@ -47,6 +48,11 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_HOST="http://127.0.0.1:8001"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
+
+GUNICORN_WORKERS=3
+
+# Create logs directory
+mkdir -p $LOG_ROOT
 
 # Set the install type. Should be one of [development|production|jenkins].
 INSTALL_TYPE=$1
@@ -97,7 +103,6 @@ popd
 # Install dependencies available via apt
 # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
 apt-get update
-apt-get -y upgrade
 apt-get -y install \
     git \
     python-pip \
@@ -107,7 +112,7 @@ apt-get -y install \
     ruby1.9.3 rubygems \
     openjdk-7-jre scala \
     rabbitmq-server \
-    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server
+    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
     nginx \
     gunicorn \
     rabbitmq-server
@@ -139,6 +144,7 @@ npm install -g grunt-cli yo generator-angular
 
 # Install ruby gems
 gem install -v 3.3.4 sass
+gem install -v 0.12.5 compass
 
 #########################
 # Database setup        #
@@ -211,6 +217,29 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 popd
 
 #########################
+# Celery setup          #
+#########################
+echo ''
+echo "Setting up celery upstart service"
+
+celery_conf="
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+"
+
+celery_conf_file="/etc/init/oti-celery.conf"
+echo "$celery_conf" > "$celery_conf_file"
+service oti-celery restart
+
+echo "Finished setting up celery and background process started"
+
+#########################
 # Angular setup         #
 #########################
 pushd "$ANGULAR_ROOT"
@@ -222,16 +251,16 @@ popd
 #########################
 # Windshaft setup       #
 #########################
-windshaft_conf='// This file created by provision.sh, and will be overwritten if reprovisioned.
+windshaft_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
 {
-    "redis_host": "$REDIS_HOST",
-    "redis_port": "$REDIS_PORT",
-    "db_user": "$DB_USER",
-    "db_pass": "$DB_PASS",
-    "db_host": "$DB_HOST",
-    "db_port": "$DB_PORT",
+    \"redis_host\": \"$REDIS_HOST\",
+    \"redis_port\": \"$REDIS_PORT\",
+    \"db_user\": \"$DB_USER\",
+    \"db_pass\": \"$DB_PASS\",
+    \"db_host\": \"$DB_HOST\",
+    \"db_port\": \"$DB_PORT\",
 }
-'
+"
 
 pushd $WINDSHAFT_ROOT
     echo "$windshaft_conf" > settings.json
@@ -243,7 +272,7 @@ popd
 if [ "$INSTALL_TYPE" == "development" ]
 then
     echo "Adding test table for Windshaft."
-    pushd $PROJECT_ROOT
+    pushd $PROJECT_ROOT/deployment
         sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
     popd
 fi
@@ -278,7 +307,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers 3 --log-file /var/log/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -310,7 +339,7 @@ nginx_conf="server {
         try_files \$uri \$uri/ /index.html;
     }
 
-    location (/gt) {
+    location /gt {
         proxy_pass $GEOTRELLIS_HOST;
         proxy_redirect off;
         proxy_set_header Host \$host;
@@ -331,6 +360,9 @@ nginx_conf="server {
 "
 nginx_conf_file="/etc/nginx/sites-enabled/oti"
 echo "$nginx_conf" > "$nginx_conf_file"
+
+echo 'Removing default nginx config'
+rm /etc/nginx/sites-enabled/default
 
 echo 'Restarting nginx'
 service nginx restart
