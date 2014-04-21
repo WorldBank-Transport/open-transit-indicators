@@ -48,3 +48,8 @@
 // Utility classes
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/utilities";
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/responsive-utilities";
+
+// Partials
+
+@import "base";
+@import "partials/typography";

@@ -1,0 +1,76 @@
+// Partial: Typography
+
+body {
+  @include rem(font-size, $h6);  
+  line-height: 1.563;
+}
+
+p {
+  margin: .5em 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @include rem(margin, 10, 0, 6, 0);
+  color: $heading-color;
+  font-weight: 400;  
+  line-height: 1.25;
+
+  &:first-child { 
+    margin-top: 0; 
+  }
+}
+
+h1, 
+.h1 {
+  @include rem (font-size, $h1);
+}
+
+h2, 
+.h2 {
+  @include rem (font-size, $h2);
+}
+
+h3, 
+.h3 {
+  @include rem (font-size, $h3);
+}
+
+h4, 
+.h4 {
+  @include rem (font-size, $h4);
+}
+
+h5, 
+.h5 {
+  @include rem (font-size, $h5);
+  @include rem(margin-bottom, 3*$munit);
+}
+
+h6, 
+.h6 {
+  @include rem (font-size, $h6);
+}
+
+label {
+  color: #888;  
+  display: block;
+}
+
+a {
+  color: $link-color;
+}
+
+// Reset fonts for relevant elements
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
