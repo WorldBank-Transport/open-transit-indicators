@@ -1,12 +1,12 @@
 // Partial: Typography
 
 body {
-  @include rem(font-size, $h6);  
+  @include rem(font-size, $h5);  
   line-height: 1.563;
 }
 
 p {
-  margin: .5em 0;
+  margin: 0 0 1em;
 }
 
 h1,
@@ -15,10 +15,10 @@ h3,
 h4,
 h5,
 h6 {
-  @include rem(margin, 10, 0, 6, 0);
   color: $heading-color;
-  font-weight: 400;  
+  font-weight: 600;  
   line-height: 1.25;
+  margin: .5em 0;
 
   &:first-child { 
     margin-top: 0; 
@@ -48,12 +48,6 @@ h4,
 h5, 
 .h5 {
   @include rem (font-size, $h5);
-  @include rem(margin-bottom, 3*$munit);
-}
-
-h6, 
-.h6 {
-  @include rem (font-size, $h6);
 }
 
 label {

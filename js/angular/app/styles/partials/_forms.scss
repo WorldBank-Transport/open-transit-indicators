@@ -1,0 +1,24 @@
+input {
+  border: solid 1px $light-line-grey;
+  width: 100%;
+  @include rem(height, 34);
+  @include rem(font-size, $h4);
+  @include rem(padding, 6);
+}
+select {
+  border: 1px solid $light-line-grey;
+  border-radius: 0;
+  margin: 0;
+  @include rem(height, 34);
+  @include rem(padding, 6);
+  @include rem(font-size, $h4);
+  width: 100%;
+}
+.settingsmodal-field--verticalcentered {
+  @include rem(line-height, 34);
+}
+.settingsmodal-add {
+  > a {
+    padding: 10px;
+  }
+}

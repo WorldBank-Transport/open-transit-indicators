@@ -1,0 +1,11 @@
+body {
+  @include rem(font-size, $h5);
+}
+
+.btn-link-danger {
+  color: $brand-danger;
+}
+
+.btn {
+  @include rem(font-size, $h5);
+}

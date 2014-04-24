@@ -1,0 +1,95 @@
+.settingsmodal-wrapper {
+  @include rem(padding, 30, 0);
+}
+.settingsmodal {
+  @include rem(max-width, 800);
+  background-color: white;
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 5;
+}
+.settingsmodal-body, .settingsmodal-sidebar {
+  display: table-cell;
+  vertical-align: top;
+}
+.settingsmodal-sidebar {
+  @include rem(width, 200);
+  border-right: 1px solid $light-line-grey;
+  vertical-align: top;
+}
+.settingsmodal-body {
+  @include rem(padding, 30, 40);
+  @include rem(width, 600);
+}
+.settingsmodal-sidebar-tab {
+  @include rem(font-size, $h4);
+  @include rem(padding, 12, 12);
+  border-bottom: 1px solid $light-line-grey;
+  cursor: pointer;
+  margin-right: -1px;
+  position: relative;
+  &.active {
+      border-right: 0px;
+      background-color: white;
+  }
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+.settingsmodal-gettingstarted-item {
+  @include rem(padding, 10, 0, 6, 0);
+}
+.settingsmodal-fieldgroup {
+  @include rem(margin, 12, 0);
+}
+.settingsmodal-gettingstarted-item-actions {
+  text-align: right;
+}
+.settingsmodal-gettingstarted-item-optional {
+  @include rem(font-size, $h5);
+  @include rem(margin-left, 10);
+  color: $light-line-grey;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+.dropzone {
+  @include rem(margin-bottom, 30);
+  @include rem(padding, 20);
+  border: dashed 1px $light-line-grey;
+  &.inprogress {
+    border-style: solid;
+  }
+  &.notices {
+    border-style: solid;
+  }
+}
+.settingsmodal-notices-warnings {
+  color: $warning-orange;
+  h1, h2, h3, h4, h5 {
+    color: inherit;
+  }
+}
+.settingsmodal-newuser {
+  @include rem(padding, 10);
+  background-color: $lighter-bg-grey;
+}
+.settingsmodal-notices-errors {
+  color: $error-red;
+  h1, h2, h3, h4, h5 {
+    color: inherit;
+  }
+}
+table {
+  width: 100%;
+  > tbody {
+    > tr:nth-child(2n) {
+      background-color: $lighter-bg-grey;
+    }
+  }
+}
+td, th {
+  text-align: left;
+  @include rem(padding, 10);
+}
