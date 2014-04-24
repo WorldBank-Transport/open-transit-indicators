@@ -5,6 +5,7 @@ import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
+import com.typesafe.config.{ConfigFactory,Config}
 import geotrellis._
 import geotrellis.process.{Error, Complete}
 import geotrellis.render.ColorRamps
@@ -18,13 +19,18 @@ import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 
 trait GeoTrellisService extends HttpService {
+  val config = ConfigFactory.load
+  val dbName = config.getString("database.name")
+  val dbUser = config.getString("database.user")
+  val dbPassword = config.getString("database.password")
+
   // All the routes that are defined by our API
   def rootRoute = pingRoute ~ gtfsRoute
 
   // Database setup
   val dao = new DAO(PostgresDriver, PostgresJodaSupport)
-  val db = Database.forURL("jdbc:postgresql:transit_indicators", driver = "org.postgresql.Driver",
-    user = "transit_indicators", password = "transit_indicators")
+  val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
+    user = dbUser, password = dbPassword)
 
   // Endpoint for testing: browsing to /ping should return the text
   def pingRoute =

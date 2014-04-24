@@ -45,7 +45,9 @@ REDIS_HOST=$HOST
 REDIS_PORT='6379'
 VHOST_NAME=$DB_NAME
 
-GEOTRELLIS_HOST="http://127.0.0.1:8001"
+GEOTRELLIS_PORT=8001
+GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
+GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 
@@ -281,6 +283,19 @@ fi
 # GeoTrellis setup      #
 #########################
 echo 'Setting up geotrellis'
+
+gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
+geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
+geotrellis.port = \"$GEOTRELLIS_PORT\"
+database.name = \"$DB_NAME\"
+database.user = \"$DB_USER\"
+database.password = \"$DB_PASS\"
+"
+
+pushd $GEOTRELLIS_ROOT/src/main/resources/
+    echo "$gt_application_conf" > application.conf
+popd
+
 geotrellis_conf="start on runlevel [2345]
 stop on runlevel [!2345]
 
