@@ -5,13 +5,16 @@ $medium-blue            : rgb(93, 122, 146); // Light Blue
 $heading-color          : rgb(0, 0, 0);
 $text-color             : rgb(0, 0, 0);
 $two-percent            : rgb(0, 0, 0);
+$lighter-bg-grey        : rgb(230, 230, 230);
+$light-line-grey        : rgb(200, 200, 200);
+$error-red              : rgb(223, 26, 35);
+$warning-orange         : rgb(207, 136, 19);
 // http://modularscale.com/scale/?px1=13&px2=&ra1=1.25&ra2=0
-$h1                     : 39.674;
-$h2                     : 31.739;
-$h3                     : 25.391;
-$h4                     : 20.313;
-$h5                     : 16.25;
-$h6                     : 13;
+$h1                     : 41.046;
+$h2                     : 30.792;
+$h3                     : 23.1;
+$h4                     : 17.329;
+$h5                     : 13;
 $munit                  : 6.656;
 $grid-rows              : 16;
 $grid-columns           : 12 !default;
