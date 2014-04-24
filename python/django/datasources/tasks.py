@@ -1,12 +1,16 @@
-from transitfeed import (
-    GetGtfsFactory,
-    ProblemReporter,
-    ProblemAccumulatorInterface)
+import os
+import os.path
 import re
-from datasources.models import GTFSFeed, GTFSFeedProblem
+import requests
+import zipfile
 
-from transit_indicators.celery_settings import app
 from celery.utils.log import get_task_logger
+from django.conf import settings
+from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInterface
+from urllib import urlencode
+
+from datasources.models import GTFSFeed, GTFSFeedProblem
+from transit_indicators.celery_settings import app
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -83,6 +87,44 @@ def validate_gtfs(gtfsfeed_id):
                  problem_count,
                  gtfsfeed.source_file)
 
+    # send to GeoTrellis
+    result = send_to_geotrellis(gtfsfeed.source_file)
+
     # Update processing status
-    gtfsfeed.is_processed = True
+    gtfsfeed.is_processed = result
     gtfsfeed.save()
+
+
+def send_to_geotrellis(gtfs_file):
+    """Sends GTFS data to GeoTrellis for storage
+
+    Note: this makes use of the current assumption that GeoTrellis is running
+    on the same machine as Django, and can therefore share files. If that ever
+    changes, this will need to be altered to either send the GTFS zip file itself
+    (and add unzipping to the GeoTrellis portion), or use a shared resource,
+    such as s3, and add URI-fetching to the GeoTrellis portion.
+
+    Arguments:
+    :returns: Whether or not the file was processed successfully
+    """
+    zip_dir = '%s_unzipped' % gtfs_file.path
+    if not os.path.exists(zip_dir):
+        os.makedirs(zip_dir)
+
+    zip_file = zipfile.ZipFile(gtfs_file)
+    for name in zip_file.namelist():
+        outfile = open(os.path.join(zip_dir, name), 'wb')
+        outfile.write(zip_file.read(name))
+        outfile.close()
+
+    try:
+        params = {'gtfsDir': zip_dir}
+        response = requests.post('http://localhost/gt/gtfs?%s' % urlencode(params))
+        logger.debug('GeoTrellis response: %s', response.text)
+        data = response.json()
+        success = data['success']
+    except ValueError:
+        logger.exception('Error when parsing GeoTrellis response')
+        success = False
+
+    return success

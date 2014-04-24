@@ -75,6 +75,7 @@ project/boot
 project/plugins/project
 project/plugins/target
 project/target
+resources/application.conf
 target
 .lib
 .tmp

@@ -32,6 +32,10 @@ has_spatial_db=$?
 if [ 0 -ne $has_spatial_db ]; then
     # Create the app database
     createdb --owner=$DB_USER $DB_NAME --template=template_postgis
+
+    # Setup the GTFS tables. These are used by GeoTrellis and Windshaft and shouldn't
+    # need to be accessed from within Django, which is why they are not set up as models.
+    psql -d $DB_NAME -f ./deployment/setup_gtfs.sql
 else
     echo 'Spatial database already exists; skipping.'
 fi
