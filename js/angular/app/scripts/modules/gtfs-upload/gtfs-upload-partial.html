@@ -1,6 +1,6 @@
 <div ng-init="init()" ng-controller="GTFSUploadController">
   <div class="row">
-    <div class="span8 offset2">
+    <div class="col-sm-8 col-sm-offset-2">
       <form novalidate class="simple-form">
 	<label>Upload GTFS Feed</label>
 	<input type="file" ng-file-select="onFileSelect($files)" />
@@ -12,7 +12,7 @@
   <div class="row">
     <h2>GTFS Uploads</h2>
     <button ng-click="getUploads()"><span class="glyphicon glyphicon-refresh"></span></button>
-    <div class="span8 offset2">
+    <div class="col-sm-8 col-sm-offset-2">
       <table class="table">
 
         <tr>
@@ -39,7 +39,7 @@
     </div>
   </div>
   <div class="row" ng-show="uploadProblems">
-    <div class="span8 offset2">
+    <div class="col-sm-8 col-sm-offset-2">
       <h2>GTFS Problems</h2>
       <pagination direction-links="false" boundary-links="true"
                   items-per-page="problemsPerPage" on-select-page="updatePagination(page)"
