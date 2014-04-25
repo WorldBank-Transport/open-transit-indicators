@@ -1,94 +1,55 @@
-// bower:scss
-// endbower
+// Core variables and mixins
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/variables";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/mixins";
 
-.browsehappy {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
-    padding: 0.2em 0;
-}
+// Reset and dependencies
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/normalize";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/print";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/glyphicons";
 
-/* Space out content a bit */
-body {
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
+// Core CSS
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/scaffolding";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/type";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/code";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/grid";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/tables";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/forms";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/buttons";
 
-/* Everything but the jumbotron gets side spacing for mobile first views */
-.header,
-.marketing,
-.footer {
-    padding-left: 15px;
-    padding-right: 15px;
-}
+// Components
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/component-animations";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/dropdowns";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/button-groups";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/input-groups";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/navs";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/navbar";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/breadcrumbs";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/pagination";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/pager";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/labels";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/badges";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/jumbotron";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/thumbnails";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/alerts";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/progress-bars";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/media";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/list-group";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/panels";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/responsive-embed";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/wells";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/close";
 
-/* Custom page header */
-.header {
-    border-bottom: 1px solid #e5e5e5;
-}
+// Components w/ JavaScript
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/modals";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/tooltip";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/popovers";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/carousel";
 
-/* Make the masthead heading the same height as the navigation */
-.header h3 {
-    margin-top: 0;
-    margin-bottom: 0;
-    line-height: 40px;
-    padding-bottom: 19px;
-}
+// Utility classes
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/utilities";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/responsive-utilities";
 
-/* Custom page footer */
-.footer {
-    padding-top: 19px;
-    color: #777;
-    border-top: 1px solid #e5e5e5;
-}
+// Partials
 
-.container-narrow > hr {
-    margin: 30px 0;
-}
-
-/* Main marketing message and sign up button */
-.jumbotron {
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.jumbotron .btn {
-    font-size: 21px;
-    padding: 14px 24px;
-}
-
-/* Supporting marketing content */
-.marketing {
-    margin: 40px 0;
-}
-
-.marketing p + h4 {
-    margin-top: 28px;
-}
-
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-    .container {
-        max-width: 730px;
-    }
-
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    /* Space out the masthead */
-    .header {
-        margin-bottom: 30px;
-    }
-    /* Remove the bottom border on the jumbotron for visual effect */
-    .jumbotron {
-        border-bottom: 0;
-    }
-}
-
-a:hover {
-  cursor: pointer;
-}
+@import "base";
+@import "partials/typography";

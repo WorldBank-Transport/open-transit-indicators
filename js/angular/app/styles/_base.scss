@@ -1,0 +1,86 @@
+// Variables
+
+$light-blue             : rgb(65, 188, 255); // Light Blue
+$medium-blue            : rgb(93, 122, 146); // Light Blue
+$heading-color          : rgb(0, 0, 0);
+$text-color             : rgb(0, 0, 0);
+$two-percent            : rgb(0, 0, 0);
+// http://modularscale.com/scale/?px1=13&px2=&ra1=1.25&ra2=0
+$h1                     : 39.674;
+$h2                     : 31.739;
+$h3                     : 25.391;
+$h4                     : 20.313;
+$h5                     : 16.25;
+$h6                     : 13;
+$munit                  : 6.656;
+$grid-rows              : 16;
+$grid-columns           : 12 !default;
+$grid-gutter-width      : 16 !default;
+$loops                  : 20 !default;
+
+//== Media queries breakpoints
+//
+//## Define the breakpoints at which your layout will change, adapting to different screen sizes.
+
+// Extra small screen / phone
+// Note: Deprecated $screen-xs and $screen-phone as of v3.0.1
+$screen-xs:                  480px !default;
+$screen-xs-min:              $screen-xs !default;
+$screen-phone:               $screen-xs-min !default;
+
+// Small screen / tablet
+// Note: Deprecated $screen-sm and $screen-tablet as of v3.0.1
+$screen-sm:                  768px !default;
+$screen-sm-min:              $screen-sm !default;
+$screen-tablet:              $screen-sm-min !default;
+
+// Medium screen / desktop
+// Note: Deprecated $screen-md and $screen-desktop as of v3.0.1
+$screen-md:                  992px !default;
+$screen-md-min:              $screen-md !default;
+$screen-desktop:             $screen-md-min !default;
+
+// Large screen / wide desktop
+// Note: Deprecated $screen-lg and $screen-lg-desktop as of v3.0.1
+$screen-lg:                  1200px !default;
+$screen-lg-min:              $screen-lg !default;
+$screen-lg-desktop:          $screen-lg-min !default;
+
+// So media queries don't overlap when required, provide a maximum
+$screen-xs-max:              ($screen-sm-min - 1) !default;
+$screen-sm-max:              ($screen-md-min - 1) !default;
+$screen-md-max:              ($screen-lg-min - 1) !default;
+
+// Rem with pixel fallback mixin
+
+@mixin rem($property, $values...) {
+  $max: length($values);
+  $remvalues: '';
+  $remValues: '';
+  @for $i from 1 through $max {
+    $value: nth($values, $i);
+    @if type-of($value) == "number" {
+      $remvalues: #{$remvalues + $value}px;
+    }
+    @else {
+      $remvalues: #{$remvalues + $value};
+    }
+    @if $i < $max {
+      $remvalues: #{$remvalues + " "};
+    }
+  } 
+  @for $i from 1 through $max {
+    $value: nth($values, $i);
+    @if type-of($value) == "number" {
+      $remValues: #{$remValues + $value/10}rem;
+    }
+    @else {
+      $remValues: #{$remValues + $value};
+    }
+    @if $i < $max {
+      $remValues: #{$remValues + " "};
+    }
+  } 
+    #{$property}: $remvalues; 
+    #{$property}: $remValues; 
+}
