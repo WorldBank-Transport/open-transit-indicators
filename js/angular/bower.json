@@ -9,6 +9,7 @@
     "angular-resource": "1.2.15",
     "angular-cookies": "1.2.15",
     "ng-file-upload": "1.3.1",
+    "angular-ui-router": "0.2.10",
     "angular-leaflet-directive": "0.7.6",
     "angular-translate": "2.1.0",
     "angular-bootstrap": "0.10.0",
