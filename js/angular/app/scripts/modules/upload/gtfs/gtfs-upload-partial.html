@@ -2,7 +2,7 @@
     <div class="settingsmodal clearfix">
         <div class="settingsmodal-sidebar clearfix">
             <div class="settingsmodal-sidebar-tab">Overview</div>
-            <div class="settingsmodal-sidebar-tab active">GTFS</div>
+            <div class="settingsmodal-sidebar-tab active">GTFS<span ng-show="uploadProgress === STATUS.DONE" class="pull-right glyphicon glyphicon-ok"></span></div>
             <div class="settingsmodal-sidebar-tab">Boundary</div>
             <div class="settingsmodal-sidebar-tab">Demographic</div>
             <div class="settingsmodal-sidebar-tab">Real-time</div>
@@ -14,30 +14,46 @@
         Should have "dropzone" drag and drop upload process like this: http://buildinternet.com/2013/08/drag-and-drop-file-upload-with-angularjs/
         -->
         <div class="settingsmodal-body">
-            <h1>GTFS</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
-            <div class="dropzone" ng-show="uploadProgress === -1">
-                <div class="h4" ng-file-drop="onFileSelect($files)" ng-file-drop-available="true">Drop file here or </div>
-                <input type="file" ng-file-select="onFileSelect($files)" />
-            </div>
-            <div class="dropzone inprogress" ng-show="uploadProgress > -1">
-                <div class="h4">Processing your file ({{ uploadProgress }}%) <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>
-            </div>
-            <div class="dropzone notices" ng-show="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
-                <div class="h4"><span class="glyphicon glyphicon-star"></span> GTFS Upload Failed <span class="h5"><a ng-click="clearUpload()">Try Again</a></span></div>
-                <div class="settingsmodal-notices">
-                    <div class="settingsmodal-notices-errors">
-                        <h5>Errors</h5>
-                        <ul>
-                            <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
-                        </ul>
+            <div ng-show="gtfsUpload !== null">
+                <h1>GTFS</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+                <div class="dropzone" ng-if="uploadProgress === STATUS.START">
+                    <div class="h4" ng-file-drop="onFileSelect($files)" ng-file-drop-available="true">Drop file here or </div>
+                    <input type="file" ng-file-select="onFileSelect($files)" />
+                </div>
+                <div class="dropzone" ng-if="uploadProgress === STATUS.DONE">
+                    <div class="h3">
+                        <span class="glyphicon glyphicon-ok"></span> GTFS Data Loaded 
+                        <span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">Delete Data</button></span>
+                        <!-- TODO: Implement once map view is live -->
+                        <!--<span class="h5 pull-right"><button class="btn btn-primary" ng-click="todoRouteToMapView()">Preview Map</button></span>-->
                     </div>
                 </div>
-                <div class="settingsmodal-notices-warnings">
-                    <h5>Warnings</h5>
-                    <ul>
-                        <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
-                    </ul>
+                <div class="dropzone inprogress" ng-show="uploadProgress >= 0 && uploadProgress <= 100">
+                    <div class="h4">Uploading your file ({{ uploadProgress }}%) <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>
+                    <div class="h4" ng-show="uploadProgress === 100">Processing...</div>
+                </div>
+                <div class="dropzone notices" ng-if="uploadProgress === STATUS.UPLOADERROR">
+                    <div class="h4">
+                        <span class="glyphicon glyphicon-remove"></span> GTFS Upload Failed {{ uploadError }} 
+                        <span class="h5"><a ng-click="cancel()">Try Again</a></span>
+                    </div>
+                    <div ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
+                        <div class="settingsmodal-notices">
+                            <div class="settingsmodal-notices-errors">
+                                <h4>Errors</h4>
+                                <ul>
+                                    <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="settingsmodal-notices-warnings">
+                            <h4>Warnings</h4>
+                            <ul>
+                                <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

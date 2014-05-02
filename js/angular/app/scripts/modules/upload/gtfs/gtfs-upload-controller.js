@@ -30,8 +30,13 @@ angular.module('transitIndicators')
  * Main controller for GTFS upload page
  */
 .controller('GTFSUploadController',
-    ['$scope', '$upload', 'GTFSUploadService',
-    function ($scope, $upload, GTFSUploadService) {
+    ['$scope', '$timeout', '$upload', 'GTFSUploadService',
+    function ($scope, $timeout, $upload, GTFSUploadService) {
+
+    // Milliseconds timeout for the upload status
+    var POLLING_MILLIS = 1000;
+    // Number of milliseconds to timeout the upload check
+    var TIMEOUT_MILLIS = 1000 * 60;
 
     /**
      * Cancels the upload of all active upload processes
@@ -40,19 +45,11 @@ angular.module('transitIndicators')
         console.log('Canceling uploads...');
 
         if ($scope.upload && $scope.upload.abort) {
+            console.log('Aborting: ', $scope.upload);
             $scope.upload.abort();
         }
+        $timeout.cancel($scope.timeoutId);
         $scope.clearUploadProblems();
-    };
-
-    /**
-     * Set a timeout to query the gtfs-feeds endpoint for
-     * upload processing updates. Set UI state once
-     * processing errors or returns
-     */
-    $scope.checkUpload = function (upload) {
-        console.log('Check upload:', upload);
-        $scope.viewProblems(upload);
     };
 
     /**
@@ -64,10 +61,37 @@ angular.module('transitIndicators')
             errors: []
         };
         $scope.metadata = {};
-        $scope.uploadProgress = -1;
+        $scope.uploadProgress = $scope.STATUS.START;
+        $scope.uploadError = null;
     };
 
-	// Upload functions
+    /**
+     * Set is_valid on current gtfsfeed to false
+     * so that a new feed can be uploaded
+     */
+    $scope.delete = function () {
+        // TODO: Implement once permissions/authentication is solved
+        //$scope.gtfsUpload.is_valid = false;
+        //$scope.gtfsUpload.$update().then(function () {
+        $scope.gtfsUpload = {};
+        $scope.uploadProgress = $scope.STATUS.START;
+        //});
+    };
+
+    /*
+     * Set an uploader error (displays the error UI div)
+     * @param msg: An optional string message to display to the user.
+     */
+    $scope.setUploadError = function (msg) {
+        if (msg) {
+            $scope.uploadError = msg;
+        }
+        $scope.uploadProgress = $scope.STATUS.UPLOADERROR;
+    };
+
+	/*
+     * Prep file for upload
+     */
     $scope.onFileSelect = function($files) {
 
         $scope.cancel();
@@ -97,13 +121,51 @@ angular.module('transitIndicators')
             fileFormDataName: 'source_file',
             file: file
         }).progress(function (evt) {
-            // Allow upload to be 75% of progress, other 25% is backend processing
-            $scope.uploadProgress = parseInt(75.0 * evt.loaded / evt.total, 10);
+
+            if ($scope.uploadProgress === $scope.STATUS.UPLOADERROR) {
+                return;
+            }
+            $scope.uploadProgress = parseInt(evt.loaded / evt.total, 10);
+
         }).success(function(data, status, headers, config) {
-            $scope.checkUpload(data);
+
+            $scope.uploadProgress = 100;
+            onUploadSuccess(data);
+
 	    }).error(function(data, status, headers, config) {
-            console.log('Error: ', data);
+
+            var msg = status;
+            if (data.source_file) {
+                msg += ' -- ' + (data.source_file[0] || 'Unknown');
+            }
+            $scope.setUploadError(msg);
+
         });
+    };
+
+    var onUploadSuccess = function (upload) {
+        var startDatetime = new Date();
+        var checkUpload = function () {
+            var nowDatetime = new Date();
+            if (nowDatetime.getTime() - startDatetime.getTime() > TIMEOUT_MILLIS) {
+                $scope.setUploadError('Upload timeout');
+            } else if (upload.is_valid === null) {
+                $scope.timeoutId = $timeout(function () {
+                    upload = GTFSUploadService.gtfsUploads.get({id: upload.id}, function () {
+                        checkUpload();
+                    });
+                }, POLLING_MILLIS);
+            } else if (upload.is_valid && !upload.is_processed) {
+                $scope.setUploadError('Geotrellis unavailable');
+            } else if (!upload.is_valid) {
+                $scope.viewProblems(upload);
+                $scope.setUploadError();
+            } else {
+                $scope.gtfsUpload = upload;
+                $scope.uploadProgress = $scope.STATUS.DONE;
+            }
+        };
+        checkUpload();
     };
 
     /**
@@ -127,26 +189,22 @@ angular.module('transitIndicators')
             });
     };
 
-    /**
-     * Helper method to get uploads using GTFSUploadService
-     *
-     * Broken out into a separate method because this is called
-     * when the refresh button is clicked
-     */
-    $scope.getGTFSUploads = function() {
-        $scope.gtfsUploads = GTFSUploadService.gtfsUploads.query({}, function(data) {
-            return data;
-        });
-    };
-
 	// Set initial scope variables and constants
-	$scope.gtfsUpload = null;
+    $scope.STATUS = GTFSUploadService.STATUS;
+    $scope.gtfsUpload = null;
     $scope.clearUploadProblems();
     $scope.files = null;
-	$scope.problemsPerPage = 5;
+    $scope.timeoutId = null;
 
     $scope.init = function () {
+        $scope.gtfsUploads = GTFSUploadService.gtfsUploads.query({}, function (uploads) {
+            $scope.gtfsUpload = _.filter(uploads, function (upload) {
+                return upload.is_valid === true && upload.is_processed === true;
+            });
 
+            $scope.uploadProgress = $scope.STATUS.DONE;
+            console.log($scope.gtfsUpload);
+        });
     };
 
 }]);
