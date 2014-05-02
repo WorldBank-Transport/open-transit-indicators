@@ -1,60 +1,45 @@
-<div ng-init="init()" ng-controller="GTFSUploadController">
-  <div class="row">
-    <div class="col-sm-8 col-sm-offset-2">
-      <form novalidate class="simple-form">
-	<label>Upload GTFS Feed</label>
-	<input type="file" ng-file-select="onFileSelect($files)" />
-	<br>
-	<button ng-click="upload()" class="btn btn-primary" type="button">Upload</button>
-      </form>
+<div class="settingsmodal-wrapper" ng-init="init()">
+    <div class="settingsmodal clearfix">
+        <div class="settingsmodal-sidebar clearfix">
+            <div class="settingsmodal-sidebar-tab">Overview</div>
+            <div class="settingsmodal-sidebar-tab active">GTFS</div>
+            <div class="settingsmodal-sidebar-tab">Boundary</div>
+            <div class="settingsmodal-sidebar-tab">Demographic</div>
+            <div class="settingsmodal-sidebar-tab">Real-time</div>
+            <div class="settingsmodal-sidebar-tab">Configuration</div>
+            <div class="settingsmodal-sidebar-tab">Users</div>
+            <div class="settingsmodal-sidebar-tab">View Map</div>
+        </div>
+        <!-- Data Loading Page:
+        Should have "dropzone" drag and drop upload process like this: http://buildinternet.com/2013/08/drag-and-drop-file-upload-with-angularjs/
+        -->
+        <div class="settingsmodal-body">
+            <h1>GTFS</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+            <div class="dropzone" ng-show="uploadProgress === -1">
+                <div class="h4" ng-file-drop="onFileSelect($files)" ng-file-drop-available="true">Drop file here or </div>
+                <input type="file" ng-file-select="onFileSelect($files)" />
+            </div>
+            <div class="dropzone inprogress" ng-show="uploadProgress > -1">
+                <div class="h4">Processing your file ({{ uploadProgress }}%) <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>
+            </div>
+            <div class="dropzone notices" ng-show="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
+                <div class="h4"><span class="glyphicon glyphicon-star"></span> GTFS Upload Failed <span class="h5"><a ng-click="clearUpload()">Try Again</a></span></div>
+                <div class="settingsmodal-notices">
+                    <div class="settingsmodal-notices-errors">
+                        <h5>Errors</h5>
+                        <ul>
+                            <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="settingsmodal-notices-warnings">
+                    <h5>Warnings</h5>
+                    <ul>
+                        <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="row">
-    <h2>GTFS Uploads</h2>
-    <button ng-click="getUploads()"><span class="glyphicon glyphicon-refresh"></span></button>
-    <div class="col-sm-8 col-sm-offset-2">
-      <table class="table">
-
-        <tr>
-          <th>Upload Status</th>
-          <th>Uploaded Time</th>
-          <th>Warnings</th>
-          <th>Errors</th>
-          <th></th>
-        </tr>
-
-        <tr ng-repeat="upload in uploads">
-          <td>{{upload.is_processed | processing_status}}</td>
-          <td>{{upload.create_date}}</td>
-          <td class="warning">{{upload.problems.warnings}}</td>
-          <td class="danger">{{upload.problems.errors}}</td>
-          <td>
-            <a ng-show="{{upload.problems.warnings > 0 || upload.problems.errors > 0}}"
-                  ng-click="viewProblems(upload)">
-              View Problems
-            </a>
-          </td>
-        </tr>
-      </table>
-    </div>
-  </div>
-  <div class="row" ng-show="uploadProblems">
-    <div class="col-sm-8 col-sm-offset-2">
-      <h2>GTFS Problems</h2>
-      <pagination direction-links="false" boundary-links="true"
-                  items-per-page="problemsPerPage" on-select-page="updatePagination(page)"
-                  total-items="problemsLength" page="currentPage">
-      </pagination>
-      <table class="table table-hover">
-        <tr>
-          <th>Problem Type</th>
-          <th>Problem Description</th>
-        </tr>
-        <tr ng-repeat="problem in uploadProblemsPaginated" class="{{problem.type | problem_type}}">
-          <td>{{problem.title}}</td>
-          <td>{{problem.description}}</td>
-        </tr>
-      </table>
-    </div>
-  </div>
 </div>
