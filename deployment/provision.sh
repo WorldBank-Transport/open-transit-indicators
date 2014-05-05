@@ -112,7 +112,7 @@ apt-get -y install \
     postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
     nodejs \
     ruby1.9.3 rubygems \
-    openjdk-7-jre scala \
+    openjdk-7-jre openjdk-7-jdk scala \
     rabbitmq-server \
     libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
     nginx \
