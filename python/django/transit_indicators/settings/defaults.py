@@ -77,6 +77,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/projects/open-transit-indicators/static' 
+
 # Celery settings -- only use JSON for serialization
 # Set because upstart runs as superuser and celery complains
 # if we allow pickling of object as superuser

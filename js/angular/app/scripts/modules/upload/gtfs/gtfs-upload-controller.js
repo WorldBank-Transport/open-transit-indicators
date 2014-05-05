@@ -30,97 +30,181 @@ angular.module('transitIndicators')
  * Main controller for GTFS upload page
  */
 .controller('GTFSUploadController',
-    ['$scope', '$upload', 'GTFSUploadService',
-    function ($scope, $upload, GTFSUploadService) {
+    ['$scope', '$timeout', '$upload', 'GTFSUploadService',
+    function ($scope, $timeout, $upload, GTFSUploadService) {
 
-	// Set initial scope variables and constants
-	$scope.metadata = {};
-	$scope.uploads = [];
-        $scope.uploadProblems = null;
-        $scope.files = null;
-	$scope.problemsPerPage = 5;
+    // Milliseconds timeout for the upload status
+    var POLLING_MILLIS = 1000;
+    // Number of milliseconds to timeout the upload check
+    var TIMEOUT_MILLIS = 1000 * 60;
 
-	// Upload functions
-        $scope.onFileSelect = function($files) {
-            // $files: an array of selected files, each with name, size, and type.
-            $scope.files = $files;
-            $scope.metadata.source_file = $files[0].name;
+    /**
+     * Cancels the upload of all active upload processes
+     */
+    $scope.cancel = function () {
+        console.log('Canceling uploads...');
+
+        if ($scope.upload && $scope.upload.abort) {
+            console.log('Aborting: ', $scope.upload);
+            $scope.upload.abort();
+        }
+        $timeout.cancel($scope.timeoutId);
+        $scope.clearUploadProblems();
+    };
+
+    /**
+     * Clears the uploadProblems dict
+     */
+    $scope.clearUploadProblems = function () {
+        $scope.uploadProblems = {
+            warnings: [],
+            errors: []
         };
+        $scope.metadata = {};
+        $scope.uploadProgress = $scope.STATUS.START;
+        $scope.uploadError = null;
+    };
 
-	/**
-	 * Function to handle uploading of file
-	 */
-        $scope.upload = function () {
-            console.log("Uploading file...");
-            if (!$scope.files) {
+    /**
+     * Set is_valid on current gtfsfeed to false
+     * so that a new feed can be uploaded
+     */
+    $scope.delete = function () {
+        // TODO: Implement once permissions/authentication is solved
+        //$scope.gtfsUpload.is_valid = false;
+        //$scope.gtfsUpload.$update().then(function () {
+        $scope.gtfsUpload = {};
+        $scope.uploadProgress = $scope.STATUS.START;
+        //});
+    };
+
+    /*
+     * Set an uploader error (displays the error UI div)
+     * @param msg: An optional string message to display to the user.
+     */
+    $scope.setUploadError = function (msg) {
+        if (msg) {
+            $scope.uploadError = msg;
+        }
+        $scope.uploadProgress = $scope.STATUS.UPLOADERROR;
+    };
+
+	/*
+     * Prep file for upload
+     */
+    $scope.onFileSelect = function($files) {
+
+        $scope.cancel();
+
+        // $files: an array of selected files, each with name, size, and type.
+        var $file = $files[0];
+        $scope.metadata.source_file = $file.name;
+        $scope.start($file);
+    };
+
+    /**
+     * Function to handle uploading of file
+     */
+    $scope.start = function ($file) {
+        console.log('Uploading file...');
+        if (!$file) {
+            return;
+        }
+
+
+        $scope.uploadProgress = 0;
+        var file = $file;
+        $scope.upload = $upload.upload({
+            url: '/api/gtfs-feeds/',
+            method: 'POST',
+            data: $scope.metadata,
+            fileFormDataName: 'source_file',
+            file: file
+        }).progress(function (evt) {
+
+            if ($scope.uploadProgress === $scope.STATUS.UPLOADERROR) {
                 return;
             }
-            // TODO: Status message here
-            var file = $scope.files[0];
-            $scope.upload = $upload.upload({
-                url: '/api/gtfs-feeds/',
-                method: 'POST',
-                data: $scope.metadata,
-                fileFormDataName: 'source_file',
-                file: file
-            }).success(function(data, status, headers, config) {
-		$scope.uploads.push(data);
-	    });
+            $scope.uploadProgress = parseInt(evt.loaded / evt.total, 10);
 
-	    ; // TODO: .success() and .error() here.
-            console.log("Uploaded!");
-        };
+        }).success(function(data, status, headers, config) {
 
-	/**
-	 * Function to display problems of a gtfs feed upload
-	 *
-	 * @param upload <object> upload object that problems
-	 *     should be requested for
-	 */
-        $scope.viewProblems = function(upload) {
-            GTFSUploadService.gtfsProblems.query(
-                {gtfsfeed: upload.id},
-                function(data) {
-		    // Proecess results for easy pagination
-                    var paginatedResults = _.groupBy(data, function(element, index) {
-                        return Math.floor(index/$scope.problemsPerPage);
+            $scope.uploadProgress = 100;
+            onUploadSuccess(data);
+
+	    }).error(function(data, status, headers, config) {
+
+            var msg = status;
+            if (data.source_file) {
+                msg += ' -- ' + (data.source_file[0] || 'Unknown');
+            }
+            $scope.setUploadError(msg);
+
+        });
+    };
+
+    var onUploadSuccess = function (upload) {
+        var startDatetime = new Date();
+        var checkUpload = function () {
+            var nowDatetime = new Date();
+            if (nowDatetime.getTime() - startDatetime.getTime() > TIMEOUT_MILLIS) {
+                $scope.setUploadError('Upload timeout');
+            } else if (upload.is_valid === null) {
+                $scope.timeoutId = $timeout(function () {
+                    upload = GTFSUploadService.gtfsUploads.get({id: upload.id}, function () {
+                        checkUpload();
                     });
-                    $scope.problemsLength = data.length; // Set length
-                    $scope.uploadProblems = paginatedResults;
-                    $scope.updatePagination(1); // Get first page of results
+                }, POLLING_MILLIS);
+            } else if (upload.is_valid && !upload.is_processed) {
+                $scope.setUploadError('Geotrellis unavailable');
+            } else if (!upload.is_valid) {
+                $scope.viewProblems(upload);
+                $scope.setUploadError();
+            } else {
+                $scope.gtfsUpload = upload;
+                $scope.uploadProgress = $scope.STATUS.DONE;
+            }
+        };
+        checkUpload();
+    };
+
+    /**
+     * Function to display problems of a gtfs feed upload
+     *
+     * @param upload <object> upload object that problems
+     *     should be requested for
+     */
+    $scope.viewProblems = function(upload) {
+        GTFSUploadService.gtfsProblems.query(
+            {gtfsfeed: upload.id},
+            function(data) {
+                console.log('Upload problems: ', data);
+                $scope.uploadProblems.warnings = _.filter(data, function (problem) {
+                    return problem.type === 'war';
                 });
-        };
-
-	/**
-	 * Function to handle pagination of GTFS problems
-	 *
-	 * Called when new page is clicked on page, upates
-	 * list that is displayed in the table
-	 *
-	 * @param page <integer> page number that should be displayed
-	 */
-        $scope.updatePagination = function(page) {
-            $scope.currentPage = page; // set scope variable to change display
-            var index = $scope.currentPage - 1; // subtract 1 because paginated list starts @ zero
-            $scope.uploadProblemsPaginated = $scope.uploadProblems[index]; // update list of problems displayed
-        };
-
-	/**
-	 * Helper method to get uploads using GTFSUploadService
-	 *
-	 * Broken out into a separate method because this is called
-	 * when the refresh button is clicked
-	 */
-        $scope.getUploads = function() {
-            $scope.uploads = GTFSUploadService.gtfsUploads.query({}, function(data) {
-                return data;
+                $scope.uploadProblems.errors = _.filter(data, function (problem) {
+                    return problem.type === 'err';
+                });
+                console.log($scope.uploadProblems);
             });
-        };
+    };
 
-	/**
-	 * Get current uploads on page load
-	 */
-        $scope.init = function() {
-            $scope.getUploads();
-        };
+	// Set initial scope variables and constants
+    $scope.STATUS = GTFSUploadService.STATUS;
+    $scope.gtfsUpload = null;
+    $scope.clearUploadProblems();
+    $scope.files = null;
+    $scope.timeoutId = null;
+
+    $scope.init = function () {
+        $scope.gtfsUploads = GTFSUploadService.gtfsUploads.query({}, function (uploads) {
+            $scope.gtfsUpload = _.filter(uploads, function (upload) {
+                return upload.is_valid === true && upload.is_processed === true;
+            });
+
+            $scope.uploadProgress = $scope.STATUS.DONE;
+            console.log($scope.gtfsUpload);
+        });
+    };
+
 }]);

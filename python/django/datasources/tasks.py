@@ -45,6 +45,10 @@ def validate_gtfs(gtfsfeed_id):
     Creates GTSFeedProblem objects for each error/warning
     and updates GTFSFeed processing status once completed.
 
+    is_valid == null indicates job not started
+    Valid gtfsfeed files have state is_valid = True && is_processed = True
+    is_valid = True && is_processed = False indicate a geotrellis error
+
     Arguments:
     :param gtfsfeed_id: ID of GTFSFeed object
     """
@@ -68,7 +72,8 @@ def validate_gtfs(gtfsfeed_id):
     logger.debug('Finished loading gtfs file')
 
     # save individual problems in database
-    problem_count = 0
+    errors_count = 0
+    warnings_count = 0
     for problem in accumulator.problems:
         type = (GTFSFeedProblem.ProblemTypes.WARNING
                 if problem.IsWarning()
@@ -81,14 +86,18 @@ def validate_gtfs(gtfsfeed_id):
             title=title,
             type=type)
         if created:
-            problem_count += 1
+            if type == GTFSFeedProblem.ProblemTypes.ERROR:
+                errors_count += 1
+            elif type == GTFSFeedProblem.ProblemTypes.WARNING:
+                warnings_count += 1
 
     logger.debug('Found %s problems in %s gtfs file',
-                 problem_count,
+                 errors_count + warnings_count,
                  gtfsfeed.source_file)
 
+    gtfsfeed.is_valid = True if errors_count == 0 else False
     # send to GeoTrellis
-    result = send_to_geotrellis(gtfsfeed.source_file)
+    result = send_to_geotrellis(gtfsfeed.source_file) if gtfsfeed.is_valid else False
 
     # Update processing status
     gtfsfeed.is_processed = result
