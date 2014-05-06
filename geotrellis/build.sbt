@@ -12,6 +12,24 @@ scalaVersion := "2.10.3"
 libraryDependencies ++= Seq(
   "io.spray" % "spray-routing" % "1.2.0",
   "io.spray" % "spray-can" % "1.2.0",
+  // Ensure openjdk-7-jdk is installed via apt (if you provisioned before the PR this dependency
+  //    was added, it will not be installed)
+  // We temporarily require a development version of geotrellis
+  // Use the following steps to get it running:
+  //   1) cd ~
+  //   2) git clone https://github.com/echeipesh/geotrellis.git
+  //   3) cd geotrellis
+  //   4) git checkout -b feature/slick origin/feature/slick
+  //   5) ./sbt
+  //   6) For each project in: 'proj4, 'feature', 'slick', run:
+  //        a) project <projname>
+  //        b) compile
+  //        c) publish-local
+  //   7) exit (to exit the sbt prompt, then continue with the gtfs-parser manual
+  //            installation below)
+  "com.azavea.geotrellis" % "geotrellis-feature_2.10" % "0.10.0-SNAPSHOT",
+  "com.azavea.geotrellis" % "geotrellis-proj4_2.10" % "0.10.0-SNAPSHOT",
+  "com.azavea.geotrellis" % "geotrellis-slick_2.10" % "0.10.0-SNAPSHOT",
   "com.azavea.geotrellis" % "geotrellis_2.10" % "0.9.1",
   // The following package is still in development, but will be published to Maven shortly.
   // In the meantime, the code must be compiled and published locally in order to work.

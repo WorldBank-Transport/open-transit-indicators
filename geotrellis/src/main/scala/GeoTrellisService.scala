@@ -6,9 +6,11 @@ import com.azavea.gtfs.slick._
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
 import com.typesafe.config.{ConfigFactory,Config}
-import geotrellis._
+import geotrellis.feature.reproject._
 import geotrellis.process.{Error, Complete}
+import geotrellis.proj4._
 import geotrellis.render.ColorRamps
+import geotrellis.slick._
 import geotrellis.source.{ValueSource, RasterSource}
 import geotrellis.statistics.Histogram
 import scala.slick.driver.PostgresDriver
@@ -28,7 +30,7 @@ trait GeoTrellisService extends HttpService {
   def rootRoute = pingRoute ~ gtfsRoute
 
   // Database setup
-  val dao = new DAO(PostgresDriver, PostgresJodaSupport)
+  val dao = new DAO()
   val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
     user = dbUser, password = dbPassword)
 
@@ -57,11 +59,16 @@ trait GeoTrellisService extends HttpService {
 
                 // insert routes into the gtfsDatabase
                 gtfsData.routes.foreach { route => dao.routes.insert(route) }
-
-                // TODO: only routes are working/implemented with the gtfs-parser library
-                // at the moment. Need to insert all other components when available.
-                // E.g. here is what the code for inserting trips will look like:
-                //gtfsData.trips.foreach { trip => dao.trips.insert(trip) }
+                gtfsData.service.foreach { service => dao.service.insert(service) }
+                gtfsData.agencies.foreach { agency => dao.agencies.insert(agency) }
+                gtfsData.trips.foreach { trip => dao.trips.insert(trip) }
+                // TODO: Uncomment shapes import once geotrellis properly returns SRID's
+                //       ERROR: Geometry SRID (0) does not match column SRID (4326)
+                //gtfsData.shapes.foreach { shape =>
+                    //val ns = TripShape(shape.id, shape.geom.reproject(LatLng, WebMercator))
+                    //dao.shapes.insert(ns)
+                //}
+                gtfsData.stops.foreach { stop => dao.stops.insert(stop) }
 
                 println("finished parsing GTFS data")
                 s"""{ "success": true, "message": "Imported ${gtfsData.routes.size} routes" }"""
@@ -77,7 +84,13 @@ trait GeoTrellisService extends HttpService {
     ExceptionHandler {
       case e: Exception =>
         requestUri { uri =>
-          complete(InternalServerError, s"Message: ${e.getMessage}\n Trace: ${e.getStackTrace.mkString("</br>")}" )
+          // print error message and stack trace to console so we dont have to go a-hunting
+          // in the celery job logs
+          println(e.getMessage)
+          println(e.getStackTrace.mkString("\n"))
+          // replace double quotes with single so our message is more json safe
+          val jsonMessage = e.getMessage.replace("\"", "'")
+          complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
         }
     }
 }

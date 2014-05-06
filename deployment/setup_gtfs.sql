@@ -316,7 +316,7 @@ CREATE TABLE gtfs_trips (
     service_id text,
     trip_id text NOT NULL,
     trip_headsign text,
-    direction_id integer NOT NULL,
+    direction_id integer,
     block_id text,
     shape_id text,
     trip_short_name text,
