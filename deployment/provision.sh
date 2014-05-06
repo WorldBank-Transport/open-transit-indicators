@@ -253,19 +253,20 @@ popd
 #########################
 # Windshaft setup       #
 #########################
-windshaft_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-var settings = {
+# Cannot have comments or trailing commas in a json config
+windshaft_conf="
+{
     \"redis_host\": \"$REDIS_HOST\",
     \"redis_port\": \"$REDIS_PORT\",
     \"db_user\": \"$DB_USER\",
     \"db_pass\": \"$DB_PASS\",
     \"db_host\": \"$DB_HOST\",
-    \"db_port\": \"$DB_PORT\",
+    \"db_port\": \"$DB_PORT\"
 }
 "
 
 pushd $WINDSHAFT_ROOT
-    echo "$windshaft_conf" > settings.js
+    echo "$windshaft_conf" > settings.json
     npm install
 popd
 
