@@ -6,13 +6,24 @@ angular.module('transitIndicators').constant('config', {
             lng: -75.1667,
             zoom: 12
         },
+        layers: {
+            baselayers: {
+                osm: {
+                    name: 'OpenStreetMap',
+                    url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    type: 'xyz',
+                    layerParams: {},
+                    layerOptions: {}
+                }
+            }
+        },
         defaults: {
             maxZoom: 16
         }
     },
 
     windshaft: {
-        port: 4040
+        port: 8080
     }
 
 });

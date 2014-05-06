@@ -7,8 +7,8 @@ var _         = require('underscore');
 var settings  = require('./settings.json');
 
 var config = {
-    base_url: '/database/:dbname/table/:table',
-    base_url_notable: '/database/:dbname',
+    base_url: '/tiles/:dbname/table/:table',
+    base_url_notable: '/tiles/:dbname',
     grainstore: {
                  datasource: {
                     user: settings.db_user,
