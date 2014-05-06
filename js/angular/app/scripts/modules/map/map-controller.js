@@ -2,19 +2,12 @@
 
 angular.module('transitIndicators')
 .controller('GTFSMapController',
-        ['$scope',
-        function ($scope) {
+        ['config', '$scope',
+        function (config, $scope) {
 
-    $scope.leaflet = {
-        center: {
-            lat: 39.95,
-            lng: -75.1667,
-            zoom: 12
-        },
-        defaults: {
-            maxZoom: 16
-        }
-    };
+    var leaflet = {};
+
+    $scope.leaflet = angular.extend(config.leaflet, leaflet);
 
 }]);
 
