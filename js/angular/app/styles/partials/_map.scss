@@ -7,3 +7,9 @@
     // in the future
     position: fixed;
 }
+
+.gtfs-map-controls {
+    position: absolute;
+    @include rem(top, 10);
+    @include rem(left, 50);
+}
