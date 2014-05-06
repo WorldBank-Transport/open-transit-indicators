@@ -7,13 +7,12 @@ angular.module('transitIndicators')
 
     $scope.leaflet = {
         center: {
-            lat: 51.505,
-            lng: -0.09,
-            zoom: 8
+            lat: 39.95,
+            lng: -75.1667,
+            zoom: 12
         },
         defaults: {
-            tileLayer: 'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
-            maxZoom: 14
+            maxZoom: 16
         }
     };
 
