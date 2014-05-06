@@ -254,7 +254,7 @@ popd
 # Windshaft setup       #
 #########################
 windshaft_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-{
+var settings = {
     \"redis_host\": \"$REDIS_HOST\",
     \"redis_port\": \"$REDIS_PORT\",
     \"db_user\": \"$DB_USER\",
@@ -265,7 +265,7 @@ windshaft_conf="// This file created by provision.sh, and will be overwritten if
 "
 
 pushd $WINDSHAFT_ROOT
-    echo "$windshaft_conf" > settings.json
+    echo "$windshaft_conf" > settings.js
     npm install
 popd
 

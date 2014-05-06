@@ -1,6 +1,13 @@
 .settingsmodal-wrapper {
   @include rem(padding, 30, 0);
 }
+
+.settingsmodal-close-button {
+  @include rem(top, 10);
+  @include rem(right, 10);
+  position: absolute;
+}
+
 .settingsmodal {
   @include rem(max-width, 800);
   background-color: white;
