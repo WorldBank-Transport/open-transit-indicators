@@ -9,6 +9,10 @@ angular.module('transitIndicators').constant('config', {
         defaults: {
             maxZoom: 16
         }
+    },
+
+    windshaft: {
+        port: 4040
     }
 
 });
