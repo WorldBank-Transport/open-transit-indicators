@@ -51,6 +51,9 @@ GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 
+WINDSHAFT_PORT=4000
+WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
+
 GUNICORN_WORKERS=3
 
 # Create logs directory
@@ -253,14 +256,15 @@ popd
 #########################
 # Windshaft setup       #
 #########################
-windshaft_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
+# Cannot have comments or trailing commas in a json config
+windshaft_conf="
 {
     \"redis_host\": \"$REDIS_HOST\",
     \"redis_port\": \"$REDIS_PORT\",
     \"db_user\": \"$DB_USER\",
     \"db_pass\": \"$DB_PASS\",
     \"db_host\": \"$DB_HOST\",
-    \"db_port\": \"$DB_PORT\",
+    \"db_port\": \"$DB_PORT\"
 }
 "
 
@@ -367,6 +371,14 @@ nginx_conf="server {
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
         client_max_body_size 50M;
+    }
+
+    location /tiles {
+        proxy_pass $WINDSHAFT_HOST;
+        proxy_redirect off;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     location /static {
