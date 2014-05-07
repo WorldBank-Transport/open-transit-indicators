@@ -24,6 +24,49 @@ angular.module('transitIndicators').constant('config', {
 
     windshaft: {
         port: 8080
-    }
+    },
+
+    settingsViews: [
+        {
+            id: 'overview',
+            label: 'Overview',
+            hasCheckmark: false
+        },
+        {
+            id: 'upload',
+            label: 'GTFS',
+            hasCheckmark: true
+        }/*,
+        {
+            id: 'boundary',
+            label: 'Boundary',
+            hasCheckmark: true
+        },
+        {
+            id: 'demographic',
+            label: 'Demographic',
+            hasCheckmark: true
+        },
+        {
+            id: 'realtime',
+            label: 'Real-Time',
+            hasCheckmark: true
+        },
+        {
+            id: 'configuration',
+            label: 'Configuration',
+            hasCheckmark: true
+        },
+        {
+            id: 'users',
+            label: 'Users',
+            hasCheckmark: false
+        },
+        {
+            id: 'viewmap',
+            label: 'View Map',
+            hasCheckmark: false
+        }*/
+    ]
 
 });

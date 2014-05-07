@@ -7,8 +7,8 @@ angular.module('transitIndicators', [
     'angularFileUpload',
     'leaflet-directive',
     'ui.bootstrap'
-]).config(['$stateProvider', '$urlRouterProvider',
-        function ($stateProvider, $urlRouterProvider) {
+]).config(['$stateProvider', '$urlRouterProvider', 'config',
+        function ($stateProvider, $urlRouterProvider, config) {
 
     $urlRouterProvider.when('', '/');
     $urlRouterProvider.otherwise('/');
@@ -19,24 +19,25 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/map/map-partial.html',
             controller: 'GTFSMapController'
         })
-/*
-        // TODO: Implement this abstract parent controller for the settings modules
+
         .state('settings', {
-            abstract: true,
             parent: 'map',
             url: 'settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
             controller: 'GTFSSettingsController'
-*/
-        // Actual url to navigate to would be <host>/#/upload
-        .state('upload', {
-            // TODO: Replace existing parent/url keys with these once abstract parent exists
-            //parent: 'settings',
-            //url: '/upload',
-            parent: 'map',
-            url: 'upload',
-            templateUrl: 'scripts/modules/upload/gtfs/gtfs-upload-partial.html',
-            controller: 'GTFSUploadController'
+        });
+
+        // URL matches to /settings/<view.id>
+        // Add new entries to scripts/config.js in settingsViews
+        _.each(config.settingsViews, function (view) {
+            var viewId = view.id;
+            var capsId = viewId.charAt(0).toUpperCase() + viewId.slice(1);
+            $stateProvider.state(view.id, {
+                parent: 'settings',
+                url: '/' + viewId,
+                templateUrl: 'scripts/modules/settings/' + viewId + '/' + viewId + '-partial.html',
+                controller: 'GTFS' + capsId + 'Controller'
+            });
         });
 }]);
 

@@ -8,13 +8,6 @@ angular.module('transitIndicators')
 .factory('GTFSUploadService', ['$resource', function($resource) {
     var gtfsuploadservice = {};
 
-    gtfsuploadservice.STATUS = {
-        START: -1,
-        UPLOADERROR: -2,
-        PROCESSING: 100,
-        DONE: 101
-    };
-
     // GTFS data
     gtfsuploadservice.gtfsUploads = $resource('/api/gtfs-feeds/:id', {}, {
         'update': {

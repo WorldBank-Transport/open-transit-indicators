@@ -63,6 +63,7 @@ angular.module('transitIndicators')
         $scope.metadata = {};
         $scope.uploadProgress = $scope.STATUS.START;
         $scope.uploadError = null;
+        $scope.setSidebarCheckmark('upload', false);
     };
 
     /**
@@ -75,6 +76,7 @@ angular.module('transitIndicators')
         //$scope.gtfsUpload.$update().then(function () {
         $scope.gtfsUpload = {};
         $scope.uploadProgress = $scope.STATUS.START;
+        $scope.setSidebarCheckmark('upload', false);
         //});
     };
 
@@ -87,6 +89,7 @@ angular.module('transitIndicators')
             $scope.uploadError = msg;
         }
         $scope.uploadProgress = $scope.STATUS.UPLOADERROR;
+        $scope.setSidebarCheckmark('upload', false);
     };
 
 	/*
@@ -163,6 +166,7 @@ angular.module('transitIndicators')
             } else {
                 $scope.gtfsUpload = upload;
                 $scope.uploadProgress = $scope.STATUS.DONE;
+                $scope.setSidebarCheckmark('upload', true);
             }
         };
         checkUpload();
@@ -190,7 +194,6 @@ angular.module('transitIndicators')
     };
 
 	// Set initial scope variables and constants
-    $scope.STATUS = GTFSUploadService.STATUS;
     $scope.gtfsUpload = null;
     $scope.clearUploadProblems();
     $scope.files = null;
@@ -198,12 +201,17 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         $scope.gtfsUploads = GTFSUploadService.gtfsUploads.query({}, function (uploads) {
-            $scope.gtfsUpload = _.filter(uploads, function (upload) {
+            var validUploads = _.filter(uploads, function (upload) {
                 return upload.is_valid === true && upload.is_processed === true;
             });
-
-            $scope.uploadProgress = $scope.STATUS.DONE;
-            console.log($scope.gtfsUpload);
+            if (validUploads.length > 0) {
+                $scope.gtfsUpload = validUploads[0];
+                $scope.setSidebarCheckmark('upload', true);
+                $scope.uploadProgress = $scope.STATUS.DONE;
+            } else {
+                $scope.gtfsUpload = {};
+            }
+            return validUploads;
         });
     };
 
