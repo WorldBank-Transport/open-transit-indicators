@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('GTFSMapService',
+.factory('OTIMapService',
         [
         function () {
 
-    var gtfsmapService = {};
+    var otiMapService = {};
 
-    return gtfsmapService;
+    return otiMapService;
 }]);

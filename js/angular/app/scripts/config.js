@@ -24,6 +24,37 @@ angular.module('transitIndicators').constant('config', {
 
     windshaft: {
         port: 8080
-    }
+    },
+
+    settingsViews: [
+        {
+            id: 'overview',
+            label: 'Overview',
+        },
+        {
+            id: 'upload',
+            label: 'GTFS',
+        },
+        {
+            id: 'boundary',
+            label: 'Boundary',
+        },
+        {
+            id: 'demographic',
+            label: 'Demographic',
+        },
+        {
+            id: 'realtime',
+            label: 'Real-Time',
+        },
+        {
+            id: 'configuration',
+            label: 'Configuration',
+        },
+        {
+            id: 'users',
+            label: 'Users',
+        }
+    ]
 
 });

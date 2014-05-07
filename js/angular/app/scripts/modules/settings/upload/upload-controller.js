@@ -9,7 +9,7 @@ angular.module('transitIndicators')
  */
 .filter('processing_status', function() {
     return function(input) {
-        return input ? 'Finished Validating GTFS Data' : 'Validating GTFS Data';
+        return input ? 'Finished Validating OTI Data' : 'Validating OTI Data';
     };
 })
 /**
@@ -17,7 +17,7 @@ angular.module('transitIndicators')
  * in the problem table. Each class has a color associated
  * with it via bootstrap
  *
- * @param input <string> expects GTFSFeed problem type string
+ * @param input <string> expects OTIFeed problem type string
  *     that should either be 'war' or 'err' depending on the
  *     type of problem
  */
@@ -27,11 +27,11 @@ angular.module('transitIndicators')
     };
 })
 /**
- * Main controller for GTFS upload page
+ * Main controller for OTI upload page
  */
-.controller('GTFSUploadController',
-    ['$scope', '$timeout', '$upload', 'GTFSUploadService',
-    function ($scope, $timeout, $upload, GTFSUploadService) {
+.controller('OTIUploadController',
+    ['$scope', '$timeout', '$upload', 'OTIUploadService',
+    function ($scope, $timeout, $upload, OTIUploadService) {
 
     // Milliseconds timeout for the upload status
     var POLLING_MILLIS = 1000;
@@ -63,6 +63,7 @@ angular.module('transitIndicators')
         $scope.metadata = {};
         $scope.uploadProgress = $scope.STATUS.START;
         $scope.uploadError = null;
+        $scope.setSidebarCheckmark('upload', false);
     };
 
     /**
@@ -75,6 +76,7 @@ angular.module('transitIndicators')
         //$scope.gtfsUpload.$update().then(function () {
         $scope.gtfsUpload = {};
         $scope.uploadProgress = $scope.STATUS.START;
+        $scope.setSidebarCheckmark('upload', false);
         //});
     };
 
@@ -87,6 +89,7 @@ angular.module('transitIndicators')
             $scope.uploadError = msg;
         }
         $scope.uploadProgress = $scope.STATUS.UPLOADERROR;
+        $scope.setSidebarCheckmark('upload', false);
     };
 
 	/*
@@ -151,7 +154,7 @@ angular.module('transitIndicators')
                 $scope.setUploadError('Upload timeout');
             } else if (upload.is_valid === null) {
                 $scope.timeoutId = $timeout(function () {
-                    upload = GTFSUploadService.gtfsUploads.get({id: upload.id}, function () {
+                    upload = OTIUploadService.gtfsUploads.get({id: upload.id}, function () {
                         checkUpload();
                     });
                 }, POLLING_MILLIS);
@@ -163,6 +166,7 @@ angular.module('transitIndicators')
             } else {
                 $scope.gtfsUpload = upload;
                 $scope.uploadProgress = $scope.STATUS.DONE;
+                $scope.setSidebarCheckmark('upload', true);
             }
         };
         checkUpload();
@@ -175,7 +179,7 @@ angular.module('transitIndicators')
      *     should be requested for
      */
     $scope.viewProblems = function(upload) {
-        GTFSUploadService.gtfsProblems.query(
+        OTIUploadService.gtfsProblems.query(
             {gtfsfeed: upload.id},
             function(data) {
                 console.log('Upload problems: ', data);
@@ -190,20 +194,24 @@ angular.module('transitIndicators')
     };
 
 	// Set initial scope variables and constants
-    $scope.STATUS = GTFSUploadService.STATUS;
     $scope.gtfsUpload = null;
     $scope.clearUploadProblems();
     $scope.files = null;
     $scope.timeoutId = null;
 
     $scope.init = function () {
-        $scope.gtfsUploads = GTFSUploadService.gtfsUploads.query({}, function (uploads) {
-            $scope.gtfsUpload = _.filter(uploads, function (upload) {
+        $scope.gtfsUploads = OTIUploadService.gtfsUploads.query({}, function (uploads) {
+            var validUploads = _.filter(uploads, function (upload) {
                 return upload.is_valid === true && upload.is_processed === true;
             });
-
-            $scope.uploadProgress = $scope.STATUS.DONE;
-            console.log($scope.gtfsUpload);
+            if (validUploads.length > 0) {
+                $scope.gtfsUpload = validUploads[0];
+                $scope.setSidebarCheckmark('upload', true);
+                $scope.uploadProgress = $scope.STATUS.DONE;
+            } else {
+                $scope.gtfsUpload = {};
+            }
+            return validUploads;
         });
     };
 
