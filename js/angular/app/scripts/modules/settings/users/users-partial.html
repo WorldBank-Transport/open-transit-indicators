@@ -1,0 +1,58 @@
+<div ng-init="init()">
+    <h1>Users</h1>
+    <table>
+        <tbody>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td>jmorgan-brine</td>
+                <td>Administrator</td>
+                <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
+            </tr>
+            <tr>
+                <td>rdaly</td>
+                <td>Administrator</td>
+                <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <div class="btn btn-primary">
+        Add New User
+    </div>
+    <div class="settingsmodal-newuser">
+        <h3>Add New User</h3>
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4>Username</h4>
+                </div>
+                <div class="col-sm-6">
+                    <h4>Role</h4>
+                </div>
+            </div>
+        </div>
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="text">
+                </div>
+                <div class="col-sm-6">
+                    <select>
+                      <option value="value1">17:00</option>
+                      <option value="value2">23:00</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="btn btn-primary">
+            Save
+        </div>
+        <div class="btn btn-link btn-link-danger">
+            Cancel
+        </div>
+    </div>
+</div>
