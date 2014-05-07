@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('transitIndicators')
-.controller('GTFSSettingsController',
-        ['$scope', 'GTFSSettingsService', 'config',
-        function ($scope, GTFSSettingsService, config) {
+.controller('OTISettingsController',
+        ['$scope', 'OTISettingsService', 'config',
+        function ($scope, OTISettingsService, config) {
 
-    $scope.STATUS = GTFSSettingsService.STATUS;
+    $scope.STATUS = OTISettingsService.STATUS;
     $scope.views = config.settingsViews;
     $scope.checkmarks = {};
     _.each($scope.views, function (view) {

@@ -17,14 +17,14 @@ angular.module('transitIndicators', [
         .state('map', {
             url: '/',
             templateUrl: 'scripts/modules/map/map-partial.html',
-            controller: 'GTFSMapController'
+            controller: 'OTIMapController'
         })
 
         .state('settings', {
             parent: 'map',
             url: 'settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
-            controller: 'GTFSSettingsController'
+            controller: 'OTISettingsController'
         });
 
         // URL matches to /settings/<view.id>
@@ -36,7 +36,7 @@ angular.module('transitIndicators', [
                 parent: 'settings',
                 url: '/' + viewId,
                 templateUrl: 'scripts/modules/settings/' + viewId + '/' + viewId + '-partial.html',
-                controller: 'GTFS' + capsId + 'Controller'
+                controller: 'OTI' + capsId + 'Controller'
             });
         });
 }]);

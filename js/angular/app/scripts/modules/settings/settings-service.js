@@ -5,7 +5,7 @@
  * for GTFS data
  */ 
 angular.module('transitIndicators')
-.factory('GTFSSettingsService', ['$resource', function($resource) {
+.factory('OTISettingsService', ['$resource', function($resource) {
     var settingsService = {};
 
     settingsService.STATUS = {

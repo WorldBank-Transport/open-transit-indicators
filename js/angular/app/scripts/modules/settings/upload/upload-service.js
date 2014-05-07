@@ -2,23 +2,23 @@
 
 /**
  * Service responsible for getting data on uploads/problems
- * for GTFS data
- */ 
+ * for OTI data
+ */
 angular.module('transitIndicators')
-.factory('GTFSUploadService', ['$resource', function($resource) {
-    var gtfsuploadservice = {};
+.factory('OTIUploadService', ['$resource', function($resource) {
+    var otiuploadservice = {};
 
-    // GTFS data
-    gtfsuploadservice.gtfsUploads = $resource('/api/gtfs-feeds/:id', {}, {
+    // OTI data
+    otiuploadservice.gtfsUploads = $resource('/api/gtfs-feeds/:id', {}, {
         'update': {
             method: 'PATCH',
             url: '/api/gtfs-feeds/:id'
         }
     });
 
-    // GTFS data problems
-    gtfsuploadservice.gtfsProblems = $resource('/api/gtfs-feed-problems/:id');
+    // OTI data problems
+    otiuploadservice.gtfsProblems = $resource('/api/gtfs-feed-problems/:id');
 
-    return gtfsuploadservice;
+    return otiuploadservice;
 }
 ]);

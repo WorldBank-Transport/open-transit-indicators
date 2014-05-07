@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('transitIndicators')
-.controller('GTFSOverviewController',
+.controller('OTIOverviewController',
         ['$scope',
         function ($scope) {
 

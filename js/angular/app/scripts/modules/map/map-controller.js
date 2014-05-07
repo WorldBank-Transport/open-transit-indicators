@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('transitIndicators')
-.controller('GTFSMapController',
+.controller('OTIMapController',
         ['config', '$scope', '$state', '$location',
         function (config, $scope, $state, $location) {
 
