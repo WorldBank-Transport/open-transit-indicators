@@ -62,12 +62,7 @@ trait GeoTrellisService extends HttpService {
                 gtfsData.service.foreach { service => dao.service.insert(service) }
                 gtfsData.agencies.foreach { agency => dao.agencies.insert(agency) }
                 gtfsData.trips.foreach { trip => dao.trips.insert(trip) }
-                // TODO: Uncomment shapes import once geotrellis properly returns SRID's
-                //       ERROR: Geometry SRID (0) does not match column SRID (4326)
-                //gtfsData.shapes.foreach { shape =>
-                    //val ns = TripShape(shape.id, shape.geom.reproject(LatLng, WebMercator))
-                    //dao.shapes.insert(ns)
-                //}
+                gtfsData.shapes.foreach { shape => dao.shapes.insert(shape) }
                 gtfsData.stops.foreach { stop => dao.stops.insert(stop) }
 
                 println("finished parsing GTFS data")
