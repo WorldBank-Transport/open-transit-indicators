@@ -7,7 +7,7 @@ scalaVersion := "2.10.3"
 // Useful tool for scala web development. use "./sbt ~re-start" and
 // it will recompile and run the server after each save
 // Temporarily commented out while the dependencies fail to install
-//seq(Revolver.settings: _*)
+Revolver.settings
 
 libraryDependencies ++= Seq(
   "io.spray" % "spray-routing" % "1.2.0",
