@@ -53,6 +53,7 @@ module.exports = function(config) {
       'app/bower_components/ng-file-upload/angular-file-upload.min.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
+      // have no mock files yet; commenting out so it doesn't break things
       //'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
