@@ -2,6 +2,32 @@
 // http://karma-runner.github.io/0.10/config/configuration-file.html
 
 module.exports = function(config) {
+
+  if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
+    console.log('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
+    process.exit(1);
+  }
+  
+  // browsers for Sauce Labs
+  var customLaunchers = {
+    sl_chrome: {
+      base: 'SauceLabs',
+      browserName: 'chrome',
+      platform: 'Windows 7'
+    },
+    sl_firefox: {
+      base: 'SauceLabs',
+      browserName: 'firefox',
+      version: '27'
+    },
+    sl_ie_11: {
+      base: 'SauceLabs',
+      browserName: 'internet explorer',
+      platform: 'Windows 8.1',
+      version: '11'
+    }
+  };
+
   config.set({
     // base path, that will be used to resolve files and exclude
     basePath: '',
@@ -44,21 +70,29 @@ module.exports = function(config) {
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
+    
+    colors: true,
+    
+    logLevel: config.LOG_INFO,
+    
+    sauceLabs: {
+        testName: 'Open Transit Indicators Unit Tests'
+    },
+    
+    // Increase timeout in case connection in CI is slow
+    captureTimeout: 120000,
+    
+    customLaunchers: customLaunchers,
+    
+    browsers: Object.keys(customLaunchers),
+    
+    reporters: ['dots', 'saucelabs']
 
-
-    // Start these browsers, currently available:
-    // - Chrome
-    // - ChromeCanary
-    // - Firefox
-    // - Opera
-    // - Safari (only Mac)
-    // - PhantomJS
-    // - IE (only Windows)
-    browsers: ['PhantomJS'],
+    // browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: true
   });
 };
