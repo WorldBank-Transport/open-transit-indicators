@@ -1,22 +1,29 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('OTISettingsController', function () {
 
   // load the controller's module
-  beforeEach(module('angularApp'));
+  beforeEach(module('transitIndicators'));
 
-  var MainCtrl,
+  var settingsCtl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
+    settingsCtl = $controller('OTISettingsController', {
       $scope: scope
     });
   }));
 
-  it('should attach a list of awesomeThings to the scope', function () {
-    expect(scope.awesomeThings.length).toBe(3);
+  it('settings controller should have a STATUS', function () {
+    expect(scope.STATUS).toBeDefined();
+  });
+  it('settings controller should have checkmarks', function () {
+    expect(scope.checkmarks).toBeDefined();
+  });
+  // test that a test will fail
+  it('setting controller should have unicorns!', function() {
+    expect(scope.UNICORNS).toBeDefined();
   });
 });
