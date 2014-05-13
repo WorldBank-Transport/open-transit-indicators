@@ -2,14 +2,17 @@ language: node_js
 node_js:
   - "0.11"
   - "0.10"
+  
 addons:
   sauce_connect: true
+  
 env:
   global:
     - SAUCE_USERNAME:
         secure: "lq82LKWr8yQMAsCZ7ttYXQzNuPhIXIVgq3w78l0mPSu0V9PsBlqcsiaVp8xifD3SFxlbrfNqRlTMG3CqVOugY0P4ODGPwPFYLExKNQg4xRljzK1rbk9q+YdDd0zqKGXY9asNBA7RNTJT1rg+MATP2TCwGPLPBYnsOmBZUaP9pV4="
     - SAUCE_ACCESS_KEY:
         secure: "MYm7cJIrb0xrvsmNj+YjBHLZs/2qXAACwL9ijrxD+zTm/uj6yP6p9n1+1byouvp1t2Hc0UPK3jkW446EiS8tMkaIW/BRo2rTup2LFG9kFO2m2euMKTtRoQsXg4EqIOsaXJvgyNBoIL7GEATMUzc1NuE3A3+ge5OzZ94a38Laefw="
+
 before_script:
   gem install compass
   npm install -g bower
