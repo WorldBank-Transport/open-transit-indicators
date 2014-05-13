@@ -4,29 +4,29 @@
 module.exports = function(config) {
 
   if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-    console.log('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
-    process.exit(1);
-  }
-  
+    console.log('Sauce environment variables not set; testing with PhantomJS (we must be running locally.)');
+    var customLaunchers = {PhantomJS: {}};
+  } else {
   // browsers for Sauce Labs
-  var customLaunchers = {
-    sl_chrome: {
-      base: 'SauceLabs',
-      browserName: 'chrome',
-      platform: 'Windows 7'
-    },
-    sl_firefox: {
-      base: 'SauceLabs',
-      browserName: 'firefox',
-      version: '27'
-    },
-    sl_ie_11: {
-      base: 'SauceLabs',
-      browserName: 'internet explorer',
-      platform: 'Windows 8.1',
-      version: '11'
-    }
-  };
+    var customLaunchers = {
+      sl_chrome: {
+        base: 'SauceLabs',
+        browserName: 'chrome',
+        platform: 'Windows 7'
+      },
+      sl_firefox: {
+        base: 'SauceLabs',
+        browserName: 'firefox',
+        version: '27'
+      },
+      sl_ie_11: {
+        base: 'SauceLabs',
+        browserName: 'internet explorer',
+        platform: 'Windows 8.1',
+        version: '11'
+      }
+    };
+  }
 
   config.set({
     // base path, that will be used to resolve files and exclude
@@ -86,10 +86,7 @@ module.exports = function(config) {
     
     browsers: Object.keys(customLaunchers),
     
-    reporters: ['dots', 'saucelabs']
-
-    // browsers: ['PhantomJS'],
-
+    reporters: ['dots', 'saucelabs'],
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
