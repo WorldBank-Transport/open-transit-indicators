@@ -1,21 +1,17 @@
 language: node_js
 node_js:
-  - "0.11"
-  - "0.10"
-  
-addons:
-  sauce_connect: true
-  
+- '0.10'
+before_script:
+- cd js/angular
+- gem install compass
+- npm install -g bower
+- bower install --config.interactive=false
+- npm install
+- npm install grunt-cli
+- grunt build
+notifications:
+  email: false
 env:
   global:
-    - SAUCE_USERNAME:
-        secure: "lq82LKWr8yQMAsCZ7ttYXQzNuPhIXIVgq3w78l0mPSu0V9PsBlqcsiaVp8xifD3SFxlbrfNqRlTMG3CqVOugY0P4ODGPwPFYLExKNQg4xRljzK1rbk9q+YdDd0zqKGXY9asNBA7RNTJT1rg+MATP2TCwGPLPBYnsOmBZUaP9pV4="
-    - SAUCE_ACCESS_KEY:
-        secure: "MYm7cJIrb0xrvsmNj+YjBHLZs/2qXAACwL9ijrxD+zTm/uj6yP6p9n1+1byouvp1t2Hc0UPK3jkW446EiS8tMkaIW/BRo2rTup2LFG9kFO2m2euMKTtRoQsXg4EqIOsaXJvgyNBoIL7GEATMUzc1NuE3A3+ge5OzZ94a38Laefw="
-
-before_script:
-  gem install compass
-  npm install -g bower
-  bower install --config.interactive=false
-  npm install -g grunt-cli
-  grunt build
+  - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
+  - secure: OMZ1U4UA/VQxexgM6hWV+EcMgZAK6aHDg47cpKs50Smcg+ZXJiF7SlxqPPuXaQgYxkMb+9Qf6r6ZQ3uhxdfGkcz14pC6C8elwqz2CcrCv3IYoAjdvZ4EEV3vnTiJ96VKbwCOV5EM0wTRqdYd3GPg0JWPYNrxyq+hPKojmQ3wl0I=
