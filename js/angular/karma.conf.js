@@ -11,13 +11,23 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'app/bower_components/jquery/dist/jquery.min.js',
+      'app/bower_components/underscore/underscore.js',
+      'app/bower_components/bootstrap/dist/js/bootstrap.min.js',
       'app/bower_components/angular/angular.js',
+      'app/bower_components/angular-bootstrap/ui-bootstrap.min.js',
+      'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
+      'app/bower_components/angular-cookies/angular-cookies.min.js',
+      'app/bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.min.js',
+      'app/bower_components/angular-ui-router/release/angular-ui-router.min.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-resource/angular-resource.js',
-      'app/bower_components/angular-cookies/angular-cookies.js',
+      'app/bower_components/angular-translate/angular-translate.min.js',
+      'app/bower_components/leaflet-dist/leaflet.js',
+      'app/bower_components/ng-file-upload/angular-file-upload.min.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
-      'test/mock/**/*.js',
+      //'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
 
@@ -44,7 +54,7 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
