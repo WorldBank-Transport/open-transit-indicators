@@ -74,10 +74,18 @@ angular.module('transitIndicators')
         // TODO: Implement once permissions/authentication is solved
         //$scope.gtfsUpload.is_valid = false;
         //$scope.gtfsUpload.$update().then(function () {
-        $scope.gtfsUpload = {};
-        $scope.uploadProgress = $scope.STATUS.START;
-        $scope.setSidebarCheckmark('upload', false);
+        $scope.setGTFSUpload({});
+        $scope.clearUploadProblems();
         //});
+    };
+
+    /*
+     * Setter for the $scope.gtfsUpload property
+     * @param upload: A GTFSUpload resource object
+     */
+    $scope.setGTFSUpload = function (upload) {
+        $scope.gtfsUpload = upload;
+        $scope.viewProblems(upload);
     };
 
     /*
@@ -164,7 +172,7 @@ angular.module('transitIndicators')
                 $scope.viewProblems(upload);
                 $scope.setUploadError();
             } else {
-                $scope.gtfsUpload = upload;
+                $scope.setGTFSUpload(upload);
                 $scope.uploadProgress = $scope.STATUS.DONE;
                 $scope.setSidebarCheckmark('upload', true);
             }
@@ -179,22 +187,23 @@ angular.module('transitIndicators')
      *     should be requested for
      */
     $scope.viewProblems = function(upload) {
+        if (!(upload && upload.id)) {
+            return;
+        }
         OTIUploadService.gtfsProblems.query(
             {gtfsfeed: upload.id},
             function(data) {
-                console.log('Upload problems: ', data);
                 $scope.uploadProblems.warnings = _.filter(data, function (problem) {
                     return problem.type === 'war';
                 });
                 $scope.uploadProblems.errors = _.filter(data, function (problem) {
                     return problem.type === 'err';
                 });
-                console.log($scope.uploadProblems);
             });
     };
 
 	// Set initial scope variables and constants
-    $scope.gtfsUpload = null;
+    $scope.setGTFSUpload(null);
     $scope.clearUploadProblems();
     $scope.files = null;
     $scope.timeoutId = null;
@@ -204,13 +213,13 @@ angular.module('transitIndicators')
             var validUploads = _.filter(uploads, function (upload) {
                 return upload.is_valid === true && upload.is_processed === true;
             });
+            var gtfsUpload = {};
             if (validUploads.length > 0) {
-                $scope.gtfsUpload = validUploads[0];
+                gtfsUpload = validUploads[0];
                 $scope.setSidebarCheckmark('upload', true);
                 $scope.uploadProgress = $scope.STATUS.DONE;
-            } else {
-                $scope.gtfsUpload = {};
             }
+            $scope.setGTFSUpload(gtfsUpload);
             return validUploads;
         });
     };

@@ -21,21 +21,21 @@
             <span class="glyphicon glyphicon-remove"></span> GTFS Upload Failed {{ uploadError }}
             <span class="h5"><a ng-click="cancel()">Try Again</a></span>
         </div>
-        <div ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
-            <div class="settingsmodal-notices">
-                <div class="settingsmodal-notices-errors">
-                    <h4>Errors</h4>
-                    <ul>
-                        <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="settingsmodal-notices-warnings">
-                <h4>Warnings</h4>
+    </div>
+    <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
+        <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
+            <div class="settingsmodal-notices-errors">
+                <h4>Errors</h4>
                 <ul>
-                    <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
+                    <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
                 </ul>
             </div>
+        </div>
+        <div class="settingsmodal-notices-warnings" ng-if="uploadProblems.warnings.length > 0">
+            <h4>Warnings</h4>
+            <ul>
+                <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
+            </ul>
         </div>
     </div>
 </div>
