@@ -1,17 +1,31 @@
 language: node_js
+cache: apt
 node_js:
 - '0.10'
+services:
+  - rabbitmq
+  - redis-server
 before_script:
 - cd js/angular
-- gem install compass
-- npm install -g bower
+- npm install -g bower grunt-cli yo generator-angular --silent
+- gem install -q -v 3.3.4 sass
+- gem install -q -v 0.12.5 compass
+- cd ../../deployment
+- sudo ./provision.sh travis
+- cd ../js/angular
 - bower install --config.interactive=false
-- npm install
-- npm install grunt-cli
+- npm install --silent
 - grunt build
+- cd ../windshaft
+- npm install --silent
+- cd ../angular
 notifications:
   email: false
 env:
   global:
   - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
   - secure: OMZ1U4UA/VQxexgM6hWV+EcMgZAK6aHDg47cpKs50Smcg+ZXJiF7SlxqPPuXaQgYxkMb+9Qf6r6ZQ3uhxdfGkcz14pC6C8elwqz2CcrCv3IYoAjdvZ4EEV3vnTiJ96VKbwCOV5EM0wTRqdYd3GPg0JWPYNrxyq+hPKojmQ3wl0I=
+script:
+  - grunt test
+  - cd ../../python/django
+  - ./manage.py test

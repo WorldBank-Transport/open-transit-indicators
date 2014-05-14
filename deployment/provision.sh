@@ -1,6 +1,4 @@
 #!/bin/bash
-# Set the path to the project directory; all other paths will be relative to this.
-PROJECT_ROOT="/projects/open-transit-indicators"
 
 # Abort on error. If you want to ignore errors for command, use command || true
 set -o errexit
@@ -17,6 +15,18 @@ if [ $# -eq 0 ]; then
     echo 'Must provide an installation type, e.g. development. Aborting.' >&2
     exit 1
 fi
+
+# Set the path to the project directory; all other paths will be relative to this.
+INSTALL_TYPE=$1
+if [ "$INSTALL_TYPE" == "travis" ]; then
+    # For Travis, we start in current directory; parent is project directory.
+    CURDIR=`pwd`
+    PROJECT_ROOT=`dirname $CURDIR`
+else
+    PROJECT_ROOT="/projects/open-transit-indicators"
+fi
+
+echo "Using project root: $PROJECT_ROOT"
 
 #########################################
 # Installation configuration parameters #
@@ -60,7 +70,6 @@ GUNICORN_WORKERS=3
 mkdir -p $LOG_ROOT
 
 # Set the install type. Should be one of [development|production|jenkins].
-INSTALL_TYPE=$1
 case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
@@ -74,9 +83,10 @@ case "$INSTALL_TYPE" in
         GUNICORN_MAX_REQUESTS=""
         # TODO: Set variables for production deployment here
         ;;
-    "jenkins")
+    "travis")
         echo "Selecting CI installation"
-        # TODO: Set variables for jenkins deployment here
+        WEB_USER='travis' # User under which web service runs.
+        ANGULAR_STATIC="$ANGULAR_ROOT/app"
         ;;
     *)
         echo "Invalid installation type; should be one of development / production / jenkins" >&2
@@ -88,39 +98,56 @@ esac
 #########################
 # Project Dependencies  #
 #########################
-apt-get update
+apt-get -qq update
 # Make add-apt-repository available
-apt-get -y install python-dev
+apt-get -y -qq install python-dev
 
-add-apt-repository -y ppa:chris-lea/node.js
-add-apt-repository -y ppa:ubuntugis/ppa
-add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
 add-apt-repository -y ppa:mapnik/v2.2.0
 add-apt-repository -y ppa:gunicorn/ppa
 
-# add public key for RabbitMQ
-pushd $TEMP_ROOT
-    wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-    apt-key add rabbitmq-signing-key-public.asc
-    rm rabbitmq-signing-key-public.asc
-popd
+if [ "$INSTALL_TYPE" == "travis" ]; then
+    echo "Installing packages for Travis..."
+    # Travis CI already has many packages installed;
+    # attempting to install PostgreSQL/PostGIS here breaks things.
+    apt-get -qq update
+    
+    apt-get -y -qq install \
+        libxml2-dev libxslt1-dev \
+        postgresql-server-dev-9.1 \
+        libmapnik libmapnik-dev python-mapnik mapnik-utils \
+        nginx \
+        gunicorn \
+        > /dev/null  # silence, package manager!  only show output on error
+else
+    # non-CI build; install All the Things
+    add-apt-repository -y ppa:chris-lea/node.js
+    add-apt-repository -y ppa:ubuntugis/ppa
+    add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
 
-# Install dependencies available via apt
-# Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
-apt-get update
-apt-get -y install \
-    git \
-    python-pip \
-    libxml2-dev libxslt1-dev \
-    postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
-    nodejs \
-    ruby1.9.3 rubygems \
-    openjdk-7-jre openjdk-7-jdk scala \
-    rabbitmq-server \
-    libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
-    nginx \
-    gunicorn \
-    rabbitmq-server
+    # add public key for RabbitMQ
+    pushd $TEMP_ROOT
+        wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+        apt-key add rabbitmq-signing-key-public.asc
+        rm rabbitmq-signing-key-public.asc
+    popd
+
+    # Install dependencies available via apt
+    # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
+    apt-get update
+
+    apt-get -y install \
+        git \
+        python-pip \
+        libxml2-dev libxslt1-dev \
+        postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
+        nodejs \
+        ruby1.9.3 rubygems \
+        openjdk-7-jre openjdk-7-jdk scala \
+        rabbitmq-server \
+        libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
+        nginx \
+        gunicorn
+fi
 
 # Install Django
 # TODO remove this once 1.7 is released and we can install using pip.
@@ -129,11 +156,11 @@ pushd $TEMP_ROOT
     django_vers=`python -c "import django; print(django.get_version())"` || true
     if [ '1.7b1' != "$django_vers" ]; then
         echo "Installing Django"
-        pip uninstall -y Django || true
-        wget https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz
-        tar xzvf Django-1.7b1.tar.gz
+        pip uninstall -y -q Django || true
+        wget -q https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz
+        tar xzf Django-1.7b1.tar.gz
         pushd Django-1.7b1
-            python setup.py install
+            python setup.py install --quiet > /dev/null
         popd
         rm -rf Django-1.7b1 Django-1.7b1.tar.gz
     else
@@ -141,15 +168,20 @@ pushd $TEMP_ROOT
     fi
 popd
 
-# Install other Python dependencies via pip
-pip install -r "$PROJECT_ROOT/deployment/requirements.txt"
+pushd $PROJECT_ROOT
+    pip install -q -r "deployment/requirements.txt"
+popd
 
-# Install node dependencies
-npm install -g grunt-cli yo generator-angular
+# Install node dependencies (do this beforehand for Travis)
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    npm install -g grunt-cli yo generator-angular
+fi
 
-# Install ruby gems
-gem install -v 3.3.4 sass
-gem install -v 0.12.5 compass
+# Install ruby gems (do elsewhere for Travis)
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    gem install -v 3.3.4 sass
+    gem install -v 0.12.5 compass
+fi
 
 #########################
 # Database setup        #
@@ -218,7 +250,7 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
         mkdir $UPLOADS_ROOT
         chown "$WEB_USER":"$WEB_USER" $UPLOADS_ROOT
     fi
-    python manage.py migrate --noinput
+    python manage.py migrate -v0 --noinput
 popd
 
 #########################
@@ -247,11 +279,13 @@ echo "Finished setting up celery and background process started"
 #########################
 # Angular setup         #
 #########################
-pushd "$ANGULAR_ROOT"
-    # Bower gets angry if you run it as root, so external script again.
-    # Hu preserves home directory settings.
-    sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh "$INSTALL_TYPE"
-popd
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    pushd "$ANGULAR_ROOT"
+        # Bower gets angry if you run it as root, so external script again.
+        # Hu preserves home directory settings.
+        sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh "$INSTALL_TYPE"
+    popd
+fi
 
 #########################
 # Windshaft setup       #
@@ -270,7 +304,9 @@ windshaft_conf="
 
 pushd $WINDSHAFT_ROOT
     echo "$windshaft_conf" > settings.json
-    npm install
+    if [ "$INSTALL_TYPE" != "travis" ]; then
+        npm install --silent  # Travis installs npm stuff in its own setup
+    fi
 popd
 
 # create test table for Windshaft
