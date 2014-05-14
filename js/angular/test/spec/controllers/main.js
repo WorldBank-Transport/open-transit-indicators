@@ -22,8 +22,4 @@ describe('OTISettingsController', function () {
   it('settings controller should have checkmarks', function () {
     expect(scope.checkmarks).toBeDefined();
   });
-  // test that a test will fail
-  it('setting controller should have unicorns!', function() {
-    expect(scope.UNICORNS).toBeDefined();
-  });
 });

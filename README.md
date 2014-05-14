@@ -3,6 +3,12 @@ open-transit-indicators
 
 An open-source tool to support transport agencies in planning and managing public transit systems
 
+Build Status
+----------------------
+[![Travis CI Build Status](https://travis-ci.org/WorldBank-Transport/open-transit-indicators.svg?branch=develop)](https://travis-ci.org/WorldBank-Transport/open-transit-indicators)
+
+[![Selenium Test Status](https://saucelabs.com/buildstatus/azavea-oti)](https://saucelabs.com/u/azavea-oti)
+
 Installation
 ----------------------
 

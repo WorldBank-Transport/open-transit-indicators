@@ -4,7 +4,7 @@
 module.exports = function(config) {
 
   if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-    console.log('Sauce environment variables not set; testing with PhantomJS (we must be running locally.)');
+    console.log('Sauce environment variables not set; testing with PhantomJS.');
     var customLaunchers = {PhantomJS: {}};
   } else {
   // browsers for Sauce Labs

@@ -1,16 +1,17 @@
 language: node_js
 node_js:
-- '0.11'
 - '0.10'
-before_script: 
-  - cd js/angular
-  - gem install compass 
-  - npm install -g bower
-  - bower install --config.interactive=false
-  - npm install
-  - npm install grunt-cli
-  - grunt build
+before_script:
+- cd js/angular
+- gem install compass
+- npm install -g bower
+- bower install --config.interactive=false
+- npm install
+- npm install grunt-cli
+- grunt build
+notifications:
+  email: false
 env:
   global:
-  - secure: WYS+4VfIdo+o24x3pGHPtUtyvRD8lUMhGKtBi+6KQl1t2D4focDMsrBlt260LhS4d2gWuaScQ8+Wi56jp+eksRnTScBlDtoyVxWEjfM1cSj0aW7BkpKl8SQI5o6+sMIZbOhuwevfVQSMhm2jjLJkUMQ9ElNQ7tfPBARykFFjVTg=
-  - secure: LmHRe4P2FtvpRZH7OvGqIoWOamu6ht9c86ZOJpfEYlpUf7vsDpllAZkJYU1qbn5DL+pwUZ6POi5Ewe3t+f7XKfb+NVN2ZqKJ+gcCV9PQsZBfhOhfi5XEXHWpnlKDEsJaJewTRH4BRnJQCMQq6Tfb1MFjIP1msWeVyoD4WHDCNbI=
+  - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
+  - secure: OMZ1U4UA/VQxexgM6hWV+EcMgZAK6aHDg47cpKs50Smcg+ZXJiF7SlxqPPuXaQgYxkMb+9Qf6r6ZQ3uhxdfGkcz14pC6C8elwqz2CcrCv3IYoAjdvZ4EEV3vnTiJ96VKbwCOV5EM0wTRqdYd3GPg0JWPYNrxyq+hPKojmQ3wl0I=
