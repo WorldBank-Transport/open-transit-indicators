@@ -32,7 +32,7 @@ echo "Using project root: $PROJECT_ROOT"
 # Installation configuration parameters #
 #########################################
 
-HOST='127.0.0.1'  # TODO: set for production / jenkins
+HOST='127.0.0.1'  # TODO: set for production / travis
 
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
@@ -100,10 +100,10 @@ esac
 #########################
 apt-get -qq update
 # Make add-apt-repository available
-apt-get -y -qq install python-dev
 
 add-apt-repository -y ppa:mapnik/v2.2.0
 add-apt-repository -y ppa:gunicorn/ppa
+add-apt-repository -y ppa:chris-lea/node.js
 
 if [ "$INSTALL_TYPE" == "travis" ]; then
     echo "Installing packages for Travis..."
@@ -112,6 +112,7 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     apt-get -qq update
     
     apt-get -y -qq install \
+        nodejs \
         libxml2-dev libxslt1-dev \
         postgresql-server-dev-9.1 \
         libmapnik libmapnik-dev python-mapnik mapnik-utils \
@@ -120,7 +121,6 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
         > /dev/null  # silence, package manager!  only show output on error
 else
     # non-CI build; install All the Things
-    add-apt-repository -y ppa:chris-lea/node.js
     add-apt-repository -y ppa:ubuntugis/ppa
     add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
 
@@ -137,7 +137,7 @@ else
 
     apt-get -y install \
         git \
-        python-pip \
+        python-pip python-dev \
         libxml2-dev libxslt1-dev \
         postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
         nodejs \
@@ -149,36 +149,29 @@ else
         gunicorn
 fi
 
-# Install Django
-# TODO remove this once 1.7 is released and we can install using pip.
-pushd $TEMP_ROOT
-    # Check for Django version
-    django_vers=`python -c "import django; print(django.get_version())"` || true
-    if [ '1.7b1' != "$django_vers" ]; then
-        echo "Installing Django"
-        pip uninstall -y -q Django || true
-        wget -q https://www.djangoproject.com/m/releases/1.7/Django-1.7b1.tar.gz
-        tar xzf Django-1.7b1.tar.gz
-        pushd Django-1.7b1
-            python setup.py install --quiet > /dev/null
-        popd
-        rm -rf Django-1.7b1 Django-1.7b1.tar.gz
-    else
-        echo 'Django already found, skipping.'
-    fi
-popd
-
-pushd $PROJECT_ROOT
-    pip install -q -r "deployment/requirements.txt"
-popd
-
-# Install node dependencies (do this beforehand for Travis)
+# for Travis CI, these things are installed in .travis.yml, to be in correct environment
 if [ "$INSTALL_TYPE" != "travis" ]; then
+    # Install Django
+    # TODO remove this once 1.7 is released and we can install using pip.
+    pushd $TEMP_ROOT
+        # Check for Django version
+        django_vers=`python -c "import django; print(django.get_version())"` || true
+        if [ '1.7b4' != "$django_vers" ]; then
+            echo "Installing Django"
+            pip install -q -U git+git://github.com/django/django.git@1.7b4
+        else
+            echo 'Django already found, skipping.'
+        fi
+    popd
+
+    pushd $PROJECT_ROOT
+        pip install -q -r "deployment/requirements.txt"
+    popd
+
+    # Install node dependencies
     npm install -g grunt-cli yo generator-angular
-fi
 
-# Install ruby gems (do elsewhere for Travis)
-if [ "$INSTALL_TYPE" != "travis" ]; then
+    # Install ruby gems
     gem install -v 3.3.4 sass
     gem install -v 0.12.5 compass
 fi
@@ -250,7 +243,9 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
         mkdir $UPLOADS_ROOT
         chown "$WEB_USER":"$WEB_USER" $UPLOADS_ROOT
     fi
-    python manage.py migrate -v0 --noinput
+    if [ "$INSTALL_TYPE" != "travis" ]; then
+        sudo -Hu "$WEB_USER" python manage.py migrate --noinput
+    fi
 popd
 
 #########################
@@ -425,8 +420,11 @@ nginx_conf="server {
 nginx_conf_file="/etc/nginx/sites-enabled/oti"
 echo "$nginx_conf" > "$nginx_conf_file"
 
-echo 'Removing default nginx config'
-rm /etc/nginx/sites-enabled/default
+# check if file exists before removing it (else rm fails on re-provision)
+if [ -a "/etc/nginx/sites-enabled/default" ]; then
+    echo 'Removing default nginx config'
+    rm /etc/nginx/sites-enabled/default
+fi
 
 echo 'Restarting nginx'
 service nginx restart

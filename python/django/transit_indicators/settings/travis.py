@@ -1,4 +1,4 @@
-# Overrides for default settings in development environment
+# Overrides for default settings in test environment
 
 from defaults import *
 
