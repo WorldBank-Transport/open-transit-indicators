@@ -23,7 +23,7 @@ angular.module('transitIndicators').constant('config', {
     },
 
     windshaft: {
-        port: 8080
+        port: 8067
     },
 
     settingsViews: [

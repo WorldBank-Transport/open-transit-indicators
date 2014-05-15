@@ -1,6 +1,8 @@
 #!/bin/bash
+PROJECTS_DIR="/projects"
+
 # Set the path to the project directory; all other paths will be relative to this.
-PROJECT_ROOT="/projects/open-transit-indicators"
+PROJECT_ROOT="$PROJECTS_DIR/open-transit-indicators"
 
 # Abort on error. If you want to ignore errors for command, use command || true
 set -o errexit
@@ -28,6 +30,17 @@ TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
 GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
+
+# Additional repos for snapshot versions of GeoTrellis and GTFS parser.
+# The changes in these repos haven't been published to Maven and may
+# not be for quite a while, so we need to publish them locally.
+GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
+GEOTRELLIS_REPO_URI="https://github.com/echeipesh/geotrellis.git"
+GEOTRELLIS_REPO_BRANCH="feature/slick"
+GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
+GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
+GTFS_PARSER_REPO_BRANCH="feature/slick"
+
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
@@ -283,6 +296,36 @@ then
     popd
 fi
 
+###############################
+# GeoTrellis local repo setup #
+###############################
+echo 'Setting up local geotrellis repo'
+if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
+    pushd $PROJECTS_DIR
+        git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
+    popd
+fi
+pushd $GEOTRELLIS_REPO_ROOT
+    git pull
+    ./sbt "project proj4" publish-local
+    ./sbt "project feature" publish-local
+    ./sbt "project slick" publish-local
+popd
+
+################################
+# GTFS parser local repo setup #
+################################
+echo 'Setting up local GTFS parser repo'
+if [ ! -d "$GTFS_PARSER_REPO_ROOT" ]; then
+    pushd $PROJECTS_DIR
+        git clone -b $GTFS_PARSER_REPO_BRANCH $GTFS_PARSER_REPO_URI
+    popd
+fi
+pushd $GTFS_PARSER_REPO_ROOT
+    git pull
+    ./sbt publish-local
+popd
+
 #########################
 # GeoTrellis setup      #
 #########################
@@ -389,8 +432,8 @@ nginx_conf="server {
 nginx_conf_file="/etc/nginx/sites-enabled/oti"
 echo "$nginx_conf" > "$nginx_conf_file"
 
-echo 'Removing default nginx config'
-rm /etc/nginx/sites-enabled/default
+echo 'Removing default nginx config if it exists'
+rm -f /etc/nginx/sites-enabled/default
 
 echo 'Restarting nginx'
 service nginx restart
