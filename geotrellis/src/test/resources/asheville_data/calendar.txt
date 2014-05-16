@@ -1,0 +1,7 @@
+service_id,service_name,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
+889A1510,"Mon-Sat",1,1,1,1,1,1,0,20131122,20150101
+892A1510,"Mon-Fri",1,1,1,1,1,0,0,20131122,20150101
+897A1510,"Sat",0,0,0,0,0,1,0,20131122,20150101
+893A1510,"Holiday Exception ",0,0,0,0,0,0,0,20131122,20150101
+894A1510,"Th - Sat ",0,0,0,1,1,1,0,20131122,20150101
+898A1510,"Fri & Sat",0,0,0,0,1,1,0,20131122,20150101
