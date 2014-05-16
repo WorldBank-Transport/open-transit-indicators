@@ -76,4 +76,29 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
     // TODO: this is in WGS84, but needs to be in UTM
     ashevilleCalc.avgTransitLengthPerMode("Bus") should be (0.18362 plusOrMinus 1e-5)
   }
+
+  // load GTFS sample test data (has empty shapes.txt)
+  val sampleData = GtfsData.fromFile("src/test/resources/sample_feed/")
+  val sampleCalc = new IndicatorsCalculator(sampleData)
+
+  it should "calculate numRoutesPerMode for Sample" in {
+    sampleCalc.numRoutesPerMode("Bus") should be (5)
+  }
+
+  it should "calculate maxStopsPerRoute for Sample" in {
+    sampleCalc.maxStopsPerRoute("CITY") should be (5)
+    sampleCalc.maxStopsPerRoute("BFC") should be (2)
+    sampleCalc.maxStopsPerRoute("AB") should be (2)
+    sampleCalc.maxStopsPerRoute("AAMV") should be (2)
+    sampleCalc.maxStopsPerRoute("STBA") should be (2)
+  }
+
+  it should "calculate numStopsPerMode for Sample" in {
+    sampleCalc.numStopsPerMode("Bus") should be (13)
+  }
+
+  it should "calculate avgTransitLengthPerMode for Sample" in {
+    // has no shapes.txt, so the transit length should be 0
+    sampleCalc.avgTransitLengthPerMode("Bus") should be (0.0)
+  }
 }

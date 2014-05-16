@@ -44,7 +44,12 @@ class IndicatorsCalculator(val gtfsData: GtfsData) {
         t.shape_id match {
           case None => 0
           case Some(shapeID) => {
-            gtfsData.shapesById(shapeID).line.length
+            gtfsData.shapesById.get(shapeID) match {
+              case None => 0
+              case Some(tripShape) => {
+                tripShape.line.length
+              }
+            }
           }
         }
       ).max
