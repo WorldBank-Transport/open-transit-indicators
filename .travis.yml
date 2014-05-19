@@ -32,5 +32,5 @@ env:
   - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
   - secure: OMZ1U4UA/VQxexgM6hWV+EcMgZAK6aHDg47cpKs50Smcg+ZXJiF7SlxqPPuXaQgYxkMb+9Qf6r6ZQ3uhxdfGkcz14pC6C8elwqz2CcrCv3IYoAjdvZ4EEV3vnTiJ96VKbwCOV5EM0wTRqdYd3GPg0JWPYNrxyq+hPKojmQ3wl0I=
 script:
-  #- python manage.py test  # getting import errors here
+  #- python manage.py test  # TODO: getting import errors here; run tests eventually
   - cd ../../js/angular && grunt test

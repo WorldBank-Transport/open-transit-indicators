@@ -69,7 +69,7 @@ GUNICORN_WORKERS=3
 # Create logs directory
 mkdir -p $LOG_ROOT
 
-# Set the install type. Should be one of [development|production|jenkins].
+# Set the install type. Should be one of [development|production|travis].
 case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
@@ -89,7 +89,7 @@ case "$INSTALL_TYPE" in
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         ;;
     *)
-        echo "Invalid installation type; should be one of development / production / jenkins" >&2
+        echo "Invalid installation type; should be one of development / production / travis" >&2
         exit 1
         ;;
 esac
