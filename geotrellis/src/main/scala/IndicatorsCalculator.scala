@@ -41,9 +41,16 @@ class IndicatorsCalculator(val gtfsData: GtfsData) {
     gtfsData.trips
       .groupBy(_.route_id.toString)
       .mapValues(_.map(t =>
-        t.shape match {
+        t.shape_id match {
           case None => 0
-          case Some(shape) => shape.length
+          case Some(shapeID) => {
+            gtfsData.shapesById.get(shapeID) match {
+              case None => 0
+              case Some(tripShape) => {
+                tripShape.line.length
+              }
+            }
+          }
         }
       ).max
     )
