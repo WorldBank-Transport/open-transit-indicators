@@ -53,13 +53,13 @@ nosetests.xml
 # ignore logs
 logs/
 
-# Editor crap
+# Editor
 *.swp
 *.swo
 *~
 ~*
 
-# OS X crap
+# OS X
 .DS_Store
 
 # Generated Static Files
