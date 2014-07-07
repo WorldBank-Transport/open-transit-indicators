@@ -23,10 +23,10 @@ fi
 # Set the path to the project directory; all other paths will be relative to this.
 INSTALL_TYPE=$1
 if [ "$INSTALL_TYPE" == "travis" ]; then
-    # For Travis, we start in current directory; parent is project directory.
+    # For Travis, we start in current directory.
     CURDIR=`pwd`
     PROJECT_ROOT=`dirname $CURDIR`
-    PROJECTS_DIR=$PROJECT_ROOT
+    PROJECTS_DIR='/home/travis/build'
 else
     PROJECT_ROOT="/projects/open-transit-indicators"
 fi
@@ -129,8 +129,9 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     
     apt-get -y -qq install \
         nodejs \
-        libxml2-dev libxslt1-dev \
+        libxml2-dev libxslt1-dev python-all-dev \
         postgresql-server-dev-9.1 \
+        build-essential libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
         libmapnik libmapnik-dev python-mapnik mapnik-utils \
         nginx \
         gunicorn \
@@ -155,7 +156,7 @@ else
         git \
         python-pip python-dev python-all-dev  \
         libxml2-dev libxslt1-dev \
-        build-essential libxml2-dev libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
+        build-essential libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
         postgresql-9.1 postgresql-server-dev-9.1 \
         nodejs \
         ruby1.9.3 rubygems \
@@ -178,8 +179,8 @@ else
         tar xfj geos-3.4.2.tar.bz2
         cd geos-3.4.2
         ./configure > /dev/null
-        make > /dev/null
-        sudo make install > /dev/null
+        make -s
+        sudo make -s install > /dev/null
         cd ..
 
         # gdal 1.10.x
@@ -187,8 +188,8 @@ else
         tar xfz gdal-1.10.1.tar.gz
         cd gdal-1.10.1
         ./configure --with-python > /dev/null
-        make > /dev/null
-        sudo make install > /dev/null
+        make -s
+        sudo make -s install > /dev/null
         cd ..
 
         # postgis
@@ -196,8 +197,8 @@ else
         tar xfz postgis-2.1.3.tar.gz
         cd postgis-2.1.3
         ./configure > /dev/null
-        make > /dev/null
-        sudo make install > /dev/null
+        make -s
+        sudo make -s install > /dev/null
         sudo ldconfig
         sudo make comments-install > /dev/null
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/shp2pgsql
