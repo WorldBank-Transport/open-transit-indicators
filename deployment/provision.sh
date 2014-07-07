@@ -373,6 +373,22 @@ then
     popd
 fi
 
+windshaft_upstart="
+description 'Start the Windshaft server'
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+chdir $WINDSHAFT_ROOT
+exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
+"
+
+windshaft_upstart_file="/etc/init/oti-windshaft.conf"
+echo "$windshaft_upstart" > $windshaft_upstart_file
+service oti-windshaft restart
+
+echo "Finished setting up Windshaft, and service started."
+
 ###############################
 # GeoTrellis local repo setup #
 ###############################
