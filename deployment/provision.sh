@@ -49,6 +49,7 @@ GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 # not be for quite a while, so we need to publish them locally.
 GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
 GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
+GEOTRELLIS_REPO_BRANCH="master"
 GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
 GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="feature/slick"
@@ -380,7 +381,7 @@ fi
 echo 'Setting up local geotrellis repo'
 if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
     pushd $PROJECTS_DIR
-        git clone $GEOTRELLIS_REPO_URI
+        git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
     popd
 fi
 pushd $GEOTRELLIS_REPO_ROOT
