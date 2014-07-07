@@ -23,5 +23,7 @@ TRUNCATE TABLE gtfs_transfers;
 TRUNCATE TABLE gtfs_trips;
 TRUNCATE TABLE gtfs_wheelchair_accessibility;
 TRUNCATE TABLE gtfs_wheelchair_boardings;
+TRUNCATE TABLE datasources_gtfsfeed RESTART IDENTITY CASCADE;
+
 -- keep this one around: it's manually populated
 --TRUNCATE TABLE gtfs_route_types;

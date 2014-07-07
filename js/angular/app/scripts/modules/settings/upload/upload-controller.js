@@ -34,9 +34,9 @@ angular.module('transitIndicators')
     function ($scope, $timeout, $upload, OTIUploadService) {
 
     // Milliseconds timeout for the upload status
-    var POLLING_MILLIS = 1000;
+    var POLLING_MILLIS = 1000 * 2;
     // Number of milliseconds to timeout the upload check
-    var TIMEOUT_MILLIS = 1000 * 60;
+    var TIMEOUT_MILLIS = 1000 * 60 * 10;
 
     /**
      * Cancels the upload of all active upload processes
