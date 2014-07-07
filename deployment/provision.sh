@@ -170,43 +170,41 @@ fi
 #### build postgis and friends #############
 # http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21Ubuntu1204src
 
-if [ "$INSTALL_TYPE" != "travis" ]; then
-    if type shp2pgsql 2>/dev/null; then
-        echo 'PostGIS already installed; skipping.'
-    else
-        pushd $TEMP_ROOT
-            # geos
-            wget --quiet http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
-            tar xfj geos-3.4.2.tar.bz2
-            cd geos-3.4.2
-            ./configure > /dev/null
-            make -s > /dev/null
-            sudo make -s install > /dev/null
-            cd ..
+if type shp2pgsql 2>/dev/null; then
+    echo 'PostGIS already installed; skipping.'
+else
+    pushd $TEMP_ROOT
+        # geos
+        wget --quiet http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
+        tar xfj geos-3.4.2.tar.bz2
+        cd geos-3.4.2
+        ./configure > /dev/null
+        make -s > /dev/null
+        sudo make -s install > /dev/null
+        cd ..
 
-            # gdal 1.10.x
-            wget --quiet http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
-            tar xfz gdal-1.10.1.tar.gz
-            cd gdal-1.10.1
-            ./configure --with-python > /dev/null
-            make -s > /dev/null
-            sudo make -s install > /dev/null
-            cd ..
+        # gdal 1.10.x
+        wget --quiet http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
+        tar xfz gdal-1.10.1.tar.gz
+        cd gdal-1.10.1
+        ./configure --with-python > /dev/null
+        make -s > /dev/null
+        sudo make -s install > /dev/null
+        cd ..
 
-            # postgis
-            wget --quiet http://download.osgeo.org/postgis/source/postgis-2.1.3.tar.gz
-            tar xfz postgis-2.1.3.tar.gz
-            cd postgis-2.1.3
-            ./configure > /dev/null
-            make -s > /dev/null
-            sudo make -s install > /dev/null
-            sudo ldconfig
-            sudo make comments-install > /dev/null
-            sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/shp2pgsql
-            sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
-            sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
-        popd
-    fi
+        # postgis
+        wget --quiet http://download.osgeo.org/postgis/source/postgis-2.1.3.tar.gz
+        tar xfz postgis-2.1.3.tar.gz
+        cd postgis-2.1.3
+        ./configure > /dev/null
+        make -s > /dev/null
+        sudo make -s install > /dev/null
+        sudo ldconfig
+        sudo make comments-install > /dev/null
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/shp2pgsql
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
+    popd
 fi
 ############################################
 
@@ -374,6 +372,22 @@ then
         sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
     popd
 fi
+
+windshaft_upstart="
+description 'Start the Windshaft server'
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+chdir $WINDSHAFT_ROOT
+exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
+"
+
+windshaft_upstart_file="/etc/init/oti-windshaft.conf"
+echo "$windshaft_upstart" > $windshaft_upstart_file
+service oti-windshaft restart
+
+echo "Finished setting up Windshaft, and service started."
 
 ###############################
 # GeoTrellis local repo setup #
