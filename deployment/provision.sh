@@ -178,7 +178,7 @@ else
         tar xfj geos-3.4.2.tar.bz2
         cd geos-3.4.2
         ./configure > /dev/null
-        make -s
+        make -s > /dev/null
         sudo make -s install > /dev/null
         cd ..
 
@@ -187,7 +187,7 @@ else
         tar xfz gdal-1.10.1.tar.gz
         cd gdal-1.10.1
         ./configure --with-python > /dev/null
-        make -s
+        make -s > /dev/null
         sudo make -s install > /dev/null
         cd ..
 
@@ -196,7 +196,7 @@ else
         tar xfz postgis-2.1.3.tar.gz
         cd postgis-2.1.3
         ./configure > /dev/null
-        make -s
+        make -s > /dev/null
         sudo make -s install > /dev/null
         sudo ldconfig
         sudo make comments-install > /dev/null
