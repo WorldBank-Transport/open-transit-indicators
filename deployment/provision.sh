@@ -26,6 +26,7 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     # For Travis, we start in current directory; parent is project directory.
     CURDIR=`pwd`
     PROJECT_ROOT=`dirname $CURDIR`
+    PROJECTS_DIR=$PROJECT_ROOT
 else
     PROJECT_ROOT="/projects/open-transit-indicators"
 fi
