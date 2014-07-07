@@ -174,32 +174,32 @@ if type shp2pgsql 2>/dev/null; then
 else
     pushd $TEMP_ROOT
         # geos
-        wget http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
+        wget --quiet http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
         tar xfj geos-3.4.2.tar.bz2
         cd geos-3.4.2
-        ./configure
-        make
-        sudo make install
+        ./configure > /dev/null
+        make > /dev/null
+        sudo make install > /dev/null
         cd ..
 
         # gdal 1.10.x
-        wget http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
+        wget --quiet http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
         tar xfz gdal-1.10.1.tar.gz
         cd gdal-1.10.1
-        ./configure --with-python
-        make
-        sudo make install
+        ./configure --with-python > /dev/null
+        make > /dev/null
+        sudo make install > /dev/null
         cd ..
 
         # postgis
-        wget http://download.osgeo.org/postgis/source/postgis-2.1.3.tar.gz
+        wget --quiet http://download.osgeo.org/postgis/source/postgis-2.1.3.tar.gz
         tar xfz postgis-2.1.3.tar.gz
         cd postgis-2.1.3
-        ./configure
-        make
-        sudo make install
+        ./configure > /dev/null
+        make > /dev/null
+        sudo make install > /dev/null
         sudo ldconfig
-        sudo make comments-install
+        sudo make comments-install > /dev/null
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/shp2pgsql
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
