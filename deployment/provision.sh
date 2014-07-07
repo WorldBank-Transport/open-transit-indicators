@@ -136,7 +136,6 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
         > /dev/null  # silence, package manager!  only show output on error
 else
     # non-CI build; install All the Things
-    add-apt-repository -y ppa:ubuntugis/ppa
     add-apt-repository -y "deb http://www.rabbitmq.com/debian/ testing main"
 
     # add public key for RabbitMQ
@@ -149,12 +148,14 @@ else
     # Install dependencies available via apt
     # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
     apt-get update
-
+    
+    # also install dependencies for building postgis
     apt-get -y install \
         git \
-        python-pip python-dev \
+        python-pip python-dev python-all-dev  \
         libxml2-dev libxslt1-dev \
-        postgresql-9.1 postgresql-server-dev-9.1 postgresql-9.1-postgis \
+        build-essential libxml2-dev libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
+        postgresql-9.1 postgresql-server-dev-9.1 \
         nodejs \
         ruby1.9.3 rubygems \
         openjdk-7-jre openjdk-7-jdk scala \
@@ -164,6 +165,47 @@ else
         gunicorn
 fi
 
+#### build postgis and friends #############
+# http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21Ubuntu1204src
+
+if type shp2pgsql 2>/dev/null; then
+    echo 'PostGIS already installed; skipping.'
+else
+    pushd $TEMP_ROOT
+        # geos
+        wget http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
+        tar xfj geos-3.4.2.tar.bz2
+        cd geos-3.4.2
+        ./configure
+        make
+        sudo make install
+        cd ..
+
+        # gdal 1.10.x
+        wget http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
+        tar xfz gdal-1.10.1.tar.gz
+        cd gdal-1.10.1
+        ./configure --with-python
+        make
+        sudo make install
+        cd ..
+
+        # postgis
+        wget http://download.osgeo.org/postgis/source/postgis-2.1.3.tar.gz
+        tar xfz postgis-2.1.3.tar.gz
+        cd postgis-2.1.3
+        ./configure
+        make
+        sudo make install
+        sudo ldconfig
+        sudo make comments-install
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/shp2pgsql
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
+        sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
+    popd
+fi
+############################################
+
 # for Travis CI, these things are installed in .travis.yml, to be in correct environment
 if [ "$INSTALL_TYPE" != "travis" ]; then
     # Install Django
@@ -171,9 +213,9 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     pushd $TEMP_ROOT
         # Check for Django version
         django_vers=`python -c "import django; print(django.get_version())"` || true
-        if [ '1.7b4' != "$django_vers" ]; then
+        if [ '1.7c1' != "$django_vers" ]; then
             echo "Installing Django"
-            pip install -q -U git+git://github.com/django/django.git@1.7b4
+            pip install -q -U git+git://github.com/django/django.git@1.7c1
         else
             echo 'Django already found, skipping.'
         fi
