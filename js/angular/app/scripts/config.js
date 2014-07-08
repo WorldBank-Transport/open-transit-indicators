@@ -19,6 +19,12 @@ angular.module('transitIndicators').constant('config', {
         },
         defaults: {
             maxZoom: 16
+        },
+        events: {
+            layers: {
+                enable: ['mouseover', 'mouseout'],
+                logic: 'emit'
+            }
         }
     },
 

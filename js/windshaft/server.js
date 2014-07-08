@@ -25,7 +25,7 @@ var config = {
 
         // specify the database column you'd like to interact with
         // TODO: using test table column here
-        //req.params.interactivity = ['cartodb_id'];
+        req.params.interactivity = ['stop_desc'];
 
         // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
         req.params =  _.extend({}, req.params);
