@@ -6,6 +6,13 @@ var Windshaft = require('windshaft');
 var _         = require('underscore');
 var settings  = require('./settings.json');
 
+// Sample map style 
+var gtfsStopStyle = function () {
+    var gtfs_stops_style =  '#gtfs_stops {marker-opacity: 1; marker-line-color: #FFF; marker-line-width: 2.5; marker-fill: #B40903; marker-width: 12; marker-line-opacity: 1; marker-placement: point; marker-type: ellipse; marker-allow-overlap: true;} ';
+    gtfs_stops_style += '#gtfs_stops[stop_id="90001"] {marker-fill: #0000FF;}';
+    return gtfs_stops_style;
+};
+
 var config = {
     base_url: '/tiles/:dbname/table/:table',
     base_url_notable: '/tiles/:dbname',
@@ -23,9 +30,12 @@ var config = {
     enable_cors: true,
     req2params: function(req, callback){
 
-        // specify the database column you'd like to interact with
-        // TODO: using test table column here
-        //req.params.interactivity = ['cartodb_id'];
+        // Example of how to tailor request for different tables
+        // TODO: Abstract styles to separate module
+        if (req.params.table === 'gtfs_stops') {
+            req.params.interactivity = ['stop_id', 'stop_name'];
+            req.params.style = gtfsStopStyle();
+        }
 
         // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
         req.params =  _.extend({}, req.params);
