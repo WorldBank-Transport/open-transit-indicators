@@ -24,17 +24,21 @@ var styles = {
     },
     gtfs_shape_geoms: function () {
         var gtfs_shapes_style =  '#gtfs_shape_geoms {';
-            gtfs_shapes_style += 'line-color: #FFFFFF;';
+            gtfs_shapes_style += 'line-color: #000000;';
             gtfs_shapes_style += 'line-opacity: 1;';
-            gtfs_shapes_style += 'line-width: 3;';
+            gtfs_shapes_style += 'line-width: 4;';
             // Not a complete list, not sure what the best way to provide a complete
             // color palette for each route type would be. There are currently 100+
             // route types defined in the gtfs_route_types table.
-            gtfs_shapes_style += '[route_type=0] {line-color: #9D0DFF; } ';
-            gtfs_shapes_style += '[route_type=1] {line-color: #0CAFE8; } ';
-            gtfs_shapes_style += '[route_type=2] {line-color: #2AFF00; } ';
-            gtfs_shapes_style += '[route_type=3] {line-color: #E8AE0C; } ';
-            gtfs_shapes_style += '[route_type=4] {line-color: #FF1400; } ';
+            gtfs_shapes_style += '[route_type=0] {line-color: #a6cee3; } ';
+            gtfs_shapes_style += '[route_type=1] {line-color: #1f78b4; } ';
+            gtfs_shapes_style += '[route_type=2] {line-color: #b2df8a; } ';
+            gtfs_shapes_style += '[route_type=3] {line-color: #33a02c; } ';
+            gtfs_shapes_style += '[route_type=4] {line-color: #fb9a99; } ';
+            gtfs_shapes_style += '[route_type=5] {line-color: #e31a1c; } ';
+            gtfs_shapes_style += '[route_type=6] {line-color: #fdbf6f; } ';
+            gtfs_shapes_style += '[route_type=7] {line-color: #ff7f00; } ';
+            gtfs_shapes_style += '[route_type=8] {line-color: #cab2d6; } ';
             gtfs_shapes_style += '}';
         return gtfs_shapes_style;
     }
