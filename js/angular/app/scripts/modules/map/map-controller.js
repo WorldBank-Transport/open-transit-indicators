@@ -15,15 +15,15 @@ angular.module('transitIndicators')
     /* LEAFLET CONFIG */
     var layers = {
         overlays: {
-            gtfsstops: {
-                name: 'GTFS Stops',
-                type: 'xyz',
-                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops/{z}/{x}/{y}.png'
-            },
             gtfsshapes: {
                 name: 'GTFS Routes',
                 type: 'xyz',
                 url: windshaftHost + '/tiles/transit_indicators/table/gtfs_shape_geoms/{z}/{x}/{y}.png'
+            },
+            gtfsstops: {
+                name: 'GTFS Stops',
+                type: 'xyz',
+                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops/{z}/{x}/{y}.png'
             }
         }
     };
