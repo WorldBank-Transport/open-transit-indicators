@@ -1,17 +1,11 @@
 // Runs Windshaft.
-// Note, currently to run this server your table must have a column called 
+// Note, currently to run this server your table must have a column called
 // the_geom_webmercator with SRID of 3857.
 
 var Windshaft = require('windshaft');
 var _         = require('underscore');
 var settings  = require('./settings.json');
-
-// Sample map style 
-var gtfsStopStyle = function () {
-    var gtfs_stops_style =  '#gtfs_stops {marker-opacity: 1; marker-line-color: #FFF; marker-line-width: 2.5; marker-fill: #B40903; marker-width: 12; marker-line-opacity: 1; marker-placement: point; marker-type: ellipse; marker-allow-overlap: true;} ';
-    gtfs_stops_style += '#gtfs_stops[stop_id="90001"] {marker-fill: #0000FF;}';
-    return gtfs_stops_style;
-};
+var otistyling = require('./oti-styling');
 
 var config = {
     base_url: '/tiles/:dbname/table/:table',
@@ -29,12 +23,17 @@ var config = {
     redis: {host: settings.redis_host, port: settings.redis_port},
     enable_cors: true,
     req2params: function(req, callback){
+        var table = req.params.table;
+        req.params.style = otistyling.get(table);
 
         // Example of how to tailor request for different tables
         // TODO: Abstract styles to separate module
-        if (req.params.table === 'gtfs_stops') {
+        if (table === 'gtfs_stops') {
             req.params.interactivity = ['stop_id', 'stop_name'];
-            req.params.style = gtfsStopStyle();
+        }
+
+        if (table === 'gtfs_shape_geoms') {
+            req.params.sql = "(select distinct r.route_id, r.route_type, s.shape_id, s.the_geom as the_geom from gtfs_shape_geoms as s LEFT JOIN gtfs_trips t ON s.shape_id = t.shape_id LEFT JOIN gtfs_routes r ON r.route_id = t.route_id WHERE r.route_id IS NOT NULL) AS gsg";
         }
 
         // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
