@@ -196,11 +196,13 @@ ALTER TABLE public.gtfs_routes OWNER TO transit_indicators;
 
 --
 -- Name: gtfs_shape_geoms; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Description: Table holding the polylines for each shape in the gtfs feed
 --
 
 CREATE TABLE gtfs_shape_geoms (
     shape_id text,
-    the_geom geometry(LineString,4326)
+    the_geom geometry(LineString,4326),
+    geom geometry(LineString,32616)
 );
 
 
@@ -352,3 +354,15 @@ CREATE TABLE gtfs_wheelchair_boardings (
 
 
 ALTER TABLE public.gtfs_wheelchair_boardings OWNER TO transit_indicators;
+
+--
+-- Name: gtfs_stops_routes_join; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Description: Intermediate table populated with a many-to-many relationship of routes and stops
+--
+
+CREATE TABLE gtfs_stops_routes_join (
+    stop_id text NOT NULL,
+    route_id text NOT NULL
+);
+ALTER TABLE public.gtfs_stops_routes_join OWNER TO transit_indicators;
+
