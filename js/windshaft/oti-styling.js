@@ -1,4 +1,12 @@
-
+/*
+ * Small utility object used to return CartoCSS styles for
+ * the various OTI table names
+ *
+ * NOTE: This is not currently complete or well thought out
+ *       It is here simply to serve as an example of how to
+ *       make a module and break functionality out of the 
+ *       node server.
+ */
 var styles = {
     gtfs_stops: function () {
         var gtfs_stops_style =  '#gtfs_stops {';
@@ -19,6 +27,9 @@ var styles = {
             gtfs_shapes_style += 'line-color: #FFFFFF;';
             gtfs_shapes_style += 'line-opacity: 1;';
             gtfs_shapes_style += 'line-width: 3;';
+            // Not a complete list, not sure what the best way to provide a complete
+            // color palette for each route type would be. There are currently 100+
+            // route types defined in the gtfs_route_types table.
             gtfs_shapes_style += '[route_type=0] {line-color: #9D0DFF; } ';
             gtfs_shapes_style += '[route_type=1] {line-color: #0CAFE8; } ';
             gtfs_shapes_style += '[route_type=2] {line-color: #2AFF00; } ';
