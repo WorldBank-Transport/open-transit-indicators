@@ -49,17 +49,17 @@ angular.module('transitIndicators')
             // (otherwise it doesn't show up until the next time the mouse gets moved)
             $scope.$apply(function() {
                 var marker = {
-                                lat: leafletEvent.latlng.lat,
-                                lng: leafletEvent.latlng.lng,
-                                message: leafletEvent.data.routes_desc,
-                                focus: true,
-                                draggable: false,
-                                icon: {
-                                        type: 'div',
-                                    	iconSize: [0, 0],
-                                    	popupAnchor:  [0, 0]
-                                       }
-                             };
+                    lat: leafletEvent.latlng.lat,
+                    lng: leafletEvent.latlng.lng,
+                    message: leafletEvent.data.routes_desc,
+                    focus: true,
+                    draggable: false,
+                    icon: {
+                            type: 'div',
+                            iconSize: [0, 0],
+                            popupAnchor:  [0, 0]
+                           }
+                 };
 
                 $scope.leaflet.markers = { stopMarker : marker };
             });
