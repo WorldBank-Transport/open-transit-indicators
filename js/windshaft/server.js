@@ -29,7 +29,7 @@ var config = {
         // Example of how to tailor request for different tables
         // TODO: Abstract styles to separate module
         if (table === 'gtfs_stops') {
-            req.params.interactivity = ['stop_id', 'stop_name'];
+            req.params.interactivity = ['stop_id', 'stop_name', 'stop_desc'];
         }
 
         if (table === 'gtfs_shape_geoms') {
