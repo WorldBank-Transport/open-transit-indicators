@@ -28,7 +28,7 @@
     "angular-bootstrap": "0.10.0",
     "underscore": "1.6.0",
     "bootstrap-sass-official": "3.1.1+1",
-    "angular-leaflet-directive": "flibbertigibbet/angular-leaflet-directive#v0.7.8",
+    "angular-leaflet-directive": "azavea/angular-leaflet-directive",
     "leaflet-utfgrid": "danzel/Leaflet.utfgrid",
     "leaflet-label": "Leaflet/Leaflet.label",
     "leaflet-tilelayer-geojson": "glenrobertson/leaflet-tilelayer-geojson"
