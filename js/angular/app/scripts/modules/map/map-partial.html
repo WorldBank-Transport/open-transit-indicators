@@ -1,10 +1,6 @@
-<leaflet defaults="leaflet.defaults" center="leaflet.center" layers="leaflet.layers" height="100%" width="100%"></leaflet>
+<leaflet defaults="leaflet.defaults" center="leaflet.center" markers="leaflet.markers" layers="leaflet.layers" height="100%" width="100%"></leaflet>
 <div class="gtfs-map-controls" ng-show="$state.is('map')">
     <button ui-sref="overview" class="btn btn-primary">Settings</button>
-    <br /><br />
-    <div style="background-color:white">
-      <span ng-show="stopLabel"><h3 id="stop-label">{{stopLabel}}</h3>
-    </div>
 </div>
 <ui-view></ui-view>
 

@@ -36,16 +36,41 @@ angular.module('transitIndicators')
             
         }
     };
-    
+
     var leaflet = {
         layers: angular.extend(config.leaflet.layers, layers)
     };
     $scope.leaflet = angular.extend(config.leaflet, leaflet);
     
-    $scope.stopLabel = "";
-    
-    $scope.$on('leafletDirectiveMap.utfgridMouseover', function(event, leafletEvent) {
+    $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.stopLabel = leafletEvent.data.stop_desc;
+
+        // we need something to bind the popup to, so use a marker with an empty icon
+        if (!$scope.leaflet.markers) {
+            // use $apply so popup appears right away
+            // (otherwise it doesn't show up until the next time the mouse gets moved)
+            $scope.$apply(function() {
+                $scope.leaflet.markers = { stopMarker : {
+                                                            lat: leafletEvent.latlng.lat,
+                                                            lng: leafletEvent.latlng.lng,
+                                                            message: leafletEvent.data.stop_desc,
+                                                            focus: true,
+                                                            draggable: false,
+                                                            icon: {
+                                                                    type: 'div',
+                                                                	iconSize: [0, 0],
+                                                                	popupAnchor:  [0, 0]
+                                                                   }
+                                                        }
+                                                        
+                                          };
+            });
+        }
+        
+    });
+    
+    $scope.$on('leafletDirectiveMap.utfgridMouseout', function(event, leafletEvent) {
+        $scope.leaflet.markers = null;
     });
     
 }]);
