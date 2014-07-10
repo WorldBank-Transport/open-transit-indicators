@@ -47,6 +47,13 @@ angular.module('transitIndicators')
         if (!$scope.leaflet.markers) {
             // use $apply so popup appears right away
             // (otherwise it doesn't show up until the next time the mouse gets moved)
+
+            if (!leafletEvent.data) {
+                // clicked somewhere with no associated UTFGrid data
+                $scope.leaflet.markers = null;
+                return;
+            }
+            
             $scope.$apply(function() {
                 var marker = {
                     lat: leafletEvent.latlng.lat,
