@@ -172,7 +172,7 @@ fi
 
 if type shp2pgsql 2>/dev/null; then
     echo 'PostGIS already installed; skipping.'
-else
+elif [ "$INSTALL_TYPE" != "travis" ]; then
     pushd $TEMP_ROOT
         # geos
         wget --quiet http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
@@ -205,6 +205,9 @@ else
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
     popd
+else
+    sudo -u postgres psql -c "CREATE EXTENSION postgis;"
+    sudo -u postgres psql -c "CREATE EXTENSION postgis_topology;"
 fi
 ############################################
 
