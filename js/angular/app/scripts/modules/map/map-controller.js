@@ -19,19 +19,19 @@ angular.module('transitIndicators')
                 name: 'GTFS Routes',
                 type: 'xyz',
                 url: windshaftHost + '/tiles/transit_indicators/table/gtfs_shape_geoms/{z}/{x}/{y}.png',
-                visible: false
+                visible: true
             },
             gtfsstops: {
                 name: 'GTFS Stops',
                 type: 'xyz',
                 url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops/{z}/{x}/{y}.png',
-                visible: false
+                visible: true
             },
             stopsutfgrid: {
                 name: 'GTFS Stops Interactivity',
                 type: 'utfGrid',
                 url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops_info/{z}/{x}/{y}.grid.json',
-                visible: false,
+                visible: true,
                 pluginOptions: { 'useJsonP': false }
             }
 
