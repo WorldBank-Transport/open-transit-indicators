@@ -18,6 +18,7 @@ TRUNCATE TABLE gtfs_shape_geoms;
 TRUNCATE TABLE gtfs_shapes;
 TRUNCATE TABLE gtfs_stop_times;
 TRUNCATE TABLE gtfs_stops;
+TRUNCATE TABLE gtfs_stops_info;
 TRUNCATE TABLE gtfs_transfer_types;
 TRUNCATE TABLE gtfs_transfers;
 TRUNCATE TABLE gtfs_trips;

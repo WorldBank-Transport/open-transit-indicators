@@ -11,6 +11,7 @@ virtualenv:
   system_site_packages: true
 before_script:
   - psql -U postgres -c "create extension postgis"
+  - psql -U postgres -c "create extension postgis_topology"
   - cd js/angular
   - npm install -g bower grunt-cli yo generator-angular --silent
   - gem install -q -v 3.3.4 sass

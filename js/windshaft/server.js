@@ -30,7 +30,9 @@ var config = {
         // TODO: Abstract styles to separate module
         // Note: can only have interactivity for a single column per table
         if (table === 'gtfs_stops') {
-            req.params.interactivity = 'routes_desc';
+            req.params.interactivity = 'stop_name';
+        } else if (table === 'gtfs_stops_info') {
+            req.params.interactivity = 'stop_routes';
         }
 
         if (table === 'gtfs_shape_geoms') {

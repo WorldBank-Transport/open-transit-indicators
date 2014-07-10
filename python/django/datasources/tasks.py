@@ -100,6 +100,7 @@ def validate_gtfs(gtfsfeed_id):
     result = send_to_geotrellis(gtfsfeed.source_file) if gtfsfeed.is_valid else False
 
     # Update processing status
+    logger.debug('gtfs-parser result is %s', result)
     gtfsfeed.is_processed = result
     gtfsfeed.save()
 

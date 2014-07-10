@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE gtfs_agency (
-    agency_id text NOT NULL,
+    agency_id text NOT NULL PRIMARY KEY,
     agency_name text NOT NULL,
     agency_url text NOT NULL,
     agency_timezone text NOT NULL,
@@ -53,7 +53,7 @@ ALTER TABLE public.gtfs_calendar_dates OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_directions (
-    direction_id integer NOT NULL,
+    direction_id integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -65,7 +65,7 @@ ALTER TABLE public.gtfs_directions OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_fare_attributes (
-    fare_id text NOT NULL,
+    fare_id text NOT NULL PRIMARY KEY,
     price double precision NOT NULL,
     currency_type text NOT NULL,
     payment_method integer,
@@ -132,7 +132,7 @@ ALTER TABLE public.gtfs_frequencies OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_location_types (
-    location_type integer NOT NULL,
+    location_type integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -144,7 +144,7 @@ ALTER TABLE public.gtfs_location_types OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_payment_methods (
-    payment_method integer NOT NULL,
+    payment_method integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -156,7 +156,7 @@ ALTER TABLE public.gtfs_payment_methods OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_pickup_dropoff_types (
-    type_id integer NOT NULL,
+    type_id integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -168,7 +168,7 @@ ALTER TABLE public.gtfs_pickup_dropoff_types OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_route_types (
-    route_type integer NOT NULL,
+    route_type integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -180,7 +180,7 @@ ALTER TABLE public.gtfs_route_types OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_routes (
-    route_id text NOT NULL,
+    route_id text NOT NULL PRIMARY KEY,
     agency_id text,
     route_short_name text DEFAULT ''::text,
     route_long_name text DEFAULT ''::text,
@@ -200,7 +200,7 @@ ALTER TABLE public.gtfs_routes OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_shape_geoms (
-    shape_id text,
+    shape_id text PRIMARY KEY,
     the_geom geometry(LineString,4326),
     geom geometry(LineString,32616)
 );
@@ -254,10 +254,9 @@ ALTER TABLE public.gtfs_stop_times OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_stops (
-    stop_id text NOT NULL,
+    stop_id text NOT NULL PRIMARY KEY,
     stop_name text NOT NULL,
     stop_desc text,
-    routes_desc text,
     stop_lat double precision,
     stop_lon double precision,
     zone_id text,
@@ -282,11 +281,25 @@ CREATE TABLE gtfs_stops (
 ALTER TABLE public.gtfs_stops OWNER TO transit_indicators;
 
 --
+-- Name: gtfs_stops_info; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Description: Stops descriptive information, for UTFGrid interactivity
+--
+
+CREATE TABLE gtfs_stops_info (
+    stop_id text NOT NULL PRIMARY KEY,
+    the_geom geometry(Point,4326),
+    stop_routes text
+);
+
+
+ALTER TABLE public.gtfs_stops_info OWNER TO transit_indicators;
+
+--
 -- Name: gtfs_transfer_types; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
 --
 
 CREATE TABLE gtfs_transfer_types (
-    transfer_type integer NOT NULL,
+    transfer_type integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -317,7 +330,7 @@ ALTER TABLE public.gtfs_transfers OWNER TO transit_indicators;
 CREATE TABLE gtfs_trips (
     route_id text,
     service_id text,
-    trip_id text NOT NULL,
+    trip_id text NOT NULL PRIMARY KEY,
     trip_headsign text,
     direction_id integer,
     block_id text,
@@ -337,7 +350,7 @@ ALTER TABLE public.gtfs_trips OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_wheelchair_accessibility (
-    wheelchair_accessibility integer NOT NULL,
+    wheelchair_accessibility integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -349,7 +362,7 @@ ALTER TABLE public.gtfs_wheelchair_accessibility OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_wheelchair_boardings (
-    wheelchair_boarding integer NOT NULL,
+    wheelchair_boarding integer NOT NULL PRIMARY KEY,
     description text
 );
 
@@ -365,9 +378,6 @@ CREATE TABLE gtfs_stops_routes_join (
     stop_id text NOT NULL,
     route_id text NOT NULL
 );
-ALTER TABLE public.gtfs_stops_routes_join OWNER TO transit_indicators;
 
-CREATE TABLE IF NOT EXISTS gtfs_stops_routes_join (
-    stop_id text, route_id text, PRIMARY KEY (stop_id, route_id)
-);
+ALTER TABLE public.gtfs_stops_routes_join OWNER TO transit_indicators;
 
