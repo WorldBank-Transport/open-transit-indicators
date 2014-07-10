@@ -257,6 +257,7 @@ CREATE TABLE gtfs_stops (
     stop_id text NOT NULL,
     stop_name text NOT NULL,
     stop_desc text,
+    routes_desc text,
     stop_lat double precision,
     stop_lon double precision,
     zone_id text,
@@ -365,4 +366,8 @@ CREATE TABLE gtfs_stops_routes_join (
     route_id text NOT NULL
 );
 ALTER TABLE public.gtfs_stops_routes_join OWNER TO transit_indicators;
+
+CREATE TABLE IF NOT EXISTS gtfs_stops_routes_join (
+    stop_id text, route_id text, PRIMARY KEY (stop_id, route_id)
+);
 
