@@ -14,6 +14,7 @@ import geotrellis.slick._
 import geotrellis.source.{ValueSource, RasterSource}
 import geotrellis.statistics.Histogram
 import scala.slick.driver.PostgresDriver
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
 import spray.http.MediaTypes
 import spray.http.StatusCodes.InternalServerError
@@ -31,8 +32,12 @@ trait GeoTrellisService extends HttpService {
   val dbUser = config.getString("database.user")
   val dbPassword = config.getString("database.password")
 
+  // For performing extent queries
+  case class Extent(xmin: Double, xmax: Double, ymin: Double, ymax: Double)
+  implicit val getExtentResult = GetResult(r => Extent(r.<<, r.<<, r.<<, r.<<))
+
   // All the routes that are defined by our API
-  def rootRoute = pingRoute ~ gtfsRoute ~ indicatorsRoute
+  def rootRoute = pingRoute ~ gtfsRoute ~ indicatorsRoute ~ mapInfoRoute
 
   // Database setup
   val dao = new DAO()
@@ -110,6 +115,46 @@ trait GeoTrellisService extends HttpService {
                   )
                 )
               }
+            }
+          }
+        }
+      }
+    }
+
+  // Endpoint for obtaining map info (just extent for now)
+  def mapInfoRoute =
+    pathPrefix("gt") {
+      path("map-info") {
+        get {
+          complete {
+            db withSession { implicit session: Session =>
+              // use the stops to find the extent, since they are required
+              val q = Q.queryNA[Extent]("""
+                SELECT ST_XMIN(ST_Extent(the_geom)) as xmin, ST_XMAX(ST_Extent(the_geom)) as xmax,
+                       ST_YMIN(ST_Extent(the_geom)) as ymin, ST_YMAX(ST_Extent(the_geom)) as ymax
+                FROM gtfs_stops;
+              """)
+              val extent = q.list.head
+
+              // construct the extent json, using null if no data is available
+              val extentJson = extent match {
+                case Extent(0, 0, 0, 0) =>
+                  JsNull
+                case _ =>
+                  JsObject(
+                    "southWest" -> JsObject(
+                      "lat" -> JsNumber(extent.ymin),
+                      "lng" -> JsNumber(extent.xmin)
+                    ),
+                    "northEast" -> JsObject(
+                      "lat" -> JsNumber(extent.ymax),
+                      "lng" -> JsNumber(extent.xmax)
+                    )
+                  )
+              }
+
+              // return the map info json
+              JsObject("extent" -> extentJson)
             }
           }
         }

@@ -30,8 +30,8 @@ angular.module('transitIndicators')
  * Main controller for OTI upload page
  */
 .controller('OTIUploadController',
-    ['$scope', '$timeout', '$upload', 'OTIUploadService',
-    function ($scope, $timeout, $upload, OTIUploadService) {
+    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIUploadService',
+    function ($scope, $rootScope, $timeout, $upload, OTIUploadService) {
 
     // Milliseconds timeout for the upload status
     var POLLING_MILLIS = 1000 * 2;
@@ -100,7 +100,7 @@ angular.module('transitIndicators')
         $scope.setSidebarCheckmark('upload', false);
     };
 
-	/*
+    /*
      * Prep file for upload
      */
     $scope.onFileSelect = function($files) {
@@ -143,7 +143,7 @@ angular.module('transitIndicators')
             $scope.uploadProgress = 100;
             onUploadSuccess(data);
 
-	    }).error(function(data, status, headers, config) {
+        }).error(function(data, status, headers, config) {
 
             var msg = status;
             if (data.source_file) {
@@ -175,6 +175,10 @@ angular.module('transitIndicators')
                 $scope.setGTFSUpload(upload);
                 $scope.uploadProgress = $scope.STATUS.DONE;
                 $scope.setSidebarCheckmark('upload', true);
+
+                // TODO: modify the settings-controller to listen to this event
+                // and do the setSidebarCheckmark there.
+                $rootScope.$broadcast('upload-controller:gtfs-uploaded');
             }
         };
         checkUpload();
@@ -202,7 +206,7 @@ angular.module('transitIndicators')
             });
     };
 
-	// Set initial scope variables and constants
+    // Set initial scope variables and constants
     $scope.setGTFSUpload(null);
     $scope.clearUploadProblems();
     $scope.files = null;
