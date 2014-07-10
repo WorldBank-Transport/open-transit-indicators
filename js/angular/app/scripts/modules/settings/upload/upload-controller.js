@@ -175,6 +175,9 @@ angular.module('transitIndicators')
                 $scope.setGTFSUpload(upload);
                 $scope.uploadProgress = $scope.STATUS.DONE;
                 $scope.setSidebarCheckmark('upload', true);
+
+                // TODO: modify the settings-controller to listen to this event
+                // and do the setSidebarCheckmark there.
                 $rootScope.$broadcast('upload-controller:gtfs-uploaded');
             }
         };
