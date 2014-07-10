@@ -22,6 +22,20 @@ var styles = {
             gtfs_stops_style += '} ';
         return gtfs_stops_style;
     },
+    gtfs_stops_info: function () {
+        var gtfs_stops_info_style =  '#gtfs_stops_info {';
+            gtfs_stops_info_style += 'marker-opacity: 1;';
+            gtfs_stops_info_style += 'marker-line-color: #FFF;';
+            gtfs_stops_info_style += 'marker-line-width: 2.5;';
+            gtfs_stops_info_style += 'marker-fill: #B40903;';
+            gtfs_stops_info_style += 'marker-width: 12;';
+            gtfs_stops_info_style += 'marker-line-opacity: 1;';
+            gtfs_stops_info_style += 'marker-placement: point;';
+            gtfs_stops_info_style += 'marker-type: ellipse;';
+            gtfs_stops_info_style += 'marker-allow-overlap: true;';
+            gtfs_stops_info_style += '} ';
+        return gtfs_stops_info_style;
+    },
     gtfs_shape_geoms: function () {
         var gtfs_shapes_style =  '#gtfs_shape_geoms {';
             gtfs_shapes_style += 'line-color: #000000;';

@@ -5,6 +5,7 @@ CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
     BEGIN
         -- Repopulate gtfs_stops_routes_join table
         EXECUTE 'DELETE FROM gtfs_stops_routes_join WHERE stop_id=$1' USING NEW.stop_id;
+        EXECUTE 'DELETE FROM gtfs_stops_info WHERE stop_id=$1' USING NEW.stop_id;
 
         INSERT INTO gtfs_stops_routes_join (
             SELECT DISTINCT st.stop_id, r.route_id
@@ -16,7 +17,7 @@ CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
 
         -- Populate routes_desc column on stops table for UTFGrid interactivity;
         -- show stop description and the routes it serves.
-        EXECUTE 'UPDATE gtfs_stops s SET routes_desc = 
+        EXECUTE 'INSERT INTO gtfs_stops_info (SELECT s.stop_id, s.the_geom,
             CONCAT(''<strong>'', s.stop_name, ''</strong><br />'',
                 array_to_string(array(
                     SELECT r.route_short_name
@@ -25,7 +26,8 @@ CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
                     WHERE srj.stop_id = $1
                 ), ''<br />'')
             )
-            WHERE s.stop_id=$1'
+            FROM gtfs_stops s
+            WHERE s.stop_id=$1)'
         USING NEW.stop_id;
 
         RETURN NEW;

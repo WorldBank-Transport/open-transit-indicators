@@ -18,7 +18,8 @@ angular.module('transitIndicators')
             gtfsshapes: {
                 name: 'GTFS Routes',
                 type: 'xyz',
-                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_shape_geoms/{z}/{x}/{y}.png'
+                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_shape_geoms/{z}/{x}/{y}.png',
+                visible: true
             },
             gtfsstops: {
                 name: 'GTFS Stops',
@@ -29,7 +30,7 @@ angular.module('transitIndicators')
             stopsutfgrid: {
                 name: 'GTFS Stops Interactivity',
                 type: 'utfGrid',
-                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops/{z}/{x}/{y}.grid.json',
+                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops_info/{z}/{x}/{y}.grid.json',
                 visible: true,
                 pluginOptions: { 'useJsonP': false }
             }
@@ -58,7 +59,7 @@ angular.module('transitIndicators')
                 var marker = {
                     lat: leafletEvent.latlng.lat,
                     lng: leafletEvent.latlng.lng,
-                    message: leafletEvent.data.routes_desc,
+                    message: leafletEvent.data.stop_routes,
                     focus: true,
                     draggable: false,
                     icon: {

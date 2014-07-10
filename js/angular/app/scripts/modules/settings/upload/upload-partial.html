@@ -9,7 +9,7 @@
         <div class="h3">
             <span class="glyphicon glyphicon-ok"></span> GTFS Data Loaded
             <span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">Delete Data</button></span>
-            <span class="h5 pull-right"><button class="btn btn-primary" ui-sref="map">Preview Map</button></span>
+            <span class="h5 pull-right"><button class="btn btn-primary" ui-sref="map" ui-sref-opts="reload">Preview Map</button></span>
         </div>
     </div>
     <div class="dropzone inprogress" ng-show="uploadProgress >= 0 && uploadProgress <= 100">

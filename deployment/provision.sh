@@ -205,9 +205,6 @@ elif [ "$INSTALL_TYPE" != "travis" ]; then
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
     popd
-else
-    sudo -u postgres psql -c "CREATE EXTENSION postgis;"
-    sudo -u postgres psql -c "CREATE EXTENSION postgis_topology;"
 fi
 ############################################
 
