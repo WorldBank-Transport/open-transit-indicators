@@ -67,16 +67,16 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Set is_valid on current gtfsfeed to false
-     * so that a new feed can be uploaded
+     * Delete the GTFS feed metadata model object, which triggers
+     * deletion of the GTFS feed data as well.
      */
     $scope.delete = function () {
-        // TODO: Implement once permissions/authentication is solved
-        //$scope.gtfsUpload.is_valid = false;
-        //$scope.gtfsUpload.$update().then(function () {
-        $scope.setGTFSUpload({});
-        $scope.clearUploadProblems();
-        //});
+        $scope.gtfsUpload.$delete({id: $scope.gtfsUpload.id}).then(function () {
+            $scope.setGTFSUpload({});
+            $scope.clearUploadProblems();
+            $scope.setSidebarCheckmark('upload', false);
+            $rootScope.$broadcast('upload-controller:gtfs-deleted');
+        });
     };
 
     /*
@@ -121,7 +121,6 @@ angular.module('transitIndicators')
         if (!$file) {
             return;
         }
-
 
         $scope.uploadProgress = 0;
         var file = $file;
@@ -194,6 +193,7 @@ angular.module('transitIndicators')
         if (!(upload && upload.id)) {
             return;
         }
+
         OTIUploadService.gtfsProblems.query(
             {gtfsfeed: upload.id},
             function(data) {
