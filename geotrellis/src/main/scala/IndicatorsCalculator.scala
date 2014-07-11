@@ -29,10 +29,14 @@ class IndicatorsCalculator(val gtfsData: GtfsData) {
 
   // Counts the number of stops per mode
   lazy val numStopsPerMode: Map[String, Int] = {
-    // get the number of stops per route, group by route type, and count the stops in each
-    maxStopsPerRoute.toList
-      .groupBy(kv => routeByID(kv._1).route_type.toString)
-      .mapValues(_.foldLeft(0) {(sum, pair) => sum + pair._2 })
+    // get all routes, group by route type, and find the unique stop ids per route (via trips)
+    gtfsData.routes
+      .groupBy(_.route_type.toString)
+      .mapValues(_.map(_.id)
+        .map(gtfsData.tripsByRoute(_)
+          .map(_.stopTimes.map(_.stop_id))
+          .flatten
+      ).flatten.distinct.length)
   }
 
   // Finds the max transit system length per route
