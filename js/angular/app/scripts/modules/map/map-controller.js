@@ -78,12 +78,26 @@ angular.module('transitIndicators')
     $scope.$on('leafletDirectiveMap.utfgridMouseout', function(event, leafletEvent) {
         $scope.leaflet.markers = null;
     });
+    
+    var worldExtent = {
+        "southWest": {
+          "lat": -57.0,
+          "lng": -168.5
+        },
+        "northEast": {
+          "lat": 73.25,
+          "lng": 158.1
+        }
+    };
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
         mapService.getMapInfo().then(function(mapInfo) {
             if (mapInfo.extent) {
                 $scope.leaflet.bounds = mapInfo.extent;
+            } else {
+                // no extent; zoom out to world
+                $scope.leaflet.bounds = worldExtent;
             }
         });
     };
@@ -94,5 +108,10 @@ angular.module('transitIndicators')
     // zoom to the new extent whenever a GTFS file is uploaded
     $scope.$on('upload-controller:gtfs-uploaded', function() {
         zoomToDataExtent();
+    });
+    
+    // zoom out to world view when data deleted
+    $scope.$on('upload-controller:gtfs-deleted', function() {
+        $scope.leaflet.bounds = worldExtent;
     });
 }]);

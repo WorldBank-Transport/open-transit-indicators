@@ -22,6 +22,12 @@
             <span class="h5"><a ng-click="cancel()">Try Again</a></span>
         </div>
     </div>
+    <div class="dropzone notices" ng-if="deleteError">
+        <div class="h4">
+            <span class="glyphicon glyphicon-remove"></span> {{ deleteError }}
+            <span class="h5"><a ng-click="delete()">Try Again</a></span>
+        </div>
+    </div>
     <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
             <div class="settingsmodal-notices-errors">

@@ -37,8 +37,9 @@ if [ 0 -ne $has_spatial_db ]; then
     # need to be accessed from within Django, which is why they are not set up as models.
     psql -d $DB_NAME -f ./deployment/setup_gtfs.sql
     
-    # add trigger for stops
+    # add database triggers
     psql -d $DB_NAME -f ./deployment/stops_routes_trigger.sql
+    psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
 
     # Populate the route types lookup table
     psql -d $DB_NAME -f ./deployment/gtfs_route_types.sql
