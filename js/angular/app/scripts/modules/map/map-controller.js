@@ -80,15 +80,15 @@ angular.module('transitIndicators')
     });
     
     var worldExtent = {
-                        "southWest": {
-                          "lat": -57.0,
-                          "lng": -168.5
-                        },
-                        "northEast": {
-                          "lat": 73.25,
-                          "lng": 158.1
-                        }
-                      };
+        "southWest": {
+          "lat": -57.0,
+          "lng": -168.5
+        },
+        "northEast": {
+          "lat": 73.25,
+          "lng": 158.1
+        }
+    };
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {

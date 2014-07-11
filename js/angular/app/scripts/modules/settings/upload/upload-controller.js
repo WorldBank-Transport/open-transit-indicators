@@ -70,12 +70,17 @@ angular.module('transitIndicators')
      * Delete the GTFS feed metadata model object, which triggers
      * deletion of the GTFS feed data as well.
      */
+    $scope.deleteError = "";
     $scope.delete = function () {
         $scope.gtfsUpload.$delete({id: $scope.gtfsUpload.id}).then(function () {
             $scope.setGTFSUpload({});
             $scope.clearUploadProblems();
             $scope.setSidebarCheckmark('upload', false);
+            $scope.deleteError = "";
             $rootScope.$broadcast('upload-controller:gtfs-deleted');
+        }, function(error) {
+            $scope.deleteError = "GTFS deletion failed.";
+            console.log(error);
         });
     };
 
