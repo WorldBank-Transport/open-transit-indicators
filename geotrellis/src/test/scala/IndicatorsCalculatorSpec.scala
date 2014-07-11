@@ -38,7 +38,9 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
 
   it should "calculate avgTransitLengthPerMode for SEPTA" in {
     // TODO: this is in WGS84, but needs to be in UTM
-    septaRailCalc.avgTransitLengthPerMode("Rail") should be (0.53766 plusOrMinus 1e-5)
+    // Commenting this out until UTM is implemented, since there's no way to
+    // tell if the current number is actually correct or not.
+    //septaRailCalc.avgTransitLengthPerMode("Rail") should be (0.53766 plusOrMinus 1e-5)
   }
 
   // TODO: Asheville data fails to parse -- Eugene is looking into this.
@@ -78,7 +80,9 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
 
   it should "calculate avgTransitLengthPerMode for Asheville" in {
     // TODO: this is in WGS84, but needs to be in UTM
-    ashevilleCalc.avgTransitLengthPerMode("Bus") should be (0.18362 plusOrMinus 1e-5)
+    // Commenting this out until UTM is implemented, since there's no way to
+    // tell if the current number is actually correct or not.
+    //ashevilleCalc.avgTransitLengthPerMode("Bus") should be (0.18362 plusOrMinus 1e-5)
   }
 
   // load GTFS sample test data (has empty shapes.txt)
