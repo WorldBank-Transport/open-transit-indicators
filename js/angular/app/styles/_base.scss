@@ -9,17 +9,14 @@ $lighter-bg-grey        : rgb(230, 230, 230);
 $light-line-grey        : rgb(200, 200, 200);
 $error-red              : rgb(223, 26, 35);
 $warning-orange         : rgb(207, 136, 19);
+$hr-border              : #ccc;
 // http://modularscale.com/scale/?px1=13&px2=&ra1=1.25&ra2=0
-$h1                     : 41.046;
-$h2                     : 30.792;
-$h3                     : 23.1;
-$h4                     : 17.329;
+$h1                     : 31.739;
+$h2                     : 25.391;
+$h3                     : 20.313;
+$h4                     : 16.25;
 $h5                     : 13;
-$munit                  : 6.656;
-$grid-rows              : 16;
-$grid-columns           : 12 !default;
-$grid-gutter-width      : 16 !default;
-$loops                  : 20 !default;
+$gutter                 : 15;
 
 //== Media queries breakpoints
 //
@@ -71,7 +68,7 @@ $screen-md-max:              ($screen-lg-min - 1) !default;
     @if $i < $max {
       $remvalues: #{$remvalues + " "};
     }
-  } 
+  }
   @for $i from 1 through $max {
     $value: nth($values, $i);
     @if type-of($value) == "number" {
@@ -83,7 +80,7 @@ $screen-md-max:              ($screen-lg-min - 1) !default;
     @if $i < $max {
       $remValues: #{$remValues + " "};
     }
-  } 
-    #{$property}: $remvalues; 
-    #{$property}: $remValues; 
+  }
+    #{$property}: $remvalues;
+    #{$property}: $remValues;
 }
