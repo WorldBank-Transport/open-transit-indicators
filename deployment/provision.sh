@@ -430,6 +430,8 @@ geotrellis.port = \"$GEOTRELLIS_PORT\"
 database.name = \"$DB_NAME\"
 database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
+spray.can.server.idle-timeout = 180 s
+spray.can.server.request-timeout = 120 s
 "
 
 pushd $GEOTRELLIS_ROOT/src/main/resources/
