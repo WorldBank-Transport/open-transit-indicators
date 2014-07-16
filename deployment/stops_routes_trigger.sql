@@ -4,16 +4,15 @@ DROP TRIGGER IF EXISTS stops_routes on gtfs_stops;
 CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
     BEGIN
         -- Repopulate gtfs_stops_routes_join table
-        EXECUTE 'DELETE FROM gtfs_stops_routes_join WHERE stop_id=$1' USING NEW.stop_id;
-        EXECUTE 'DELETE FROM gtfs_stops_info WHERE stop_id=$1' USING NEW.stop_id;
-
-        INSERT INTO gtfs_stops_routes_join (
+        
+        EXECUTE 'INSERT INTO gtfs_stops_routes_join (
             SELECT DISTINCT st.stop_id, r.route_id
             FROM gtfs_stop_times st
             LEFT JOIN gtfs_trips t ON st.trip_id = t.trip_id
             LEFT JOIN gtfs_routes r on r.route_id = t.route_id
             LEFT JOIN gtfs_stops s on s.stop_id = st.stop_id
-        );
+            WHERE s.stop_id = $1
+        )' USING NEW.stop_id;
 
         -- Populate routes_desc column on stops table for UTFGrid interactivity;
         -- show stop description and the routes it serves.
