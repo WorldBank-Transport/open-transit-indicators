@@ -14,6 +14,7 @@ TRUNCATE TABLE gtfs_location_types;
 TRUNCATE TABLE gtfs_payment_methods;
 TRUNCATE TABLE gtfs_pickup_dropoff_types;
 TRUNCATE TABLE gtfs_routes;
+TRUNCATE TABLE gtfs_stops_routes_join;
 TRUNCATE TABLE gtfs_shape_geoms;
 TRUNCATE TABLE gtfs_shapes;
 TRUNCATE TABLE gtfs_stop_times;

@@ -381,3 +381,8 @@ CREATE TABLE gtfs_stops_routes_join (
 
 ALTER TABLE public.gtfs_stops_routes_join OWNER TO transit_indicators;
 
+CREATE INDEX gtfs_stops_routes_join_stop_idx ON gtfs_stops_routes_join (stop_id);
+CREATE INDEX gtfs_stops_routes_join_route_idx ON gtfs_stops_routes_join (route_id);
+CREATE INDEX gtfs_stop_times_trip_idx ON gtfs_stop_times (trip_id);
+CREATE INDEX gtfs_stop_times_stop_idx ON gtfs_stop_times (stop_id);
+
