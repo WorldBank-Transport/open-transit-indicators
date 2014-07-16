@@ -307,6 +307,10 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
     fi
 popd
 
+# Add deletion trigger. This can't happen in setup_db.sh, above, because
+# it relies on Django migrations.
+sudo -u postgres psql -d $DB_NAME -f ./delete_gtfs_trigger.sql
+
 #########################
 # Celery setup          #
 #########################

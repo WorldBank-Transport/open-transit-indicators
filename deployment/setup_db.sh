@@ -39,7 +39,6 @@ if [ 0 -ne $has_spatial_db ]; then
     
     # add database triggers
     psql -d $DB_NAME -f ./deployment/stops_routes_trigger.sql
-    psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
 
     # Populate the route types lookup table
     psql -d $DB_NAME -f ./deployment/gtfs_route_types.sql
