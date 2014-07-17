@@ -309,7 +309,9 @@ popd
 
 # Add deletion trigger. This can't happen in setup_db.sh, above, because
 # it relies on Django migrations.
-sudo -u postgres psql -d $DB_NAME -f ./delete_gtfs_trigger.sql
+pushd $PROJECT_ROOT
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+popd
 
 #########################
 # Celery setup          #
@@ -363,7 +365,8 @@ windshaft_conf="
 pushd $WINDSHAFT_ROOT
     echo "$windshaft_conf" > settings.json
     if [ "$INSTALL_TYPE" != "travis" ]; then
-        npm install --silent  # Travis installs npm stuff in its own setup
+        ## Run as non-sudo user so npm installs libs as not sudo
+        sudo -u $WEB_USER npm install --silent  # Travis installs npm stuff in its own setup
     fi
 popd
 
