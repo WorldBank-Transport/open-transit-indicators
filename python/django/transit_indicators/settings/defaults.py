@@ -27,8 +27,9 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['*',]
 
-
 # Application definition
+
+AUTH_USER_MODEL = 'userdata.OTIUser'
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -39,10 +40,12 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
 
     'datasources',
     'transit_indicators',
+    'userdata',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -89,5 +92,11 @@ CELERY_ACCEPT_CONTENT=['json']
 
 # Rest Framework Settings
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        # Required for API browsing interface
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSIONS_CLASSES': ('rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',),
 }
