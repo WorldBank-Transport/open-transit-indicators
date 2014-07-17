@@ -1,8 +1,11 @@
 // Partial: Typography
 
 body {
-  @include rem(font-size, $h5);  
-  line-height: 1.563;
+  @include rem(font-size, $h5);
+  line-height: 1.5;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 p {
@@ -16,42 +19,42 @@ h4,
 h5,
 h6 {
   color: $heading-color;
-  font-weight: 600;  
+  font-weight: 600;
   line-height: 1.25;
   margin: .5em 0;
 
-  &:first-child { 
-    margin-top: 0; 
+  &:first-child {
+    margin-top: 0;
   }
 }
 
-h1, 
+h1,
 .h1 {
   @include rem (font-size, $h1);
 }
 
-h2, 
+h2,
 .h2 {
   @include rem (font-size, $h2);
 }
 
-h3, 
+h3,
 .h3 {
   @include rem (font-size, $h3);
 }
 
-h4, 
+h4,
 .h4 {
   @include rem (font-size, $h4);
 }
 
-h5, 
+h5,
 .h5 {
   @include rem (font-size, $h5);
 }
 
 label {
-  color: #888;  
+  color: #888;
   display: block;
 }
 
