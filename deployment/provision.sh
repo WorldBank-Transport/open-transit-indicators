@@ -77,6 +77,11 @@ GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 
+APP_SU_USERNAME="oti-user"
+APP_SU_PASSWORD=$APP_SU_USERNAME
+# TODO: Change this?
+APP_SU_EMAIL="$APP_SU_USERNAME@azavea.com"
+
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
@@ -311,6 +316,11 @@ popd
 # it relies on Django migrations.
 pushd $PROJECT_ROOT
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+popd
+
+## Now create a superuser for the app
+pushd $DJANGO_ROOT
+    sudo -Hu "$WEB_USER" python manage.py oti_create_user --username="$APP_SU_USERNAME" --password="$APP_SU_PASSWORD" --email="$APP_SU_EMAIL" --superuser
 popd
 
 #########################
