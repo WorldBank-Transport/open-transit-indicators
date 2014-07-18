@@ -5,11 +5,14 @@ from rest_framework.routers import DefaultRouter
 
 from datasources import views as datasourcesviews
 from userdata import views as userviews
+import views as indicatorviews
 
 router = DefaultRouter()
 router.register(r'gtfs-feeds', datasourcesviews.GTFSFeedViewSet)
 router.register(r'gtfs-feed-problems', datasourcesviews.GTFSFeedProblemViewSet)
 router.register(r'users', userviews.OTIUserViewSet)
+router.register(r'config', indicatorviews.OTIIndicatorsConfigViewSet)
+router.register(r'peak-times', indicatorviews.PeakTravelPeriodViewSet)
 
 urlpatterns = patterns('',  # NOQA
     url(r'^admin/', include(admin.site.urls)),
