@@ -80,7 +80,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_URL = '/static/'
 
-STATIC_ROOT = '/projects/open-transit-indicators/static' 
+STATIC_ROOT = '/projects/open-transit-indicators/static'
 
 # Celery settings -- only use JSON for serialization
 # Set because upstart runs as superuser and celery complains
@@ -100,3 +100,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSIONS_CLASSES': ('rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',),
 }
+
+# Settings for Geometry data stored in database
+DJANGO_SRID = 3857

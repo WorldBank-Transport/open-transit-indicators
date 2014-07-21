@@ -10,7 +10,6 @@ from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInter
 from urllib import urlencode
 
 from datasources.models import GTFSFeed, GTFSFeedProblem
-from transit_indicators.celery_settings import app
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -34,12 +33,11 @@ class OTIProblemAccumulator(ProblemAccumulatorInterface):
 
 def get_problem_title(problem):
     """Helper function to transform camelCase to Title Case"""
-    return re.sub("([a-z])([A-Z])","\g<1> \g<2>",
+    return re.sub("([a-z])([A-Z])", "\g<1> \g<2>",
                   problem.__class__.__name__)
 
 
-@app.task
-def validate_gtfs(gtfsfeed_id):
+def run_validate_gtfs(gtfsfeed_id):
     """Function to validate uploaded GTSFeed files
 
     Creates GTSFeedProblem objects for each error/warning

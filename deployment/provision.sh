@@ -286,7 +286,7 @@ pushd $DJANGO_ROOT
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': '$DB_NAME',
         'USER': '$DB_USER',
         'PASSWORD': '$DB_PASS',
