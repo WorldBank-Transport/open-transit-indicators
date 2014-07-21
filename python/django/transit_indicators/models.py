@@ -16,11 +16,11 @@ class OTIIndicatorsConfig(models.Model):
     # The maximum allowable commute time (seconds). Used by the job accessibility
     # indicator to generate a travelshed for access to designated job
     # locations.
-    max_commute_time_s = models.IntegerField()
+    max_commute_time_s = models.PositiveIntegerField()
 
     # Maximum allowable walk time (seconds). Also used by the job accessibility indicator
     # when generating its travelshed.
-    max_walk_time_s = models.IntegerField()
+    max_walk_time_s = models.PositiveIntegerField()
 
 
 class PeakTravelPeriod(models.Model):
