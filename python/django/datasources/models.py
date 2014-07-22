@@ -21,8 +21,7 @@ class DataSourceProblem(models.Model):
     """ Base model for problems (warnings or errors) with data sources.
 
     Implement by subclassing and adding a ForeignKey to the DataSource class you need.
-    If you want to take advantage of the DataSourceProblemCountMixin in serializers.py, name
-    your DataSourceProblem subclass '{{Name of DataSource subclass}}Problem'."""
+    """
     class ProblemTypes(object):
         ERROR = 'err'
         WARNING = 'war'

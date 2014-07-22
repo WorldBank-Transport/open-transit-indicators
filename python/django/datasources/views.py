@@ -56,6 +56,6 @@ class BoundaryViewSet(viewsets.ModelViewSet):
 
 
 class BoundaryProblemViewSet(viewsets.ModelViewSet):
-    """Viewset for displaying problems with Boundaries (really, the Shapefile they come from."""
+    """Viewset for displaying BoundaryProblems (generated while processing shapefiles)."""
     model = BoundaryProblem
     filter_fields = ('boundary',)

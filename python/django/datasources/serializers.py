@@ -3,7 +3,7 @@ import os
 
 from rest_framework import serializers
 
-from models import GTFSFeed, DataSourceProblem, Boundary
+from models import GTFSFeed, GTFSFeedProblem, DataSourceProblem, Boundary, BoundaryProblem
 
 
 def _validate_zip_extension(filename):
@@ -14,21 +14,24 @@ def _validate_zip_extension(filename):
         raise serializers.ValidationError(msg)
 
 
+# TODO: Refactor as an actual custom field if we start adding lots of custom
+# fields to our serializers.
 class DataSourceProblemCountsMixin(object):
     """Adds a 'get_datasource_problem_counts' function to a DataSource which has a problem_set.
 
-    This requires that the Problems class follow the following naming convention:
-        The problems for a DataSource class called 'FooDataSource' should be represented by
-        a class called 'FooDataSourceProblem'.
-
     To use, inherit from DataSourceProblemsMixin, and then add
     'problems = serializers.SerializerMethodField('get_datasource_problem_counts')'
-    to your class.
+    to your class and a 'problem_model' field referencing the correct *Problem model
+    class as part of the Meta class (similar to how a serializer is referenced to a
+    particular model by setting Meta.model).
     """
     def get_datasource_problem_counts(self, obj):
         """Serializer method field to get list of ids for errors"""
-        class_lower = obj.__class__.__name__.lower()
-        problem_set_getter = operator.attrgetter(class_lower + 'problem_set')
+        try:
+            class_lower = self.Meta.problem_model.__name__.lower()
+        except AttributeError:
+            raise AttributeError('Serializer\'s Meta class is missing a problem_model field.')
+        problem_set_getter = operator.attrgetter(class_lower + '_set')
         errors = (problem_set_getter(obj)
                   .filter(type=DataSourceProblem.ProblemTypes.ERROR)
                   .count())
@@ -43,6 +46,7 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
 
     class Meta:
         model = GTFSFeed
+        problem_model = GTFSFeedProblem
         read_only_fields = ('is_valid', 'is_processed')
         ordering = ('-id',)
 
@@ -60,6 +64,7 @@ class BoundarySerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
 
     class Meta:
         model = Boundary
+        problem_model = BoundaryProblem
         read_only_fields = ('is_valid', 'is_processed', 'geom')
         ordering = ('-id')
 
