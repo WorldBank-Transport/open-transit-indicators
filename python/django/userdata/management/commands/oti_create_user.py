@@ -40,6 +40,12 @@ class Command(BaseCommand):
         email = options['email']
         is_superuser = options['superuser']
 
+        # Ensure a passed username doesn't already exist
+        users = OTIUser.objects.filter(username=username)
+        if users.count() > 0:
+            print "Username taken. Exiting."
+            return
+
         while username is None:
             print 'Please enter a username'
             username = raw_input('Username: ')
