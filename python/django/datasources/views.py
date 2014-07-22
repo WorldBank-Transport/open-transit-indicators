@@ -2,9 +2,11 @@
 
 from rest_framework import viewsets, status
 
-from datasources.models import GTFSFeed, GTFSFeedProblem
-from datasources.serializers import GTFSFeedSerializer
+from datasources.models import GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem
+from datasources.serializers import GTFSFeedSerializer, BoundarySerializer
 from datasources.tasks import validate_gtfs
+from datasources.tasks import shapefile_to_boundary
+
 
 class GTFSFeedViewSet(viewsets.ModelViewSet):
     """View set for dealing with GTFS Feeds."""
@@ -33,7 +35,27 @@ class GTFSFeedViewSet(viewsets.ModelViewSet):
         validate_gtfs.delay(self.object.id)
         return response
 
+
 class GTFSFeedProblemViewSet(viewsets.ModelViewSet):
     """Viewset for displaying problems for GTFS data"""
     model = GTFSFeedProblem
     filter_fields = ('gtfsfeed',)
+
+
+class BoundaryViewSet(viewsets.ModelViewSet):
+    """View set for handling boundaries (city, regional)."""
+    model = Boundary
+    serializer_class = BoundarySerializer
+
+    def create(self, request):
+        """Run validation / import task via celery on creation."""
+        response = super(BoundaryViewSet, self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            shapefile_to_boundary.delay(self.object.id)
+        return response
+
+
+class BoundaryProblemViewSet(viewsets.ModelViewSet):
+    """Viewset for displaying BoundaryProblems (generated while processing shapefiles)."""
+    model = BoundaryProblem
+    filter_fields = ('boundary',)
