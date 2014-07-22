@@ -94,29 +94,36 @@ def run_shapefile_to_boundary(boundary_id):
     boundary.save()
     error_factory = ShapeFileErrorFactory(BoundaryProblem, boundary, 'boundary')
 
+    def handle_error(title, description):
+        """Helper method to handle shapefile errors."""
+        error_factory.error(title, description)
+        boundary.is_processed = True
+        boundary.save()
+        return
+
     try:
         # Set up temporary directory and unzip to there.
         temp_dir = extract_zip_to_temp_dir(boundary.source_file)
         shapefiles = get_shapefiles_in_dir(temp_dir)
 
         if len(shapefiles) > 1:
-            error_factory.error('Multiple shapefiles found.', 'Upload only one shapefile at a time.')
+            handle_error('Multiple shapefiles found.', 'Upload only one shapefile at a time.')
             return
         elif len(shapefiles) < 1:
-            error_factory.error('No shapefile found.',
-                                'The zip archive must include exactly one shapefile.')
+            handle_error('No shapefile found.',
+                         'The zip archive must include exactly one shapefile.')
             return
 
         shapefile_path = os.path.join(temp_dir, shapefiles[0])
         shape_datasource = GDALDataSource(shapefile_path)
         if len(shape_datasource) > 1:
-            error_factory.error('Multiple layers in shapefile.',
-                                'The boundary shapefile must have only one layer.')
+            handle_error('Multiple layers in shapefile.',
+                         'The boundary shapefile must have only one layer.')
             return
 
         boundary_layer = shape_datasource[0]
         if boundary_layer.srs is None:
-            error_factory.error('Missing .prj file.', 'Boundary shapefile must include a .prj file.')
+            handle_error('Missing .prj file.', 'Boundary shapefile must include a .prj file.')
             return
 
         # Since this will become a boundary for a city / region, attempt to flatten
@@ -124,7 +131,7 @@ def run_shapefile_to_boundary(boundary_id):
         try:
             union = get_union([feature.geom for feature in boundary_layer])
         except ValueError as e:
-            error_factory.error('Could not create geometry union.', str(e))
+            handle_error('Could not create geometry union.', str(e))
             return
 
         # Transform to our internal database SRID
@@ -139,5 +146,5 @@ def run_shapefile_to_boundary(boundary_id):
         boundary.is_processed = True
         boundary.save()
     except Exception as e:
-        error_factory.error('Unexpected error processing shapefile.', str(e))
+        handle_error('Unexpected error processing shapefile.', str(e))
         return
