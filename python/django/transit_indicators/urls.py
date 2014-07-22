@@ -17,8 +17,6 @@ router.register(r'config', indicatorviews.OTIIndicatorsConfigViewSet, base_name=
 router.register(r'peak-travel', indicatorviews.PeakTravelPeriodViewSet, base_name='peak-travel')
 
 urlpatterns = patterns('',  # NOQA
-    url(r'^admin/', include(admin.site.urls)),
-
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
