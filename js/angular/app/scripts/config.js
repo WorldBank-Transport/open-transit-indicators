@@ -79,13 +79,29 @@ angular.module('transitIndicators').constant('config', {
             }
         },
         defaults: {
-            maxZoom: 16
+            maxZoom: 16,
+            zoomControl: true,
+            doubleClickZoom: true,
+            scrollWheelZoom: true,
+            keyboard: true,
+            dragging: true
         },
         events: {
             layers: {
                 enable: ['mouseover', 'mouseout'],
                 logic: 'emit'
             }
+        }
+    },
+
+    worldExtent: {
+        "southWest": {
+          "lat": -57.0,
+          "lng": -168.5
+        },
+        "northEast": {
+          "lat": 73.25,
+          "lng": 158.1
         }
     },
 
