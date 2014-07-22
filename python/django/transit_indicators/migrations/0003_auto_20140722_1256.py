@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('transit_indicators', '0002_auto_20140721_2121'),
+        ('datasources', '0005_boundary_boundaryproblem'),
     ]
 
     operations = [
