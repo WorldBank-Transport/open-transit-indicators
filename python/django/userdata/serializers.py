@@ -2,7 +2,6 @@ from rest_framework.serializers import ModelSerializer
 
 from userdata.models import OTIUser
 
-
 class OTIUserSerializer(ModelSerializer):
     """ Custom serializaition for OTIUser objects """
 

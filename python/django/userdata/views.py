@@ -14,7 +14,7 @@ class OTIUserViewSet(ModelViewSet):
     model = OTIUser
     serializer_class = OTIUserSerializer
     filter_fields = ('username', 'email', 'first_name', 'last_name',)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class OTIObtainAuthToken(ObtainAuthToken):
