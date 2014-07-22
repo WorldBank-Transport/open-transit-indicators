@@ -5,16 +5,17 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from transit_indicators.viewsets import OTIAdminViewSet
+
 from userdata.models import OTIUser
 from userdata.serializers import OTIUserSerializer
 
 
-class OTIUserViewSet(ModelViewSet):
+class OTIUserViewSet(OTIAdminViewSet):
     """ This endpoint represents users in the system """
     model = OTIUser
     serializer_class = OTIUserSerializer
     filter_fields = ('username', 'email', 'first_name', 'last_name',)
-    permission_classes = (permissions.IsAuthenticated,)
 
 
 class OTIObtainAuthToken(ObtainAuthToken):

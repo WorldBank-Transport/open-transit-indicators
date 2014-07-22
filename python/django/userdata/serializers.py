@@ -8,4 +8,4 @@ class OTIUserSerializer(ModelSerializer):
     class Meta(object):
         model = OTIUser
         read_only_fields = ('id', 'last_login', 'date_joined')
-        exclude = ('is_staff', 'password')
+        exclude = ('id', 'is_staff', 'password')

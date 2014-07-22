@@ -98,7 +98,7 @@ REST_FRAMEWORK = {
         # Required for API browsing interface
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_PERMISSIONS_CLASSES': ('rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',),
+    'DEFAULT_PERMISSIONS_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
 }
 
 # Settings for Geometry data stored in database

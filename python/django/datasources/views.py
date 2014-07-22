@@ -2,13 +2,15 @@
 
 from rest_framework import viewsets, status
 
+from transit_indicators.viewsets import OTIBaseViewSet
+
 from datasources.models import GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem
 from datasources.serializers import GTFSFeedSerializer, BoundarySerializer
 from datasources.tasks import validate_gtfs
 from datasources.tasks import shapefile_to_boundary
 
 
-class GTFSFeedViewSet(viewsets.ModelViewSet):
+class GTFSFeedViewSet(OTIBaseViewSet):
     """View set for dealing with GTFS Feeds."""
     model = GTFSFeed
     serializer_class = GTFSFeedSerializer
@@ -36,13 +38,13 @@ class GTFSFeedViewSet(viewsets.ModelViewSet):
         return response
 
 
-class GTFSFeedProblemViewSet(viewsets.ModelViewSet):
+class GTFSFeedProblemViewSet(OTIBaseViewSet):
     """Viewset for displaying problems for GTFS data"""
     model = GTFSFeedProblem
     filter_fields = ('gtfsfeed',)
 
 
-class BoundaryViewSet(viewsets.ModelViewSet):
+class BoundaryViewSet(OTIBaseViewSet):
     """View set for handling boundaries (city, regional)."""
     model = Boundary
     serializer_class = BoundarySerializer
@@ -55,7 +57,7 @@ class BoundaryViewSet(viewsets.ModelViewSet):
         return response
 
 
-class BoundaryProblemViewSet(viewsets.ModelViewSet):
+class BoundaryProblemViewSet(OTIBaseViewSet):
     """Viewset for displaying BoundaryProblems (generated while processing shapefiles)."""
     model = BoundaryProblem
     filter_fields = ('boundary',)
