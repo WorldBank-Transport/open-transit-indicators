@@ -10,8 +10,15 @@ class DataSource(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     last_modify_date = models.DateTimeField(auto_now=True)
 
-    # May want to move this into a mixin eventually.
+    class Meta(object):
+        abstract = True
+
+
+class FileDataSource(DataSource):
+    """DataSource with a source_file field and processing statuses."""
     source_file = models.FileField()
+    is_valid = models.NullBooleanField()
+    is_processed = models.BooleanField(default=False)
 
     class Meta(object):
         abstract = True
@@ -38,10 +45,8 @@ class DataSourceProblem(models.Model):
         abstract = True
 
 
-class GTFSFeed(DataSource):
+class GTFSFeed(FileDataSource):
     """Represents a GTFS Feed (a zip file)."""
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
 
 
 class GTFSFeedProblem(DataSourceProblem):
@@ -49,11 +54,8 @@ class GTFSFeedProblem(DataSourceProblem):
     gtfsfeed = models.ForeignKey(GTFSFeed)
 
 
-class Boundary(DataSource):
+class Boundary(FileDataSource):
     """A boundary, used for denoting cities and regions. Created from a Shapefile."""
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
-
     # Since we can't determine the SRID at runtime, Django will store
     # everything in WebMercator; indicator calculations will need to
     # use a transformed version or their calculations will be inaccurate.
