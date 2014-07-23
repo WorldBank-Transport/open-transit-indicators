@@ -153,7 +153,12 @@ def run_shapefile_to_boundary(boundary_id):
 
 
 def run_get_shapefile_fields(demographicdata_id):
-    """Get the column field names from a shapefile."""
+    """Get the column field names from a shapefile.
+    Opens the Shapefile associated with demographicdata_id, validates it, and extracts the field
+    names available in the Shapefile. Saves them as DemographicDataFieldName objects.
+    Params:
+        :demographicdata_id: ID of a DemographicDataSource from which to get field names.
+    """
     # Note that we're processing, and
     # prepare to store any errors encountered.
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
@@ -206,7 +211,21 @@ def run_get_shapefile_fields(demographicdata_id):
 
 
 def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_field):
-    """Load data from DemographicDataSource into DemographicDataFeature objects."""
+    """Load data from DemographicDataSource into DemographicDataFeature objects.
+    Opens the Shapefile associated with demographicdata_id and reads data from the fields
+    whose names are given in pop1_field, pop2_field, and dest1_field. Generates a
+    series of DemographicDataFeature objects containing the geometries in the shapefile,
+    as well as the data from the three specified fields associated with each geometry.
+    Params:
+        :pop1_field: The name of the field in the Shapefile from which to import data that
+        will be placed in the population_metric_1 field of each generated
+        DemographicDataFeature object.
+        :pop2_field: Same as pop1_field, but data goes into the population_metric_2 field
+        of the generated DemographicDataFeature objects.
+        :dest2_field: Same as pop1_field and pop2_field, but data from this field of the
+        Shapefile will end up in the destination_metric_1 field of each
+        DemographicDataFeature object.
+    """
     # We can assume that the shapefile is valid because get_shapefile_fields
     # has been run, so jump straight to getting the data.
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
