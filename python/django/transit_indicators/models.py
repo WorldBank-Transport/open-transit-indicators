@@ -7,8 +7,11 @@ class OTIIndicatorsConfig(models.Model):
     """ Global configuration for indicator calculation. """
     # Suffixes denote database units; the UI may convert to other units for
     # display to users.
-    # The local poverty line (US Dollars).
-    poverty_line_usd = models.FloatField()
+    # The local poverty line (in local currency, therefore no database units).
+    poverty_line = models.FloatField()
+
+    # The average fare (local currency, no database units)
+    avg_fare = models.FloatField()
 
     # Buffer distance (meters) for indicators attempting to capture a concept of
     # nearness. E.g. "Percentage of elderly people living within X meters of a
