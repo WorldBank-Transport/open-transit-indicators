@@ -16,6 +16,7 @@
   margin-right: auto;
   position: relative;
   z-index: 5;
+  border: 2px solid $gray-light;
 }
 .settingsmodal-body, .settingsmodal-sidebar {
   display: table-cell;
@@ -25,6 +26,9 @@
   @include rem(width, 200);
   border-right: 1px solid $light-line-grey;
   vertical-align: top;
+}
+.settingsmodal-sidebar-active {
+  border-right: 4px solid $brand-primary;
 }
 .settingsmodal-body {
   @include rem(padding, 30, 40);
