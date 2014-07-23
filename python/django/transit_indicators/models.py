@@ -1,14 +1,17 @@
 from django.db import models
 
-from datasources.models import Boundary
+from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
 
 
 class OTIIndicatorsConfig(models.Model):
     """ Global configuration for indicator calculation. """
     # Suffixes denote database units; the UI may convert to other units for
     # display to users.
-    # The local poverty line (US Dollars).
-    poverty_line_usd = models.FloatField()
+    # The local poverty line (in local currency, therefore no database units).
+    poverty_line = models.FloatField()
+
+    # The average fare (local currency, no database units)
+    avg_fare = models.FloatField()
 
     # Buffer distance (meters) for indicators attempting to capture a concept of
     # nearness. E.g. "Percentage of elderly people living within X meters of a
@@ -34,6 +37,36 @@ class OTIIndicatorsConfig(models.Model):
 
     # Boundary denoting the region
     region_boundary = models.ForeignKey(Boundary, blank=True, null=True, related_name='+')
+
+
+class OTIDemographicConfig(models.Model):
+    """Stores configuration relating to demographic data.
+
+    When POSTing a JSON representation of this object to
+    /demographics/<datasource-id>/load/ to load a new set of data and generate a new
+    configuration, send field _names_ rather than the id of a DemographicDataFieldName
+    object; the serializer will take care of looking up the proper objects.
+    E.g. {"pop_metric_1_label": "DIST_POP" }.
+    """
+    # Labels and field names for demographic metrics, of which there will
+    # always be precisely three (3): Two (2) population metrics and one (1)
+    # destination metric.
+    # The label is human-readable and designed to be displayed to users.
+    # The field is for accessing the data from the associated shapefile.
+    pop_metric_1_label = models.CharField(max_length=255, blank=True, null=True)
+    pop_metric_1_field = models.ForeignKey(DemographicDataFieldName, blank=True,
+                                           null=True, related_name='+')
+
+    pop_metric_2_label = models.CharField(max_length=255, blank=True, null=True)
+    pop_metric_2_field = models.ForeignKey(DemographicDataFieldName, blank=True,
+                                           null=True, related_name='+')
+
+    dest_metric_1_label = models.CharField(max_length=255, blank=True, null=True)
+    dest_metric_1_field = models.ForeignKey(DemographicDataFieldName, blank=True,
+                                            null=True, related_name='+')
+
+    # The datasource from which these data points will come
+    datasource = models.ForeignKey(DemographicDataSource)
 
 
 class PeakTravelPeriod(models.Model):

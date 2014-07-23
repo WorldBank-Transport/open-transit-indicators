@@ -3,15 +3,9 @@ import os
 
 from rest_framework import serializers
 
-from models import GTFSFeed, GTFSFeedProblem, DataSourceProblem, Boundary, BoundaryProblem
-
-
-def _validate_zip_extension(filename):
-    """Checks that filename ends in .zip."""
-    name, extension = os.path.splitext(filename)
-    if extension != '.zip':
-        msg = "Uploaded filename must end in .zip."
-        raise serializers.ValidationError(msg)
+from models import (GTFSFeed, GTFSFeedProblem, DataSourceProblem, Boundary,
+                    BoundaryProblem, DemographicDataSource, DemographicDataSourceProblem,
+                    DemographicDataFieldName)
 
 
 # TODO: Refactor as an actual custom field if we start adding lots of custom
@@ -41,8 +35,28 @@ class DataSourceProblemCountsMixin(object):
         return dict(errors=errors, warnings=warnings)
 
 
-class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin):
+class ValidateZipMixin(object):
+    """Provides functionality to validate that a file has the .zip extension."""
+    def _validate_zip_extension(self, filename):
+        """Checks that filename ends in .zip."""
+        name, extension = os.path.splitext(filename)
+        if extension != '.zip':
+            msg = "Uploaded filename must end in .zip."
+            raise serializers.ValidationError(msg)
+
+    def validate_zip_file(self, attrs, source):
+        """ Basic validation to ensure the file name ends in .zip. """
+        fileobj = attrs[source]
+        self._validate_zip_extension(fileobj.name)  # Raises exception if validation fails.
+        return attrs
+
+
+class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
+                         ValidateZipMixin):
     problems = serializers.SerializerMethodField('get_datasource_problem_counts')
+
+    def validate_source_file(self, attrs, source):
+        return self.validate_zip_file(attrs, source)
 
     class Meta:
         model = GTFSFeed
@@ -50,17 +64,14 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
         read_only_fields = ('is_valid', 'is_processed')
         ordering = ('-id',)
 
-    def validate_source_file(self, attrs, source):
-        """ Basic validation to ensure the file name ends in .zip. """
-        fileobj = attrs[source]
 
-        _validate_zip_extension(fileobj.name)  # Raises exception if validation fails.
-        return attrs
-
-
-class BoundarySerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin):
+class BoundarySerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
+                         ValidateZipMixin):
     """Serializes Boundary objects."""
     problems = serializers.SerializerMethodField('get_datasource_problem_counts')
+
+    def validate_source_file(self, attrs, source):
+        return self.validate_zip_file(attrs, source)
 
     class Meta:
         model = Boundary
@@ -68,8 +79,23 @@ class BoundarySerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
         read_only_fields = ('is_valid', 'is_processed', 'geom')
         ordering = ('-id')
 
+
+class DemographicDataSourceSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
+                                      ValidateZipMixin):
+    """Serializes DemographicDataSource's fields, if any."""
+    fields = serializers.SerializerMethodField('get_shapefile_fields')
+
     def validate_source_file(self, attrs, source):
-        """ Ensure filename ends in .zip; full validation occurs in celery."""
-        fileobj = attrs[source]
-        _validate_zip_extension(fileobj.name)  # Raises exception if validation fails.
-        return attrs
+        return self.validate_zip_file(attrs, source)
+
+    class Meta:
+        model = DemographicDataSource
+        problem_model = DemographicDataSourceProblem
+        read_only_fields = ('is_valid', 'is_processed', 'is_loaded', 'num_features')
+        ordering = ('-id')
+
+    def get_shapefile_fields(self, obj):
+        """Get the names of the fields in the associated shapefile."""
+        field_names = (DemographicDataFieldName.objects.filter(datasource=obj)
+                       .values_list('name', flat=True))
+        return field_names

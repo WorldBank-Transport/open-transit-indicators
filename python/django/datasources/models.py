@@ -10,8 +10,15 @@ class DataSource(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     last_modify_date = models.DateTimeField(auto_now=True)
 
-    # May want to move this into a mixin eventually.
+    class Meta(object):
+        abstract = True
+
+
+class FileDataSource(DataSource):
+    """DataSource with a source_file field and processing statuses."""
     source_file = models.FileField()
+    is_valid = models.NullBooleanField()
+    is_processed = models.BooleanField(default=False)
 
     class Meta(object):
         abstract = True
@@ -38,10 +45,8 @@ class DataSourceProblem(models.Model):
         abstract = True
 
 
-class GTFSFeed(DataSource):
+class GTFSFeed(FileDataSource):
     """Represents a GTFS Feed (a zip file)."""
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
 
 
 class GTFSFeedProblem(DataSourceProblem):
@@ -49,11 +54,8 @@ class GTFSFeedProblem(DataSourceProblem):
     gtfsfeed = models.ForeignKey(GTFSFeed)
 
 
-class Boundary(DataSource):
+class Boundary(FileDataSource):
     """A boundary, used for denoting cities and regions. Created from a Shapefile."""
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
-
     # Since we can't determine the SRID at runtime, Django will store
     # everything in WebMercator; indicator calculations will need to
     # use a transformed version or their calculations will be inaccurate.
@@ -63,3 +65,57 @@ class Boundary(DataSource):
 class BoundaryProblem(DataSourceProblem):
     """Problem (warning or error) with a Boundary."""
     boundary = models.ForeignKey(Boundary)
+
+
+class DemographicDataSource(FileDataSource):
+    """Stores a shapefile containing demographic data; actual data is in DemographicDataFeature."""
+    # Number of features detected in the shapefile associated with this model.
+    # Lets us know if we were able to create all the DemographicDataFeatures
+    # correctly.
+    num_features = models.PositiveIntegerField(blank=True, null=True)
+
+    # Whether the task to finish loading the datasource into
+    # DemographicDataFeatures has finished.
+    is_loaded = models.BooleanField(default=False)
+
+
+class DemographicDataSourceProblem(DataSourceProblem):
+    """Problem with a demographic data shapefile."""
+    datasource = models.ForeignKey(DemographicDataSource)
+
+
+class DemographicDataFieldName(models.Model):
+    """Name of a field in a DemographicAvailableData's Shapefile."""
+    # Shapefiles limit column names to 10 characters
+    name = models.CharField(max_length=10, db_index=True)
+    datasource = models.ForeignKey(DemographicDataSource)
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return str(self.__repr__())
+
+    def __unicode__(self):
+        return unicode(self.__repr__())
+
+
+class DemographicDataFeature(DataSource):
+    """Stores demographic data associated with a geometry.
+
+    Users are explicitly limited to having two population metrics and one destination metric
+    (e.g. available jobs). This simplifies data storage and processing.
+    """
+
+    # Metrics about the population, e.g. number of people aged > 65
+    population_metric_1 = models.FloatField(blank=True, null=True)
+    population_metric_2 = models.FloatField(blank=True, null=True)
+
+    # Metrics about destinations in a given geometry, e.g. number of jobs.
+    destination_metric_1 = models.FloatField(blank=True, null=True)
+
+    # The geometry to which the metrics apply.
+    geom = models.MultiPolygonField(srid=settings.DJANGO_SRID)
+
+    # The DataSource where this data came from
+    datasource = models.ForeignKey(DemographicDataSource)

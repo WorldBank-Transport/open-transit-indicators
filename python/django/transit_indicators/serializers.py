@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from models import OTIIndicatorsConfig, PeakTravelPeriod
+from datasources.models import DemographicDataFieldName
+from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod
 
 
 class PeakTravelPeriodSerializer(serializers.ModelSerializer):
@@ -39,3 +40,74 @@ class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OTIIndicatorsConfig
+
+
+class OTIDemographicConfigSerializer(serializers.ModelSerializer):
+    """Validates that at least one demographic data metric will receive data."""
+    # Override metric fields to allow strings rather than integers for foreign
+    # keys
+    pop_metric_1_field = serializers.CharField(max_length=10, required=False)
+    pop_metric_2_field = serializers.CharField(max_length=10, required=False)
+    dest_metric_1_field = serializers.CharField(max_length=10, required=False)
+
+    def restore_object(self, attrs, instance=None):
+        """Create / update an OTIDemographicConfig instance."""
+        if instance is not None:
+            if attrs.get('datasource', None):
+                instance.datasource = attrs['datasource']
+
+            # Update fields from field name
+            for key in attrs:
+                if key in ['pop_metric_1_field', 'pop_metric_2_field', 'dest_metric_1_field']:
+                    setattr(instance, key, self.field_from_field_name(attrs[key],
+                                                                      instance.datasource))
+                elif key in ['pop_metric_1_label', 'pop_metric_2_label', 'dest_metric_2_label']:
+                    setattr(instance, key, attrs[key])
+            # Currently, there are no other fields in this model.
+            return instance
+        else:  # Still need to convert field names to DemographicDataFieldName objects
+            for key in attrs:
+                if key in ['pop_metric_1_field', 'pop_metric_2_field', 'dest_metric_1_field']:
+                    attrs[key] = self.field_from_field_name(attrs[key], attrs['datasource'])
+            return OTIDemographicConfig(**attrs)
+
+    def field_from_field_name(self, fieldname, datasource):
+        """Get a DemographicDataFieldName instance's pk from its fieldname."""
+        return DemographicDataFieldName.objects.get(datasource=datasource, name=fieldname)
+
+    def _validate_field_name_field(self, attrs, source):
+        """Make sure that a field actually exists."""
+        try:
+            # We don't actually care about the result if this succeeds.
+            DemographicDataFieldName.objects.get(datasource=attrs.get('datasource'),
+                                                 name=attrs[source])
+        except DemographicDataFieldName.DoesNotExist:
+            raise serializers.ValidationError('\'%s\' is not a valid field for this data source.'
+                                              % attrs[source])
+        return True
+
+    def validate_pop_metric_1_field(self, attrs, source):
+        self._validate_field_name_field(attrs, source)
+        return attrs
+
+    def validate_pop_metric_2_field(self, attrs, source):
+        self._validate_field_name_field(attrs, source)
+        return attrs
+
+    def validate_dest_metric_1_field(self, attrs, source):
+        self._validate_field_name_field(attrs, source)
+        return attrs
+
+    def validate(self, attrs):
+        """Make sure at least one of pop1, pop2, and dest1 has a column name."""
+        # Placeholder variables that are None if the dictionary key doesn't
+        # exist so the boolean expression is shorter.
+        pop1_field = attrs.get('pop_metric_1_field', None)
+        pop2_field = attrs.get('pop_metric_2_field', None)
+        dest1_field = attrs.get('pop_metric_1_field', None)
+        if not (pop1_field or pop2_field or dest1_field):
+            raise serializers.ValidationError('Must specify at least one column to load')
+        return attrs
+
+    class Meta:
+        model = OTIDemographicConfig

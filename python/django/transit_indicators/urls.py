@@ -12,8 +12,12 @@ router.register(r'gtfs-feeds', datasourcesviews.GTFSFeedViewSet)
 router.register(r'gtfs-feed-problems', datasourcesviews.GTFSFeedProblemViewSet)
 router.register(r'boundaries', datasourcesviews.BoundaryViewSet)
 router.register(r'boundary-problems', datasourcesviews.BoundaryProblemViewSet)
+router.register(r'demographics', datasourcesviews.DemographicDataSourceViewSet)
+router.register(r'demographics-features', datasourcesviews.DemographicDataFeatureViewSet)
+router.register(r'demographics-problems', datasourcesviews.DemographicDataSourceProblemViewSet)
 router.register(r'users', userviews.OTIUserViewSet)
 router.register(r'config', indicatorviews.OTIIndicatorsConfigViewSet, base_name='config')
+router.register(r'config-demographic', indicatorviews.OTIDemographicConfigViewSet)
 router.register(r'peak-travel', indicatorviews.PeakTravelPeriodViewSet, base_name='peak-travel')
 
 urlpatterns = patterns('',  # NOQA
