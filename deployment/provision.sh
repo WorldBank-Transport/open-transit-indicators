@@ -77,10 +77,13 @@ GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 
-APP_SU_USERNAME="oti-user"
+# TODO: Change user emails?
+APP_SU_USERNAME="oti-admin"
 APP_SU_PASSWORD=$APP_SU_USERNAME
-# TODO: Change this?
 APP_SU_EMAIL="$APP_SU_USERNAME@azavea.com"
+APP_USERNAME="oti-user"
+APP_PASSWORD=$APP_USERNAME
+APP_EMAIL="$APP_USERNAME@azavea.com"
 
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
@@ -321,6 +324,7 @@ popd
 ## Now create a superuser for the app
 pushd $DJANGO_ROOT
     sudo -Hu "$WEB_USER" python manage.py oti_create_user --username="$APP_SU_USERNAME" --password="$APP_SU_PASSWORD" --email="$APP_SU_EMAIL" --superuser
+    sudo -Hu "$WEB_USER" python manage.py oti_create_user --username="$APP_USERNAME" --password="$APP_PASSWORD" --email="$APP_EMAIL"
 popd
 
 #########################
