@@ -26,6 +26,9 @@
   border-right: 1px solid $light-line-grey;
   vertical-align: top;
 }
+.settingsmodal-sidebar-active {
+  border-right: 4px solid $brand-primary;
+}
 .settingsmodal-body {
   @include rem(padding, 30, 40);
   @include rem(width, 600);

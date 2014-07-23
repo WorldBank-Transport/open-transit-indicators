@@ -5,8 +5,4 @@ angular.module('transitIndicators')
         ['$scope',
         function ($scope) {
 
-    $scope.init = function () {
-        console.log('Loaded Overview Controller');
-    };
-
 }]);

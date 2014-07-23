@@ -5,6 +5,14 @@ angular.module('transitIndicators')
         ['$scope', 'OTISettingsService', 'config',
         function ($scope, OTISettingsService, config) {
 
+    var setSidebarHighlight = function (viewId) {
+        $scope.activeView = viewId;
+    };
+
+    $scope.setSidebarCheckmark = function (viewId, isVisible) {
+        $scope.checkmarks[viewId] = !!(isVisible);
+    };
+
     $scope.STATUS = OTISettingsService.STATUS;
     $scope.views = config.settingsViews;
     $scope.checkmarks = {};
@@ -12,8 +20,8 @@ angular.module('transitIndicators')
         $scope.checkmarks[view.id] = false;
     });
 
-    $scope.setSidebarCheckmark = function (viewId, isVisible) {
-        $scope.checkmarks[viewId] = !!(isVisible);
-    };
+    $scope.$on('$stateChangeSuccess', function (event, toState) {
+        setSidebarHighlight(toState.name);
+    });
 
 }]);
