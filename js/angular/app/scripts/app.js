@@ -7,19 +7,26 @@ angular.module('transitIndicators', [
     'angularFileUpload',
     'leaflet-directive',
     'ui.bootstrap'
-]).config(['$stateProvider', '$urlRouterProvider', 'config',
-        function ($stateProvider, $urlRouterProvider, config) {
+]).config(['$stateProvider', '$urlRouterProvider', 'config', '$httpProvider',
+        function ($stateProvider, $urlRouterProvider, config, $httpProvider) {
+
+    $httpProvider.interceptors.push('authInterceptor');
+    $httpProvider.interceptors.push('logoutInterceptor');
 
     $urlRouterProvider.when('', '/');
     $urlRouterProvider.otherwise('/');
 
     $stateProvider
+        .state('login', {
+            url: '/login/',
+            templateUrl: 'scripts/modules/auth/login-partial.html',
+            controller: 'OTIAuthController'
+        })
         .state('map', {
             url: '/',
             templateUrl: 'scripts/modules/map/map-partial.html',
             controller: 'OTIMapController'
         })
-
         .state('settings', {
             parent: 'map',
             url: 'settings',
@@ -53,6 +60,41 @@ angular.module('transitIndicators', [
                 templateUrl: 'scripts/modules/settings/' + viewId + '/' + viewId + '-partial.html',
                 controller: 'OTI' + capsId + 'Controller'
             });
+        });
+}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIUserService',
+    function($rootScope, $state, $cookies, $http, authService, OTIUserService) {
+
+        // Django CSRF Token compatibility
+        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+
+        var anonymousStates = ['login'];
+        var stateClean = function (state) {
+            return _.find(anonymousStates, function (noAuthState) {
+                return state.indexOf(noAuthState) === 0;
+            });
+        };
+
+        // Load login page if user not authenticated
+        $rootScope.$on('$stateChangeStart', function (event, to, toParams, from, fromParams) {
+            if (!stateClean(to.name) && !authService.isAuthenticated()) {
+                event.preventDefault();
+                $state.go('login');
+                return;
+            }
+        });
+
+        $rootScope.$on('authService:loggedIn', function () {
+            OTIUserService.getUser(authService.getUserId()).then(function (data) {
+                $rootScope.user = data;
+            });
+        });
+
+        $rootScope.$on('authService:loggedOut', function () {
+            $rootScope.user = null;
+        });
+
+        $rootScope.$on('authService:logOutUser', function () {
+            authService.logout();
         });
 }]);
 

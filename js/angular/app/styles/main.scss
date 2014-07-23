@@ -25,6 +25,7 @@
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/dropdowns";
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/button-groups";
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/input-groups";
+@import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/alerts";
 
 // Components w/ JavaScript
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap/modals";
@@ -38,6 +39,7 @@
 @import "base";
 @import "partials/typography";
 @import "partials/settings";
+@import "partials/login";
 @import "partials/map";
 @import "partials/controller";
 @import "partials/global";

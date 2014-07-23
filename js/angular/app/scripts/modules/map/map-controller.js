@@ -2,10 +2,14 @@
 
 angular.module('transitIndicators')
 .controller('OTIMapController',
-        ['config', '$scope', '$state', '$location', 'leafletData', 'OTIMapService',
-        function (config, $scope, $state, $location, leafletData, mapService) {
+        ['config', '$scope', '$state', '$location', 'leafletData', 'OTIMapService', 'authService',
+        function (config, $scope, $state, $location, leafletData, mapService, authService) {
 
     $scope.$state = $state;
+
+    $scope.logout = function () {
+        authService.logout();
+    };
 
     var windshaftHost = $location.protocol() + '://' + $location.host();
     if (config.windshaft && config.windshaft.port) {
@@ -78,17 +82,6 @@ angular.module('transitIndicators')
     $scope.$on('leafletDirectiveMap.utfgridMouseout', function(event, leafletEvent) {
         $scope.leaflet.markers = null;
     });
-    
-    var worldExtent = {
-        "southWest": {
-          "lat": -57.0,
-          "lng": -168.5
-        },
-        "northEast": {
-          "lat": 73.25,
-          "lng": 158.1
-        }
-    };
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
@@ -97,7 +90,7 @@ angular.module('transitIndicators')
                 $scope.leaflet.bounds = mapInfo.extent;
             } else {
                 // no extent; zoom out to world
-                $scope.leaflet.bounds = worldExtent;
+                $scope.leaflet.bounds = config.worldExtent;
             }
         });
     };
@@ -109,9 +102,9 @@ angular.module('transitIndicators')
     $scope.$on('upload-controller:gtfs-uploaded', function() {
         zoomToDataExtent();
     });
-    
+
     // zoom out to world view when data deleted
     $scope.$on('upload-controller:gtfs-deleted', function() {
-        $scope.leaflet.bounds = worldExtent;
+        $scope.leaflet.bounds = config.worldExtent;
     });
 }]);

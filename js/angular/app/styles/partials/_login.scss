@@ -1,0 +1,36 @@
+.loginmodal-wrapper {
+  @include rem(padding, 30, 0);
+}
+
+.loginmodal-close-button {
+  @include rem(top, 10);
+  @include rem(right, 10);
+  position: absolute;
+}
+
+.loginmodal {
+  @include rem(max-width, 300);
+  @include rem(width, 300);
+  @include rem(padding, 10);
+  background-color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 5;
+  border: 1px black solid;
+}
+
+.loginmodal-field {
+    @include rem(padding-bottom, 10);
+    input {
+        @include rem(padding-left, 5);
+        @include rem(padding-right, 5);
+    }
+}
+
+.login-field-error {
+    color: $brand-danger;
+    input {
+        border: 1px solid $brand-danger;
+    }
+}
