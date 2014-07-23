@@ -61,8 +61,8 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
-}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService',
-    function($rootScope, $state, $cookies, $http, authService) {
+}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIUserService',
+    function($rootScope, $state, $cookies, $http, authService, OTIUserService) {
 
         // Django CSRF Token compatibility
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
@@ -83,5 +83,18 @@ angular.module('transitIndicators', [
             }
         });
 
+        $rootScope.$on('authService:loggedIn', function () {
+            OTIUserService.getUser(authService.getUserId()).then(function (data) {
+                $rootScope.user = data;
+            });
+        });
+
+        $rootScope.$on('authService:loggedOut', function () {
+            $rootScope.user = null;
+        });
+
+        $rootScope.$on('authService:logOutUser', function () {
+            authService.logout();
+        });
 }]);
 

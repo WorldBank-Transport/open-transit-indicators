@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIAuthController',
-        ['config', '$scope', '$state', 'authService',
-        function (config, $scope, $state, authService) {
+        ['config', '$rootScope', '$scope', '$state', 'authService',
+        function (config, $rootScope, $scope, $state, authService) {
 
     var leaflet = {
         bounds: config.worldExtent,
