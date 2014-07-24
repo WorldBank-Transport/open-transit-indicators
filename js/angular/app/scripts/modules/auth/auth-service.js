@@ -88,7 +88,8 @@ angular.module('transitIndicators')
         },
 
         getUserId: function () {
-            return $cookieStore.get(userIdCookieString);
+            var userId = parseInt($cookieStore.get(userIdCookieString), 10);
+            return isNaN(userId) ? -1 : userId;
         },
 
         logout: function () {
