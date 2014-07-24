@@ -30,6 +30,7 @@ class GTFSFeedTestCase(TestCase):
 
     def test_zip_extension_validation(self):
         """Test that uploaded files are correctly checked for .zip extensions and validated."""
+        self.client.authenticate(admin=True)
         temp_dir = tempfile.mkdtemp()
         badfile_path = temp_dir + '/badfile.jpg'
         goodfile_path = temp_dir + '/goodfile.zip'
@@ -51,7 +52,21 @@ class GTFSFeedTestCase(TestCase):
 
     def test_gtfs_validation(self):
         """Test that verifies GTFS validation works correctly"""
+        self.client.authenticate(admin=True)
         response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
         sleep(2) # give time for celery to do job
         problem_count = GTFSFeedProblem.objects.filter(gtfsfeed_id=response.data['id']).count()
         self.assertEqual(problem_count, 1, 'There should have been one problem for uploaded data')
+
+    def test_gtfs_upload_requires_admin(self):
+        """Test that verifies GTFS upload requires an admin user"""
+        # UNAUTHORIZED if no credentials
+        self.client.force_authenticate(user=None)
+        response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # FORBIDDEN if user is not superuser
+        self.client.authenticate(admin=False)
+        response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+

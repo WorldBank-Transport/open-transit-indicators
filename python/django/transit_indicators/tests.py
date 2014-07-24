@@ -55,7 +55,12 @@ class OTIIndicatorsConfigTestCase(TestCase):
                      'avg_fare': 500}
 
     def test_config_crud(self):
-        """Test CRUD operations on OTIIndicatorsConfig. """
+        """Test admin user CRUD operations on OTIIndicatorsConfig.
+
+        Admin user should have full read/write permissions
+
+        """
+        self.client.authenticate(admin=True)
 
         # CREATE
         response = self.client.post(self.list_url, self.data, format='json')
@@ -81,6 +86,67 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(0, OTIIndicatorsConfig.objects.filter(id=config_id).count())
 
+    def test_permissions(self):
+        """Test CRUD operation permissions on OTIIndicatorsConfig.
+
+        Standard user should only have read permissions
+        Anonymous user should have no permissions
+
+        """
+        self.client.authenticate(admin=True)
+
+        # CREATE
+        response = self.client.post(self.list_url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertDictContainsSubset(self.data, response.data)
+        config_id = response.data['id']
+        detail_url = reverse('config-detail', [config_id])
+
+
+        # Standard User
+        self.client.authenticate(admin=False)
+
+        # CREATE
+        response = self.client.post(self.list_url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # READ
+        response = self.client.get(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertDictContainsSubset(self.data, response.data)
+
+        # UPDATE
+        new_max_walk_time = 300
+        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        response = self.client.patch(detail_url, patch_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # DELETE
+        response = self.client.delete(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Anonymous user
+        self.client.force_authenticate(user=None)
+
+        # CREATE
+        response = self.client.post(self.list_url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # READ
+        response = self.client.get(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # UPDATE
+        new_max_walk_time = 300
+        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        response = self.client.patch(detail_url, patch_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # DELETE
+        response = self.client.delete(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
     def test_config_values(self):
         """ Test that bad values aren't accepted."""
         def check_negative_number(data, key):
@@ -90,6 +156,7 @@ class OTIIndicatorsConfigTestCase(TestCase):
             response = self.client.post(self.list_url, bad_data, format='json')
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        self.client.authenticate(admin=True)
         check_negative_number(self.data, 'poverty_line')
         check_negative_number(self.data, 'avg_fare')
         check_negative_number(self.data, 'nearby_buffer_distance_m')
@@ -101,6 +168,7 @@ class PeakTravelPeriodTestCase(TestCase):
     """ Tests PeakTravelPeriods """
     def setUp(self):
         self.client = OTIAPIClient()
+        self.client.authenticate(admin=True)
         self.list_url = reverse('peak-travel-list', {})
 
     def test_start_after_end(self):
@@ -117,3 +185,21 @@ class PeakTravelPeriodTestCase(TestCase):
                                                         end_time=before.time()),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_permissions(self):
+        self.client.authenticate(admin=False)
+        now = datetime.now()
+        later = datetime.now() + timedelta(hours=1)
+
+        response = self.client.post(self.list_url, dict(start_time=now.time(),
+                                                        end_time=later.time()),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=None)
+        response = self.client.post(self.list_url, dict(start_time=now.time(),
+                                                        end_time=later.time()),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
