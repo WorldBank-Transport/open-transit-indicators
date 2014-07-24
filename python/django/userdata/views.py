@@ -1,9 +1,12 @@
+import random
+import string
+
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 from transit_indicators.viewsets import OTIAdminViewSet
 
@@ -16,6 +19,40 @@ class OTIUserViewSet(OTIAdminViewSet):
     model = OTIUser
     serializer_class = OTIUserSerializer
     filter_fields = ('username', 'email', 'first_name', 'last_name',)
+
+    @action()
+    def reset_password(self, request, pk=None):
+        """Endpoint for resetting a user's password"""
+        user = self.get_object()
+
+        # Generate random 10 letter + digit password
+        all_chars = string.ascii_letters + string.digits
+        new_password = ''.join(random.choice(all_chars) for _ in range(10))
+        user.set_password(new_password)
+
+        serializer = self.serializer_class(user)
+        data = serializer.data
+        data['password'] = new_password
+
+        return Response(data)
+
+    @action()
+    def change_password(self, request, pk=None):
+        """Endpoint for changing a user's password"""
+        user = self.get_object()
+
+        request_user = request.user
+
+        if request_user != user and not request.user.is_staff:
+            raise PermissionDenied(detail='Unable to set another user\'s password')
+
+        new_password = request.DATA.get('password')
+        if not new_password:
+            raise ParseError(detail='Must supply a password to change to')
+
+        return Response({'detail': 'password successfully changed'})
+
+
 
 
 class OTIObtainAuthToken(ObtainAuthToken):
