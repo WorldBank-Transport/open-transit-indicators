@@ -3,23 +3,60 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 
 from transit_indicators.models import OTIIndicatorsConfig
+
+from userdata.models import OTIUser
+
+class OTIAPIClient(APIClient):
+
+    def __init__(self, enforce_csrf_checks=False, **defaults):
+        super(OTIAPIClient, self).__init__(enforce_csrf_checks=enforce_csrf_checks, **defaults)
+        self.api_user = self.get_test_user(is_admin=False)
+        self.api_admin = self.get_test_user(is_admin=True)
+        self.authenticate(admin=True)
+
+    def get_test_user(self, is_admin=False):
+        """Create a test user and generate a token
+
+        @param is_super: True if the user should be a django superuser
+
+        """
+        username = 'test_admin' if is_admin else 'test_user'
+        password = '123'
+        email = 'test@test.me'
+        user = None
+        try:
+            user = OTIUser.objects.get(username=username)
+        except OTIUser.DoesNotExist:
+            if is_admin:
+                user = OTIUser.objects.create_superuser(username, email, password)
+            else:
+                user = OTIUser.objects.create_user(username, password=password, email=email)
+        token, created = Token.objects.get_or_create(user=user)
+        return user
+
+    def authenticate(self, admin=False):
+        user = self.api_admin if admin else self.api_user
+        self.force_authenticate(user=user, token=user.auth_token)
 
 
 class OTIIndicatorsConfigTestCase(TestCase):
     """ Tests behavior of OTIIndicatorsConfig model."""
     def setUp(self):
-        self.client = APIClient()
+        self.client = OTIAPIClient()
         self.list_url = reverse('config-list', {})
-        self.data = {'poverty_line_usd': 256.36,
+        self.data = {'poverty_line': 256.36,
                      'nearby_buffer_distance_m': 500.0,
                      'max_commute_time_s': 3600,
-                     'max_walk_time_s': 600}
+                     'max_walk_time_s': 600,
+                     'avg_fare': 500}
 
     def test_config_crud(self):
         """Test CRUD operations on OTIIndicatorsConfig. """
+
         # CREATE
         response = self.client.post(self.list_url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -53,7 +90,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
             response = self.client.post(self.list_url, bad_data, format='json')
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        check_negative_number(self.data, 'poverty_line_usd')
+        check_negative_number(self.data, 'poverty_line')
+        check_negative_number(self.data, 'avg_fare')
         check_negative_number(self.data, 'nearby_buffer_distance_m')
         check_negative_number(self.data, 'max_commute_time_s')
         check_negative_number(self.data, 'max_walk_time_s')
@@ -62,7 +100,7 @@ class OTIIndicatorsConfigTestCase(TestCase):
 class PeakTravelPeriodTestCase(TestCase):
     """ Tests PeakTravelPeriods """
     def setUp(self):
-        self.client = APIClient()
+        self.client = OTIAPIClient()
         self.list_url = reverse('peak-travel-list', {})
 
     def test_start_after_end(self):
