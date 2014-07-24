@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
+from transit_indicators.tests import OTIAPIClient
 from datasources.models import GTFSFeedProblem
 
 @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
@@ -19,7 +20,7 @@ class GTFSFeedTestCase(TestCase):
     """Tests behavior of GTFSFeed models. """
 
     def setUp(self):
-        self.client = APIClient()
+        self.client = OTIAPIClient()
         self.url = reverse('gtfsfeed-list', {})
         file_directory = os.path.dirname(os.path.abspath(__file__))
         self.test_gtfs_fh = open(file_directory + '/tests/test-gtfs.zip', 'rb')
