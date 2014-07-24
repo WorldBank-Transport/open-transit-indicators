@@ -96,5 +96,10 @@ angular.module('transitIndicators', [
         $rootScope.$on('authService:logOutUser', function () {
             authService.logout();
         });
+
+        // Restore user session on full page refresh
+        if (authService.isAuthenticated()) {
+            $rootScope.$broadcast('authService:loggedIn');
+        }
 }]);
 
