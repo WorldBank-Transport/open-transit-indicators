@@ -238,7 +238,7 @@ popd
 
 echo 'Installing python dependencies'
 pushd $PROJECT_ROOT
-    pip install -U -r "deployment/requirements.txt"
+    pip install -q -r "deployment/requirements.txt"
 popd
 
 # Install node dependencies
@@ -342,11 +342,14 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     echo 'Running migrations'
     sudo -Hu "$WEB_USER" python manage.py migrate --noinput
+
+    echo 'Running collectstatic (needs to run as root)'
+    python manage.py collectstatic --noinput
 popd
 
 # Add deletion trigger. This can't happen in setup_db.sh, above, because
 # it relies on Django migrations.
-echo 'Deleting GTFS data'
+echo 'Adding GTFS Delete PostgreSQL Trigger'
 pushd $PROJECT_ROOT
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
 popd
@@ -396,6 +399,9 @@ fi
 #########################
 # Windshaft setup       #
 #########################
+# Windshaft is not installed on Travis, because
+#  a) we don't need it to run tests
+#  b) installing it causes dependency problems with the version of PostGIS installed on Travis
 if [ "$INSTALL_TYPE" != "travis" ]; then
     # Cannot have comments or trailing commas in a json config
     windshaft_conf="
@@ -414,16 +420,6 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
         ## Run as non-sudo user so npm installs libs as not sudo
         sudo -u $WEB_USER npm install --silent  # Travis installs npm stuff in its own setup
     popd
-
-    # create test table for Windshaft
-    # TODO:  eventually make something for real data instead
-    if [ "$INSTALL_TYPE" == "development" ]
-    then
-        echo "Adding test table for Windshaft."
-        pushd $PROJECT_ROOT/deployment
-            sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
-        popd
-    fi
 
     windshaft_upstart="
     description 'Start the Windshaft server'
@@ -594,4 +590,6 @@ echo 'Nginx now running'
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
 echo 'Setup completed successfully.'
+echo "SU Username: $APP_SU_USERNAME"
+echo "Username: $APP_USERNAME"
 echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.' >&2
