@@ -6,7 +6,7 @@ describe('Service: auth', function () {
     var authService;
 
     beforeEach(module('transitIndicators'));
-    beforeEach(inject(function(_$cookieStore_) {
+    beforeEach(inject(function(_$cookieStore_, _authService_) {
         $cookieStore = _$cookieStore_;
         authService = _authService_;
     }));
@@ -65,7 +65,7 @@ describe('Service: auth', function () {
             $cookieStore.put(tokenKey, 'abcde12345');
             expect(authService.isAuthenticated()).toEqual(true);
         });
-    
+
     });
 
 });
