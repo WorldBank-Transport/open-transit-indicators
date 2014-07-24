@@ -76,6 +76,7 @@ GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
+TRANSITFEED_VERSION=1.2.12
 
 # TODO: Change user emails?
 APP_SU_USERNAME="oti-admin"
@@ -258,6 +259,24 @@ popd
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
+
+#########################
+# Transitfeed setup     #
+#########################
+# This is installed manually due to a problem where the newest version
+# isn't able to be installed via pip on Travis.
+# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+if ! $(python -c "import transitfeed" &> /dev/null); then
+    echo 'Setting up transitfeed'
+    pushd $TEMP_ROOT
+        wget https://googletransitdatafeed.googlecode.com/files/transitfeed-$TRANSITFEED_VERSION.tar.gz
+        tar xzf transitfeed-$TRANSITFEED_VERSION.tar.gz
+        pushd transitfeed-$TRANSITFEED_VERSION
+            sudo python setup.py install
+        popd
+        rm -rf transitfeed-$TRANSITFEED_VERSION transitfeed-$TRANSITFEED_VERSION.tar.gz
+    popd
+fi
 
 #########################
 # Django setup          #
