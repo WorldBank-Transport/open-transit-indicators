@@ -6,7 +6,6 @@ import com.azavea.gtfs.slick._
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
 import com.typesafe.config.{ConfigFactory,Config}
-import geotrellis.feature.reproject._
 import geotrellis.process.{Error, Complete}
 import geotrellis.proj4._
 import geotrellis.render.ColorRamps
