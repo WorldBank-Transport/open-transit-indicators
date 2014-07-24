@@ -76,6 +76,7 @@ GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
+TRANSITFEED_VERSION=1.2.12
 
 # TODO: Change user emails?
 APP_SU_USERNAME="oti-admin"
@@ -134,13 +135,13 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     # Travis CI already has many packages installed;
     # attempting to install PostgreSQL/PostGIS here breaks things.
     apt-get -qq update
-    
+
     apt-get -y -qq install \
         nodejs \
         libxml2-dev libxslt1-dev python-all-dev \
         postgresql-server-dev-9.1 \
         build-essential libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
-        libmapnik libmapnik-dev python-mapnik mapnik-utils \
+        ruby1.9.3 rubygems \
         nginx \
         gunicorn \
         > /dev/null  # silence, package manager!  only show output on error
@@ -158,7 +159,7 @@ else
     # Install dependencies available via apt
     # Lines roughly grouped by functionality (e.g. Postgres, python, node, etc.)
     apt-get update
-    
+
     # also install dependencies for building postgis
     apt-get -y install \
         git htop multitail \
@@ -180,7 +181,12 @@ fi
 
 if type shp2pgsql 2>/dev/null; then
     echo 'PostGIS already installed; skipping.'
-elif [ "$INSTALL_TYPE" != "travis" ]; then
+elif [ "$INSTALL_TYPE" == "travis" ]; then
+    echo 'Installing PostGIS extensions on Travis'
+    psql -U postgres -c "create extension postgis"
+    psql -U postgres -c "create extension postgis_topology"
+else
+    echo 'Installing PostGIS and dependencies from source'
     pushd $TEMP_ROOT
         # geos
         wget --quiet http://download.osgeo.org/geos/geos-3.4.2.tar.bz2
@@ -216,37 +222,39 @@ elif [ "$INSTALL_TYPE" != "travis" ]; then
 fi
 ############################################
 
-# for Travis CI, these things are installed in .travis.yml, to be in correct environment
-if [ "$INSTALL_TYPE" != "travis" ]; then
-    # Install Django
-    # TODO remove this once 1.7 is released and we can install using pip.
-    pushd $TEMP_ROOT
-        # Check for Django version
-        django_vers=`python -c "import django; print(django.get_version())"` || true
-        if [ '1.7c1' != "$django_vers" ]; then
-            echo "Installing Django"
-            pip install -q -U git+git://github.com/django/django.git@1.7c1
-        else
-            echo 'Django already found, skipping.'
-        fi
-    popd
+# Install Django
+# TODO remove this once 1.7 is released and we can install using pip.
+echo 'Installing django'
+pushd $TEMP_ROOT
+    # Check for Django version
+    django_vers=`python -c "import django; print(django.get_version())"` || true
+    if [ '1.7c1' != "$django_vers" ]; then
+        echo "Installing Django 1.7"
+        pip install -q -U git+git://github.com/django/django.git@1.7c1
+    else
+        echo 'Django already found, skipping.'
+    fi
+popd
 
-    pushd $PROJECT_ROOT
-        pip install -q -r "deployment/requirements.txt"
-    popd
+echo 'Installing python dependencies'
+pushd $PROJECT_ROOT
+    pip install -q -r "deployment/requirements.txt"
+popd
 
-    # Install node dependencies
-    npm install -g grunt-cli yo generator-angular
+# Install node dependencies
+echo 'Installing node dependencies'
+npm install -g grunt-cli yo generator-angular
 
-    # Install ruby gems
-    gem install -v 3.3.4 sass
-    gem install -v 0.12.5 compass
-fi
+# Install ruby gems
+echo 'Installing ruby gems dependencies'
+gem install -v 3.3.4 sass
+gem install -v 0.12.5 compass
 
 #########################
 # Database setup        #
 #########################
 # Set up empty database with spatial extension
+echo 'Setting up database'
 pushd $PROJECT_ROOT
     # Needs to run as postgres user, which is only possible via a separate script.
     sudo -u postgres ./deployment/setup_db.sh $DB_NAME $DB_USER $DB_PASS
@@ -255,13 +263,33 @@ popd
 #########################
 # RabbitMQ setup        #
 #########################
+echo 'Setting up RabbitMQ'
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
 
 #########################
+# Transitfeed setup     #
+#########################
+# This is installed manually due to a problem where the newest version
+# isn't able to be installed via pip on Travis.
+# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+if ! $(python -c "import transitfeed" &> /dev/null); then
+    echo 'Setting up transitfeed'
+    pushd $TEMP_ROOT
+        wget https://googletransitdatafeed.googlecode.com/files/transitfeed-$TRANSITFEED_VERSION.tar.gz
+        tar xzf transitfeed-$TRANSITFEED_VERSION.tar.gz
+        pushd transitfeed-$TRANSITFEED_VERSION
+            sudo python setup.py install
+        popd
+        rm -rf transitfeed-$TRANSITFEED_VERSION transitfeed-$TRANSITFEED_VERSION.tar.gz
+    popd
+fi
+
+#########################
 # Django setup          #
 #########################
+echo 'Setting up Django'
 pushd $DJANGO_ROOT
     # Try to create a settings file for the specified install type
     if [ -f "transit_indicators/settings/$INSTALL_TYPE.py" ]; then
@@ -307,21 +335,27 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     # Create folder to hold user uploads
     if [ ! -d "$UPLOADS_ROOT" ]; then
+        echo 'Setting up uploads root directory'
         mkdir $UPLOADS_ROOT
         chown "$WEB_USER":"$WEB_USER" $UPLOADS_ROOT
     fi
-    if [ "$INSTALL_TYPE" != "travis" ]; then
-        sudo -Hu "$WEB_USER" python manage.py migrate --noinput
-    fi
+
+    echo 'Running migrations'
+    sudo -Hu "$WEB_USER" python manage.py migrate --noinput
+
+    echo 'Running collectstatic (needs to run as root)'
+    python manage.py collectstatic --noinput
 popd
 
 # Add deletion trigger. This can't happen in setup_db.sh, above, because
 # it relies on Django migrations.
+echo 'Adding GTFS Delete PostgreSQL Trigger'
 pushd $PROJECT_ROOT
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
 popd
 
 ## Now create a superuser for the app
+echo 'Creating superuser'
 pushd $DJANGO_ROOT
     sudo -Hu "$WEB_USER" python manage.py oti_create_user --username="$APP_SU_USERNAME" --password="$APP_SU_PASSWORD" --email="$APP_SU_EMAIL" --superuser
     sudo -Hu "$WEB_USER" python manage.py oti_create_user --username="$APP_USERNAME" --password="$APP_PASSWORD" --email="$APP_EMAIL"
@@ -353,6 +387,7 @@ echo "Finished setting up celery and background process started"
 #########################
 # Angular setup         #
 #########################
+echo 'Setting up angular'
 if [ "$INSTALL_TYPE" != "travis" ]; then
     pushd "$ANGULAR_ROOT"
         # Bower gets angry if you run it as root, so external script again.
@@ -364,51 +399,44 @@ fi
 #########################
 # Windshaft setup       #
 #########################
-# Cannot have comments or trailing commas in a json config
-windshaft_conf="
-{
-    \"redis_host\": \"$REDIS_HOST\",
-    \"redis_port\": \"$REDIS_PORT\",
-    \"db_user\": \"$DB_USER\",
-    \"db_pass\": \"$DB_PASS\",
-    \"db_host\": \"$DB_HOST\",
-    \"db_port\": \"$DB_PORT\"
-}
-"
+# Windshaft is not installed on Travis, because
+#  a) we don't need it to run tests
+#  b) installing it causes dependency problems with the version of PostGIS installed on Travis
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    # Cannot have comments or trailing commas in a json config
+    windshaft_conf="
+    {
+        \"redis_host\": \"$REDIS_HOST\",
+        \"redis_port\": \"$REDIS_PORT\",
+        \"db_user\": \"$DB_USER\",
+        \"db_pass\": \"$DB_PASS\",
+        \"db_host\": \"$DB_HOST\",
+        \"db_port\": \"$DB_PORT\"
+    }
+    "
 
-pushd $WINDSHAFT_ROOT
-    echo "$windshaft_conf" > settings.json
-    if [ "$INSTALL_TYPE" != "travis" ]; then
+    pushd $WINDSHAFT_ROOT
+        echo "$windshaft_conf" > settings.json
         ## Run as non-sudo user so npm installs libs as not sudo
         sudo -u $WEB_USER npm install --silent  # Travis installs npm stuff in its own setup
-    fi
-popd
-
-# create test table for Windshaft
-# TODO:  eventually make something for real data instead
-if [ "$INSTALL_TYPE" == "development" ]
-then
-    echo "Adding test table for Windshaft."
-    pushd $PROJECT_ROOT/deployment
-        sudo -u postgres psql -d $DB_NAME -f setup_windshaft_test.sql
     popd
+
+    windshaft_upstart="
+    description 'Start the Windshaft server'
+
+    start on runlevel [2345]
+    stop on runlevel [!2345]
+
+    chdir $WINDSHAFT_ROOT
+    exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
+    "
+
+    windshaft_upstart_file="/etc/init/oti-windshaft.conf"
+    echo "$windshaft_upstart" > $windshaft_upstart_file
+    service oti-windshaft restart
+
+    echo "Finished setting up Windshaft, and service started."
 fi
-
-windshaft_upstart="
-description 'Start the Windshaft server'
-
-start on runlevel [2345]
-stop on runlevel [!2345]
-
-chdir $WINDSHAFT_ROOT
-exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
-"
-
-windshaft_upstart_file="/etc/init/oti-windshaft.conf"
-echo "$windshaft_upstart" > $windshaft_upstart_file
-service oti-windshaft restart
-
-echo "Finished setting up Windshaft, and service started."
 
 ###############################
 # GeoTrellis local repo setup #
@@ -422,7 +450,7 @@ fi
 pushd $GEOTRELLIS_REPO_ROOT
     git pull
     ./sbt "project proj4" publish-local
-    ./sbt "project feature" publish-local
+    ./sbt "project vector" publish-local
     ./sbt "project slick" publish-local
 popd
 
@@ -562,4 +590,6 @@ echo 'Nginx now running'
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
 echo 'Setup completed successfully.'
+echo "SU Username: $APP_SU_USERNAME"
+echo "Username: $APP_USERNAME"
 echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.' >&2

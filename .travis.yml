@@ -7,28 +7,20 @@ services:
   - redis-server
 addons:
   postgresql: "9.3"
-virtualenv:
-  system_site_packages: true
 before_script:
-  - psql -U postgres -c "create extension postgis"
-  - psql -U postgres -c "create extension postgis_topology"
-  - cd js/angular
-  - npm install -g bower grunt-cli yo generator-angular --silent
-  - gem install -q -v 3.3.4 sass
-  - gem install -q -v 0.12.5 compass
-  - cd ../../deployment
-  - pip install -q -U git+git://github.com/django/django.git@1.7b4
-  - pip install -q -r "requirements.txt"
-  - sudo ./provision.sh travis
-  - cd ../python/django
-  - python manage.py migrate --noinput
-  - cd ../../js/angular
-  - bower install --config.interactive=false > /dev/null
-  - npm install --silent > /dev/null
-  - grunt build
-  - cd ../windshaft
-  - npm install --silent > /dev/null
-  - cd ../../python/django
+  - pushd js/angular
+  -     npm install -g bower grunt-cli yo generator-angular --silent
+  -     gem install -q -v 3.3.4 sass
+  -     gem install -q -v 0.12.5 compass
+  - popd
+  - pushd deployment
+  -     sudo ./provision.sh travis
+  - popd
+  - pushd js/angular
+  -     bower install --config.interactive=false > /dev/null
+  -     npm install --silent > /dev/null
+  -     grunt build
+  - popd
 notifications:
   email: false
 env:
@@ -36,5 +28,12 @@ env:
   - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
   - secure: OMZ1U4UA/VQxexgM6hWV+EcMgZAK6aHDg47cpKs50Smcg+ZXJiF7SlxqPPuXaQgYxkMb+9Qf6r6ZQ3uhxdfGkcz14pC6C8elwqz2CcrCv3IYoAjdvZ4EEV3vnTiJ96VKbwCOV5EM0wTRqdYd3GPg0JWPYNrxyq+hPKojmQ3wl0I=
 script:
-  #- python manage.py test  # TODO: getting import errors here; run tests eventually
-  - cd ../../js/angular && grunt test
+  - pushd python/django
+  -     sudo python manage.py test --noinput
+  - popd
+  - pushd js/angular
+  -    grunt test
+  - popd
+  - pushd geotrellis
+  -     sudo ./sbt test
+  - popd
