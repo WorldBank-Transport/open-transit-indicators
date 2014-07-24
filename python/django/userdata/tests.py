@@ -20,7 +20,7 @@ class OTIUserTestCase(TestCase):
                      'is_active': True,
                      'is_superuser': False}
         # Password and is_superuser not returned by response
-        self.response_data = {key: self.data[key] for key in self.data 
+        self.response_data = {key: self.data[key] for key in self.data
                               if key not in ['is_superuser','password']}
 
     def test_users_crud(self):
@@ -64,7 +64,7 @@ class OTIUserTestCase(TestCase):
 
         """
         test_user = OTIUser.objects.create_user('test-1', password='123', email='test@test.me')
-        user_id = test_user.id 
+        user_id = test_user.id
         detail_url = reverse('users-detail', [user_id])
 
         # Standard User
@@ -109,3 +109,50 @@ class OTIUserTestCase(TestCase):
         # DELETE
         response = self.client.delete(detail_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ResetPasswordTest(TestCase):
+    """Tests for password reset endpoint"""
+
+    def setUp(self):
+        self.client = OTIAPIClient()
+
+    def test_reset_password(self):
+        """Tests that only admin user can reset password"""
+
+        api_user = self.client.api_user
+        api_admin = self.client.api_admin
+        reset_api_user_url = reverse('users-reset-password', args=(api_user.pk,))
+        admin_reset_response = self.client.post(reset_api_user_url)
+
+        self.assertEqual(admin_reset_response.status_code, status.HTTP_200_OK)
+        new_password = admin_reset_response.data['password']
+        self.assertNotEqual(new_password, '123')
+
+        self.client.authenticate(admin=False)
+
+        reset_admin_user_url_forbidden = reverse('users-reset-password', args=(api_admin.pk,))
+        reset_admin_user_response = self.client.post(reset_admin_user_url_forbidden)
+
+        self.assertEqual(reset_admin_user_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_password(self):
+        """Tests that users can only change their own password"""
+
+        api_user = self.client.api_user
+        api_admin = self.client.api_admin
+        change_api_admin_url = reverse('users-reset-password', args=(api_admin.pk,))
+        change_api_admin_response = self.client.post(change_api_admin_url, data={'password': 'abc'})
+
+        self.assertEqual(change_api_admin_response.status_code, status.HTTP_200_OK)
+
+        # verify admin user can change api user's password
+        change_api_user_url = reverse('users-reset-password', args=(api_user.pk,))
+        change_api_user_response = self.client.post(change_api_user_url, data={'password': 'abc'})
+
+        self.assertEqual(change_api_user_response.status_code, status.HTTP_200_OK)
+
+        # verify regular user cannot change admin user's password
+        self.client.authenticate(admin=False)
+        forbidden_change_api_admin_response = self.client.post(change_api_admin_url, data={'password': 'abc'})
+        self.assertEqual(forbidden_change_api_admin_response.status_code, status.HTTP_403_FORBIDDEN)

@@ -8,7 +8,6 @@ from django.test.utils import override_settings
 
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APIClient
 
 from transit_indicators.tests import OTIAPIClient
 from datasources.models import GTFSFeedProblem
