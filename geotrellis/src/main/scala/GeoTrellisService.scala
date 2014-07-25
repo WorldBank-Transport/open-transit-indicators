@@ -43,9 +43,6 @@ trait GeoTrellisService extends HttpService {
   val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
     user = dbUser, password = dbPassword)
 
-  // Object for calculating indicators
-  var indicatorsCalculator: Option[IndicatorsCalculator] = None
-
   // Endpoint for testing: browsing to /ping should return the text
   def pingRoute =
     pathPrefix("gt") {
@@ -66,9 +63,8 @@ trait GeoTrellisService extends HttpService {
               db withSession { implicit session: Session =>
                 println(s"parsing GTFS data from: $gtfsDir")
 
-                // parse the GTFS gtfsData and create the indicators calculator
-                var gtfsData = GtfsData.fromFile(gtfsDir)
-                indicatorsCalculator = Some(new IndicatorsCalculator(gtfsData))
+                // parse the GTFS gtfsData
+                val gtfsData = GtfsData.fromFile(gtfsDir)
 
                 // insert GTFS data into the database
                 gtfsData.routes.foreach { route => dao.routes.insert(route) }
@@ -96,23 +92,29 @@ trait GeoTrellisService extends HttpService {
       path("indicators") {
         get {
           complete {
-            indicatorsCalculator match {
-              case None => {
-                JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No indicators calculator")
-                )
-              }
-              case Some(calc) => {
-                JsObject(
-                  "success" -> JsBoolean(true),
-                  "indicators" -> JsObject(
-                    "numRoutesPerMode" -> calc.numRoutesPerMode.toJson,
-                    "maxStopsPerRoute" -> calc.maxStopsPerRoute.toJson,
-                    "numStopsPerMode" -> calc.numStopsPerMode.toJson,
-                    "avgTransitLengthPerMode" -> calc.avgTransitLengthPerMode.toJson
+            db withSession { implicit session: Session =>
+              // load the GTFS data and create the indicators calculator
+              val indicatorsCalculator: Option[IndicatorsCalculator] =
+                Some(new IndicatorsCalculator(dao.toGtfsData))
+
+              indicatorsCalculator match {
+                case None => {
+                  JsObject(
+                    "success" -> JsBoolean(false),
+                    "message" -> JsString("No indicators calculator")
                   )
-                )
+                }
+                case Some(calc) => {
+                  JsObject(
+                    "success" -> JsBoolean(true),
+                    "indicators" -> JsObject(
+                      "numRoutesPerMode" -> calc.numRoutesPerMode.toJson,
+                      "maxStopsPerRoute" -> calc.maxStopsPerRoute.toJson,
+                      "numStopsPerMode" -> calc.numStopsPerMode.toJson,
+                      "avgTransitLengthPerMode" -> calc.avgTransitLengthPerMode.toJson
+                    )
+                  )
+                }
               }
             }
           }
