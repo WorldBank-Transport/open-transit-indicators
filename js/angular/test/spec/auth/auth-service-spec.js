@@ -5,12 +5,6 @@ describe('Service: auth', function () {
     var $cookieStore;
     var authService;
 
-    beforeEach(module('transitIndicators'));
-    beforeEach(inject(function(_$cookieStore_, _authService_) {
-        $cookieStore = _$cookieStore_;
-        authService = _authService_;
-    }));
-
     /* If these keys are changed in authService, they must be updated in authInterceptor
      * as well, since the getToken function cannot be used there due to
      * a circular dependency.
@@ -18,6 +12,14 @@ describe('Service: auth', function () {
      */
     var userIdKey = 'authService.userId';
     var tokenKey = 'authService.token';
+
+    beforeEach(module('transitIndicators'));
+    beforeEach(inject(function(_$cookieStore_, _authService_) {
+        $cookieStore = _$cookieStore_;
+        authService = _authService_;
+        $cookieStore.remove(userIdKey);
+        $cookieStore.remove(tokenKey);
+    }));
 
     describe('cookie token tests', function () {
         it('getUserId $cookieStore should always use ' + userIdKey + ' as its key', function () {
@@ -64,6 +66,47 @@ describe('Service: auth', function () {
             $cookieStore.put(userIdKey, 123);
             $cookieStore.put(tokenKey, 'abcde12345');
             expect(authService.isAuthenticated()).toEqual(true);
+        });
+
+    });
+
+    describe('authenticate tests', function () {
+        var $httpBackend;
+
+        beforeEach(inject(function(_$httpBackend_) {
+            $httpBackend = _$httpBackend_;
+        }));
+
+        afterEach(function() {
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        });
+
+        it('should hit the /api-token-auth endpoint', function () {
+            var auth = {
+                username: 'testuser',
+                password: '123'
+            };
+            var userId = 1;
+
+            $httpBackend.expect('POST', '/api-token-auth/', auth).respond({
+                user: userId,
+                token: 'abcde12345'
+            });
+            // Need these two expects because the authenticate() call fires a
+            // $rootScope.$broadcast('authService:loggedIn')
+            // Apparently the app still loads in the background and logic in app.js
+            // sends these web requests
+            $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
+            // Silly space at the end for the trailing slash issue
+            $httpBackend.expectGET('/api/users/' + userId + '/ ').respond(200);
+
+            expect(authService.isAuthenticated()).toEqual(false);
+            authService.authenticate(auth);
+            $httpBackend.flush();
+
+            expect(authService.isAuthenticated()).toEqual(true);
+            expect(authService.getUserId()).toEqual(userId);
         });
 
     });
