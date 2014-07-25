@@ -99,19 +99,14 @@ trait GeoTrellisService extends HttpService {
                 // Directly interpolating into SQL query strings isn't best practice,
                 // but since the value is pre-loaded into the database, it's safe and the simplest
                 // thing to do in this case.
-                def stopXForm(srid: Int) = (Q.u +
-                  "ALTER TABLE gtfs_stops ALTER COLUMN geom " +
-                  s"TYPE Geometry(Point,${srid}) " +
-                  s"USING ST_Transform(geom,${srid});").execute
+                def geomTransform(srid: Int, table: String, geomType: String, column: String) =
+                  (Q.u +
+                   s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
+                   s"TYPE Geometry(${geomType},${srid}) " +
+                   s"USING ST_Transform(${column},${srid});").execute
 
-                stopXForm(srid)
-
-                def shapeXForm(srid: Int) = (Q.u +
-                  "ALTER TABLE gtfs_shape_geoms ALTER COLUMN geom " +
-                  s"TYPE Geometry(LineString,${srid}) " +
-                  s"USING ST_Transform(geom,${srid});").execute
-
-                shapeXForm(srid)
+                geomTransform(srid, "gtfs_stops", "Point", "geom")
+                geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
 
                 println("Finished transforming to local UTM zone.")
                 JsObject(
