@@ -21,8 +21,6 @@ before_script:
   -     npm install --silent > /dev/null
   -     grunt build
   - popd
-notifications:
-  email: false
 env:
   global:
   - secure: JPqVgULkqa5ny9k3+TZsWCJHgG1uP4uMP3shs0VGA7vwVINhJsACBCOmGvTvMX/N7+eZmTlxLJlHZU2MkH0nIyypQ0C71ZkHZURUQ505yqR0n+/8O4HnmVACM1ZnP9YDauy2yAzHVHs9W7ZaqMJym9qyJoqMpY5VEXK35WFPyvk=
