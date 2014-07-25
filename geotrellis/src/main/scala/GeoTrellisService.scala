@@ -79,6 +79,36 @@ trait GeoTrellisService extends HttpService {
                 data.stops.foreach { stop => dao.stops.insert(stop) }
                 println("finished parsing GTFS data")
 
+                println("Transforming GTFS to local UTM zone.")
+                // Get the SRID of the UTM zone which contains the center of the GTFS data.  This is
+                // done by finding the centroid of the bounding box of all GTFS stops, and then
+                // doing a spatial query on utm_zone_boundaries to figure out which UTM zone
+                // contains the centroid point. If a GTFS feed spans the boundary of two (or more)
+                // UTM zones, it will be arbitrarily assigned to the zone into which the centroid
+                // point falls. This isn't expected to significantly increase error.
+                // Note: This assumes that the gtfs_stops table is in the same projection as the
+                // utm_zone_boundaries table (currently 4326). If that ever changes then this query
+                // will need to be updated.
+                val sridQ = Q.queryNA[Int]("""SELECT srid FROM utm_zone_boundaries
+                          WHERE ST_Contains(utm_zone_boundaries.geom,
+                                            (SELECT ST_SetSRID(ST_Centroid((SELECT ST_Extent(the_geom) from gtfs_stops)),
+                                                               Find_SRID('public', 'gtfs_stops', 'the_geom'))));
+                """)
+                val srid = sridQ.list.head
+                // Reproject gtfs_stops.geom and gtfs_shape_geoms.geom to the UTM srid.
+                // Directly interpolating into SQL query strings isn't best practice,
+                // but since the value is pre-loaded into the database, it's safe and the simplest
+                // thing to do in this case.
+                def geomTransform(srid: Int, table: String, geomType: String, column: String) =
+                  (Q.u +
+                   s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
+                   s"TYPE Geometry(${geomType},${srid}) " +
+                   s"USING ST_Transform(${column},${srid});").execute
+
+                geomTransform(srid, "gtfs_stops", "Point", "geom")
+                geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
+
+                println("Finished transforming to local UTM zone.")
                 JsObject(
                   "success" -> JsBoolean(true),
                   "message" -> JsString(s"Imported ${data.routes.size} routes")
