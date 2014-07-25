@@ -15,7 +15,7 @@ describe('authInterceptor', function() {
         config = {
             url: '',
             headers: {}
-        }
+        };
     });
 
     it('should have a request function', function() {

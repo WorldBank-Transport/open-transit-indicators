@@ -179,6 +179,7 @@ class PeakTravelPeriodTestCase(TestCase):
         response = self.client.post(self.list_url, dict(start_time=before.time(),
                                                         end_time=after.time()),
                                     format='json')
+        print response.data        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         response = self.client.post(self.list_url, dict(start_time=after.time(),
@@ -201,5 +202,3 @@ class PeakTravelPeriodTestCase(TestCase):
                                                         end_time=later.time()),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-
