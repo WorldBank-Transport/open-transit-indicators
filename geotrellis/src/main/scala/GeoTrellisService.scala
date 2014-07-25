@@ -43,6 +43,9 @@ trait GeoTrellisService extends HttpService {
   val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
     user = dbUser, password = dbPassword)
 
+  // In-memory GTFS data storage
+  var gtfsData: Option[GtfsData] = None
+
   // Endpoint for testing: browsing to /ping should return the text
   def pingRoute =
     pathPrefix("gt") {
@@ -64,20 +67,21 @@ trait GeoTrellisService extends HttpService {
                 println(s"parsing GTFS data from: $gtfsDir")
 
                 // parse the GTFS gtfsData
-                val gtfsData = GtfsData.fromFile(gtfsDir)
+                val data = GtfsData.fromFile(gtfsDir)
+                gtfsData = Some(data)
 
                 // insert GTFS data into the database
-                gtfsData.routes.foreach { route => dao.routes.insert(route) }
-                gtfsData.service.foreach { service => dao.service.insert(service) }
-                gtfsData.agencies.foreach { agency => dao.agencies.insert(agency) }
-                gtfsData.trips.foreach { trip => dao.trips.insert(trip) }
-                gtfsData.shapes.foreach { shape => dao.shapes.insert(shape) }
-                gtfsData.stops.foreach { stop => dao.stops.insert(stop) }
+                data.routes.foreach { route => dao.routes.insert(route) }
+                data.service.foreach { service => dao.service.insert(service) }
+                data.agencies.foreach { agency => dao.agencies.insert(agency) }
+                data.trips.foreach { trip => dao.trips.insert(trip) }
+                data.shapes.foreach { shape => dao.shapes.insert(shape) }
+                data.stops.foreach { stop => dao.stops.insert(stop) }
                 println("finished parsing GTFS data")
 
                 JsObject(
                   "success" -> JsBoolean(true),
-                  "message" -> JsString(s"Imported ${gtfsData.routes.size} routes")
+                  "message" -> JsString(s"Imported ${data.routes.size} routes")
                 )
               }
             }
@@ -93,18 +97,22 @@ trait GeoTrellisService extends HttpService {
         get {
           complete {
             db withSession { implicit session: Session =>
-              // load the GTFS data and create the indicators calculator
-              val indicatorsCalculator: Option[IndicatorsCalculator] =
-                Some(new IndicatorsCalculator(dao.toGtfsData))
+              // load GTFS data if it doesn't exist in memory
+              gtfsData match {
+                case None => gtfsData = Some(dao.toGtfsData)
+                case Some(data) =>
+              }
 
-              indicatorsCalculator match {
+              // create the indicators calculator
+              gtfsData match {
                 case None => {
                   JsObject(
                     "success" -> JsBoolean(false),
                     "message" -> JsString("No indicators calculator")
                   )
                 }
-                case Some(calc) => {
+                case Some(data) => {
+                  val calc = new IndicatorsCalculator(data)
                   JsObject(
                     "success" -> JsBoolean(true),
                     "indicators" -> JsObject(
