@@ -42,6 +42,9 @@ if [ 0 -ne $has_spatial_db ]; then
 
     # Populate the route types lookup table
     psql -d $DB_NAME -f ./deployment/gtfs_route_types.sql
+
+    # Populate the UTM zone->srid lookup table
+    psql -d $DB_NAME -f ./deployment/utm_zone_boundaries.sql
 else
     echo 'Spatial database already exists; skipping.'
 fi
