@@ -1,58 +1,56 @@
 <div ng-init="init()">
-    <h1>Users</h1>
-    <table>
-        <tbody>
-            <tr>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <td>jmorgan-brine</td>
-                <td>Administrator</td>
-                <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
-            </tr>
-            <tr>
-                <td>rdaly</td>
-                <td>Administrator</td>
-                <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
-            </tr>
-        </tbody>
-    </table>
-    <hr>
-    <div class="btn btn-primary">
-        Add New User
-    </div>
-    <div class="settingsmodal-newuser">
-        <h3>Add New User</h3>
-        <div class="settingsmodal-fieldgroup">
-            <div class="row">
-                <div class="col-sm-6">
-                    <h4>Username</h4>
-                </div>
-                <div class="col-sm-6">
-                    <h4>Role</h4>
-                </div>
-            </div>
+  <h1>Users</h1>
+  <table>
+    <tbody>
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+      <tr ng-repeat="user in users | orderBy:'username'">
+        <td>{{user.username}}</td>
+        <td>{{user.is_staff | user_type}}</td>
+        <td>
+          <a ng-click="resetPasswordModal(user)">Reset Password</a> /
+          <a ng-click="deleteUserModal(user)">Delete</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <hr>
+
+  <div class="btn btn-primary" ng-hide="addingUser" ng-click="addUser()">Add New User</div>
+
+  <div class="settingsmodal-newuser" ng-show="addingUser">
+    <h3>Add New User</h3>
+    <form novalidate name="userCreateForm" ng-model="userCreateForm" class="settingsmodal-fieldgroup">
+      <div class="row">
+        <div class="col-sm-6">
+          <label>Username</label>
+          <input required ng-model="userCreateForm.username" type="text">
         </div>
-        <div class="settingsmodal-fieldgroup">
-            <div class="row">
-                <div class="col-sm-6">
-                    <input type="text">
-                </div>
-                <div class="col-sm-6">
-                    <select>
-                      <option value="value1">17:00</option>
-                      <option value="value2">23:00</option>
-                    </select>
-                </div>
-            </div>
+        <div class="col-sm-6">
+          <label>Role</label>
+          <select ng-model="userCreateForm.role" ng-options="u.label for u in userRoles"></select>
         </div>
-        <div class="btn btn-primary">
-            Save
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <label>Password</label>
+          <input required ng-model="userCreateForm.password" name="password" type="password"/>
         </div>
-        <div class="btn btn-link btn-link-danger">
-            Cancel
+        <div class="col-sm-6">
+          <label>Confirm Password</label>
+          <input required ng-model="userCreateForm.confirm_password"
+                 name="confirm_password"
+                 ui-validate=" '$value==userCreateForm.password' "
+                 ui-validate-watch=" 'userCreateForm.password' "
+                 type="password"/>
         </div>
-    </div>
+      </div>
+      <br>
+      <button class="btn btn-primary" ng-click="createUser()" ng-disabled="userCreateForm.$invalid">Save</button>
+      <button class="btn btn-danger" ng-click="cancelUserCreate()">Cancel</button>
+    </form>
+  </div>
 </div>
