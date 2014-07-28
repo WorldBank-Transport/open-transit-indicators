@@ -7,12 +7,12 @@
         <th>Role</th>
         <th>Action</th>
       </tr>
-      <tr ng-repeat="user in users | orderBy:'username'">
-        <td>{{user.username}}</td>
-        <td>{{user.is_staff | user_type}}</td>
+      <tr ng-repeat="u in users | orderBy:'username'">
+        <td>{{u.username}}</td>
+        <td>{{u.is_staff | user_type}}</td>
         <td>
-          <a ng-click="resetPasswordModal(user)">Reset Password</a> /
-          <a ng-click="deleteUserModal(user)">Delete</a>
+          <a ng-click="resetPasswordModal(u)">Reset Password</a>
+          <span ng-hide="u.id == user.id">/ <a ng-click="deleteUserModal(u)">Delete</a></span>
         </td>
       </tr>
     </tbody>
