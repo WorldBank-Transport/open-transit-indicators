@@ -10,17 +10,15 @@ factory('OTIUserService', ['$resource', '$q',
         'update': {
             method: 'PATCH',
             url: '/api/users/:id/ '
-        }/*,
-        // This should be called as a class method since it should only POST the password,
-        // not the entire user contents.
-        // Example:
-        // adminService.User.changePassword({id: 1}, {password: 'foobar'}, success, fail);
-        // TODO: Implement backend later
-        'changePassword': {
-            method: 'PUT',
-            url: '/api/users/:id/set_password/ '
+        },
+        'changePassword' : {
+            method: 'POST',
+            url: '/api/users/:id/change_password/ '
+        },
+        'resetPassword' : {
+            method: 'POST',
+            url: '/api/users/:id/reset_password/ '
         }
-        */
     });
 
     userService.getUser = function (userId) {

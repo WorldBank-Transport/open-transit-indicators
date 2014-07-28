@@ -6,7 +6,8 @@ angular.module('transitIndicators', [
     'ui.router',
     'angularFileUpload',
     'leaflet-directive',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'ui.utils'
 ]).config(['$stateProvider', '$urlRouterProvider', 'config', '$httpProvider',
         function ($stateProvider, $urlRouterProvider, config, $httpProvider) {
 
