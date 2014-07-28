@@ -20,6 +20,14 @@ class OTIUserViewSet(OTIAdminViewSet):
     serializer_class = OTIUserSerializer
     filter_fields = ('username', 'email', 'first_name', 'last_name',)
 
+    def create(self, request):
+        """Override create to add setting of password"""
+        response = super(OTIUserViewSet,self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            self.object.set_password(request.DATA.get('password'))
+            self.object.save()
+        return response
+
     @action()
     def reset_password(self, request, pk=None):
         """Endpoint for resetting a user's password"""
@@ -29,6 +37,7 @@ class OTIUserViewSet(OTIAdminViewSet):
         all_chars = string.ascii_letters + string.digits
         new_password = ''.join(random.choice(all_chars) for _ in range(10))
         user.set_password(new_password)
+        user.save()
 
         serializer = self.serializer_class(user)
         data = serializer.data
@@ -49,6 +58,8 @@ class OTIUserViewSet(OTIAdminViewSet):
         new_password = request.DATA.get('password')
         if not new_password:
             raise ParseError(detail='Must supply a password to change to')
+        user.set_password(new_password)
+        user.save()
 
         return Response({'detail': 'password successfully changed'})
 
