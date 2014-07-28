@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 from django.test import TestCase
 from rest_framework.reverse import reverse
@@ -173,32 +173,31 @@ class PeakTravelPeriodTestCase(TestCase):
 
     def test_start_after_end(self):
         """ Ensure that PeakTravelPeriods can't end before they start. """
-        before = datetime.now()
-        after = datetime.now() + timedelta(hours=1)
+        before = time(hour=12)
+        after = time(hour=13)
 
-        response = self.client.post(self.list_url, dict(start_time=before.time(),
-                                                        end_time=after.time()),
+        response = self.client.post(self.list_url, dict(start_time=before,
+                                                        end_time=after),
                                     format='json')
-        print response.data        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        response = self.client.post(self.list_url, dict(start_time=after.time(),
-                                                        end_time=before.time()),
+        response = self.client.post(self.list_url, dict(start_time=after,
+                                                        end_time=before),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_permissions(self):
         self.client.authenticate(admin=False)
-        now = datetime.now()
-        later = datetime.now() + timedelta(hours=1)
+        now = time(hour=12)
+        later = time(hour=13)
 
-        response = self.client.post(self.list_url, dict(start_time=now.time(),
-                                                        end_time=later.time()),
+        response = self.client.post(self.list_url, dict(start_time=now,
+                                                        end_time=later),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.force_authenticate(user=None)
-        response = self.client.post(self.list_url, dict(start_time=now.time(),
-                                                        end_time=later.time()),
+        response = self.client.post(self.list_url, dict(start_time=now,
+                                                        end_time=later),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
