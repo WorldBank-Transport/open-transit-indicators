@@ -46,6 +46,7 @@ module.exports = function(config) {
       'app/bower_components/angular-cookies/angular-cookies.min.js',
       'app/bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.min.js',
       'app/bower_components/angular-ui-router/release/angular-ui-router.min.js',
+      'app/bower_components/angular-ui-utils/ui-utils.min.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-translate/angular-translate.min.js',
@@ -71,22 +72,22 @@ module.exports = function(config) {
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
-    
+
     colors: true,
-    
+
     logLevel: config.LOG_INFO,
-    
+
     sauceLabs: {
         testName: 'Open Transit Indicators Unit Tests'
     },
-    
+
     // Increase timeout in case connection in CI is slow
     captureTimeout: 120000,
-    
+
     customLaunchers: customLaunchers,
-    
+
     browsers: Object.keys(customLaunchers),
-    
+
     reporters: ['dots', 'saucelabs'],
 
     // Continuous Integration mode
