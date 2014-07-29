@@ -86,6 +86,10 @@ class OTIDemographicConfigSerializer(serializers.ModelSerializer):
             # We don't actually care about the result if this succeeds.
             DemographicDataFieldName.objects.get(datasource=attrs.get('datasource'),
                                                  name=attrs[source])
+        # If attrs[source] does not exist, skip validation
+        # This allows us to POST only a single attr and not have the endpoint fail with an error
+        except KeyError:
+            return True
         except DemographicDataFieldName.DoesNotExist:
             raise serializers.ValidationError('\'%s\' is not a valid field for this data source.'
                                               % attrs[source])

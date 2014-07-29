@@ -1,55 +1,82 @@
 <div ng-init="init()">
     <h1>Demographic</h1>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
-    <div class="dropzone">
-        <div class="h4">Drop file here or <span class="btn btn-primary">Select a File</span></div>
+
+    <!-- Shapefile upload elements -->
+    <div class="dropzone" ng-hide="upload">
+        <div class="h4" ng-file-drop="startUpload($files)" ng-file-drop-available="true">Drop file here or </div>
+        <input type="file" ng-file-select="startUpload($files)" />
     </div>
-    <div class="dropzone inprogress">
-        <div class="h4">Processing your file (20%) <span class="h5"><a href="#">Cancel</a></span></div>
+    <div class="dropzone inprogress" ng-show="uploadProgress >= 0 && uploadProgress <= 100">
+        <div class="h4">Uploading your file ({{ uploadProgress }}%) <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>
+        <div class="h4" ng-show="uploadProgress === 100">Processing...</div>
     </div>
-    <h3>Assign Fields</h3>
-    <h4>Population</h4>
-    <div class="settingsmodal-fieldgroup">
-        <div class="row">
-            <div class="col-sm-4">
-                <input type="text">
-            </div>
-            <div class="col-sm-4">
-                <select>
-                  <option value="value1">Pop_2010</option>
-                  <option value="value2">WA_Pop_2010</option>
-                </select>
-            </div>
-            <div class="col-sm-4"></div>
+    <div class="dropzone notices" ng-show="uploadError">
+        <div class="h4">
+            <span class="glyphicon glyphicon-remove"></span> Upload Failed: {{ uploadError }}
+            <span class="h5"><a ng-click="cancel()">Try Again</a></span>
         </div>
     </div>
-    <div class="settingsmodal-fieldgroup">
-        <div class="row">
-            <div class="col-sm-4">
-                <input type="text">
+    <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
+        <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
+            <div class="settingsmodal-notices-errors">
+                <h4>Errors</h4>
+                <ul>
+                    <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
+                </ul>
             </div>
-            <div class="col-sm-4">
-                <select>
-                  <option value="value1">Pop_2010</option>
-                  <option value="value2">WA_Pop_2010</option>
-                </select>
-            </div>
-            <div class="col-sm-4"></div>
+        </div>
+        <div class="settingsmodal-notices-warnings" ng-if="uploadProblems.warnings.length > 0">
+            <h4>Warnings</h4>
+            <ul>
+                <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
+            </ul>
         </div>
     </div>
-    <h4>Destination</h4>
-    <div class="settingsmodal-fieldgroup">
-        <div class="row">
-            <div class="col-sm-4">
-                <input type="text">
+
+    <div class="dropzone" ng-show="upload && upload.is_processed">
+        <h3>Demographic Data: {{ upload.source_file }}</h3>
+        <h3>Assign Fields</h3>
+        <h4>Population</h4>
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-4">
+                    <p>Population Metric 1:</p>
+                </div>
+                <div class="col-sm-4">
+                    <select ng-model="assign.pop_metric_1" name="pop_metric_1" required="true" ng-options="metric for metric in upload.fields"></select>
+                </div>
+                <div class="col-sm-4"></div>
             </div>
-            <div class="col-sm-4">
-                <select>
-                  <option value="value1">Pop_2010</option>
-                  <option value="value2">WA_Pop_2010</option>
-                </select>
-            </div>
+        </div>
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-4">
+                    <p>Population Metric 2:</p>
+                </div>
+                <div class="col-sm-4">
+                    <select ng-model="assign.pop_metric_2" name="pop_metric_2" required="true" ng-options="metric for metric in upload.fields"></select>
+                </div>
             <div class="col-sm-4"></div>
+        </div>
+        <h4>Demographic</h4>
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-4">
+                <p>Demographic Metric:
+                </div>
+                <div class="col-sm-4">
+                    <select ng-model="assign.dest_metric_1" name="demo_metric_1" required="true" ng-options="metric for metric in upload.fields"></select>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+        </div>
+        <div class="settingsmodal-fieldgroup">
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+            <button class="btn btn-danger" ng-click="delete()">Delete Data</button>
+        </div>
+        <div class="settingsmodal-fieldgroup">
+            <alert ng-show="loadAlert" type="loadAlert.type">{{ loadAlert.msg }}</alert>
         </div>
     </div>
 </div>
