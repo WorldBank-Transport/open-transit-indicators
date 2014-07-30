@@ -95,13 +95,13 @@ angular.module('transitIndicators').constant('config', {
     },
 
     worldExtent: {
-        "southWest": {
-          "lat": -57.0,
-          "lng": -168.5
+        southWest: {
+          lat: -57.0,
+          lng: -168.5
         },
-        "northEast": {
-          "lat": 73.25,
-          "lng": 158.1
+        northEast: {
+          lat: 73.25,
+          lng: 158.1
         }
     },
 
@@ -112,31 +112,31 @@ angular.module('transitIndicators').constant('config', {
     settingsViews: [
         {
             id: 'overview',
-            label: 'Overview',
+            label: 'Overview'
         },
         {
             id: 'upload',
-            label: 'GTFS',
+            label: 'GTFS'
         },
         {
             id: 'boundary',
-            label: 'Boundary',
+            label: 'Boundary'
         },
         {
             id: 'demographic',
-            label: 'Demographic',
+            label: 'Demographic'
         },
         {
             id: 'realtime',
-            label: 'Real-Time',
+            label: 'Real-Time'
         },
         {
             id: 'configuration',
-            label: 'Configuration',
+            label: 'Configuration'
         },
         {
             id: 'users',
-            label: 'Users',
+            label: 'Users'
         }
     ]
 
