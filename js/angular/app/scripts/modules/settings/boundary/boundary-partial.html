@@ -1,38 +1,22 @@
 <div ng-init="init()">
     <h1>Boundary</h1>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+
     <h3>City</h3>
-    <div class="dropzone" ng-hide="uploadCity">
-        <div class="h4" ng-file-drop="startUploadCity($files)" ng-file-drop-available="true">Drop file here or </div>
-        <input type="file" ng-file-select="startUploadCity($files)" />
-    </div>
-    <div class="dropzone inprogress" ng-show="uploadProgressCity >= 0 && uploadProgressCity <= 100">
-        <div class="h4">Uploading your file ({{ uploadProgressCity }}%) <span class="h5"><a ng-click="cancelCity()">Cancel</a></span></div>
-        <div class="h4" ng-show="uploadProgressCity === 100">Processing...</div>
-    </div>
-    <div class="dropzone" ng-if="uploadCity.is_valid">
-        <div class="h3">
-            <span class="glyphicon glyphicon-ok"></span> City Data Loaded
-            <span class="h5 pull-right"><button class="btn btn-danger" ng-click="deleteCity()">Delete Data</button></span>
-        </div>
-    </div>
-    <div class="dropzone notices" ng-show="uploadErrorCity">
-        <div class="h4">
-            <span class="glyphicon glyphicon-remove"></span> Upload Failed: {{ uploadErrorCity }}
-            <span class="h5"><a ng-click="cancelCity()">Try Again</a></span>
-        </div>
-    </div>
+    <polling-upload url="/api/boundaries/" upload="uploadCity" resource="BoundaryUploads" options="cityOptions">
+    </polling-upload>
+
     <div class="dropzone notices" ng-if="uploadProblemsCity.warnings.length > 0 || uploadProblemsCity.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="uploadProblemsCity.errors.length > 0">
             <div class="settingsmodal-notices-errors">
-                <h4>Errors</h4>
+                <h4>City Errors</h4>
                 <ul>
                     <li ng-repeat="problem in uploadProblemsCity.errors">{{ problem.description }}</li>
                 </ul>
             </div>
         </div>
         <div class="settingsmodal-notices-warnings" ng-if="uploadProblemsCity.warnings.length > 0">
-            <h4>Warnings</h4>
+            <h4>City Warnings</h4>
             <ul>
                 <li ng-repeat="problem in uploadProblemsCity.warnings">{{ problem.description }}</li>
             </ul>
@@ -40,40 +24,24 @@
     </div>
 
     <h3>Region</h3>
-    <div class="dropzone" ng-hide="uploadRegion">
-        <div class="h4" ng-file-drop="startUploadRegion($files)" ng-file-drop-available="true">Drop file here or </div>
-        <input type="file" ng-file-select="startUploadRegion($files)" />
-    </div>
-    <div class="dropzone inprogress" ng-show="uploadProgressRegion >= 0 && uploadProgressRegion <= 100">
-        <div class="h4">Uploading your file ({{ uploadProgressRegion }}%) <span class="h5"><a ng-click="cancelRegion()">Cancel</a></span></div>
-        <div class="h4" ng-show="uploadProgressRegion === 100">Processing...</div>
-    </div>
-    <div class="dropzone" ng-if="uploadRegion.is_valid">
-        <div class="h3">
-            <span class="glyphicon glyphicon-ok"></span> Region Data Loaded
-            <span class="h5 pull-right"><button class="btn btn-danger" ng-click="deleteRegion()">Delete Data</button></span>
-        </div>
-    </div>
-    <div class="dropzone notices" ng-show="uploadErrorRegion">
-        <div class="h4">
-            <span class="glyphicon glyphicon-remove"></span> Upload Failed: {{ uploadErrorRegion }}
-            <span class="h5"><a ng-click="cancelRegion()">Try Again</a></span>
-        </div>
-    </div>
+    <polling-upload url="/api/boundaries/" upload="uploadRegion" resource="BoundaryUploads" options="regionOptions">
+    </polling-upload>
+
     <div class="dropzone notices" ng-if="uploadProblemsRegion.warnings.length > 0 || uploadProblemsRegion.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="uploadProblemsRegion.errors.length > 0">
             <div class="settingsmodal-notices-errors">
-                <h4>Errors</h4>
+                <h4>Region Errors</h4>
                 <ul>
                     <li ng-repeat="problem in uploadProblemsRegion.errors">{{ problem.description }}</li>
                 </ul>
             </div>
         </div>
         <div class="settingsmodal-notices-warnings" ng-if="uploadProblemsRegion.warnings.length > 0">
-            <h4>Warnings</h4>
+            <h4>Region Warnings</h4>
             <ul>
                 <li ng-repeat="problem in uploadProblemsRegion.warnings">{{ problem.description }}</li>
             </ul>
         </div>
     </div>
+
 </div>

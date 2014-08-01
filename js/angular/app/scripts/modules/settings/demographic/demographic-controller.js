@@ -219,16 +219,21 @@ angular.module('transitIndicators')
         }
     };
 
-    /*
-     * Delete the current demographic upload resource
-     * and clear the UI
-     */
-    $scope.delete = function () {
-        $scope.upload.$delete({id: $scope.upload.id}).then(function () {
-            $scope.setUpload(null);
-            clearUploadProblems();
-        });
-    };
+    $scope.$on('pollingUpload:uploadDelete', function () {
+        clearUploadProblems();
+    });
+
+    $scope.$on('pollingUpload:uploadCancel', function () {
+        clearUploadProblems();
+    });
+
+    $scope.$on('pollingUpload:processingError', function () {
+        viewProblems();
+    });
+
+    $scope.$on('pollingUpload:pollingFinished', function () {
+        viewProblems();
+    });
 
     /*
      * Asynchronously Save user selections to the demographics field assignments

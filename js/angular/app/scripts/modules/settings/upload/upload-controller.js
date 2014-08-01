@@ -211,6 +211,24 @@ angular.module('transitIndicators')
             });
     };
 
+    $scope.$on('pollingUpload:pollingFinished', function () {
+        viewProblems();
+        $scope.setSidebarCheckmark('upload', true);
+    });
+
+    $scope.$on('pollingUpload:processingError', function () {
+        viewProblems();
+    });
+
+    $scope.$on('pollingUpload:uploadCancel', function () {
+        clearUploadProblems();
+    });
+
+    $scope.$on('pollingUpload:uploadDelete', function () {
+        clearUploadProblems();
+        $scope.setSidebarCheckmark('upload', false);
+    });
+
     // Set initial scope variables and constants
     $scope.setGTFSUpload(null);
     $scope.clearUploadProblems();

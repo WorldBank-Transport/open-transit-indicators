@@ -5,359 +5,65 @@ angular.module('transitIndicators')
     ['$scope', '$rootScope', '$timeout', '$upload', 'OTIConfigurationService', 'OTIBoundaryService',
     function ($scope, $rootScope, $timeout, $upload, OTIConfigurationService, OTIBoundaryService) {
 
-    // Start of City section. TODO: abstract this out into a directive.
-
-    /*
-     * Continuously polls for changes to the passed upload object until an error
-     * is encountered or the condition of is_valid === true && is_processed === true
-     * is satisfied
-     *
-     * @param upload: A OTIBoundaryService.bondaryUpload $resource instance
-     *
-     * @return none
-     */
-    var pollForUploadCity = function (upload) {
-        var UPLOAD_TIMEOUT_MS = 2 * 60 * 1000;
-        var POLLING_TIMEOUT_MS = 3 * 1000;
-        var startDatetime = new Date();
-        var checkUpload = function () {
-            var nowDatetime = new Date();
-            if (nowDatetime.getTime() - startDatetime.getTime() > UPLOAD_TIMEOUT_MS) {
-                setUploadErrorCity('Upload timeout');
-            } else if (upload.is_valid === false) {
-                viewProblemsCity(upload);
-                setUploadErrorCity();
-            } else if (!(upload.is_valid && upload.is_processed)) {
-                $scope.timeoutIdCity = $timeout(function () {
-                    upload = OTIBoundaryService.boundaryUploads.get({id: upload.id}, function () {
-                        checkUpload();
-                    });
-                }, POLLING_TIMEOUT_MS);
-            } else {
-                // update the global configuration with a reference to the record
-                $scope.config.city_boundary = upload.id;
-                $scope.config.$update({ id: $scope.config.id }).then(function (result) {
-                    setUploadCity(upload);
-                    $scope.uploadProgressCity = -1;
-                    setSidebarCheckmark();
-                    $rootScope.$broadcast('boundary-controller:upload-done-city');
-                }, function (error) {
-                    $scope.addAlert({
-                        type: 'danger',
-                        msg: 'Error updating config ' + fileUpload.id + ': ' + JSON.stringify(error)
-                    });
-                });
-            }
-        };
-        checkUpload();
+    var isCityUpload = function (upload) {
+        return $scope.uploadCity && upload.id === $scope.uploadCity.id;
     };
 
-    /*
-     * Clear the UI of errors/warnings and reset to initial state
-     */
-    var clearUploadProblemsCity = function () {
-        $scope.uploadProblemsCity = {
-            warnings: [],
-            errors: []
-        };
-        $scope.uploadProgressCity = -1;
-        $scope.uploadErrorCity = null;
-        setSidebarCheckmark();
+    var isRegionUpload = function (upload) {
+        return $scope.uploadRegion && upload.id === $scope.uploadRegion.id;
     };
 
-    /*
-     * Display inline string error message for city upload
-     * Setter for $scope.uploadErrorCity property
-     *
-     * @param msg: The string message to display, can be omitted
-     */
-    var setUploadErrorCity = function (msg) {
-        $scope.uploadProgressCity = -1;
-        if (msg) {
-            $scope.uploadErrorCity = msg;
-        }
-        setSidebarCheckmark();
-    };
+    var displayBoundaryUploadProblems = function (upload) {
+        var uploadProblems = isCityUpload(upload) ?
+                             $scope.uploadProblemsCity : $scope.uploadProblemsRegion;
 
-    /*
-     * Setter for the $scope.uploadCity property. Do not set $scope.uploadCity directly.
-     *
-     * @param upload: A OTIBoundaryService.boundaryUpload $resource instance
-     *
-     * @return none
-     */
-    var setUploadCity = function (upload) {
-        $scope.uploadCity = upload;
-        viewProblemsCity(upload);
-    };
-
-    /*
-     * Get and display a list of upload problems for the current city upload
-     */
-    var viewProblemsCity = function(upload) {
-        if (!(upload && upload.id)) {
-            return;
-        }
-
-        OTIBoundaryService.boundaryProblems.query(
-            { boundary: upload.id },
-            function(data) {
-                $scope.uploadProblemsCity.warnings = _.filter(data, function (problem) {
-                    return problem.type === 'war';
-                });
-                $scope.uploadProblemsCity.errors = _.filter(data, function (problem) {
-                    return problem.type === 'err';
-                });
-
-                if ($scope.uploadProblemsCity.errors.length > 0) {
-                    setUploadErrorCity('See errors below');
-                }
+        OTIBoundaryService.boundaryProblems.query({ boundary: upload.id }, function(data) {
+            uploadProblems.warnings = _.filter(data, function (problem) {
+                return problem.type === 'war' && problem.boundary === upload.id;
             });
-    };
-
-    /*
-     * Uploads first file in $files to the boundaries api endpoint
-     *
-     * @param $files: Array of files generated by the angular-file-upload plugin
-     *
-     * @return none
-     */
-    $scope.startUploadCity = function ($files) {
-        if (!($files && $files[0])) {
-            return;
-        }
-        var $file = $files[0];
-        $scope.uploadProgressCity = 0;
-
-        $scope.uploadCity = $upload.upload({
-            url: '/api/boundaries/',
-            method: 'POST',
-            data: {
-                source_file: $file.name
-            },
-            fileFormDataName: 'source_file',
-            file: $file
-        }).progress(function (evt) {
-            if ($scope.uploadProgressCity < 0) {
-                return;
-            }
-            $scope.uploadProgressCity = parseInt(evt.loaded / evt.total, 10);
-        }).success(function(data) {
-            $scope.uploadProgressCity = 100;
-            pollForUploadCity(data);
-        }).error(function(data, status) {
-            var msg = status;
-            if (data.source_file) {
-                msg += ' -- ' + (data.source_file[0] || 'Unknown');
-            }
-            setUploadErrorCity(msg);
+            uploadProblems.errors = _.filter(data, function (problem) {
+                return problem.type === 'err' && problem.boundary === upload.id;
+            });
         });
     };
 
-    /*
-     * Delete the current city upload resource
-     * and clear the UI
-     */
-    $scope.deleteCity = function () {
-        $scope.config.city_boundary = null;
+    var clearBoundaryUploadProblems = function (upload) {
+        if (isCityUpload(upload)) {
+            $scope.uploadProblemsCity = {
+                warnings: [],
+                errors: []
+            };
+        } else if (isRegionUpload(upload)) {
+            $scope.uploadProblemsRegion = {
+                warnings: [],
+                errors: []
+            };
+        }
+        setSidebarCheckmark();
+    };
+
+    $scope.$on('pollingUpload:pollingFinished', function (event, upload) {
+        if (isCityUpload(upload)) {
+            $scope.config.city_boundary = upload.id;
+        } else if (isRegionUpload(upload)) {
+            $scope.config.region_boundary = upload.id;
+        }
         $scope.config.$update({ id: $scope.config.id }).then(function () {
-            $scope.uploadCity.$delete({ id: $scope.uploadCity.id }).then(function () {
-                setUploadCity(null);
-                clearUploadProblemsCity();
-                setSidebarCheckmark();
-                $rootScope.$broadcast('boundary-controller:boundary-deleted-city');
-            });
+            setSidebarCheckmark();
         });
-    };
+    });
 
-    /**
-     * Cancels the upload of all active city upload processes
-     */
-    $scope.cancelCity = function () {
-        if ($scope.uploadCity && $scope.uploadCity.abort) {
-            $scope.uploadCity.abort();
-        }
-        $timeout.cancel($scope.timeoutIdCity);
-        clearUploadProblemsCity();
-        $scope.uploadCity = null;
-    };
+    $scope.$on('pollingUpload:processingError', function (event, upload) {
+        displayBoundaryUploadProblems(upload);
+    });
 
-    // Start of Region section. TODO: abstract this out into a directive.
+    $scope.$on('pollingUpload:uploadCancel', function (event, upload) {
+        clearBoundaryUploadProblems(upload);
+    });
 
-    /*
-     * Continuously polls for changes to the passed upload object until an error
-     * is encountered or the condition of is_valid === true && is_processed === true
-     * is satisfied
-     *
-     * @param upload: A OTIBoundaryService.bondaryUpload $resource instance
-     *
-     * @return none
-     */
-    var pollForUploadRegion = function (upload) {
-        var UPLOAD_TIMEOUT_MS = 2 * 60 * 1000;
-        var POLLING_TIMEOUT_MS = 3 * 1000;
-        var startDatetime = new Date();
-        var checkUpload = function () {
-            var nowDatetime = new Date();
-            if (nowDatetime.getTime() - startDatetime.getTime() > UPLOAD_TIMEOUT_MS) {
-                setUploadErrorRegion('Upload timeout');
-            } else if (upload.is_valid === false) {
-                viewProblemsRegion(upload);
-                setUploadErrorRegion();
-            } else if (!(upload.is_valid && upload.is_processed)) {
-                $scope.timeoutIdRegion = $timeout(function () {
-                    upload = OTIBoundaryService.boundaryUploads.get({id: upload.id}, function () {
-                        checkUpload();
-                    });
-                }, POLLING_TIMEOUT_MS);
-            } else {
-                // update the global configuration with a reference to the record
-                $scope.config.region_boundary = upload.id;
-                $scope.config.$update({ id: $scope.config.id }).then(function (result) {
-                    setUploadRegion(upload);
-                    $scope.uploadProgressRegion = -1;
-                    setSidebarCheckmark();
-                    $rootScope.$broadcast('boundary-controller:upload-done-region');
-                }, function (error) {
-                    $scope.addAlert({
-                        type: 'danger',
-                        msg: 'Error updating config ' + fileUpload.id + ': ' + JSON.stringify(error)
-                    });
-                });
-            }
-        };
-        checkUpload();
-    };
-
-    /*
-     * Clear the UI of errors/warnings and reset to initial state
-     */
-    var clearUploadProblemsRegion = function () {
-        $scope.uploadProblemsRegion = {
-            warnings: [],
-            errors: []
-        };
-        $scope.uploadProgressRegion = -1;
-        $scope.uploadErrorRegion = null;
+    $scope.$on('pollingUpload:uploadDelete', function () {
         setSidebarCheckmark();
-    };
-
-    /*
-     * Display inline string error message for region upload
-     * Setter for $scope.uploadErrorRegion property
-     *
-     * @param msg: The string message to display, can be omitted
-     */
-    var setUploadErrorRegion = function (msg) {
-        $scope.uploadProgressRegion = -1;
-        if (msg) {
-            $scope.uploadErrorRegion = msg;
-        }
-        setSidebarCheckmark();
-    };
-
-    /*
-     * Setter for the $scope.uploadRegion property. Do not set $scope.uploadRegion directly.
-     *
-     * @param upload: A OTIBoundaryService.boundaryUpload $resource instance
-     *
-     * @return none
-     */
-    var setUploadRegion = function (upload) {
-        $scope.uploadRegion = upload;
-        viewProblemsRegion(upload);
-    };
-
-    /*
-     * Get and display a list of upload problems for the current region upload
-     */
-    var viewProblemsRegion = function(upload) {
-        if (!(upload && upload.id)) {
-            return;
-        }
-
-        OTIBoundaryService.boundaryProblems.query(
-            { boundary: upload.id },
-            function(data) {
-                $scope.uploadProblemsRegion.warnings = _.filter(data, function (problem) {
-                    return problem.type === 'war';
-                });
-                $scope.uploadProblemsRegion.errors = _.filter(data, function (problem) {
-                    return problem.type === 'err';
-                });
-
-                if ($scope.uploadProblemsRegion.errors.length > 0) {
-                    setUploadErrorRegion('See errors below');
-                }
-            });
-    };
-
-    /*
-     * Uploads first file in $files to the boundaries api endpoint
-     *
-     * @param $files: Array of files generated by the angular-file-upload plugin
-     *
-     * @return none
-     */
-    $scope.startUploadRegion = function ($files) {
-        if (!($files && $files[0])) {
-            return;
-        }
-        var $file = $files[0];
-        $scope.uploadProgressRegion = 0;
-
-        $scope.uploadRegion = $upload.upload({
-            url: '/api/boundaries/',
-            method: 'POST',
-            data: {
-                source_file: $file.name
-            },
-            fileFormDataName: 'source_file',
-            file: $file
-        }).progress(function (evt) {
-            if ($scope.uploadProgressRegion < 0) {
-                return;
-            }
-            $scope.uploadProgressRegion = parseInt(evt.loaded / evt.total, 10);
-        }).success(function(data) {
-            $scope.uploadProgressRegion = 100;
-            pollForUploadRegion(data);
-        }).error(function(data, status) {
-            var msg = status;
-            if (data.source_file) {
-                msg += ' -- ' + (data.source_file[0] || 'Unknown');
-            }
-            setUploadErrorRegion(msg);
-        });
-    };
-
-    /*
-     * Delete the current region upload resource
-     * and clear the UI
-     */
-    $scope.deleteRegion = function () {
-        $scope.config.region_boundary = null;
-        $scope.config.$update({ id: $scope.config.id }).then(function () {
-            $scope.uploadRegion.$delete({ id: $scope.uploadRegion.id }).then(function () {
-                setUploadRegion(null);
-                clearUploadProblemsRegion();
-                setSidebarCheckmark();
-                $rootScope.$broadcast('boundary-controller:boundary-deleted-region');
-            });
-        });
-    };
-
-    /**
-     * Cancels the upload of all active region upload processes
-     */
-    $scope.cancelRegion = function () {
-        if ($scope.uploadRegion && $scope.uploadRegion.abort) {
-            $scope.uploadRegion.abort();
-        }
-        $timeout.cancel($scope.timeoutIdRegion);
-        clearUploadProblemsRegion();
-        $scope.uploadRegion = null;
-    };
+    });
 
     /*
      * Sets the sidebar checkmark if both city and region are uploaded
@@ -368,20 +74,28 @@ angular.module('transitIndicators')
         $scope.setSidebarCheckmark('boundary', checked);
     };
 
+    $scope.cityOptions = {
+        uploadTimeoutMs: 5 * 60 * 1000
+    };
+
+    $scope.boundaryOptions = {
+        uploadTimeoutMs: 5 * 60 * 1000
+    };
+
+    $scope.BoundaryUploads = OTIBoundaryService.boundaryUploads;
+    $scope.uploadProblemsCity = {
+        warnings: [],
+        errors: []
+    };
+    $scope.uploadProblemsRegion = {
+        warnings: [],
+        errors: []
+    };
+
     /*
      * Initialize the view on page load, setting valid boundary uploads if they exist
      */
     $scope.init = function () {
-        // initialize city
-        setUploadCity(null);
-        clearUploadProblemsCity();
-        $scope.timeoutIdCity = null;
-
-        // initialize region
-        setUploadRegion(null);
-        clearUploadProblemsRegion();
-        $scope.timeoutIdRegion = null;
-
         // get the global configuration object
         OTIConfigurationService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
@@ -395,12 +109,12 @@ angular.module('transitIndicators')
             // check for boundaries
             if (cityId) {
                 OTIBoundaryService.boundaryUploads.get({ id: cityId }, function (upload) {
-                    setUploadCity(upload);
+                    $scope.uploadCity = upload;
                 });
             }
             if (regionId) {
                 OTIBoundaryService.boundaryUploads.get({ id: regionId }, function (upload) {
-                    setUploadRegion(upload);
+                    $scope.uploadRegion = upload;
                 });
             }
             setSidebarCheckmark();
