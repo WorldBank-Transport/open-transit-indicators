@@ -1,7 +1,7 @@
 from viewsets import OTIAdminViewSet
-from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod, SamplePeriod
+from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
-                         PeakTravelPeriodSerializer, SamplePeriodSerializer)
+                         SamplePeriodSerializer)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -15,11 +15,6 @@ class OTIDemographicConfigViewSet(OTIAdminViewSet):
     model = OTIDemographicConfig
     serializer_class = OTIDemographicConfigSerializer
 
-
-class PeakTravelPeriodViewSet(OTIAdminViewSet):
-    """ Viewset for PeakTravelPeriod objects """
-    model = PeakTravelPeriod
-    serializer_class = PeakTravelPeriodSerializer
 
 class SamplePeriodViewSet(OTIAdminViewSet):
     """Viewset for SamplePeriod objects"""

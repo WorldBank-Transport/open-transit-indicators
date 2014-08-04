@@ -165,45 +165,6 @@ class OTIIndicatorsConfigTestCase(TestCase):
         check_negative_number(self.data, 'max_walk_time_s')
 
 
-class PeakTravelPeriodTestCase(TestCase):
-    """ Tests PeakTravelPeriods """
-    def setUp(self):
-        self.client = OTIAPIClient()
-        self.client.authenticate(admin=True)
-        self.list_url = reverse('peak-travel-list', {})
-
-    def test_start_after_end(self):
-        """ Ensure that PeakTravelPeriods can't end before they start. """
-        before = time(hour=12)
-        after = time(hour=13)
-
-        response = self.client.post(self.list_url, dict(start_time=before,
-                                                        end_time=after),
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        response = self.client.post(self.list_url, dict(start_time=after,
-                                                        end_time=before),
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_permissions(self):
-        self.client.authenticate(admin=False)
-        now = time(hour=12)
-        later = time(hour=13)
-
-        response = self.client.post(self.list_url, dict(start_time=now,
-                                                        end_time=later),
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        self.client.force_authenticate(user=None)
-        response = self.client.post(self.list_url, dict(start_time=now,
-                                                        end_time=later),
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-
 class SamplePeriodsTestCase(TestCase):
     """Tests SamplePeriods"""
     def setUp(self):

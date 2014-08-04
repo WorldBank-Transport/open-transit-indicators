@@ -69,16 +69,6 @@ class OTIDemographicConfig(models.Model):
     datasource = models.ForeignKey(DemographicDataSource)
 
 
-class PeakTravelPeriod(models.Model):
-    """ Stores "peak" travel times as times of day. """
-    # The start of this peak travel period, as a time during an unspecified
-    # day.
-    start_time = models.TimeField()
-
-    # The end of this peak travel period.
-    end_time = models.TimeField()
-
-
 class SamplePeriod(models.Model):
     """Stores configuration for a slice of time that is used to calculate indicators.
 

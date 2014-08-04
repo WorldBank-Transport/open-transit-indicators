@@ -3,21 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod, SamplePeriod
-
-
-class PeakTravelPeriodSerializer(serializers.ModelSerializer):
-    """ Serializer for PeakTravelPeriods -- Validates start_time < end_time"""
-    def validate(self, attrs):
-        """ Make sure that start time is before end time. """
-        if attrs['start_time'] > attrs['end_time']:
-            # TODO: Translation?
-            raise serializers.ValidationError("Start time comes after end time.")
-        return attrs
-
-    class Meta:
-        model = PeakTravelPeriod
-        fields = ('start_time', 'end_time')
+from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod
 
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
@@ -46,7 +32,7 @@ class SamplePeriodSerializer(serializers.ModelSerializer):
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
-    """ Serializer for OTIIndicatorsConfig -- Displays PeakTravelPeriods """
+    """Serializer for OTIIndicatorsConfig -- Displays indicator configurations"""
     def raise_if_lt_0(self, num):
         """ Raises a ValidationError if num < 0 """
         if num < 0:
