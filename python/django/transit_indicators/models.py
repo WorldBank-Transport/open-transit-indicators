@@ -77,3 +77,34 @@ class PeakTravelPeriod(models.Model):
 
     # The end of this peak travel period.
     end_time = models.TimeField()
+
+
+class SamplePeriod(models.Model):
+    """Stores configuration for a slice of time that is used to calculate indicators.
+
+    A sample period is a period of time within a specific date (or potentially two
+    subsequent dates if crossing midnight). There are five sample period types, three
+    of which are specified by the user (morning rush, evening rush, weekend), and two
+    of which are inferred by filling in the gaps between those (mid day, night).
+    """
+
+    class SamplePeriodTypes(object):
+        MORNING = 'morning'
+        MIDDAY = 'midday'
+        EVENING = 'evening'
+        NIGHT = 'night'
+        WEEKEND = 'weekend'
+        CHOICES = (
+            (MORNING, 'Morning Rush'),
+            (MIDDAY, 'Mid Day'),
+            (EVENING, 'Evening Rush'),
+            (NIGHT, 'Night'),
+            (WEEKEND, 'Weekend'),
+        )
+    type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES)
+
+    # Starting datetime of sample
+    period_start = models.DateTimeField()
+
+    # Ending datetime of sample
+    period_end = models.DateTimeField()

@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from django.test import TestCase
+from django.utils.timezone import utc
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
@@ -199,5 +200,64 @@ class PeakTravelPeriodTestCase(TestCase):
         self.client.force_authenticate(user=None)
         response = self.client.post(self.list_url, dict(start_time=now,
                                                         end_time=later),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class SamplePeriodsTestCase(TestCase):
+    """Tests SamplePeriods"""
+    def setUp(self):
+        self.client = OTIAPIClient()
+        self.client.authenticate(admin=True)
+        self.list_url = reverse('sample-periods-list', {})
+
+    def test_create(self):
+        """Ensure that a valid SamplePeriod can be created."""
+        start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
+        end = datetime(2000, 1, 1, 12, 0, 0, tzinfo=utc)
+        period_type = 'night'
+        response = self.client.post(self.list_url, dict(period_start=start,
+                                                        period_end=end,
+                                                        type=period_type),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_start_after_end(self):
+        """Ensure that SamplePeriods can't end before they start."""
+        start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
+        end = datetime(2000, 1, 1, 12, 0, 0, tzinfo=utc)
+        period_type = 'night'
+        response = self.client.post(self.list_url, dict(period_start=end,
+                                                        period_end=start,
+                                                        type=period_type),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_over_one_day(self):
+        """Ensure that SamplePeriods can't be longer than a day."""
+        start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
+        end = datetime(2000, 1, 10, 0, 0, 0, tzinfo=utc)
+        period_type = 'night'
+
+        response = self.client.post(self.list_url, dict(period_start=end,
+                                                        period_end=start,
+                                                        type=period_type),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_permissions(self):
+        self.client.authenticate(admin=False)
+        now = time(hour=12)
+        later = time(hour=13)
+
+        response = self.client.post(self.list_url, dict(period_start=now,
+                                                        period_end=later),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=None)
+        response = self.client.post(self.list_url, dict(period_start=now,
+                                                        period_end=later),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

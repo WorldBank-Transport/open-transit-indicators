@@ -1,7 +1,9 @@
+import datetime
+
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod
+from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod, SamplePeriod
 
 
 class PeakTravelPeriodSerializer(serializers.ModelSerializer):
@@ -16,6 +18,31 @@ class PeakTravelPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeakTravelPeriod
         fields = ('start_time', 'end_time')
+
+
+class SamplePeriodSerializer(serializers.ModelSerializer):
+    """Serializer for SamplePeriods -- performs validation of times"""
+    def validate(self, attrs):
+        """Validate sample period"""
+        # TODO: Error messages need to be translated
+
+        start = attrs['period_start']
+        end = attrs['period_end']
+
+        # Start time must be before end time
+        if start >= end:
+            raise serializers.ValidationError("Period start comes after period end.")
+
+        # Period must be less than 24 hours
+        seconds_per_day = 60 * 60 * 24
+        if (end - start).total_seconds() / seconds_per_day >= 1:
+            raise serializers.ValidationError("Period must be less than 24 hours.")
+
+        return attrs
+
+    class Meta:
+        model = SamplePeriod
+        fields = ('period_start', 'period_end', 'type')
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
