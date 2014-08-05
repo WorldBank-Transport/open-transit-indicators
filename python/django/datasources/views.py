@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from transit_indicators.viewsets import OTIAdminViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
-                                DemographicDataFeature)
+                                DemographicDataFeature, OSMData, OSMDataProblem)
 from datasources.serializers import (GTFSFeedSerializer, BoundarySerializer,
-                                     DemographicDataSourceSerializer)
+                                     DemographicDataSourceSerializer, OSMDataSerializer)
 from datasources.tasks import (validate_gtfs, shapefile_to_boundary, get_shapefile_fields,
-                               load_shapefile_data)
+                               load_shapefile_data, import_osm_data)
 from transit_indicators.models import OTIDemographicConfig
 from transit_indicators.serializers import OTIDemographicConfigSerializer
 
@@ -47,6 +47,40 @@ class GTFSFeedViewSet(OTIAdminViewSet):
 class GTFSFeedProblemViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for GTFS data"""
     model = GTFSFeedProblem
+    filter_fields = ('gtfsfeed',)
+
+
+class OSMDataViewSet(OTIAdminViewSet):
+    """View set for dealing with OSM Feeds."""
+    model = OSMData
+    serializer_class = OSMDataSerializer
+
+    def create(self, request):
+        """Override create method to call import task with celery"""
+        response = super(OSMDataViewSet, self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            import_osm_data.delay(self.object.id)
+        return response
+
+    def update(self, request, pk=None):
+        """Override update to re-import OSMData"""
+        response = super(OSMDataViewSet, self).update(request, pk)
+
+        # Reset processing status since osm needs reimportation
+        self.object.is_processed = False
+        self.object.save()
+        response.data['is_processed'] = False
+
+        # Delete existing problems since it will be revalidated
+        self.obj.osmdataproblem_set.all().delete()
+
+        import_osm_data.delay(self.object.id)
+        return response
+
+
+class OSMDataProblemsViewSet(OTIAdminViewSet):
+    """Viewset for displaying problems for OSM data"""
+    model = OSMDataProblem
     filter_fields = ('gtfsfeed',)
 
 

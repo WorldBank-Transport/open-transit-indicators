@@ -62,6 +62,21 @@ class Boundary(FileDataSource):
     geom = models.MultiPolygonField(srid=settings.DJANGO_SRID, blank=True, null=True)
 
 
+class OSMData(DataSource):
+    """Represents OSM Import"""
+    source_file = models.FileField(null=True, blank=True)
+    gtfsfeed = models.ForeignKey(GTFSFeed)
+    is_downloaded = models.BooleanField(default=False)
+    source_file = models.FileField()
+    is_valid = models.NullBooleanField()
+    is_processed = models.BooleanField(default=False)
+
+
+class OSMDataProblem(DataSourceProblem):
+    """Problem (warning or error) with an OSM import"""
+    osmdata = models.ForeignKey(OSMData)
+
+
 class BoundaryProblem(DataSourceProblem):
     """Problem (warning or error) with a Boundary."""
     boundary = models.ForeignKey(Boundary)
