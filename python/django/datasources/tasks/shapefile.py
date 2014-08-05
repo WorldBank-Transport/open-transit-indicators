@@ -9,7 +9,8 @@ from django.contrib.gis.geos import MultiPolygon, Polygon
 
 from datasources.models import (Boundary, BoundaryProblem, DataSourceProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
-                                DemographicDataFieldName, DemographicDataFeature)
+                                DemographicDataFieldName, DemographicDataFeature,
+                                GTFSFeed)
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -104,6 +105,13 @@ def run_shapefile_to_boundary(boundary_id):
         return
 
     try:
+        # There must be valid GTFS data in order to upload a boundary,
+        # otherwise UTM projection may not work.
+        # TODO: Refactor Shapefile validation and avoid repetition.
+        if GTFSFeed.objects.filter(is_valid=True).count() < 1:
+            handle_error('No valid GTFS feed.',
+                         'Please upload a valid GTFS feed before adding boundary data.')
+            return
         # Set up temporary directory and unzip to there.
         temp_dir = extract_zip_to_temp_dir(boundary.source_file)
         shapefiles = get_shapefiles_in_dir(temp_dir)
@@ -177,6 +185,13 @@ def run_get_shapefile_fields(demographicdata_id):
         # Set up temporary directory and unzip to there.
         temp_dir = extract_zip_to_temp_dir(demog_data.source_file)
         shapefiles = get_shapefiles_in_dir(temp_dir)
+
+        # There must be valid GTFS data in order to load demographic data
+        # otherwise UTM projection may not work.
+        if GTFSFeed.objects.filter(is_valid=True).count() < 1:
+            error_factory.error('No valid GTFS feed.',
+                                'Please upload a valid GTFS feed before trying again.')
+            return
 
         if len(shapefiles) > 1:
             handle_error('Multiple shapefiles found.', 'Upload only one shapefile at a time.')
