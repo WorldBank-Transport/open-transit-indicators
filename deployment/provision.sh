@@ -173,7 +173,9 @@ else
         rabbitmq-server \
         libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
         nginx \
-        gunicorn
+        gunicorn \
+        libgeos++-dev libpq-dev libbz2-dev proj libtool automake
+
 fi
 
 #### build postgis and friends #############
@@ -220,6 +222,27 @@ else
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
     popd
 fi
+
+########## Install osm2pgsql ##########
+# Necessary because only older versions of osm2pgsql
+# available in ubuntu repos
+
+if type osm2pgsql 2>/dev/null; then
+    echo 'osm2pgsql already installed; skipping.'
+else
+    echo 'Installing osm2pgsql from source'
+    pushd $TEMP_ROOT
+        # osm2pgsql
+        git clone https://github.com/openstreetmap/osm2pgsql.git
+        cd osm2pgsql
+        git checkout 0.84.0
+        ./autogen.sh
+        ./configure
+        sudo make
+        sudo make install
+    popd
+fi
+
 ############################################
 
 # Install Django
