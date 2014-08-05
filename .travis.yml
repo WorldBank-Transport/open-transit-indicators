@@ -17,8 +17,9 @@ before_script:
   -     sudo ./provision.sh travis
   - popd
   - pushd js/angular
-  -     bower install --config.interactive=false
-  -     npm install
+  -     sudo chown -R `whoami` /home/travis/.npm
+  -     bower install --config.interactive=false > /dev/null
+  -     npm install --silent
   -     grunt build
   - popd
 env:
