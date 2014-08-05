@@ -1,25 +1,66 @@
+import datetime
+
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from models import OTIIndicatorsConfig, OTIDemographicConfig, PeakTravelPeriod
+from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator
 
 
-class PeakTravelPeriodSerializer(serializers.ModelSerializer):
-    """ Serializer for PeakTravelPeriods -- Validates start_time < end_time"""
+class SamplePeriodSerializer(serializers.ModelSerializer):
+    """Serializer for SamplePeriods -- performs validation of times"""
     def validate(self, attrs):
-        """ Make sure that start time is before end time. """
-        if attrs['start_time'] > attrs['end_time']:
-            # TODO: Translation?
-            raise serializers.ValidationError("Start time comes after end time.")
+        """Validate sample period"""
+        # TODO: Error messages need to be translated
+
+        start = attrs['period_start']
+        end = attrs['period_end']
+
+        # Start time must be before end time
+        if start >= end:
+            raise serializers.ValidationError("Period start comes after period end.")
+
+        # Period must be less than 24 hours
+        seconds_per_day = 60 * 60 * 24
+        if (end - start).total_seconds() / seconds_per_day >= 1:
+            raise serializers.ValidationError("Period must be less than 24 hours.")
+
         return attrs
 
     class Meta:
-        model = PeakTravelPeriod
-        fields = ('start_time', 'end_time')
+        model = SamplePeriod
+        fields = ('period_start', 'period_end', 'type')
+
+
+class IndicatorSerializer(serializers.ModelSerializer):
+    """Serializer for Indicator"""
+    def validate(self, attrs):
+        """Validate indicator fields"""
+        # TODO: Error messages need to be translated
+
+        # Route aggregation type requires a route id and no route type
+        if attrs['aggregation'] == Indicator.AggregationTypes.ROUTE:
+            if 'route_id' not in attrs or not attrs['route_id']:
+                raise serializers.ValidationError('Route aggregation requires route_id')
+            if 'route_type' in attrs and attrs['route_type']:
+                raise serializers.ValidationError('Route aggregation should not have route_type')
+
+        # Mode aggregation type requires a route type and no route id
+        if attrs['aggregation'] == Indicator.AggregationTypes.MODE:
+            if 'route_id' in attrs and attrs['route_id']:
+                raise serializers.ValidationError('Mode aggregation should not have route_id')
+            if 'route_type' not in attrs or not attrs['route_type']:
+                raise serializers.ValidationError('Mode aggregation requires route_type')
+
+        return attrs
+
+    class Meta:
+        model = Indicator
+        fields = ('sample_period', 'type', 'aggregation', 'route_id',
+                  'route_type', 'city_bounded', 'value', 'version',)
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
-    """ Serializer for OTIIndicatorsConfig -- Displays PeakTravelPeriods """
+    """Serializer for OTIIndicatorsConfig -- Displays indicator configurations"""
     def raise_if_lt_0(self, num):
         """ Raises a ValidationError if num < 0 """
         if num < 0:
