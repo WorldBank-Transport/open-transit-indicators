@@ -372,11 +372,14 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
     python manage.py collectstatic --noinput
 popd
 
-# Add deletion trigger. This can't happen in setup_db.sh, above, because
-# it relies on Django migrations.
+# Add triggers which rely on Django migrations (and which therefore can't happen in the
+# main DB setup script).
 echo 'Adding GTFS Delete PostgreSQL Trigger'
 pushd $PROJECT_ROOT
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+    # This needs to be run as the transit_indicators user so that it has ownership
+    # over the tables, otherwise changing the SRID from GeoTrellis fails.
+    PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f ./deployment/setup_shapefile_reprojection.sql
 popd
 
 ## Now create a superuser for the app
