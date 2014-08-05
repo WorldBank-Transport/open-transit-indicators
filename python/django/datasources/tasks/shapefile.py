@@ -164,7 +164,7 @@ def run_get_shapefile_fields(demographicdata_id):
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
     demog_data.is_valid = False
     demog_data.save()
-    error_factory = ErrorFactory(DemographicDataSourceProblem, demog_data, 'source_file')
+    error_factory = ErrorFactory(DemographicDataSourceProblem, demog_data, 'datasource')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
