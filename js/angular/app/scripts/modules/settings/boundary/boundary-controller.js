@@ -97,7 +97,7 @@ angular.module('transitIndicators')
      */
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.configs.query({}, function (configs) {
+        OTIConfigurationService.Config.query({}, function (configs) {
             if (configs.length !== 1) {
                 console.error('Expected a single configuration, but found: ', configs);
                 return;

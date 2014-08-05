@@ -1,68 +1,174 @@
+<div ng-init="init()">
 <h1>Configuration</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+
+<form ng-submit="saveSamplePeriods()" name="samplePeriodsForm" autocomplete="off">
 <div class="settingsmodal-fieldgroup">
     <div class="row">
-        <div class="col-sm-11">
+        <div class="col-sm-6">
+            <span class="h4">Representative Weekday</span>
+        </div>
+        <div class="col-sm-6 config-datepicker">
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
+                       ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
+                       datepicker-options="dateOptions" ng-required="true" close-text="Close"
+                       date-disabled="disableWeekend(date, mode)" name="weekdayDate" ng-change="validateWeekday()" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="openWeekdayPicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-6">
+            <span class="h4">Representative Weekend</span>
+        </div>
+        <div class="col-sm-6 config-datepicker">
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
+                       ng-model="weekendDate" is-open="weekendPickerOpen" show-weeks="false"
+                       datepicker-options="dateOptions" ng-required="true" close-text="Close"
+                       date-disabled="disableWeekday(date, mode)" name="weekendDate" ng-change="validateWeekend()" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default"
+                            ng-click="openWeekendPicker($event)">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </button>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
             <div class="row">
-                <div class="col-sm-6">
-                    <span class="h4">Peak Hours</span>
+                <div class="col-sm-5">
+                    <span class="h4">Morning Peak</span>
                 </div>
                 <div class="col-sm-3">
-                    <select>
-                      <option value="value1">09:00</option>
-                      <option value="value2">17:00</option>
+                    <select ng-model="morningPeakStart" name="morningPeakStart" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
                     </select>
                 </div>
+                <div class="col-sm-1">
+                    <span>to</span>
+                </div>
                 <div class="col-sm-3">
-                    <select>
-                      <option value="value1">17:00</option>
-                      <option value="value2">23:00</option>
+                    <select ng-model="morningPeakEnd" name="morningPeakEnd" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
                     </select>
                 </div>
             </div>
         </div>
-        <div class="col-sm-1 settingsmodal-field--verticalcentered settingsmodal-add"><a href="#">+</a></div>
     </div>
 </div>
 <div class="settingsmodal-fieldgroup">
     <div class="row">
-        <div class="col-sm-11">
+        <div class="col-sm-12">
             <div class="row">
-                <div class="col-sm-6">
-                    <span class="h4">Poverty Lines</span>
+                <div class="col-sm-5">
+                    <span class="h4">Evening Peak</span>
                 </div>
                 <div class="col-sm-3">
-                    <input type="text">
+                    <select ng-model="eveningPeakStart" name="eveningPeakStart" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <span>to</span>
                 </div>
                 <div class="col-sm-3">
-                    <select>
-                      <option value="value1">17:00</option>
-                      <option value="value2">23:00</option>
+                    <select ng-model="eveningPeakEnd" name="eveningPeakEnd" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
                     </select>
                 </div>
             </div>
         </div>
-        <div class="col-sm-1"></div>
+    </div>
+</div>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+<hr />
+
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4">Poverty Line (local currency)</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" ng-model="config.poverty_line" min="0" />
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="settingsmodal-fieldgroup">
     <div class="row">
-        <div class="col-sm-11">
+        <div class="col-sm-12">
             <div class="row">
-                <div class="col-sm-6">
-                    <span class="h4">Distance Buffer</span>
+                <div class="col-sm-9">
+                    <span class="h4">Average Fare (local currency)</span>
                 </div>
                 <div class="col-sm-3">
-                    <input type="text">
-                </div>
-                <div class="col-sm-3">
-                    <select>
-                      <option value="value1">17:00</option>
-                      <option value="value2">23:00</option>
-                    </select>
+                    <input type="number" ng-model="config.avg_fare" min="0">
                 </div>
             </div>
         </div>
-        <div class="col-sm-1"></div>
     </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4">Distance Buffer (meters)</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" ng-model="config.nearby_buffer_distance_m" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4">Job Travel Time (minutes)</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" ng-model="max_commute_time_min" min="0"
+                           ng-change="config.max_commute_time_s = max_commute_time_min * 60">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4">Maximum Walk Time (minutes)</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" ng-model="max_walk_time_min" min="0"
+                           ng-change="config.max_walk_time_s = max_walk_time_min * 60">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" ng-click="saveConfig()">Save</button>
 </div>
