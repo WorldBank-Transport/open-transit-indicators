@@ -229,6 +229,8 @@ fi
 
 if type osm2pgsql 2>/dev/null; then
     echo 'osm2pgsql already installed; skipping.'
+elif [ "$INSTALL_TYPE" == "travis" ]; then
+    echo 'Not installing osm2pgsql on travis; skipping.'
 else
     echo 'Installing osm2pgsql from source'
     pushd $TEMP_ROOT
