@@ -105,8 +105,14 @@ trait GeoTrellisService extends HttpService {
                    s"TYPE Geometry(${geomType},${srid}) " +
                    s"USING ST_Transform(${column},${srid});").execute
 
+                def geomCopy(srid: Int, table: String, fromColumn: String, toColumn: String) =
+                  (Q.u +
+                   s"UPDATE ${table} SET ${toColumn} = ST_Transform(${fromColumn}, ${srid});").execute
+
                 geomTransform(srid, "gtfs_stops", "Point", "geom")
+                geomCopy(srid, "gtfs_stops", "the_geom", "geom")
                 geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
+                geomCopy(srid, "gtfs_shape_geoms", "the_geom", "geom")
 
                 println("Finished transforming to local UTM zone.")
                 JsObject(
