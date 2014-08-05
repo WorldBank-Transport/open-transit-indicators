@@ -15,8 +15,8 @@ from datasources.models import (Boundary, BoundaryProblem, DataSourceProblem,
 logger = get_task_logger(__name__)
 
 
-class ShapeFileErrorFactory(object):
-    """Constructs *Problem instances for the Shapefile being processed."""
+class ErrorFactory(object):
+    """Constructs *Problem instances for imports being processed."""
     def __init__(self, problemClass, problemReference, referenceField):
         """
         Params:
@@ -94,7 +94,7 @@ def run_shapefile_to_boundary(boundary_id):
     boundary = Boundary.objects.get(pk=boundary_id)
     boundary.is_valid = False
     boundary.save()
-    error_factory = ShapeFileErrorFactory(BoundaryProblem, boundary, 'boundary')
+    error_factory = ErrorFactory(BoundaryProblem, boundary, 'boundary')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
@@ -164,7 +164,7 @@ def run_get_shapefile_fields(demographicdata_id):
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
     demog_data.is_valid = False
     demog_data.save()
-    error_factory = ShapeFileErrorFactory(DemographicDataSourceProblem, demog_data, 'source_file')
+    error_factory = ErrorFactory(DemographicDataSourceProblem, demog_data, 'source_file')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
@@ -235,7 +235,7 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
     # demog_data should have its is_loaded attribute set to False by the view
     # which launches this job.
     demog_data.demographicdatafeature_set.all().delete()
-    error_factory = ShapeFileErrorFactory(DemographicDataSourceProblem, demog_data, 'source_file')
+    error_factory = ErrorFactory(DemographicDataSourceProblem, demog_data, 'source_file')
     try:
         temp_dir = extract_zip_to_temp_dir(demog_data.source_file)
         shapefile = os.path.join(temp_dir, get_shapefiles_in_dir(temp_dir)[0])

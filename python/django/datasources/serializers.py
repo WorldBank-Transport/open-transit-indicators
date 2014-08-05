@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from models import (GTFSFeed, GTFSFeedProblem, DataSourceProblem, Boundary,
                     BoundaryProblem, DemographicDataSource, DemographicDataSourceProblem,
-                    DemographicDataFieldName)
+                    DemographicDataFieldName, OSMData, OSMDataProblem)
 
 
 # TODO: Refactor as an actual custom field if we start adding lots of custom
@@ -62,6 +62,17 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
         model = GTFSFeed
         problem_model = GTFSFeedProblem
         read_only_fields = ('is_valid', 'is_processed')
+        ordering = ('-id',)
+
+
+class OSMDataSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
+                        ValidateZipMixin):
+    problems = serializers.SerializerMethodField('get_datasource_problem_counts')
+
+    class Meta:
+        model = OSMData
+        problem_model = OSMDataProblem
+        read_only_fields = ('is_valid', 'is_processed', 'is_downloaded', 'source_file')
         ordering = ('-id',)
 
 
