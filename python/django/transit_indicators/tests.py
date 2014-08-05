@@ -2,6 +2,7 @@ from datetime import datetime, time, timedelta
 
 from django.test import TestCase
 from django.utils.timezone import utc
+from models import SamplePeriod
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
@@ -207,18 +208,110 @@ class SamplePeriodsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-    def test_permissions(self):
-        self.client.authenticate(admin=False)
-        now = time(hour=12)
-        later = time(hour=13)
+class IndicatorsTestCase(TestCase):
+    """Tests Indicators"""
+    def setUp(self):
+        self.client = OTIAPIClient()
+        self.client.authenticate(admin=True)
+        self.list_url = reverse('indicator-list', {})
 
-        response = self.client.post(self.list_url, dict(period_start=now,
-                                                        period_end=later),
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # initialize a sample_period
+        start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
+        end = datetime(2000, 1, 1, 12, 0, 0, tzinfo=utc)
+        self.sample_period = SamplePeriod.objects.create(period_start=start, period_end=end)
 
-        self.client.force_authenticate(user=None)
-        response = self.client.post(self.list_url, dict(period_start=now,
-                                                        period_end=later),
+    def test_create(self):
+        """Ensure that a valid Indicator can be created."""
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='system',
+                                                        value=100),
                                     format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_bad_sample_period(self):
+        """A bad value for the sample_period should cause a failure."""
+        response = self.client.post(self.list_url, dict(sample_period=-1,
+                                                        type='num_stops',
+                                                        aggregation='system',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_bad_type(self):
+        """A bad indicator type should cause a failure."""
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='bad_type',
+                                                        aggregation='system',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_bad_type(self):
+        """A bad aggregation should cause a failure."""
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='bad_agg',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_route_aggregation(self):
+        """Test an indicator with a route aggregation."""
+
+        # Good: a route aggregation with a route_id and no route_type
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='route',
+                                                        route_id='ABC',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Bad: a route aggregation with no route_id
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='route',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Bad: a route aggregation with a route_id and a route_type
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='route',
+                                                        route_id='ABC',
+                                                        route_type=1,
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_mode_aggregation(self):
+        """Test an indicator with a mode aggregation."""
+
+        # Good: a mode aggregation with a route_type and no route_id
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='mode',
+                                                        route_type=1,
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Bad: a mode aggregation with no route_type
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='mode',
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Bad: a mode aggregation with a route_id and a route_type
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.pk,
+                                                        type='num_stops',
+                                                        aggregation='mode',
+                                                        route_id='ABC',
+                                                        route_type=1,
+                                                        value=100),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

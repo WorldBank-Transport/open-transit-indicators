@@ -20,6 +20,7 @@ router.register(r'users', userviews.OTIUserViewSet, base_name='users')
 router.register(r'config', indicatorviews.OTIIndicatorsConfigViewSet, base_name='config')
 router.register(r'config-demographic', indicatorviews.OTIDemographicConfigViewSet)
 router.register(r'sample-periods', indicatorviews.SamplePeriodViewSet, base_name='sample-periods')
+router.register(r'indicators', indicatorviews.IndicatorViewSet)
 
 urlpatterns = patterns('',  # NOQA
     url(r'^api/', include(router.urls)),

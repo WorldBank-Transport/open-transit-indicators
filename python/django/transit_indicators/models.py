@@ -98,3 +98,101 @@ class SamplePeriod(models.Model):
 
     # Ending datetime of sample
     period_end = models.DateTimeField()
+
+
+class Indicator(models.Model):
+    """Stores a single indicator calculation"""
+
+    class AggregationTypes(object):
+        ROUTE = 'route'
+        MODE = 'mode'
+        SYSTEM = 'system'
+        CHOICES = (
+            (ROUTE, 'Route'),
+            (MODE, 'Mode'),
+            (SYSTEM, 'System'),
+        )
+
+    class IndicatorTypes(object):
+        ACCESS_INDEX = 'access_index'
+        AFFORDABILITY = 'affordability'
+        AVG_SERVICE_FREQ = 'avg_service_freq'
+        COVERAGE = 'coverage'
+        COVERAGE_STOPS = 'coverage_stops'
+        DISTANCE_STOPS = 'distance_stops'
+        DWELL_TIME = 'dwell_time'
+        HOURS_SERVICE = 'hours_service'
+        JOB_ACCESS = 'job_access'
+        LENGTH = 'length'
+        LINES_ROADS = 'lines_roads'
+        LINE_NETWORK_DENSITY = 'line_network_density'
+        NUM_MODES = 'num_modes'
+        NUM_ROUTES = 'num_routes'
+        NUM_STOPS = 'num_stops'
+        NUM_TYPES = 'num_types'
+        ON_TIME_PERF = 'on_time_perf'
+        REGULARITY_HEADWAYS = 'regularity_headways'
+        SERVICE_FREQ_WEIGHTED = 'service_freq_weighted'
+        STOPS_ROUTE_LENGTH = 'stops_route_length'
+        SUBURBAN_LINES = 'suburban_lines'
+        SYSTEM_ACCESS = 'system_access'
+        SYSTEM_ACCESS_LOW = 'system_access_low'
+        TIME_TRAVELED_STOPS = 'time_traveled_stops'
+        TRAVEL_TIME = 'travel_time'
+        WEEKDAY_END_FREQ = 'weekday_end_freq'
+        CHOICES = (
+            (ACCESS_INDEX, 'Access index'),
+            (AFFORDABILITY, 'Affordability'),
+            (AVG_SERVICE_FREQ, 'Average Service Frequency'),
+            (COVERAGE, 'System coverage'),
+            (COVERAGE_STOPS, 'Coverage of transit stops'),
+            (DISTANCE_STOPS, 'Distance between stops'),
+            (DWELL_TIME, 'Dwell Time Performance'),
+            (HOURS_SERVICE, 'Weekly number of hours of service'),
+            (JOB_ACCESS, 'Job accessibility'),
+            (LENGTH, 'Transit system length'),
+            (LINES_ROADS, 'Ratio of transit lines length over road length'),
+            (LINE_NETWORK_DENSITY, 'Transit line network density'),
+            (NUM_MODES, 'Number of modes'),
+            (NUM_ROUTES, 'Number of routes'),
+            (NUM_STOPS, 'Number of stops'),
+            (NUM_TYPES, 'Number of route types'),
+            (ON_TIME_PERF, 'On-Time Performance'),
+            (REGULARITY_HEADWAYS, 'Regularity of Headways'),
+            (SERVICE_FREQ_WEIGHTED, 'Service frequency weighted by served population'),
+            (STOPS_ROUTE_LENGTH, 'Ratio of number of stops to route-length'),
+            (SUBURBAN_LINES, 'Ratio of the Transit-Pattern Operating Suburban Lines'),
+            (SYSTEM_ACCESS, 'System accessibility'),
+            (SYSTEM_ACCESS_LOW, 'System accessibility - low-income'),
+            (TIME_TRAVELED_STOPS, 'Time traveled between stops'),
+            (TRAVEL_TIME, 'Travel Time Performance'),
+            (WEEKDAY_END_FREQ, 'Weekday / weekend frequency'),
+        )
+
+    # Slice of time used for calculating this indicator
+    sample_period = models.ForeignKey(SamplePeriod)
+
+    # Type of indicator
+    type = models.CharField(max_length=32, choices=IndicatorTypes.CHOICES)
+
+    # Level in which this indicator is aggregated
+    aggregation = models.CharField(max_length=6, choices=AggregationTypes.CHOICES)
+
+    # Reference to the route id. Only relevant for a ROUTE aggregation type.
+    # This is the route_id column found within the GTFS routes table.
+    route_id = models.CharField(max_length=32, null=True)
+
+    # Reference to the route type id. Only relevant for a MODE aggregation type.
+    # This is the route_type column found within the GTFS routes table.
+    route_type = models.PositiveIntegerField(null=True)
+
+    # Whether or not this calculation is contained within the defined city boundaries
+    city_bounded = models.BooleanField(default=False)
+
+    # Version of data this indicator was calculated against. For the moment, this field
+    # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
+    # will need to be added to the the GTFS (and other data) rows.
+    version = models.PositiveIntegerField(default=0)
+
+    # Numerical value of the indicator calculation
+    value = models.FloatField(default=0)

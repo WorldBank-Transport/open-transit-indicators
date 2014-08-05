@@ -3,7 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod
+from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator
 
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
@@ -29,6 +29,34 @@ class SamplePeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = SamplePeriod
         fields = ('period_start', 'period_end', 'type')
+
+
+class IndicatorSerializer(serializers.ModelSerializer):
+    """Serializer for Indicator"""
+    def validate(self, attrs):
+        """Validate indicator fields"""
+        # TODO: Error messages need to be translated
+
+        # Route aggregation type requires a route id and no route type
+        if attrs['aggregation'] == Indicator.AggregationTypes.ROUTE:
+            if 'route_id' not in attrs or not attrs['route_id']:
+                raise serializers.ValidationError('Route aggregation requires route_id')
+            if 'route_type' in attrs and attrs['route_type']:
+                raise serializers.ValidationError('Route aggregation should not have route_type')
+
+        # Mode aggregation type requires a route type and no route id
+        if attrs['aggregation'] == Indicator.AggregationTypes.MODE:
+            if 'route_id' in attrs and attrs['route_id']:
+                raise serializers.ValidationError('Mode aggregation should not have route_id')
+            if 'route_type' not in attrs or not attrs['route_type']:
+                raise serializers.ValidationError('Mode aggregation requires route_type')
+
+        return attrs
+
+    class Meta:
+        model = Indicator
+        fields = ('sample_period', 'type', 'aggregation', 'route_id',
+                  'route_type', 'city_bounded', 'value', 'version',)
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
