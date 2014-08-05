@@ -6,6 +6,7 @@ angular.module('transitIndicators', [
     'ui.router',
     'angularFileUpload',
     'leaflet-directive',
+    'pollingUpload',
     'ui.bootstrap',
     'ui.utils'
 ]).config(['$stateProvider', '$urlRouterProvider', 'config', '$httpProvider',
@@ -76,7 +77,7 @@ angular.module('transitIndicators', [
         };
 
         // Load login page if user not authenticated
-        $rootScope.$on('$stateChangeStart', function (event, to, toParams, from, fromParams) {
+        $rootScope.$on('$stateChangeStart', function (event, to) {
             if (!stateClean(to.name) && !authService.isAuthenticated()) {
                 event.preventDefault();
                 $state.go('login');
