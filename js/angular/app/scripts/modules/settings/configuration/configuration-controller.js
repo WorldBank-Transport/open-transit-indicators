@@ -5,25 +5,90 @@ angular.module('transitIndicators')
         ['$scope', '$q', 'OTIConfigurationService',
         function ($scope, $q, OTIConfigurationService) {
 
+    // Datepicker Options
     $scope.datepickerFormat = 'dd MMMM yyyy';
     $scope.dateOptions = {
         startingDay: 1,
         showWeeks: false
     };
 
-    $scope.weekdayDate = new Date();
-    $scope.weekendDate = new Date();
+    // Initialize defaults
+    $scope.weekdayDate = null;
+    $scope.weekendDate = null;
     $scope.hours = OTIConfigurationService.getHours();
 
-    $scope.config = {};
+    $scope.config = null;
     $scope.samplePeriods = null;
 
-    var setConfig = function (config) {
-        $scope.config = config;
-        $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
-        $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
+    $scope.configForm = {};
+    $scope.samplePeriodsForm = {};
+
+    $scope.savePeriodsButton = {
+        text: 'Save',
+        enabled: true
+    };
+    $scope.saveConfigButton = {
+        text: 'Save',
+        enabled: true
+    };
+    $scope.samplePeriodsError = false;
+    $scope.configError = false;
+
+    /**
+     * Helper setter for $scope.saveConfigButton
+     * @param enabled true/false to toggle button state
+     */
+    var setSaveConfigButton = function (enabled) {
+        if (enabled) {
+            $scope.saveConfigButton = {
+                text: 'Save',
+                enabled: true
+            };
+        } else {
+            $scope.saveConfigButton = {
+                text: 'Saving...',
+                enabled: false
+            };
+        }
     };
 
+    /**
+     * Helper setter for $scope.savePeriodsButton
+     * @param enabled true/false to toggle button state
+     */
+    var setSavePeriodsButton = function (enabled) {
+        if (enabled) {
+            $scope.savePeriodsButton = {
+                text: 'Save',
+                enabled: true
+            };
+        } else {
+            $scope.savePeriodsButton = {
+                text: 'Saving...',
+                enabled: false
+            };
+        }
+    };
+
+    /**
+     * Setter for $scope.config
+     */
+    var setConfig = function (config) {
+        $scope.config = config;
+        if (config) {
+            $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
+            $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
+        }
+    };
+
+    /**
+     * For a given weekday period, a weekday datetime is always on the hour
+     *
+     * @param date object
+     * @param hour int hour > 0 to set the returned date hour to
+     *
+     * @return date object with hour set to hour and min/sec zeroed
+     */
     var createWeekdayDateTime = function (date, hour) {
         var newDate = new Date(date.getTime());
         newDate.setHours(hour);
@@ -32,6 +97,13 @@ angular.module('transitIndicators')
         return newDate;
     };
 
+    /**
+     * For a given date, a weekend period is always the 24 hours for that day
+     *
+     * @param date object
+     *
+     * @return array with two date objects, [0] is start, [1] is end
+     */
     var createWeekendDateTimes = function (date) {
         var start = new Date(date.getTime());
         start.setHours(0);
@@ -45,6 +117,12 @@ angular.module('transitIndicators')
         return [start, end];
     };
 
+    /**
+     * If no SamplePeriod objects are saved in the API, create this default configuration
+     *  and POST it to the API
+     *
+     * @return a $q.all() promise that succeeds when all five types are POST to the API
+     */
     var createDefaultPeriods = function () {
         var promises = [];
         var SamplePeriod = OTIConfigurationService.SamplePeriod;
@@ -79,6 +157,12 @@ angular.module('transitIndicators')
         return $q.all(promises);
     };
 
+    /**
+     * Creates the $scope.samplePeriods dictionary with a key for each
+     * OTIConfigurationService.SamplePeriodTypes
+     *
+     * @param samplePeriods: array of SamplePeriod resources
+     */
     var setSamplePeriods = function (samplePeriods) {
         $scope.samplePeriods = {};
         _.each(OTIConfigurationService.SamplePeriodTypes, function (type) {
@@ -99,19 +183,45 @@ angular.module('transitIndicators')
         $scope.eveningPeakEnd = eveningEnd.getHours();
         $scope.weekdayDate = morningStart;
         $scope.weekendDate = weekendStart;
+        setSidebarCheckmark();
+    };
+
+    var setSidebarCheckmark = function () {
+        var isValid = $scope.configForm.$valid && $scope.samplePeriodsForm.$valid;
+        $scope.setSidebarCheckmark('configuration', isValid);
     };
 
     $scope.saveConfig = function () {
+        $scope.configError = false;
+        setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
             console.log('Config updated:', data);
+            setSaveConfigButton(true);
+            setSidebarCheckmark();
+        }, function () {
+            setSaveConfigButton(true);
+            $scope.configError = true;
+            setSidebarCheckmark();
         });
     };
 
+    /**
+     * Save sample periods to API
+     *
+     * Must succeed/fail as a group, as there are five periods but the user only
+     * configures 3. Night and midday fill the gap between morning/evening on weekday,
+     * and weekend period is all day on a weekend.
+     * For weekend, we save 00:00:00-23:59:59 since API rejects a full 24 hours.
+     *
+     */
     $scope.saveSamplePeriods = function () {
 
         if ($scope.samplePeriodsForm.$invalid) {
             return;
         }
+
+        setSavePeriodsButton(false);
+        $scope.samplePeriodsError = false;
         var promises = [];
 
         var weekdayDate = $scope.weekdayDate;
@@ -145,8 +255,13 @@ angular.module('transitIndicators')
 
         $q.all(promises).then(function (data) {
             console.log('Saved:', data);
+            setSavePeriodsButton(true);
+            setSidebarCheckmark();
         }, function (error) {
             console.error('Saved Error:', error);
+            setSavePeriodsButton(true);
+            $scope.samplePeriodsError = true;
+            setSidebarCheckmark();
         });
     };
 
@@ -162,16 +277,26 @@ angular.module('transitIndicators')
         $scope.weekendPickerOpen = true;
     };
 
+    /**
+     * Invalidate samplePeriodsForm if weekdayDate is not a weekday
+     */
     $scope.validateWeekday = function () {
         var isValid = OTIConfigurationService.isWeekday($scope.weekdayDate);
         $scope.samplePeriodsForm.weekdayDate.$setValidity('weekdayDate', isValid);
     };
 
+    /**
+     * Invalidate samplePeriodsForm if weekendDate is not a weekend
+     */
     $scope.validateWeekend = function () {
         var isValid = OTIConfigurationService.isWeekend($scope.weekendDate);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
     };
 
+    /**
+     * Invalidate one of the peak times if it is not between the two it borders,
+     * i.e. morningPeakStart < morningPeakEnd < eveningPeakStart
+     */
     $scope.validateTimes = function () {
         var isValid = false;
 
@@ -194,40 +319,55 @@ angular.module('transitIndicators')
         $scope.samplePeriodsForm.eveningPeakEnd.$setValidity('eveningPeakEnd', isValid);
     };
 
+    /**
+     * Helper function for weekday datepicker
+     */
     $scope.disableWeekend = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekend(date));
     };
 
+    /**
+     * Helper function for weekend datepicker
+     */
     $scope.disableWeekday = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekday(date));
     };
 
+    /**
+     * Initialize config page with data
+     */
     $scope.init = function () {
         // get the global configuration object
         OTIConfigurationService.Config.query({}, function (configs) {
             if (configs.length !== 1) {
-                console.error('Expected a single configuration, but found: ', configs);
+                $scope.configLoadError = true;
                 return;
             }
             setConfig(configs[0]);
+        }, function () {
+            $scope.configLoadError = true;
         });
 
         OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
             // Configs exist, set UI
             OTIConfigurationService.SamplePeriod.query(function (data) {
                 setSamplePeriods(data);
-            }, function (error) {
-                console.log('Get Error:', error);
+            }, function () {
+                // Unable to make web request, so hide the samplePeriods form and show
+                //  static error message
+                $scope.samplePeriodsLoadError = true;
+                $scope.samplePeriods = {};
             });
         }, function () {
-            // No configs exist, create defaults
-            // TODO: Move to service
+            // No configs exist, so create sensible defaults,
+            //  then set the UI
+            // TODO: Move to service?
             createDefaultPeriods().then(function (data) {
-                console.log('Create:', data);
                 setSamplePeriods(data);
-            }, function (error) {
-                // Display some kind of error here
-                console.log('Create Error:', error);
+            }, function () {
+                // Hide the samplePeriods form and show static error message
+                $scope.samplePeriodsLoadError = true;
+                $scope.samplePeriods = {};
             });
         });
     };

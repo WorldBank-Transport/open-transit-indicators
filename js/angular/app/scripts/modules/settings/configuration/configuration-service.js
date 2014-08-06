@@ -35,7 +35,7 @@ angular.module('transitIndicators')
         Config: $resource('/api/config/:id/ ', {}, {
             update: {
                 method: 'PATCH',
-                url: '/api/config/:id/ '
+                url: '/api/config/:id'
             }
         }),
 
