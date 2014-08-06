@@ -95,7 +95,7 @@ class SamplePeriod(models.Model):
             (NIGHT, 'Night'),
             (WEEKEND, 'Weekend'),
         )
-    type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES)
+    type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES, unique=True)
 
     # Starting datetime of sample
     period_start = models.DateTimeField()

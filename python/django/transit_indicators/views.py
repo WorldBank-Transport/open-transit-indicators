@@ -19,6 +19,7 @@ class OTIDemographicConfigViewSet(OTIAdminViewSet):
 class SamplePeriodViewSet(OTIAdminViewSet):
     """Viewset for SamplePeriod objects"""
     model = SamplePeriod
+    lookup_field = 'type'
     serializer_class = SamplePeriodSerializer
 
 
