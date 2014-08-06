@@ -40,7 +40,7 @@ def run_osm_import(osmdata_id):
 
     osm_data = OSMData.objects.get(pk=osmdata_id)
 
-    error_factory = ErrorFactory(OSMDataProblem, osm_data, 'OSMData')
+    error_factory = ErrorFactory(OSMDataProblem, osm_data, 'osmdata')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
@@ -48,8 +48,6 @@ def run_osm_import(osmdata_id):
         osm_data.is_processed = True
         osm_data.save()
         return
-
-
 
     with connection.cursor() as c:
 
