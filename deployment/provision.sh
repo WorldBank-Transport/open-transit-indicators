@@ -374,11 +374,12 @@ popd
 
 # Add triggers which rely on Django migrations (and which therefore can't happen in the
 # main DB setup script).
-echo 'Adding GTFS Delete PostgreSQL Trigger'
 pushd $PROJECT_ROOT
+    echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
     # This needs to be run as the transit_indicators user so that it has ownership
     # over the tables, otherwise changing the SRID from GeoTrellis fails.
+    echo 'Adding Shapefile reprojection PostgreSQL triggers'
     PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f ./deployment/setup_shapefile_reprojection.sql
 popd
 
