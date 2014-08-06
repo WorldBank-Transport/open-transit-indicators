@@ -1,3 +1,4 @@
+\pset pager
 -- Create tables to hold reprojected boundary / demographics data
 CREATE TABLE IF NOT EXISTS utm_datasources_demographicdatafeature (
         datafeature_id INT PRIMARY KEY REFERENCES datasources_demographicdatafeature ON DELETE CASCADE
