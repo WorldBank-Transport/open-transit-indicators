@@ -21,5 +21,36 @@
             </ul>
         </div>
     </div>
-</div>
 
+    <div class="dropzone error" ng-if="osmImportProgress === STATUS.UPLOADERROR">
+      <div class="h4">Error importing OpenStreetMap data <span class="h5 pull-right"><button class="btn btn-danger" ng-click="retryOSMImport()">Retry</button></span></div>
+    </div>
+
+    <div class="dropzone inprogress" ng-show="osmImportProgress >= 0 && osmImportProgress <= 100">
+        <div class="h4">Importing OpenStreetMap data ...</div>
+    </div>
+
+    <div class="dropzone" ng-if="osmImportProgress === STATUS.DONE">
+        <div class="h3">
+            <span class="glyphicon glyphicon-ok"></span> OpenStreetMap Data Loaded
+        </div>
+    </div>
+
+    <div class="dropzone notices" ng-if="osmImportProblems.warnings.length > 0 || osmImportProblems.errors.length > 0">
+        <div class="settingsmodal-notices" ng-if="osmImportProblems.errors.length > 0">
+            <div class="settingsmodal-notices-errors">
+                <h4>Errors</h4>
+                <ul>
+                    <li ng-repeat="problem in osmImportProblems.errors">{{ problem.description }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="settingsmodal-notices-warnings" ng-if="osmImportProblems.warnings.length > 0">
+            <h4>Warnings</h4>
+            <ul>
+                <li ng-repeat="problem in osmImportProblems.warnings">{{ problem.description }}</li>
+            </ul>
+        </div>
+    </div>
+
+</div>

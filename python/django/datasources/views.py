@@ -81,7 +81,7 @@ class OSMDataViewSet(OTIAdminViewSet):
 class OSMDataProblemsViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for OSM data"""
     model = OSMDataProblem
-    filter_fields = ('gtfsfeed',)
+    filter_fields = ('osmdata',)
 
 
 class BoundaryViewSet(OTIAdminViewSet):
