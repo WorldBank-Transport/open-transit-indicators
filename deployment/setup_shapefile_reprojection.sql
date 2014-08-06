@@ -1,3 +1,4 @@
+-- Turn off interactive paging; this can break the Travis build.
 \pset pager
 -- Create tables to hold reprojected boundary / demographics data
 CREATE TABLE IF NOT EXISTS utm_datasources_demographicdatafeature (
@@ -19,6 +20,9 @@ DROP TRIGGER IF EXISTS insert_demographic_utm on datasources_demographicdatafeat
 CREATE OR REPLACE FUNCTION insert_demographic_utm() RETURNS trigger AS $insert_demographic_utm$
     BEGIN
         -- Populate utm_datasources_demographicdatafeature table as rows added to datasources_demographicdatafeature 
+        -- Retrieve SRID information from the gtfs_stops table, because this is the only
+        -- table guaranteed to contain geometry data; the other tables which can contain
+        -- geometry data are optional.
         EXECUTE 'INSERT INTO utm_datasources_demographicdatafeature (
             SELECT df.id,
                 ST_Transform(df.geom, (SELECT Find_SRID(''public'', ''gtfs_stops'', ''geom'')))
@@ -44,6 +48,7 @@ CREATE OR REPLACE FUNCTION insert_boundary_utm() RETURNS trigger AS $insert_boun
         -- Populate utm_datasources_boundary table as rows added to datasources_boundary
         -- It is unlikely that the geom column will have data on insert, but transform it
         -- anyway just in case.
+        -- See above for why gtfs_stops is used for the SRID.
         EXECUTE 'INSERT INTO utm_datasources_boundary (
             SELECT bound.id,
                 ST_Transform(bound.geom, (SELECT Find_SRID(''public'', ''gtfs_stops'', ''geom'')))
@@ -59,6 +64,7 @@ $insert_boundary_utm$ LANGUAGE plpgsql;
 -- work is done here.
 CREATE OR REPLACE FUNCTION update_boundary_utm() RETURNS trigger as $insert_boundary_utm$
     BEGIN
+        -- See above for why gtfs_stops is used for the SRID.
         EXECUTE 'UPDATE utm_datasources_boundary
             SET boundary_id = bound.id,
                 geom = (SELECT ST_Transform(bound.geom,
