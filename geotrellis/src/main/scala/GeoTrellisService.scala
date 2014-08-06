@@ -114,6 +114,11 @@ trait GeoTrellisService extends HttpService {
                 geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
                 geomCopy(srid, "gtfs_shape_geoms", "the_geom", "geom")
 
+                // Now that the SRID of the GTFS data is known, we also need to set the SRID
+                // for imported shapefile data (boundaries and demographics).
+                geomTransform(srid, "utm_datasources_boundary", "MultiPolygon", "geom")
+                geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
+
                 println("Finished transforming to local UTM zone.")
                 JsObject(
                   "success" -> JsBoolean(true),
