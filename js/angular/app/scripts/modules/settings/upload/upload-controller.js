@@ -186,10 +186,7 @@ angular.module('transitIndicators')
 
     $scope.$on('pollingUpload:pollingFinished', function () {
         viewProblems();
-        OTIUploadService.osmImport.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
-            $scope.osmImportProgress = 0;
-            pollForOSMImport(osmImport);
-        });
+        $scope.retryOSMImport();
         $scope.setSidebarCheckmark('upload', true);
     });
 
