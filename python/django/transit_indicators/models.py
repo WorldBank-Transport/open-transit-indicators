@@ -31,12 +31,16 @@ class OTIIndicatorsConfig(models.Model):
     # relationship, which prevents a conflict because otherwise each Boundary
     # would have two fields named 'otiindicatorsconfig_set'. If we wanted, we
     # could name them something else to preserve both reverse relationships.
+    # Set key to null when referenced boundary is deleted.
     # Boundary denoting the city -- used for calculating percentage of system
     # falling inside city limits
-    city_boundary = models.ForeignKey(Boundary, blank=True, null=True, related_name='+')
+    city_boundary = models.ForeignKey(Boundary, blank=True, null=True,
+                                      on_delete=models.SET_NULL, related_name='+')
 
     # Boundary denoting the region
-    region_boundary = models.ForeignKey(Boundary, blank=True, null=True, related_name='+')
+    # Set key to null when referenced boundary is deleted.
+    region_boundary = models.ForeignKey(Boundary, blank=True, null=True,
+                                        on_delete=models.SET_NULL, related_name='+')
 
 
 class OTIDemographicConfig(models.Model):
