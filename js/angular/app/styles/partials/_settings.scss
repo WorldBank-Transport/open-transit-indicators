@@ -104,3 +104,19 @@ td, th {
   text-align: left;
   @include rem(padding, 10);
 }
+
+.config-datepicker {
+    td, th {
+        @include rem(padding, 0);
+    }
+}
+
+.settingsmodal input.ng-invalid,
+.settingsmodal select.ng-invalid {
+    border: solid 1px red;
+}
+
+.settingsmodal input.ng-valid,
+.settingsmodal select.ng-valid {
+    border: solid 1px green;
+}
