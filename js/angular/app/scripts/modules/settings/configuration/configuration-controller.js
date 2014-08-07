@@ -128,28 +128,28 @@ angular.module('transitIndicators')
         var morning = new SamplePeriod({type: 'morning'});
         morning.period_start = createWeekdayDateTime(date, 7);
         morning.period_end = createWeekdayDateTime(date, 9);
-        promises.push(morning.$save());
+        promises.push(morning.$update());
 
         var midday = new SamplePeriod({type: 'midday'});
         midday.period_start = createWeekdayDateTime(date, 9);
         midday.period_end = createWeekdayDateTime(date, 16);
-        promises.push(midday.$save());
+        promises.push(midday.$update());
 
         var evening = new SamplePeriod({type: 'evening'});
         evening.period_start = createWeekdayDateTime(date, 16);
         evening.period_end = createWeekdayDateTime(date, 18);
-        promises.push(evening.$save());
+        promises.push(evening.$update());
 
         var night = new SamplePeriod({type: 'night'});
         night.period_start = createWeekdayDateTime(date, 18);
         night.period_end = createWeekdayDateTime(date, 24 + 7);
-        promises.push(night.$save());
+        promises.push(night.$update());
 
         var weekend = new SamplePeriod({type: 'weekend'});
         var weekendDates = createWeekendDateTimes(new Date(2014, 0, 4));
         weekend.period_start = weekendDates[0];
         weekend.period_end = weekendDates[1];
-        promises.push(weekend.$save());
+        promises.push(weekend.$update());
 
         return $q.all(promises);
     };
