@@ -33,6 +33,9 @@ class SamplePeriodSerializer(serializers.ModelSerializer):
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
+
+    sample_period = serializers.SlugRelatedField(slug_field='type')
+
     def validate(self, attrs):
         """Validate indicator fields"""
         # TODO: Error messages need to be translated
