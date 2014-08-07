@@ -20,9 +20,6 @@ angular.module('transitIndicators')
     $scope.config = null;
     $scope.samplePeriods = null;
 
-    $scope.configForm = {};
-    $scope.samplePeriodsForm = {};
-
     $scope.savePeriodsButton = {
         text: 'Save',
         enabled: true
@@ -195,7 +192,6 @@ angular.module('transitIndicators')
         $scope.configError = false;
         setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
-            console.log('Config updated:', data);
             setSaveConfigButton(true);
             setSidebarCheckmark();
         }, function () {
@@ -254,11 +250,9 @@ angular.module('transitIndicators')
         promises.push(weekend.$update());
 
         $q.all(promises).then(function (data) {
-            console.log('Saved:', data);
             setSavePeriodsButton(true);
             setSidebarCheckmark();
         }, function (error) {
-            console.error('Saved Error:', error);
             setSavePeriodsButton(true);
             $scope.samplePeriodsError = true;
             setSidebarCheckmark();
