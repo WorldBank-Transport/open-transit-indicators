@@ -11,7 +11,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
   // initialize a sample period
   val start = new DateTime("2010-01-01T00:00:00.000-05:00");
   val end = new DateTime("2010-01-01T08:00:00.000-05:00");
-  val period = SamplePeriod(1, start, end)
+  val period = SamplePeriod(1, "morning", start, end)
 
   // load SEPTA rail test data (has shapes.txt)
   val septaRailData = GtfsData.fromFile("src/test/resources/septa_data/")
