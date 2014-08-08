@@ -1,4 +1,5 @@
 from datetime import datetime, time, timedelta
+import os
 
 from django.test import TestCase
 from django.utils.timezone import utc
@@ -230,6 +231,29 @@ class IndicatorsTestCase(TestCase):
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_filter(self):
+        """Ensure that the local_city filter only returns city_name == null"""
+        indicator = Indicator.objects.create(sample_period=self.sample_period,
+                                             type=Indicator.IndicatorTypes.NUM_ROUTES,
+                                             aggregation=Indicator.AggregationTypes.SYSTEM,
+                                             city_bounded=True,
+                                             version=1,
+                                             value=42)
+        indicator.save()
+        indicator2 = Indicator.objects.create(sample_period=self.sample_period,
+                                             type=Indicator.IndicatorTypes.NUM_ROUTES,
+                                             aggregation=Indicator.AggregationTypes.SYSTEM,
+                                             city_bounded=True,
+                                             version=1,
+                                             value=42,
+                                             city_name="Rivendell")
+        indicator2.save()
+
+        response = self.client.get(self.list_url, data={ 'local_city': 'True' })
+        self.assertEqual(len(response.data), 1)
+        self.assertIsNone(response.data[0]['city_name'])
+
+
     def test_csv(self):
         """Ensure that indicators can be dumped via csv"""
 
@@ -244,9 +268,25 @@ class IndicatorsTestCase(TestCase):
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,route_id,route_type,sample_period,type,value,version\r\n'
-        csv_response += 'system,True,,,morning,num_routes,42.0,1\r\n'
+        csv_response = 'aggregation,city_bounded,city_name,route_id,route_type,sample_period,type,value,version\r\n'
+        csv_response += 'system,True,,,,morning,num_routes,42.0,1\r\n'
         self.assertEqual(response.content, csv_response)
+
+    def test_csv_import(self):
+        """Ensure csv import endpoint requires city_name parameter
+
+        Test csv file must have sample_period == self.sample_period.type in order to succeed
+
+        """
+        file_directory = os.path.dirname(os.path.abspath(__file__))
+        test_csv = open(file_directory + '/tests/test_indicators.csv', 'rb')
+        self.sample_period.save()
+
+        response = self.client.post(self.list_url, {'city_name': 'Rivendell', 'source_file': test_csv})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(self.list_url, {'source_file': test_csv})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
     def test_bad_sample_period(self):

@@ -1,4 +1,6 @@
-from django.db import models
+import csv
+
+from django.db import models, transaction
 
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
 
@@ -106,6 +108,60 @@ class SamplePeriod(models.Model):
 
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
+
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'route_id', 'route_type',
+                   'sample_period', 'type', 'value', 'version']
+
+    class LoadStatus(object):
+        """Stores status of the load class method"""
+
+        def __init__(self):
+            """ Init - Defined so that these properties always exist for the __dict__ method"""
+            self.success = False
+            self.count = 0
+            self.errors = []
+
+    @classmethod
+    def load(cls, data, city_name):
+        """ Load passed csv into Indicator table using city_name as a reference value
+
+        :param data: File object holding csv data with headers in Indicator.field_names
+        :param city_name: Inserted into the Indicator.city_name field, is a human-readable
+                          string which denotes which dataset the indicator is attached to
+
+        :return LoadStatus
+
+        """
+        response = cls.LoadStatus()
+        sample_period_cache = {}
+        if not city_name:
+            response.errors.append('city_name parameter required')
+            return response
+        try:
+            num_saved = 0
+            dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
+            dict_reader.next()
+            with transaction.atomic():
+                for row in dict_reader:
+                    row['city_name'] = city_name
+                    sp_type=row.pop('sample_period', None)
+                    if not sp_type:
+                        continue
+                    sample_period = sample_period_cache.get(sp_type, None)
+                    if not sample_period:
+                        sample_period = SamplePeriod.objects.get(type=sp_type)
+                        sample_period_cache[sp_type] = sample_period
+                    indicator = cls(sample_period=sample_period, **row)
+                    indicator.save()
+                    num_saved += 1
+                response.count = num_saved
+                response.success = True
+
+        except Exception as e:
+            response.success = False
+            response.errors.append(str(e))
+
+        return response
 
     class AggregationTypes(object):
         ROUTE = 'route'
