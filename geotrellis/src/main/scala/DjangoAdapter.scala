@@ -103,6 +103,9 @@ object DjangoAdapter {
   val djangoClient = new DjangoClient()(system)
 
   // Sends all indicator calculations to Django for storage
+  //
+  // TODO: refactor this to use some sort of introspection system so it is
+  //   no longer necessary to individually store each indicator.
   def storeIndicators(token: String, version: Int, period: String, calc: IndicatorsCalculator) = {
     // Number of routes
     for ((mode, value) <- calc.numRoutesPerMode) {
