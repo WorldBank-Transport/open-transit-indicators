@@ -11,7 +11,9 @@ Revolver.settings
 libraryDependencies ++= Seq(
   "io.spray" % "spray-routing" % "1.2.0",
   "io.spray" % "spray-can" % "1.2.0",
+  "io.spray" % "spray-client" % "1.2.0",
   "io.spray" % "spray-json_2.10" % "1.2.6",
+  "io.spray" % "spray-httpx" % "1.2.0",
   "com.azavea.geotrellis" % "geotrellis-vector_2.10" % "0.10.0-SNAPSHOT",
   "com.azavea.geotrellis" % "geotrellis-proj4_2.10" % "0.10.0-SNAPSHOT",
   "com.azavea.geotrellis" % "geotrellis-slick_2.10" % "0.10.0-SNAPSHOT",

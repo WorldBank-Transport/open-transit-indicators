@@ -3,13 +3,14 @@ package opentransitgt
 import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
+import opentransitgt.DjangoAdapter._
 
-class IndicatorsCalculator(val gtfsData: GtfsData) {
+class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
   // Counts the number of routes per mode
-  lazy val numRoutesPerMode: Map[String, Int] = {
+  lazy val numRoutesPerMode: Map[Int, Int] = {
     // get all routes, group by route type, and count the size of each group
     gtfsData.routes
-      .groupBy(_.route_type.toString)
+      .groupBy(_.route_type.id)
       .mapValues(_.size)
   }
 
@@ -28,10 +29,10 @@ class IndicatorsCalculator(val gtfsData: GtfsData) {
   }
 
   // Counts the number of stops per mode
-  lazy val numStopsPerMode: Map[String, Int] = {
+  lazy val numStopsPerMode: Map[Int, Int] = {
     // get all routes, group by route type, and find the unique stop ids per route (via trips)
     gtfsData.routes
-      .groupBy(_.route_type.toString)
+      .groupBy(_.route_type.id)
       .mapValues(_.map(_.id)
         .map(gtfsData.tripsByRoute(_)
           .map(_.stopTimes.map(_.stop_id))
@@ -61,10 +62,10 @@ class IndicatorsCalculator(val gtfsData: GtfsData) {
   }
 
   // Finds the average transit system length per mode
-  lazy val avgTransitLengthPerMode: Map[String, Double] = {
+  lazy val avgTransitLengthPerMode: Map[Int, Double] = {
     // get the transit length per route, group by route type, and average all the lengths
     maxTransitLengthPerRoute.toList
-      .groupBy(kv => routeByID(kv._1).route_type.toString)
+      .groupBy(kv => routeByID(kv._1).route_type.id)
       .mapValues(v => v.map(_._2).sum / v.size)
   }
 

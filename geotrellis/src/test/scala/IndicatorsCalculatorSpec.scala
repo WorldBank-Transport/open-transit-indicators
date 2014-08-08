@@ -3,16 +3,22 @@ package opentransitgt
 import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
-
+import com.github.nscala_time.time.Imports._
+import opentransitgt.DjangoAdapter._
 import org.scalatest._
 
 class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
+  // initialize a sample period
+  val start = new DateTime("2010-01-01T00:00:00.000-05:00");
+  val end = new DateTime("2010-01-01T08:00:00.000-05:00");
+  val period = SamplePeriod(1, "morning", start, end)
+
   // load SEPTA rail test data (has shapes.txt)
   val septaRailData = GtfsData.fromFile("src/test/resources/septa_data/")
-  val septaRailCalc = new IndicatorsCalculator(septaRailData)
+  val septaRailCalc = new IndicatorsCalculator(septaRailData, period)
 
   it should "calculate numRoutesPerMode for SEPTA" in {
-    septaRailCalc.numRoutesPerMode("Rail") should be (14)
+    septaRailCalc.numRoutesPerMode(2) should be (14)
   }
 
   it should "calculate maxStopsPerRoute for SEPTA" in {
@@ -33,7 +39,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
   }
 
   it should "calculate numStopsPerMode for SEPTA" in {
-    septaRailCalc.numStopsPerMode("Rail") should be (154)
+    septaRailCalc.numStopsPerMode(2) should be (154)
   }
 
   it should "calculate avgTransitLengthPerMode for SEPTA" in {

@@ -12,17 +12,20 @@ import geotrellis.render.ColorRamps
 import geotrellis.slick._
 import geotrellis.source.{ValueSource, RasterSource}
 import geotrellis.statistics.Histogram
+import org.joda.time.format.ISODateTimeFormat
+import opentransitgt.DjangoAdapter._
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
 import spray.http.MediaTypes
-import spray.http.StatusCodes.InternalServerError
+import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 
 // JSON support
 import spray.json._
-import spray.httpx.SprayJsonSupport._
+import spray.httpx.SprayJsonSupport
+import SprayJsonSupport._
 import DefaultJsonProtocol._
 
 trait GeoTrellisService extends HttpService {
@@ -131,38 +134,49 @@ trait GeoTrellisService extends HttpService {
       }
     }
 
-  // Endpoint for obtaining indicators
-  def indicatorsRoute =
+  // Endpoint for triggering indicator calculations
+  //
+  // TODO: Add queue management. Calculation request jobs will be stored
+  //   in a table, and calculations will be run one (or more) at a time
+  //   in the background via an Actor.
+  def indicatorsRoute = {
+    // need the implicits we defined for custom JSON parsing
+    import JsonImplicits._
+
     pathPrefix("gt") {
       path("indicators") {
-        get {
-          complete {
-            db withSession { implicit session: Session =>
-              // load GTFS data if it doesn't exist in memory
-              gtfsData match {
-                case None => gtfsData = Some(dao.toGtfsData)
-                case Some(data) =>
-              }
-
-              // create the indicators calculator
-              gtfsData match {
-                case None => {
-                  JsObject(
-                    "success" -> JsBoolean(false),
-                    "message" -> JsString("No indicators calculator")
-                  )
+        post {
+          entity(as[CalcParams]) { calcParams =>
+            complete {
+              db withSession { implicit session: Session =>
+                // load GTFS data if it doesn't exist in memory
+                gtfsData match {
+                  case None => gtfsData = Some(dao.toGtfsData)
+                  case Some(data) =>
                 }
-                case Some(data) => {
-                  val calc = new IndicatorsCalculator(data)
-                  JsObject(
-                    "success" -> JsBoolean(true),
-                    "indicators" -> JsObject(
-                      "numRoutesPerMode" -> calc.numRoutesPerMode.toJson,
-                      "maxStopsPerRoute" -> calc.maxStopsPerRoute.toJson,
-                      "numStopsPerMode" -> calc.numStopsPerMode.toJson,
-                      "avgTransitLengthPerMode" -> calc.avgTransitLengthPerMode.toJson
+
+                // create the indicators calculator
+                gtfsData match {
+                  case None => {
+                    JsObject(
+                      "success" -> JsBoolean(false),
+                      "message" -> JsString("No GTFS data")
                     )
-                  )
+                  }
+                  case Some(data) => {
+                    // run calculations for each sample period
+                    for (period <- calcParams.sample_periods) {
+                      // this will eventually be queued and processed in the background
+                      val calc = new IndicatorsCalculator(data, period)
+                      storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
+                    }
+
+                    // return a 201 created
+                    Created -> JsObject(
+                      "success" -> JsBoolean(true),
+                      "message" -> JsString(s"Calculations started (version ${calcParams.version})")
+                    )
+                  }
                 }
               }
             }
@@ -170,6 +184,7 @@ trait GeoTrellisService extends HttpService {
         }
       }
     }
+  }
 
   // Endpoint for obtaining map info (just extent for now)
   def mapInfoRoute =
