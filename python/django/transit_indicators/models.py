@@ -193,6 +193,11 @@ class Indicator(models.Model):
     # Whether or not this calculation is contained within the defined city boundaries
     city_bounded = models.BooleanField(default=False)
 
+    # A city name used to differentiate indicator sets
+    # The indicators calculated for GtfsFeed will always have city_name=null and
+    # external imports must provide a city name as part of the upload
+    city_name = models.CharField(max_length=255, null=True)
+
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
     # will need to be added to the the GTFS (and other data) rows.
