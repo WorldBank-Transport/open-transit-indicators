@@ -168,7 +168,7 @@ trait GeoTrellisService extends HttpService {
                     for (period <- calcParams.sample_periods) {
                       // this will eventually be queued and processed in the background
                       val calc = new IndicatorsCalculator(data, period)
-                      storeIndicators(calcParams.token, calcParams.version, period.id, calc)
+                      storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
                     }
 
                     JsObject(

@@ -34,6 +34,7 @@ object DjangoAdapter {
   // Sample period parameters
   case class SamplePeriod(
     id: Int,
+    `type`: String,
     period_start: DateTime,
     period_end: DateTime
   )
@@ -48,7 +49,7 @@ object DjangoAdapter {
   // Indicator
   case class Indicator(
     `type`: String,
-    sample_period: Int,
+    sample_period: String,
     aggregation: String = "system",
     route_id: String = "",
     route_type: Int = 0,
@@ -70,7 +71,7 @@ object DjangoAdapter {
     }
 
     // Use built-in JSON formats for our case classes
-    implicit val samplePeriodFormat = jsonFormat3(SamplePeriod)
+    implicit val samplePeriodFormat = jsonFormat4(SamplePeriod)
     implicit val calcParamsFormat = jsonFormat3(CalcParams)
     implicit val indicatorFormat = jsonFormat8(Indicator)
   }
@@ -102,7 +103,7 @@ object DjangoAdapter {
   val djangoClient = new DjangoClient()(system)
 
   // Sends all indicator calculations to Django for storage
-  def storeIndicators(token: String, version: Int, period: Int, calc: IndicatorsCalculator) = {
+  def storeIndicators(token: String, version: Int, period: String, calc: IndicatorsCalculator) = {
     // Number of routes
     for ((mode, value) <- calc.numRoutesPerMode) {
       djangoClient.postIndicator(token, Indicator(

@@ -37,6 +37,7 @@ class Command(BaseCommand):
         sample_periods = [
             {
                 'id': s.id,
+                'type': s.type,
                 'period_start': s.period_start.isoformat(),
                 'period_end': s.period_end.isoformat(),
             }
