@@ -55,7 +55,7 @@ class Command(BaseCommand):
         # post to GT endpoint to start indicators calculating
         headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
         response = requests.post(self.GT_INDICATORS_ENDPOINT, data=payload, headers=headers)
-        if response.status_code != 200:
+        if response.status_code != 201:
             LOGGER.error('%d encountered', response.status_code)
             LOGGER.error(response.text)
         else:

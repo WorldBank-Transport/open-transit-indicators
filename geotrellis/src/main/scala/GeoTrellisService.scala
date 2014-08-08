@@ -18,7 +18,7 @@ import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
 import spray.http.MediaTypes
-import spray.http.StatusCodes.InternalServerError
+import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 
@@ -171,7 +171,8 @@ trait GeoTrellisService extends HttpService {
                       storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
                     }
 
-                    JsObject(
+                    // return a 201 created
+                    Created -> JsObject(
                       "success" -> JsBoolean(true),
                       "message" -> JsString(s"Calculations started (version ${calcParams.version})")
                     )
