@@ -1,3 +1,9 @@
+import django_filters
+
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
@@ -27,14 +33,50 @@ class SamplePeriodViewSet(OTIAdminViewSet):
     serializer_class = SamplePeriodSerializer
 
 
+class IndicatorFilter(django_filters.FilterSet):
+    """Custom filter for indicator
+
+    Allows searching for all the local instance indicators with GET param:
+    local_city=True
+
+    """
+    local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
+
+    class Meta:
+        model = Indicator
+        fields = ['sample_period', 'type', 'aggregation', 'route_id',
+                  'route_type', 'city_bounded', 'version', 'city_name', 'local_city']
+
 class IndicatorViewSet(OTIAdminViewSet):
     """Viewset for Indicator objects
 
     Can be rendered as CSV in addition to the defaults
+    Example CSV Export for all indicators calculated for the local GTFSFeed:
+    GET /api/indicators/?format=csv&local_city=True
 
     """
     model = Indicator
     serializer_class = IndicatorSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [CSVRenderer]
-    filter_fields = ('sample_period', 'type', 'aggregation', 'route_id',
-                     'route_type', 'city_bounded', 'version',)
+    filter_class = IndicatorFilter
+
+
+    def create(self, request, *args, **kwargs):
+        """ Create Indicator objects via csv upload or json
+
+        Upload csv with the following POST DATA:
+        city_name: String field with city name to use as a reference in the
+                   database for this indicator set
+        source_file: File field with the csv file to import
+
+        """
+        # Handle as csv upload if form data present
+        source_file = request.FILES.get('source_file', None)
+        if source_file:
+            city_name = request.DATA.get('city_name', None)
+            load_status = Indicator.load(source_file, city_name)
+            response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
+            return Response(load_status.__dict__, status=response_status)
+
+        # Fall through to JSON if no form data present
+        return super(IndicatorViewSet, self).create(request, *args, **kwargs)
