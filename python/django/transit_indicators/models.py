@@ -194,7 +194,7 @@ class Indicator(models.Model):
     city_bounded = models.BooleanField(default=False)
 
     # A city name used to differentiate indicator sets
-    # The indicators calculated for GtfsFeed will always have city_name=null and
+    # The indicators calculated for this app's GTFSFeed will always have city_name=null
     # external imports must provide a city name as part of the upload
     city_name = models.CharField(max_length=255, null=True)
 
@@ -205,3 +205,11 @@ class Indicator(models.Model):
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
+
+    class Meta(object):
+        # An indicators uniqueness is determined by all of these things together
+        # Note that route_id, route_type and city_name can be null.
+        # TODO: Figure out a way to enforce uniqueness via the other six keys when city_name
+        #       is null.
+        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type",
+                            "city_name", "version"),)
