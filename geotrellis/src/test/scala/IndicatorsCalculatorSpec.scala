@@ -18,7 +18,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
   val septaRailCalc = new IndicatorsCalculator(septaRailData, period)
 
   it should "calculate numRoutesPerMode for SEPTA" in {
-    septaRailCalc.numRoutesPerMode(2) should be (14)
+    septaRailCalc.numRoutesPerMode(2) should be (13)
   }
 
   it should "calculate maxStopsPerRoute for SEPTA" in {
@@ -27,7 +27,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
     septaRailCalc.maxStopsPerRoute("CHW") should be (14)
     septaRailCalc.maxStopsPerRoute("CYN") should be (5)
     septaRailCalc.maxStopsPerRoute("FOX") should be (10)
-    septaRailCalc.maxStopsPerRoute("GLN") should be (0)
+    septaRailCalc.maxStopsPerRoute.contains("GLN") should be (false)
     septaRailCalc.maxStopsPerRoute("LAN") should be (26)
     septaRailCalc.maxStopsPerRoute("MED") should be (19)
     septaRailCalc.maxStopsPerRoute("NOR") should be (17)
