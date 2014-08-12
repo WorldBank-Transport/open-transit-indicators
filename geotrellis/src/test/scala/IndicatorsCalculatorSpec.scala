@@ -49,6 +49,26 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
     //septaRailCalc.avgTransitLengthPerMode("Rail") should be (0.53766 plusOrMinus 1e-5)
   }
 
+  it should "calculate avgTimeBetweenStopsPerMode for SEPTA" in {
+    septaRailCalc.avgTimeBetweenStopsPerMode(2) should be (3.65945 plusOrMinus 1e-5)
+  }
+
+  it should "calculate avgTimeBetweenStopsPerRoute for SEPTA" in {
+    septaRailCalc.avgTimeBetweenStopsPerRoute("AIR") should be (3.85344 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("CHE") should be (2.98798 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("CHW") should be (3.30278 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("CYN") should be (4.79069 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("FOX") should be (4.15789 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("LAN") should be (3.74403 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("MED") should be (3.11929 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("NOR") should be (3.86250 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("PAO") should be (3.35068 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("TRE") should be (5.08303 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("WAR") should be (3.74180 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("WIL") should be (3.73809 plusOrMinus 1e-5)
+    septaRailCalc.avgTimeBetweenStopsPerRoute("WTR") should be (3.52087 plusOrMinus 1e-5)
+  }
+
   // TODO: Asheville data fails to parse -- Eugene is looking into this.
   // Commenting out the Asheville section of tests for the time being.
   //

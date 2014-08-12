@@ -146,5 +146,21 @@ object DjangoAdapter {
         route_type=mode, version=version,value=value)
       )
     }
+
+    // Avg time between stops per route
+    for ((route, value) <- calc.avgTimeBetweenStopsPerRoute) {
+      djangoClient.postIndicator(token, Indicator(
+        `type`="time_traveled_stops", sample_period=period, aggregation="route",
+        route_id=route, version=version, value=value)
+      )
+    }
+
+    // Avg time between stops per mode
+    for ((mode, value) <- calc.avgTimeBetweenStopsPerMode) {
+      djangoClient.postIndicator(token, Indicator(
+        `type`="time_traveled_stops", sample_period=period, aggregation="mode",
+        route_type=mode, version=version, value=value)
+      )
+    }
   }
 }
