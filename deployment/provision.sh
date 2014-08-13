@@ -447,7 +447,8 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     pushd $WINDSHAFT_ROOT
         echo "$windshaft_conf" > settings.json
         ## Run as non-sudo user so npm installs libs as not sudo
-        sudo -u "$WEB_USER" npm install  # Travis installs npm stuff in its own setup
+        # Travis installs npm stuff in its own setup
+        sudo -iu "$WEB_USER" bash -c "cd $WINDSHAFT_ROOT && npm install"
     popd
 
     windshaft_upstart="
