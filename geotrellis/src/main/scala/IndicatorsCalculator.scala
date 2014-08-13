@@ -3,7 +3,9 @@ package opentransitgt
 import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
+import com.github.nscala_time.time.Imports._
 import opentransitgt.DjangoAdapter._
+import org.joda.time.PeriodType
 
 class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
   // The GTFS parser uses local date times.
@@ -73,6 +75,40 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
     maxTransitLengthPerRoute.toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
       .mapValues(v => v.map(_._2).sum / v.size)
+  }
+
+  // Finds the average time between stops per mode
+  lazy val avgTimeBetweenStopsPerMode: Map[Int, Double] = {
+    durationsBetweenStopsPerRoute.toList
+      .groupBy(kv => routeByID(kv._1).route_type.id)
+      .mapValues(routesToDurations => {
+        val durations = routesToDurations.map(_._2).flatten
+        durations.sum / durations.size
+      }
+    )
+  }
+
+  // Finds the average time between stops per route
+  lazy val avgTimeBetweenStopsPerRoute: Map[String, Double] = {
+    durationsBetweenStopsPerRoute.map { case(routeID, durations) =>
+      (routeID, durations.sum / durations.size)
+    }
+  }
+
+  // Helper for getting a list of durations between stops per route
+  lazy val durationsBetweenStopsPerRoute: Map[String, Seq[Double]] = {
+    routesInPeriod.map(route =>
+      route.id.toString -> {
+        tripsInPeriod(route).map(trip => {
+          // get the durations between each of the stops
+          // zipping stops with its tail easily creates these pairs -
+          //   e.g. (StopA, StopB, StopC) => ((StopA, StopB), (StopB, StopC))
+          trip.stops.zip(trip.stops.tail).map(pair =>
+            new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0
+          )
+        }).flatten
+      }
+    ).toMap
   }
 
   // Helper map of route id -> route
