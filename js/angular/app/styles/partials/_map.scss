@@ -10,6 +10,6 @@
 
 .gtfs-map-controls {
     position: absolute;
-    @include rem(top, 10);
-    @include rem(left, 50);
+    top: 1rem;
+    left: 5rem;
 }

@@ -2,21 +2,21 @@
   input {
     border: solid 1px $light-line-grey;
     width: 100%;
-    @include rem(height, 34);
-    @include rem(font-size, $h4);
-    @include rem(padding, 6);
+    height: 3.4rem;
+    font-size: $h4;
+    padding: .6rem;
   }
   select {
     border: 1px solid $light-line-grey;
     border-radius: 0;
     margin: 0;
-    @include rem(height, 34);
-    @include rem(padding, 6);
-    @include rem(font-size, $h4);
+    height: 3.4rem;
+    padding: .6rem;
+    font:size, $h4;
     width: 100%;
   }
   .settingsmodal-field--verticalcentered {
-    @include rem(line-height, 34);
+    line-height: 3.4rem;
   }
   .settingsmodal-add {
     > a {

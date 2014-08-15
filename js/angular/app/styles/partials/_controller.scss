@@ -1,8 +1,8 @@
 .stack-header {
-  @include rem(padding, 12, $gutter);
+  padding: 1.2rem $gutter;
   background-color: #eee;
   border-bottom: #ccc 1px solid;
-  @include rem(margin, 0, -$gutter);
+  margin: 0 $gutter;
 }
 
 .content {
@@ -11,8 +11,8 @@
 
 .bottom-buttons {
   border-top: #ccc 1px solid;
-  @include rem(margin-top, 12);
-  @include rem(padding-top, 12);
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
 }
 
 input, select {
@@ -29,8 +29,8 @@ input, select {
   -webkit-transform: translate3d(100%, 0, 0);
   transition: all 200ms;
   width: 100%;
-  @include rem(padding, $gutter);
-  @include rem(margin, 0, -$gutter);
+  padding: $gutter;
+  margin: 0 $gutter;
   &.active {
     opacity: 1.0 !important;
     -webkit-transform: translate3d(0, 0, 0) !important;

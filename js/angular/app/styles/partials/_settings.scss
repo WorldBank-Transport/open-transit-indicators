@@ -1,15 +1,15 @@
 .settingsmodal-wrapper {
-  @include rem(padding, 30, 0);
+  padding: 3rem 0;
 }
 
 .settingsmodal-close-button {
-  @include rem(top, 10);
-  @include rem(right, 10);
+  top: 1rem;
+  right: 1rem;
   position: absolute;
 }
 
 .settingsmodal {
-  @include rem(max-width, 800);
+  max-width: 80rem;
   background-color: #fff;
   display: table;
   margin-left: auto;
@@ -23,7 +23,7 @@
   vertical-align: top;
 }
 .settingsmodal-sidebar {
-  @include rem(width, 200);
+  width: 20rem;
   border-right: 1px solid $light-line-grey;
   vertical-align: top;
 }
@@ -31,12 +31,12 @@
   border-right: 4px solid $brand-primary;
 }
 .settingsmodal-body {
-  @include rem(padding, 30, 40);
-  @include rem(width, 600);
+  padding: 3rem 4rem;
+  width: 60rem;
 }
 .settingsmodal-sidebar-tab {
-  @include rem(font-size, $h4);
-  @include rem(padding, 12, 12);
+  font-size: $h4;
+  padding: 1.2rem;
   border-bottom: 1px solid $light-line-grey;
   cursor: pointer;
   margin-right: -1px;
@@ -50,24 +50,24 @@
   }
 }
 .settingsmodal-gettingstarted-item {
-  @include rem(padding, 10, 0, 6, 0);
+  padding: 1rem 0 .6rem;
 }
 .settingsmodal-fieldgroup {
-  @include rem(margin, 12, 0);
+  margin: 1.2rem 0;
 }
 .settingsmodal-gettingstarted-item-actions {
   text-align: right;
 }
 .settingsmodal-gettingstarted-item-optional {
-  @include rem(font-size, $h5);
-  @include rem(margin-left, 10);
+  font-size: $h5;
+  margin-left: 1rem;
   color: $light-line-grey;
   font-weight: 300;
   text-transform: uppercase;
 }
 .dropzone {
-  @include rem(margin-bottom, 30);
-  @include rem(padding, 20);
+  margin-bottom: 3rem;
+  padding: 2rem;
   border: dashed 1px $light-line-grey;
   &.inprogress {
     border-style: solid;
@@ -83,7 +83,7 @@
   }
 }
 .settingsmodal-newuser {
-  @include rem(padding, 10);
+  padding: 1rem;
   background-color: $lighter-bg-grey;
 }
 .settingsmodal-notices-errors {
@@ -102,12 +102,12 @@ table {
 }
 td, th {
   text-align: left;
-  @include rem(padding, 10);
+  padding: 1rem;
 }
 
 .config-datepicker {
     td, th {
-        @include rem(padding, 0);
+        padding: 0;
     }
 }
 
