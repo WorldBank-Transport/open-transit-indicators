@@ -1,17 +1,17 @@
 .loginmodal-wrapper {
-  @include rem(padding, 30, 0);
+  padding: 3rem 0;
 }
 
 .loginmodal-close-button {
-  @include rem(top, 10);
-  @include rem(right, 10);
+  top: 1rem;
+  right: 1rem;
   position: absolute;
 }
 
 .loginmodal {
-  @include rem(max-width, 300);
-  @include rem(width, 300);
-  @include rem(padding, 10);
+  max-width: 30rem;
+  width: 30rem;
+  padding: 1rem;
   background-color: #fff;
   margin-left: auto;
   margin-right: auto;
@@ -21,10 +21,10 @@
 }
 
 .loginmodal-field {
-    @include rem(padding-bottom, 10);
+    padding-bottom: 1rem;
     input {
-        @include rem(padding-left, 5);
-        @include rem(padding-right, 5);
+      padding-left: .5rem;
+      padding-right: .5rem;
     }
 }
 

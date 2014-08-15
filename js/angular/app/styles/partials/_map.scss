@@ -1,7 +1,7 @@
 .angular-leaflet-map {
     // Expands leaflet map to entire view bounds
-    // This class is on the div element created by 
-    // angular-leaflet-directive and is placed here since there is 
+    // This class is on the div element created by
+    // angular-leaflet-directive and is placed here since there is
     // no support for setting this style via the directive.
     // The map will disappear if angular-leaflet-directive updates this class name
     // in the future
@@ -10,6 +10,6 @@
 
 .gtfs-map-controls {
     position: absolute;
-    @include rem(top, 10);
-    @include rem(left, 50);
+    top: 1rem;
+    left: 5rem;
 }
