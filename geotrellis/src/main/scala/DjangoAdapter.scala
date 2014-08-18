@@ -162,5 +162,21 @@ object DjangoAdapter {
         route_type=mode, version=version, value=value)
       )
     }
+
+    // Avg service frequency/headway per route
+    for ((route, value) <- calc.headwayByRoute) {
+      djangoClient.postIndicator(token, Indicator(
+        `type`="avg_service_freq", sample_period=period, aggregation="route",
+        route_id=route, version=version, value=value)
+      )
+    }
+
+    // Avg service frequency/headway per mode
+    for ((mode, value) <- calc.headwayByMode) {
+      djangoClient.postIndicator(token, Indicator(
+        `type`="avg_service_freq", sample_period=period, aggregation="mode",
+        route_type=mode, version=version, value=value)
+      )
+    }
   }
 }

@@ -69,6 +69,26 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
     septaRailCalc.avgTimeBetweenStopsPerRoute("WTR") should be (3.52087 plusOrMinus 1e-5)
   }
 
+  it should "calculate headwayByMode for SEPTA" in {
+    septaRailCalc.headwayByMode(2) should be (0.25888 plusOrMinus 1e-5)
+  }
+
+  it should "calculate headwayByRoute for SEPTA" in {
+    septaRailCalc.headwayByRoute("AIR") should be (0.30820 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("CHE") should be (0.44895 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("CHW") should be (0.38082 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("CYN") should be (0.66370  plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("FOX") should be (0.46021 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("LAN") should be (0.32222 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("MED") should be (0.35719 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("NOR") should be (0.34982 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("PAO") should be (0.25363 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("TRE") should be (0.39818 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("WAR") should be (0.50407 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("WIL") should be (0.40664 plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("WTR") should be (0.39992 plusOrMinus 1e-5)
+  }
+
   // TODO: Asheville data fails to parse -- Eugene is looking into this.
   // Commenting out the Asheville section of tests for the time being.
   //

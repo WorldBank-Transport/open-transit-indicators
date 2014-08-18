@@ -111,6 +111,38 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
     ).toMap
   }
 
+  // Find the average headway for a route in a period
+  lazy val headwayByRoute: Map[String, Double] = {
+    routesInPeriod.map( route => route.id -> {
+      tripsInPeriod( route ).map( trip => trip.stops).flatten
+    }).toMap.mapValues(stops => {
+      stops.groupBy(_.stop_id).mapValues(stops =>
+        stops.sortBy(_.arrival))
+    }).mapValues(_.mapValues(stops => {
+      calcStopDifferences(stops.toArray)
+    }).values.flatten).mapValues( stop_differences => stop_differences.sum / stop_differences.size )
+  }
+
+  // Find average headway by mode
+  lazy val headwayByMode: Map[Int, Double] = {
+    routesInPeriod.groupBy(_.route_type.id.toInt).mapValues(routes => {
+      routes.map(tripsInPeriod).flatten.map(trip => {
+        trip.stops
+      }).flatten
+    }).mapValues(stops =>
+      stops.groupBy(_.stop_id).mapValues(stops => {
+        stops.sortBy(_.arrival)
+      })).mapValues(stops_in_mode => {
+          stops_in_mode.mapValues(calcStopDifferences).values.flatten
+      }).mapValues(diff_list => diff_list.sum / diff_list.size)
+  }
+
+  // Helper Function - takes an array of StopDateTimes and returns an array of doubles
+  def calcStopDifferences(stops: Array[StopDateTime]): Array[Double] = {
+    stops.zip(stops.tail).map(pair =>
+      new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0 / 60.0 )
+  }
+
   // Helper map of route id -> route
   lazy val routeByID: Map[String, Route] = {
     gtfsData.routes.map(route => route.id.toString -> route).toMap
