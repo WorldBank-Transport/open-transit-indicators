@@ -100,12 +100,7 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
     routesInPeriod.map(route =>
       route.id.toString -> {
         tripsInPeriod(route).map(trip => {
-          // get the durations between each of the stops
-          // zipping stops with its tail easily creates these pairs -
-          //   e.g. (StopA, StopB, StopC) => ((StopA, StopB), (StopB, StopC))
-          trip.stops.zip(trip.stops.tail).map(pair =>
-            new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0
-          )
+          calcStopDifferences(trip.stops).map(_ * 60.0)
         }).flatten
       }
     ).toMap
@@ -115,29 +110,25 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
   lazy val headwayByRoute: Map[String, Double] = {
     routesInPeriod.map( route => route.id -> {
       tripsInPeriod( route ).map( trip => trip.stops).flatten
-    }).toMap.mapValues(stops => {
-      stops.groupBy(_.stop_id).mapValues(stops =>
-        stops.sortBy(_.arrival))
-    }).mapValues(_.mapValues(stops => {
-      calcStopDifferences(stops.toArray)
-    }).values.flatten).mapValues( stop_differences => stop_differences.sum / stop_differences.size )
+    }).toMap.mapValues(stops => calculateHeadway(stops.toArray))
+    .mapValues( stop_differences => stop_differences.sum / stop_differences.size )
   }
 
   // Find average headway by mode
   lazy val headwayByMode: Map[Int, Double] = {
     routesInPeriod.groupBy(_.route_type.id.toInt).mapValues(routes => {
-      routes.map(tripsInPeriod).flatten.map(trip => {
-        trip.stops
-      }).flatten
-    }).mapValues(stops =>
-      stops.groupBy(_.stop_id).mapValues(stops => {
-        stops.sortBy(_.arrival)
-      })).mapValues(stops_in_mode => {
-          stops_in_mode.mapValues(calcStopDifferences).values.flatten
-      }).mapValues(diff_list => diff_list.sum / diff_list.size)
+      routes.map(tripsInPeriod).flatten.map(trip => trip.stops).flatten
+    }).mapValues(calculateHeadway).mapValues(diff_list => diff_list.sum / diff_list.size)
   }
 
-  // Helper Function - takes an array of StopDateTimes and returns an array of doubles
+  // Helper function to calculate headway for each stop + trip (hours per vehicle)
+  def calculateHeadway(stops: Array[StopDateTime]) = {
+    stops.groupBy(_.stop_id).mapValues(stops =>
+      calcStopDifferences(stops.sortBy(_.arrival).toArray)).values.flatten
+  }
+
+  // Helper Function - takes an array of StopDateTimes and returns an array of doubles that represent
+  // difference in arrival times
   def calcStopDifferences(stops: Array[StopDateTime]): Array[Double] = {
     stops.zip(stops.tail).map(pair =>
       new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0 / 60.0 )

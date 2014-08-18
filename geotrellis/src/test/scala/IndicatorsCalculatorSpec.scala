@@ -77,7 +77,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with Matchers {
     septaRailCalc.headwayByRoute("AIR") should be (0.30820 plusOrMinus 1e-5)
     septaRailCalc.headwayByRoute("CHE") should be (0.44895 plusOrMinus 1e-5)
     septaRailCalc.headwayByRoute("CHW") should be (0.38082 plusOrMinus 1e-5)
-    septaRailCalc.headwayByRoute("CYN") should be (0.66370  plusOrMinus 1e-5)
+    septaRailCalc.headwayByRoute("CYN") should be (0.66370 plusOrMinus 1e-5)
     septaRailCalc.headwayByRoute("FOX") should be (0.46021 plusOrMinus 1e-5)
     septaRailCalc.headwayByRoute("LAN") should be (0.32222 plusOrMinus 1e-5)
     septaRailCalc.headwayByRoute("MED") should be (0.35719 plusOrMinus 1e-5)
