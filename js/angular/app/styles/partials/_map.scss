@@ -13,3 +13,11 @@
     top: 1rem;
     left: 5rem;
 }
+
+// Move the zoom control; this might be better in a different location
+.leaflet-control-zoom {
+    position: fixed;
+    top: 7rem;
+    right: 1rem;
+    margin-top: 0 !important;
+}
