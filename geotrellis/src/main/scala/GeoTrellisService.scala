@@ -30,6 +30,8 @@ import DefaultJsonProtocol._
 
 trait GeoTrellisService extends HttpService {
   val config = ConfigFactory.load
+  val dbGeomNameLatLng = config.getString("database.geom-name-lat-lng")
+  val dbGeomNameUtm = config.getString("database.geom-name-utm")
   val dbName = config.getString("database.name")
   val dbUser = config.getString("database.user")
   val dbPassword = config.getString("database.password")
@@ -71,7 +73,9 @@ trait GeoTrellisService extends HttpService {
 
                 // parse the GTFS gtfsData
                 val data = GtfsData.fromFile(gtfsDir)
-                gtfsData = Some(data)
+
+                // data is read from the file and inserted into the db as lat/lng
+                dao.geomColumnName = dbGeomNameLatLng
 
                 // insert GTFS data into the database
                 data.routes.foreach { route => dao.routes.insert(route) }
@@ -149,6 +153,9 @@ trait GeoTrellisService extends HttpService {
           entity(as[CalcParams]) { calcParams =>
             complete {
               db withSession { implicit session: Session =>
+                // data is read from the db as the reprojected UTM projection
+                dao.geomColumnName = dbGeomNameUtm
+
                 // load GTFS data if it doesn't exist in memory
                 gtfsData match {
                   case None => gtfsData = Some(dao.toGtfsData)

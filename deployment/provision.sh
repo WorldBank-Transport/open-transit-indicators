@@ -506,6 +506,8 @@ echo 'Setting up geotrellis'
 gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
 geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
 geotrellis.port = \"$GEOTRELLIS_PORT\"
+database.geom-name-lat-lng = \"the_geom\"
+database.geom-name-utm = \"geom\"
 database.name = \"$DB_NAME\"
 database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
