@@ -1,6 +1,7 @@
 import csv
 
-from django.db import models, transaction
+from django.contrib.gis.db import models
+from django.db import transaction
 
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
 
@@ -261,6 +262,11 @@ class Indicator(models.Model):
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
+
+    # Cached geometry for this indicator only used by Windshaft
+    the_geom = models.GeometryField(srid=4326, null=True)
+
+    objects = models.GeoManager()
 
     class Meta(object):
         # An indicators uniqueness is determined by all of these things together

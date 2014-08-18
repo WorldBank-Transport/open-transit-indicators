@@ -59,7 +59,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ('sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'value', 'version', 'city_name')
+                  'route_type', 'city_bounded', 'value', 'version', 'city_name', 'the_geom')
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
