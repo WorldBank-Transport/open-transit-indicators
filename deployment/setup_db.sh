@@ -4,6 +4,9 @@ DB_NAME=$1
 DB_USER=$2
 DB_PASS=$3
 
+# Optional path prefix. Defaults to the current directory.
+PATH_PREFIX=${4:-.}
+
 # Set up the spatial template database if necessary
 psql -d template_postgis -c "SELECT PostGIS_full_version();" 1>/dev/null 2>&1
 has_template_postgis=$?
@@ -35,16 +38,16 @@ if [ 0 -ne $has_spatial_db ]; then
 
     # Setup the GTFS tables. These are used by GeoTrellis and Windshaft and shouldn't
     # need to be accessed from within Django, which is why they are not set up as models.
-    psql -d $DB_NAME -f ./deployment/setup_gtfs.sql
-    
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/setup_gtfs.sql
+
     # add database triggers
-    psql -d $DB_NAME -f ./deployment/stops_routes_trigger.sql
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_trigger.sql
 
     # Populate the route types lookup table
-    psql -d $DB_NAME -f ./deployment/gtfs_route_types.sql
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/gtfs_route_types.sql
 
     # Populate the UTM zone->srid lookup table
-    psql -d $DB_NAME -f ./deployment/utm_zone_boundaries.sql
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/utm_zone_boundaries.sql
 else
     echo 'Spatial database already exists; skipping.'
 fi
