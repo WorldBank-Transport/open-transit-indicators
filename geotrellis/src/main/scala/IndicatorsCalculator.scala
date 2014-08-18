@@ -100,15 +100,38 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
     routesInPeriod.map(route =>
       route.id.toString -> {
         tripsInPeriod(route).map(trip => {
-          // get the durations between each of the stops
-          // zipping stops with its tail easily creates these pairs -
-          //   e.g. (StopA, StopB, StopC) => ((StopA, StopB), (StopB, StopC))
-          trip.stops.zip(trip.stops.tail).map(pair =>
-            new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0
-          )
+          calcStopDifferences(trip.stops).map(_ * 60.0)
         }).flatten
       }
     ).toMap
+  }
+
+  // Find the average headway for a route in a period
+  lazy val headwayByRoute: Map[String, Double] = {
+    routesInPeriod.map( route => route.id -> {
+      tripsInPeriod( route ).map( trip => trip.stops).flatten
+    }).toMap.mapValues(stops => calculateHeadway(stops.toArray))
+    .mapValues( stop_differences => stop_differences.sum / stop_differences.size )
+  }
+
+  // Find average headway by mode
+  lazy val headwayByMode: Map[Int, Double] = {
+    routesInPeriod.groupBy(_.route_type.id.toInt).mapValues(routes => {
+      routes.map(tripsInPeriod).flatten.map(trip => trip.stops).flatten
+    }).mapValues(calculateHeadway).mapValues(diff_list => diff_list.sum / diff_list.size)
+  }
+
+  // Helper function to calculate headway for each stop + trip (hours per vehicle)
+  def calculateHeadway(stops: Array[StopDateTime]) = {
+    stops.groupBy(_.stop_id).mapValues(stops =>
+      calcStopDifferences(stops.sortBy(_.arrival).toArray)).values.flatten
+  }
+
+  // Helper Function - takes an array of StopDateTimes and returns an array of doubles that represent
+  // difference in arrival times
+  def calcStopDifferences(stops: Array[StopDateTime]): Array[Double] = {
+    stops.zip(stops.tail).map(pair =>
+      new Period(pair._1.arrival, pair._2.arrival, PeriodType.seconds()).getSeconds / 60.0 / 60.0 )
   }
 
   // Helper map of route id -> route
