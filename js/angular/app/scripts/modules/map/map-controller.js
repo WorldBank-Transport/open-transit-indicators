@@ -19,68 +19,53 @@ angular.module('transitIndicators')
     /* LEAFLET CONFIG */
     var layers = {
         overlays: {
-            gtfsshapes: {
-                name: 'GTFS Routes',
+            // TODO: Dynamically create/destroy these layers based on UI selection
+            indicators: {
+                name: 'GTFS Indicator',
                 type: 'xyz',
-                url: windshaftHost + '/tiles/transit_indicators/1408393538/num_stops/morning/route/{z}/{x}/{y}.png',
+                url: windshaftHost + '/tiles/transit_indicators/1408110474/num_stops/morning/route/{z}/{x}/{y}.png',
                 visible: true
             },
-            gtfsstops: {
-                name: 'GTFS Stops',
-                type: 'xyz',
-                url: windshaftHost + '/tiles/transit_indicators/table/gtfs_stops/{z}/{x}/{y}.png',
-                visible: true
-            },
-            stopsutfgrid: {
-                name: 'GTFS Stops Interactivity',
+            indicators_utfgrid: {
+                name: 'GTFS Indicator Interactivity',
                 type: 'utfGrid',
-                url: windshaftHost + '/tiles/transit_indicators/1408393538/num_stops/morning/route/{z}/{x}/{y}.grid.json?interactivity=value',
+                url: windshaftHost + '/tiles/transit_indicators/1408110474/num_stops/morning/route/{z}/{x}/{y}.grid.json?interactivity=value',
                 visible: true,
                 pluginOptions: { 'useJsonP': false }
             }
-
         }
     };
 
     var leaflet = {
-        layers: angular.extend(config.leaflet.layers, layers)
+        layers: angular.extend(config.leaflet.layers, layers),
+        markers: []
     };
     $scope.leaflet = angular.extend(config.leaflet, leaflet);
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         // we need something to bind the popup to, so use a marker with an empty icon
-        if (!$scope.leaflet.markers) {
+
+        $scope.leaflet.markers.length = 0;
+
+        if (leafletEvent.data) {
             // use $apply so popup appears right away
             // (otherwise it doesn't show up until the next time the mouse gets moved)
-
-            if (!leafletEvent.data) {
-                // clicked somewhere with no associated UTFGrid data
-                $scope.leaflet.markers = null;
-                return;
-            }
-
             $scope.$apply(function() {
                 var marker = {
                     lat: leafletEvent.latlng.lat,
                     lng: leafletEvent.latlng.lng,
-                    message: leafletEvent.data.stop_routes,
                     focus: true,
                     draggable: false,
+                    message: 'Indicator Value: ' + leafletEvent.data.value,
                     icon: {
-                            type: 'div',
-                            iconSize: [0, 0],
-                            popupAnchor:  [0, 0]
-                           }
-                 };
-
-                $scope.leaflet.markers = { stopMarker : marker };
+                        type: 'div',
+                        iconSize: [0, 0],
+                        popupAnchor:  [0, 0]
+                    }
+                };
+                $scope.leaflet.markers.push(marker);
             });
         }
-
-    });
-
-    $scope.$on('leafletDirectiveMap.utfgridMouseout', function(event, leafletEvent) {
-        $scope.leaflet.markers = null;
     });
 
     // asks the server for the data extent and zooms to it
