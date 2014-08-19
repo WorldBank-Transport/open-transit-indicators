@@ -111,7 +111,7 @@ object DjangoAdapter {
   def storeIndicators(token: String, version: Int, period: SamplePeriod, calc: IndicatorsCalculator) = {
 
     def stringGeomForRouteId(routeID: String) = {
-        calc.lineForRouteID(routeID) match {
+        calc.lineForRouteIDLatLng(routeID) match {
             case None => ""
             case Some(routeLine) => routeLine.toString
         }
@@ -180,7 +180,7 @@ object DjangoAdapter {
     // Avg service frequency/headway per route
     for ((route, value) <- calc.headwayByRoute) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="avg_service_freq", sample_period=period, aggregation="route",
+        `type`="avg_service_freq", sample_period=period.`type`, aggregation="route",
         route_id=route, version=version, value=value)
       )
     }
@@ -188,7 +188,7 @@ object DjangoAdapter {
     // Avg service frequency/headway per mode
     for ((mode, value) <- calc.headwayByMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="avg_service_freq", sample_period=period, aggregation="mode",
+        `type`="avg_service_freq", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version, value=value)
       )
     }

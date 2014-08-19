@@ -106,15 +106,15 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
       }
 
     it should "return map of Route ID's and their geometries" in {
-      septaRailCalc.lineForRouteID("AIR") match {
+      septaRailCalc.lineForRouteIDLatLng("AIR") match {
         case None => fail
         case Some(shapeLine) => shapeLine.points.length should be (160)
       }
-      septaRailCalc.lineForRouteID("LAN") match {
+      septaRailCalc.lineForRouteIDLatLng("LAN") match {
         case None => fail
         case Some(shapeLine) => shapeLine.points.length should be (415)
       }
-      septaRailCalc.lineForRouteID("TRE") match {
+      septaRailCalc.lineForRouteIDLatLng("TRE") match {
         case None => fail
         case Some(shapeLine) => shapeLine.points.length should be (805)
       }
