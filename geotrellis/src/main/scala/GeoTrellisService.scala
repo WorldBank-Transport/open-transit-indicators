@@ -258,7 +258,7 @@ object GeoTrellisService {
           for (period <- calcParams.sample_periods) {
             // this will eventually be queued and processed in the background
             val calc = new IndicatorsCalculator(data, period)
-            storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
+            storeIndicators(calcParams.token, calcParams.version, period, calc)
           }
           true
         }

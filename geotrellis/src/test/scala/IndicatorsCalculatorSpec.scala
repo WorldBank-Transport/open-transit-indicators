@@ -105,6 +105,21 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
         septaRailCalc.headwayByRoute("WTR") should be (0.39992 plusOrMinus 1e-5)
       }
 
+    it should "return map of Route ID's and their geometries" in {
+      septaRailCalc.lineForRouteIDLatLng("AIR") match {
+        case None => fail
+        case Some(shapeLine) => shapeLine.points.length should be (160)
+      }
+      septaRailCalc.lineForRouteIDLatLng("LAN") match {
+        case None => fail
+        case Some(shapeLine) => shapeLine.points.length should be (415)
+      }
+      septaRailCalc.lineForRouteIDLatLng("TRE") match {
+        case None => fail
+        case Some(shapeLine) => shapeLine.points.length should be (805)
+      }
+    }
+
       // this doesn't test an indicator, but is an example for how to read data from the db
       it should "be able to read trips from the database" in {
         db withSession { implicit session: Session =>

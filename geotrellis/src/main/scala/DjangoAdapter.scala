@@ -55,7 +55,8 @@ object DjangoAdapter {
     route_type: Int = 0,
     city_bounded: Boolean = false,
     version: Int = 0,
-    value: Double = 0
+    value: Double = 0,
+    the_geom: String = ""
   )
 
   // Custom JSON formatters
@@ -73,7 +74,7 @@ object DjangoAdapter {
     // Use built-in JSON formats for our case classes
     implicit val samplePeriodFormat = jsonFormat4(SamplePeriod)
     implicit val calcParamsFormat = jsonFormat3(CalcParams)
-    implicit val indicatorFormat = jsonFormat8(Indicator)
+    implicit val indicatorFormat = jsonFormat9(Indicator)
   }
 
   // Execution context for futures
@@ -106,11 +107,21 @@ object DjangoAdapter {
   //
   // TODO: refactor this to use some sort of introspection system so it is
   //   no longer necessary to individually store each indicator.
-  def storeIndicators(token: String, version: Int, period: String, calc: IndicatorsCalculator) = {
+  // TODO: Add the_geom for mode indicators
+  def storeIndicators(token: String, version: Int, period: SamplePeriod, calc: IndicatorsCalculator) = {
+
+    // Return a text geometry with SRID 4326 for a given routeID
+    def stringGeomForRouteId(routeID: String) = {
+        calc.lineForRouteIDLatLng(routeID) match {
+            case None => ""
+            case Some(routeLine) => routeLine.toString
+        }
+    }
+
     // Number of routes
     for ((mode, value) <- calc.numRoutesPerMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="num_routes", sample_period=period, aggregation="mode",
+        `type`="num_routes", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version,value=value)
       )
     }
@@ -118,15 +129,17 @@ object DjangoAdapter {
     // Stops per route
     for ((route, value) <- calc.maxStopsPerRoute) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="num_stops", sample_period=period, aggregation="route",
-        route_id=route, version=version,value=value)
+        `type`="num_stops", sample_period=period.`type`, aggregation="route",
+        route_id=route, version=version,value=value,
+        the_geom=stringGeomForRouteId(route)
+        )
       )
     }
 
     // Stops per mode
     for ((mode, value) <- calc.numStopsPerMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="num_stops", sample_period=period, aggregation="mode",
+        `type`="num_stops", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version,value=value)
       )
     }
@@ -134,15 +147,16 @@ object DjangoAdapter {
     // Length per route
     for ((route, value) <- calc.maxTransitLengthPerRoute) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="length", sample_period=period, aggregation="route",
-        route_id=route, version=version,value=value)
+        `type`="length", sample_period=period.`type`, aggregation="route",
+        route_id=route, version=version,value=value,
+        the_geom=stringGeomForRouteId(route))
       )
     }
 
     // Length per mode
     for ((mode, value) <- calc.avgTransitLengthPerMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="length", sample_period=period, aggregation="mode",
+        `type`="length", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version,value=value)
       )
     }
@@ -150,15 +164,16 @@ object DjangoAdapter {
     // Avg time between stops per route
     for ((route, value) <- calc.avgTimeBetweenStopsPerRoute) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="time_traveled_stops", sample_period=period, aggregation="route",
-        route_id=route, version=version, value=value)
+        `type`="time_traveled_stops", sample_period=period.`type`, aggregation="route",
+        route_id=route, version=version, value=value,
+        the_geom=stringGeomForRouteId(route))
       )
     }
 
     // Avg time between stops per mode
     for ((mode, value) <- calc.avgTimeBetweenStopsPerMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="time_traveled_stops", sample_period=period, aggregation="mode",
+        `type`="time_traveled_stops", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version, value=value)
       )
     }
@@ -166,15 +181,16 @@ object DjangoAdapter {
     // Avg service frequency/headway per route
     for ((route, value) <- calc.headwayByRoute) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="avg_service_freq", sample_period=period, aggregation="route",
-        route_id=route, version=version, value=value)
+        `type`="avg_service_freq", sample_period=period.`type`, aggregation="route",
+        route_id=route, version=version, value=value,
+        the_geom=stringGeomForRouteId(route))
       )
     }
 
     // Avg service frequency/headway per mode
     for ((mode, value) <- calc.headwayByMode) {
       djangoClient.postIndicator(token, Indicator(
-        `type`="avg_service_freq", sample_period=period, aggregation="mode",
+        `type`="avg_service_freq", sample_period=period.`type`, aggregation="mode",
         route_type=mode, version=version, value=value)
       )
     }

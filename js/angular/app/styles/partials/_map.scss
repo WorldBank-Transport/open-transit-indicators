@@ -1,7 +1,7 @@
 .angular-leaflet-map {
     // Expands leaflet map to entire view bounds
-    // This class is on the div element created by 
-    // angular-leaflet-directive and is placed here since there is 
+    // This class is on the div element created by
+    // angular-leaflet-directive and is placed here since there is
     // no support for setting this style via the directive.
     // The map will disappear if angular-leaflet-directive updates this class name
     // in the future
