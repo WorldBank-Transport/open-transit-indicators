@@ -110,6 +110,7 @@ object DjangoAdapter {
   // TODO: Add the_geom for mode indicators
   def storeIndicators(token: String, version: Int, period: SamplePeriod, calc: IndicatorsCalculator) = {
 
+    // Return a text geometry with SRID 4326 for a given routeID
     def stringGeomForRouteId(routeID: String) = {
         calc.lineForRouteIDLatLng(routeID) match {
             case None => ""

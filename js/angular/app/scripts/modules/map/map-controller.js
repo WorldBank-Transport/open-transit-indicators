@@ -2,15 +2,15 @@
 
 angular.module('transitIndicators')
 .controller('OTIMapController',
-        ['config', '$scope', '$state', '$location', 'leafletData', 'OTIMapService', 'authService',
-        function (config, $scope, $state, $location, leafletData, mapService, authService) {
+        ['config', '$scope', '$state', 'leafletData', 'OTIMapService', 'authService',
+        function (config, $scope, $state, leafletData, mapService, authService) {
 
     $scope.$state = $state;
     $scope.indicator_dropdown_open = false;
 
     // Object used to configure the indicator displayed on the map
     // Will never actually be posted or saved
-    // TODO: Save this indcator somewhere else to save map state on refresh
+    // TODO: Save this indicator somewhere else to save map state on refresh
     //       or set via page GET params
     $scope.indicator = {
         version: 0,
@@ -109,7 +109,7 @@ angular.module('transitIndicators')
                 if (!layer) {
                     return;
                 }
-                // Its one of the indicator overlays
+                // layer is one of the indicator overlays
                 if (layer.options.type) {
                     angular.extend(layer.options, indicator);
                     if (layer.redraw) {
