@@ -23,5 +23,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" % "slick_2.10" % "2.0.1",
   "org.scalatest" % "scalatest_2.10" % "2.1.5" % "test",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
-  "postgresql" % "postgresql" % "9.1-901.jdbc4"
+  "postgresql" % "postgresql" % "9.1-901.jdbc4",
+  "org.scala-lang" % "scala-compiler" % "2.10.3"
 )
