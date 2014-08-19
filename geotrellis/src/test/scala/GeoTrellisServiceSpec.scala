@@ -4,21 +4,45 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
 import com.typesafe.config.{ConfigFactory,Config}
+
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
 
+import com.github.nscala_time.time.Imports._
+import scala.slick.driver.PostgresDriver
+import com.github.tototoshi.slick.PostgresJodaSupport
+import geotrellis.slick._
+
 import org.scalatest._
 
-class GeoTrellisServiceSpec extends FlatSpec with Matchers {
-  // Connect to database
-  // #TODO: Set up a proper test database.
-  val config = ConfigFactory.load
-  val dbName = config.getString("database.name")
-  val dbUser = config.getString("database.user")
-  val dbPassword = config.getString("database.password")
+class GeoTrellisServiceSpec extends FlatSpec with PostgresSpec with Matchers {
+  val dao = new DAO
 
-  val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
-    user = dbUser, password = dbPassword)
+  it should "start with no trips" in {
+    db withSession { implicit session: Session =>
+      dao.toGtfsData.trips.size should be (0)
+    }
+  }
+
+  it should "be able to insert a trip" in {
+    val trip1 = Trip("T3","SR1","1",None,
+      List(
+        StopTime("1","T3", 1, 0.seconds, 1.minute),
+        StopTime("10","T3", 2, 10.minutes, 11.minutes),
+        StopTime("100","T3", 3, 15.minutes, 16.minutes)
+      )
+    )
+    db withSession {
+      implicit session: Session =>
+      dao.trips.insert(trip1)
+    }
+  }
+
+  it should "be able to read a trip" in {
+    db withSession { implicit session: Session =>
+      dao.toGtfsData.trips.size should be (1)
+    }
+  }
 
   it should "Calculate UTM Zones SRIDs properly" in {
     db withSession { implicit session: Session =>

@@ -17,6 +17,7 @@ import opentransitgt.DjangoAdapter._
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.meta.MTable
 import spray.http.MediaTypes
 import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
@@ -29,25 +30,12 @@ import SprayJsonSupport._
 import DefaultJsonProtocol._
 
 trait GeoTrellisService extends HttpService {
-  val config = ConfigFactory.load
-  val dbName = config.getString("database.name")
-  val dbUser = config.getString("database.user")
-  val dbPassword = config.getString("database.password")
-
   // For performing extent queries
   case class Extent(xmin: Double, xmax: Double, ymin: Double, ymax: Double)
   implicit val getExtentResult = GetResult(r => Extent(r.<<, r.<<, r.<<, r.<<))
 
   // All the routes that are defined by our API
   def rootRoute = pingRoute ~ gtfsRoute ~ indicatorsRoute ~ mapInfoRoute
-
-  // Database setup
-  val dao = new DAO()
-  val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
-    user = dbUser, password = dbPassword)
-
-  // In-memory GTFS data storage
-  var gtfsData: Option[GtfsData] = None
 
   // Endpoint for testing: browsing to /ping should return the text
   def pingRoute =
@@ -66,68 +54,13 @@ trait GeoTrellisService extends HttpService {
         post {
           parameter('gtfsDir.as[String]) { gtfsDir =>
             complete {
-              db withSession { implicit session: Session =>
-                println(s"parsing GTFS data from: $gtfsDir")
+              println(s"parsing GTFS data from: $gtfsDir")
+              val data = GeoTrellisService.parseAndStore(gtfsDir)
 
-                // parse the GTFS gtfsData
-                val data = GtfsData.fromFile(gtfsDir)
-                gtfsData = Some(data)
-
-                // insert GTFS data into the database
-                data.routes.foreach { route => dao.routes.insert(route) }
-                data.service.foreach { service => dao.service.insert(service) }
-                data.agencies.foreach { agency => dao.agencies.insert(agency) }
-                data.trips.foreach { trip => dao.trips.insert(trip) }
-                data.shapes.foreach { shape => dao.shapes.insert(shape) }
-                data.stops.foreach { stop => dao.stops.insert(stop) }
-                println("finished parsing GTFS data")
-
-                println("Transforming GTFS to local UTM zone.")
-                // Get the SRID of the UTM zone which contains the center of the GTFS data.  This is
-                // done by finding the centroid of the bounding box of all GTFS stops, and then
-                // doing a spatial query on utm_zone_boundaries to figure out which UTM zone
-                // contains the centroid point. If a GTFS feed spans the boundary of two (or more)
-                // UTM zones, it will be arbitrarily assigned to the zone into which the centroid
-                // point falls. This isn't expected to significantly increase error.
-                // Note: This assumes that the gtfs_stops table is in the same projection as the
-                // utm_zone_boundaries table (currently 4326). If that ever changes then this query
-                // will need to be updated.
-                val sridQ = Q.queryNA[Int]("""SELECT srid FROM utm_zone_boundaries
-                          WHERE ST_Contains(utm_zone_boundaries.geom,
-                                            (SELECT ST_SetSRID(ST_Centroid((SELECT ST_Extent(the_geom) from gtfs_stops)),
-                                                               Find_SRID('public', 'gtfs_stops', 'the_geom'))));
-                """)
-                val srid = sridQ.list.head
-                // Reproject gtfs_stops.geom and gtfs_shape_geoms.geom to the UTM srid.
-                // Directly interpolating into SQL query strings isn't best practice,
-                // but since the value is pre-loaded into the database, it's safe and the simplest
-                // thing to do in this case.
-                def geomTransform(srid: Int, table: String, geomType: String, column: String) =
-                  (Q.u +
-                   s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
-                   s"TYPE Geometry(${geomType},${srid}) " +
-                   s"USING ST_Transform(${column},${srid});").execute
-
-                def geomCopy(srid: Int, table: String, fromColumn: String, toColumn: String) =
-                  (Q.u +
-                   s"UPDATE ${table} SET ${toColumn} = ST_Transform(${fromColumn}, ${srid});").execute
-
-                geomTransform(srid, "gtfs_stops", "Point", "geom")
-                geomCopy(srid, "gtfs_stops", "the_geom", "geom")
-                geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
-                geomCopy(srid, "gtfs_shape_geoms", "the_geom", "geom")
-
-                // Now that the SRID of the GTFS data is known, we also need to set the SRID
-                // for imported shapefile data (boundaries and demographics).
-                geomTransform(srid, "utm_datasources_boundary", "MultiPolygon", "geom")
-                geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
-
-                println("Finished transforming to local UTM zone.")
-                JsObject(
-                  "success" -> JsBoolean(true),
-                  "message" -> JsString(s"Imported ${data.routes.size} routes")
-                )
-              }
+              JsObject(
+                "success" -> JsBoolean(true),
+                "message" -> JsString(s"Imported ${data.routes.size} routes")
+              )
             }
           }
         }
@@ -148,36 +81,17 @@ trait GeoTrellisService extends HttpService {
         post {
           entity(as[CalcParams]) { calcParams =>
             complete {
-              db withSession { implicit session: Session =>
-                // load GTFS data if it doesn't exist in memory
-                gtfsData match {
-                  case None => gtfsData = Some(dao.toGtfsData)
-                  case Some(data) =>
-                }
-
-                // create the indicators calculator
-                gtfsData match {
-                  case None => {
-                    JsObject(
-                      "success" -> JsBoolean(false),
-                      "message" -> JsString("No GTFS data")
-                    )
-                  }
-                  case Some(data) => {
-                    // run calculations for each sample period
-                    for (period <- calcParams.sample_periods) {
-                      // this will eventually be queued and processed in the background
-                      val calc = new IndicatorsCalculator(data, period)
-                      storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
-                    }
-
-                    // return a 201 created
-                    Created -> JsObject(
-                      "success" -> JsBoolean(true),
-                      "message" -> JsString(s"Calculations started (version ${calcParams.version})")
-                    )
-                  }
-                }
+              if (GeoTrellisService.calculateIndicators(calcParams)) {
+                // return a 201 created
+                Created -> JsObject(
+                  "success" -> JsBoolean(true),
+                  "message" -> JsString(s"Calculations started (version ${calcParams.version})")
+                )
+              } else {
+                JsObject(
+                  "success" -> JsBoolean(false),
+                  "message" -> JsString("No GTFS data")
+                )
               }
             }
           }
@@ -192,7 +106,7 @@ trait GeoTrellisService extends HttpService {
       path("map-info") {
         get {
           complete {
-            db withSession { implicit session: Session =>
+            GeoTrellisService.db withSession { implicit session: Session =>
               // use the stops to find the extent, since they are required
               val q = Q.queryNA[Extent]("""
                 SELECT ST_XMIN(ST_Extent(the_geom)) as xmin, ST_XMAX(ST_Extent(the_geom)) as xmax,
@@ -240,4 +154,115 @@ trait GeoTrellisService extends HttpService {
           complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
         }
     }
+}
+
+// Companion object for GeoTrellisService -- makes it easier to unit test
+object GeoTrellisService {
+  val config = ConfigFactory.load
+  val dao = new DAO()
+  val dbGeomNameLatLng = config.getString("database.geom-name-lat-lng")
+  val dbGeomNameUtm = config.getString("database.geom-name-utm")
+  val dbName = config.getString("database.name")
+  val dbUser = config.getString("database.user")
+  val dbPassword = config.getString("database.password")
+  var db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
+    user = dbUser, password = dbPassword)
+
+  // In-memory GTFS data storage
+  var gtfsData: Option[GtfsData] = None
+
+  // Parses a GTFS directory from the specified location, stores it in the db and reprojects
+  def parseAndStore(gtfsDir: String): GtfsData = {
+    db withSession { implicit session: Session =>
+      val data = GtfsData.fromFile(gtfsDir)
+
+      // data is read from the file and inserted into the db as lat/lng
+      dao.geomColumnName = dbGeomNameLatLng
+
+      // insert GTFS data into the database
+      data.routes.foreach { route => dao.routes.insert(route) }
+      data.service.foreach { service => dao.service.insert(service) }
+      data.agencies.foreach { agency => dao.agencies.insert(agency) }
+      data.trips.foreach { trip => dao.trips.insert(trip) }
+      data.shapes.foreach { shape => dao.shapes.insert(shape) }
+      data.stops.foreach { stop => dao.stops.insert(stop) }
+      println("finished parsing GTFS data")
+
+      println("Transforming GTFS to local UTM zone.")
+      // Get the SRID of the UTM zone which contains the center of the GTFS data.  This is
+      // done by finding the centroid of the bounding box of all GTFS stops, and then
+      // doing a spatial query on utm_zone_boundaries to figure out which UTM zone
+      // contains the centroid point. If a GTFS feed spans the boundary of two (or more)
+      // UTM zones, it will be arbitrarily assigned to the zone into which the centroid
+      // point falls. This isn't expected to significantly increase error.
+      // Note: This assumes that the gtfs_stops table is in the same projection as the
+      // utm_zone_boundaries table (currently 4326). If that ever changes then this query
+      // will need to be updated.
+      val sridQ = Q.queryNA[Int]("""SELECT srid FROM utm_zone_boundaries
+        WHERE ST_Contains(utm_zone_boundaries.geom,
+            (SELECT ST_SetSRID(ST_Centroid((SELECT ST_Extent(the_geom) from gtfs_stops)),
+            Find_SRID('public', 'gtfs_stops', 'the_geom'))));
+        """)
+      val srid = sridQ.list.head
+      // Reproject gtfs_stops.geom and gtfs_shape_geoms.geom to the UTM srid.
+      // Directly interpolating into SQL query strings isn't best practice,
+      // but since the value is pre-loaded into the database, it's safe and the simplest
+      // thing to do in this case.
+      def geomTransform(srid: Int, table: String, geomType: String, column: String) =
+        // only alter the table if it exists
+        if (!MTable.getTables(table).list().isEmpty) {
+          (Q.u +
+            s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
+            s"TYPE Geometry(${geomType},${srid}) " +
+            s"USING ST_Transform(${column},${srid});").execute
+        }
+
+      def geomCopy(srid: Int, table: String, fromColumn: String, toColumn: String) =
+        (Q.u +
+          s"UPDATE ${table} SET ${toColumn} = ST_Transform(${fromColumn}, ${srid});").execute
+
+      geomTransform(srid, "gtfs_stops", "Point", "geom")
+      geomCopy(srid, "gtfs_stops", "the_geom", "geom")
+      geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
+      geomCopy(srid, "gtfs_shape_geoms", "the_geom", "geom")
+
+      // Now that the SRID of the GTFS data is known, we also need to set the SRID
+      // for imported shapefile data (boundaries and demographics).
+      geomTransform(srid, "utm_datasources_boundary", "MultiPolygon", "geom")
+      geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
+
+      println("Finished transforming to local UTM zone.")
+      data
+    }
+  }
+
+  // Triggers an indicator calculation with the specified calculation parameters.
+  // Returns true if calculation has begun, false if there is a problem
+  def calculateIndicators(calcParams: CalcParams): Boolean = {
+    db withSession { implicit session: Session =>
+
+      // data is read from the db as the reprojected UTM projection
+      dao.geomColumnName = dbGeomNameUtm
+
+      // load GTFS data if it doesn't exist in memory
+      gtfsData match {
+        case None => gtfsData = Some(dao.toGtfsData)
+        case Some(data) =>
+      }
+
+      // create the indicators calculator
+      gtfsData match {
+        case None => false
+        case Some(data) => {
+          // run calculations for each sample period
+          for (period <- calcParams.sample_periods) {
+            // this will eventually be queued and processed in the background
+            val calc = new IndicatorsCalculator(data, period)
+            storeIndicators(calcParams.token, calcParams.version, period.`type`, calc)
+          }
+          true
+        }
+      }
+    }
+  }
 }
