@@ -2,5 +2,6 @@
 <div class="gtfs-map-controls" ng-show="$state.is('map')">
     <button ng-if="user.is_staff" ui-sref="overview" class="btn btn-primary">Settings</button>
     <button ng-click="logout()" class="btn btn-primary">Logout</button>
+    <button ng-click="debugger()" class="btn btn-primary">Debugger</button>
 </div>
 <ui-view></ui-view>
