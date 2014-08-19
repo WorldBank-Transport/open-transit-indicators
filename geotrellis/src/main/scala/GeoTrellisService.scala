@@ -17,6 +17,7 @@ import opentransitgt.DjangoAdapter._
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.meta.MTable
 import spray.http.MediaTypes
 import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
@@ -164,7 +165,7 @@ object GeoTrellisService {
   val dbName = config.getString("database.name")
   val dbUser = config.getString("database.user")
   val dbPassword = config.getString("database.password")
-  val db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
+  var db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
     user = dbUser, password = dbPassword)
 
   // In-memory GTFS data storage
@@ -208,10 +209,13 @@ object GeoTrellisService {
       // but since the value is pre-loaded into the database, it's safe and the simplest
       // thing to do in this case.
       def geomTransform(srid: Int, table: String, geomType: String, column: String) =
-        (Q.u +
-          s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
-          s"TYPE Geometry(${geomType},${srid}) " +
-          s"USING ST_Transform(${column},${srid});").execute
+        // only alter the table if it exists
+        if (!MTable.getTables(table).list().isEmpty) {
+          (Q.u +
+            s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
+            s"TYPE Geometry(${geomType},${srid}) " +
+            s"USING ST_Transform(${column},${srid});").execute
+        }
 
       def geomCopy(srid: Int, table: String, fromColumn: String, toColumn: String) =
         (Q.u +
