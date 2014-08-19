@@ -6,12 +6,13 @@ angular.module('transitIndicators')
         function (config, $scope, $state, $location, leafletData, mapService, authService) {
 
     $scope.$state = $state;
+    $scope.indicator_dropdown_open = false;
 
     // Object used to configure the indicator displayed on the map
     // Will never actually be posted or saved
     // TODO: Save this indcator somewhere else to save map state on refresh
     //       or set via page GET params
-    var indicator = {
+    $scope.indicator = {
         version: 0,
         type: 'num_stops',
         sample_period: 'morning',
@@ -26,7 +27,7 @@ angular.module('transitIndicators')
                 type: 'xyz',
                 url: mapService.getIndicatorUrl('png'),
                 visible: true,
-                layerOptions: indicator
+                layerOptions: $scope.indicator
             },
             utfgrid: {
                 name: 'GTFS Indicator Interactivity',
@@ -35,7 +36,7 @@ angular.module('transitIndicators')
                 visible: true,
                 // When copied to the internal L.Utfgrid class, these options end up on
                 //  layer.options, same as for TileLayers
-                pluginOptions: angular.extend({ 'useJsonP': false }, indicator)
+                pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
             }
         }
     };
@@ -87,6 +88,13 @@ angular.module('transitIndicators')
         $scope.$broadcast('map-controller:set-indicator-version', version);
     };
 
+    // TODO: Update this method to allow changes on aggregation, version, sample_period
+    $scope.setIndicator = function (type) {
+        $scope.indicator.type = type;
+        $scope.updateIndicatorLayers($scope.indicator);
+        $scope.indicator_dropdown_open = false;
+    };
+
     /**
      * Indicator type to configure the layers with
      * Use the map object directly to iterate over layers
@@ -136,8 +144,8 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('map-controller:set-indicator-version', function (event, version) {
-        indicator.version = version;
-        $scope.updateIndicatorLayers(indicator);
+        $scope.indicator.version = version;
+        $scope.updateIndicatorLayers($scope.indicator);
     });
 
     $scope.init = function () {
