@@ -108,7 +108,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
       // this doesn't test an indicator, but is an example for how to read data from the db
       it should "be able to read trips from the database" in {
         db withSession { implicit session: Session =>
-          dao.toGtfsData.trips.size should be (1622)
+          dao.toGtfsData.trips.size should be (1662)
         }
       }
     }
