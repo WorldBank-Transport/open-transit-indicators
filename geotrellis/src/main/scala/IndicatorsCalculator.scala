@@ -4,8 +4,12 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
 import com.github.nscala_time.time.Imports._
+import geotrellis.proj4._
+import geotrellis.vector.Line
 import opentransitgt.DjangoAdapter._
 import org.joda.time.PeriodType
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import scala.slick.jdbc.JdbcBackend.{Database, Session}
 
 class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
   // The GTFS parser uses local date times.
@@ -157,5 +161,34 @@ class IndicatorsCalculator(val gtfsData: GtfsData, val period: SamplePeriod) {
     import gtfsData.context._
 
     route.getScheduledTripsBetween(startDT, endDT)
+  }
+
+  // Returns Option[Line] for the given routeID in lat/long coordinates.
+  // Assumes that all shapes for a given trip are the same, may not be valid.
+  lazy val lineForRouteIDLatLng: Map[String, Option[Line]] = {
+    GeoTrellisService.db withSession { implicit session: Session =>
+      // Find the SRID of the UTM column and construct a CRS.
+      //
+      // Note: this is only needed because there is currently a bug
+      //   in the GTFS parser that causes the SRID on the geometry object
+      //   to be set to -1. If this is fixed, it can be obtained from
+      //   the object directly.
+      val sridQ = Q.queryNA[Int]("""SELECT Find_SRID('public', 'gtfs_shape_geoms', 'geom');""")
+      val utmCrs = CRS.fromName(s"EPSG:${sridQ.list.head}")
+
+      routesInPeriod.map(route =>
+        route.id.toString -> {
+          val shape_id : Option[String] = tripsInPeriod(route).head.rec.shape_id
+
+          val shapeTrip : Option[TripShape] = shape_id.flatMap {
+            shapeID => gtfsData.shapesById.get(shapeID)
+          }
+          val shapeLine : Option[Line] = shapeTrip.map {
+            tripShape => tripShape.line.reproject(utmCrs, LatLng)(4326)
+          }
+          shapeLine
+        }
+      ).toMap
+    }
   }
 }
