@@ -181,7 +181,8 @@ object DjangoAdapter {
     for ((route, value) <- calc.headwayByRoute) {
       djangoClient.postIndicator(token, Indicator(
         `type`="avg_service_freq", sample_period=period.`type`, aggregation="route",
-        route_id=route, version=version, value=value)
+        route_id=route, version=version, value=value,
+        the_geom=stringGeomForRouteId(route))
       )
     }
 
