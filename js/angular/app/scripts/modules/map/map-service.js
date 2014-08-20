@@ -2,10 +2,11 @@
 
 angular.module('transitIndicators')
 .factory('OTIMapService',
-        ['$q', '$resource', '$location', 'config',
-        function ($q, $resource, $location, config) {
+        ['$q', '$http', '$resource', '$location', 'config',
+        function ($q, $http, $resource, $location, config) {
 
     var otiMapService = {};
+    var nullVersion = 0;
 
     // retrieves map information from the server
     otiMapService.getMapInfo = function() {
@@ -29,7 +30,7 @@ angular.module('transitIndicators')
      * Thin wrapper for Indicator used in the controller for setting the map properties
      */
     otiMapService.IndicatorConfig = function (config) {
-        this.version = config.version || 0;
+        this.version = config.version || nullVersion;
         this.type = config.type;
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
@@ -59,6 +60,20 @@ angular.module('transitIndicators')
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
         return url;
+    };
+
+    /**
+     * Get the current indicator version
+     *
+     * @param callback: function to call after request is made, has a single argument 'version'
+     */
+    otiMapService.getIndicatorVersion = function (callback) {
+        $http.get('/api/indicators_version/').success(function (data) {
+            var version = data.current_version || nullVersion;
+            callback(version);
+        }).error(function (error) {
+            callback(nullVersion);
+        });
     };
 
     return otiMapService;

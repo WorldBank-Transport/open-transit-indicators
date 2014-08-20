@@ -148,11 +148,8 @@ angular.module('transitIndicators')
         // always zoom to the extent when the map is first loaded
         zoomToDataExtent();
 
-        mapService.Indicator.query({}, function(data){
-            var currentIndicator = _.sortBy(data, 'version').pop();
-            if (currentIndicator) {
-                $scope.setIndicatorVersion(currentIndicator.version);
-            }
+        mapService.getIndicatorVersion(function (version) {
+            $scope.setIndicatorVersion(version);
         });
     };
     $scope.init();
