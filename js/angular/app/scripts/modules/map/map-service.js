@@ -26,6 +26,16 @@ angular.module('transitIndicators')
     });
 
     /**
+     * Thin wrapper for Indicator used in the controller for setting the map properties
+     */
+    otiMapService.IndicatorConfig = function (config) {
+        this.version = config.version || 0;
+        this.type = config.type;
+        this.sample_period = config.sample_period;
+        this.aggregation = config.aggregation;
+    };
+
+    /**
      * Return windshaft hostname, including port, if configured in config.windshaft.port
      * @return String hostname
      */
