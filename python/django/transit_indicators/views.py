@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
 from viewsets import OTIAdminViewSet
@@ -80,3 +81,21 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         # Fall through to JSON if no form data present
         return super(IndicatorViewSet, self).create(request, *args, **kwargs)
+
+
+class IndicatorsVersion(APIView):
+    """ Indicator versioning endpoint
+
+    Currently just gets the highest integer since versions are timestamps
+    Could add a POST method here to set the version if versioning gets more complicated
+    TODO: Update logic once we actually solve versioning
+
+    """
+    def get(self, request, *args, **kwargs):
+        """ Return the current version of the indicators """
+        indicator = Indicator.objects.order_by('-version')[0]
+        version = indicator.version if indicator and indicator.version else None
+        return Response({'current_version': version }, status=status.HTTP_200_OK)
+
+
+indicators_version = IndicatorsVersion.as_view()

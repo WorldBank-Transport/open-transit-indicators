@@ -9,15 +9,14 @@ angular.module('transitIndicators')
     $scope.indicator_dropdown_open = false;
 
     // Object used to configure the indicator displayed on the map
-    // Will never actually be posted or saved
     // TODO: Save this indicator somewhere else to save map state on refresh
     //       or set via page GET params
-    $scope.indicator = {
+    $scope.indicator = new mapService.IndicatorConfig({
         version: 0,
         type: 'num_stops',
         sample_period: 'morning',
         aggregation: 'route'
-    };
+    });
 
     /* LEAFLET CONFIG */
     var layers = {
@@ -106,11 +105,8 @@ angular.module('transitIndicators')
     $scope.updateIndicatorLayers = function (indicator) {
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
-                if (!layer) {
-                    return;
-                }
-                // layer is one of the indicator overlays
-                if (layer.options.type) {
+                // layer is one of the indicator overlays -- only redraw them
+                if (layer && layer.options && layer.options.type) {
                     angular.extend(layer.options, indicator);
                     if (layer.redraw) {
                         layer.redraw();
@@ -152,9 +148,8 @@ angular.module('transitIndicators')
         // always zoom to the extent when the map is first loaded
         zoomToDataExtent();
 
-        mapService.Indicator.query({}, function(data){
-            var currentIndicator = _.sortBy(data, 'version').pop();
-            $scope.setIndicatorVersion(currentIndicator.version);
+        mapService.getIndicatorVersion(function (version) {
+            $scope.setIndicatorVersion(version);
         });
     };
     $scope.init();
