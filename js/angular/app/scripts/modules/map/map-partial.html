@@ -1,10 +1,96 @@
 <leaflet defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds" markers="leaflet.markers" layers="leaflet.layers" height="100%" width="100%"></leaflet>
+
+    <header>
+        <div class="navigation-buttongroup">
+            <div class="button--navigation active" id="navigation-scenario">Scenario</div>
+            <div class="button--navigation" id="navigation-indicators">Indicators</div>
+            <div class="button--navigation" id="navigation-settings">Settings</div>
+        </div>
+    </header>
+
+    <div class="indicators indicators-count-3">
+        <div class="navigationsecondary clearfix">
+            <div class="navigationsecondary-left">
+                <div class="navigationsecondary-menu filter">
+                    <div class="button--small active">Data</div><div class="button--small inactive">Map</div>
+                </div>
+            </div>
+            <div class="navigationsecondary-right">
+                <div class="btn-group" dropdown is-open="status.isopen">
+                      <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                        Overall <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                      </ul>
+                </div>
+                <div class="button--large">
+                    Add / Remove City +
+                </div>
+            </div>
+        </div>
+        <div class="indicators-heading">
+            <div class="indicators-description">
+                Viewing indicator results for Boston, Chicago, and Zhengzhou.
+            </div>
+            <div id="map" class="indicators-map">
+
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row indicators-row-heading">
+                <div class="indicators-cell indicators-label">City</div>
+                <div class="indicators-cell">Boston</div>
+                <div class="indicators-cell">Chicago</div>
+                <div class="indicators-cell">Zhengzhou</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Percent of sub-population within .5 km of a transit stop</div>
+                <div class="indicators-cell">25%</div>
+                <div class="indicators-cell">14%</div>
+                <div class="indicators-cell">38%</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Number of modes and types</div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="100" fill="#481924">
+                    </svg>
+                    415
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="70" fill="#481924">
+                    </svg>
+                    367
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="92" fill="#481924">
+                    </svg>
+                    401
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--
 <div class="gtfs-map-controls" ng-show="$state.is('map')">
     <button ng-if="user.is_staff" ui-sref="overview" class="btn btn-primary">Settings</button>
     <button ng-click="logout()" class="btn btn-primary">Logout</button>
     <div class="btn-group" dropdown is-open="indicator_dropdown_open">
       <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
+      -->
       <!-- TODO: Display actual indicator name here -->
+      <!--
         Indicator: {{ indicator.type }} <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu">
@@ -15,4 +101,6 @@
       </ul>
     </div>
 </div>
+-->
+
 <ui-view></ui-view>
