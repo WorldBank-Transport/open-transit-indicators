@@ -4,7 +4,6 @@ describe('OTIConfigurationController', function () {
     var configCtl;
     var $scope;
     var $rootScope;
-    var $compile;
 
     var monday = new Date(2014, 0, 6);
     var tuesday = new Date(2014, 0, 7);
@@ -86,7 +85,7 @@ describe('OTIConfigurationController', function () {
     });
 
     it('should ensure disableWeekday returns false when mode !== "day"', function () {
-        expect($scope.disableWeekday(tuesday, 'month')).toEqual(false);
+        expect($scope.disableWeekday(wednesday, 'month')).toEqual(false);
     });
 
     it('should ensure openWeekdayPicker opens weekday picker', function (){
@@ -102,7 +101,7 @@ describe('OTIConfigurationController', function () {
     });
 
     it('should ensure validateWeekday sets form true if weekday set', function () {
-        $scope.weekdayDate = monday;
+        $scope.weekdayDate = friday;
         $scope.validateWeekday();
         expect($scope.samplePeriodsForm.weekdayDate.$valid).toEqual(true);
 
