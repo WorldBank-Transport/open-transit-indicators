@@ -5,6 +5,10 @@ header {
   z-index: 200;
 }
 
+.app-view {
+    padding-top: 55px;
+}
+
 .button--navigation {
   background-color: $secondary-color;
   display: inline-block;
@@ -16,5 +20,8 @@ header {
   cursor: pointer;
   &.active {
     background-color: $tertiary-color;
+  }
+  &.pull-right {
+    border-left: 1px solid #fff;
   }
 }

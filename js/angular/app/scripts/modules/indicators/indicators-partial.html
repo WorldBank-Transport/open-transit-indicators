@@ -1,0 +1,42 @@
+<div class="indicators indicators-count-3">
+    <div class="navigationsecondary clearfix">
+        <div class="navigationsecondary-left">
+            <div class="navigationsecondary-menu filter">
+                <div ui-sref="data" class="button--small" ng-class="{inactive: mapActive}">Data</div>/
+                <div ui-sref="map" class="button--small" ng-class="{inactive: !mapActive}">Map</div>
+            </div>
+        </div>
+        <div class="navigationsecondary-right">
+            <div class="btn-group" dropdown is-open="dropdown_aggregation_open">
+                  <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                    {{ indicator.aggregation }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="aggregation in aggregations"><a ng-click="selectAggregation(aggregation.value)"> {{ aggregation.readable }}</a></li>
+                  </ul>
+            </div>
+            <div class="btn-group" dropdown is-open="dropdown_type_open">
+                  <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                    {{ indicator.type }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="type in types"><a ng-click="selectType(type.value)"> {{ type.readable }}</a></li>
+                  </ul>
+            </div>
+            <div class="btn-group" dropdown is-open="dropdown_sample_period_open">
+                  <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                    {{ indicator.sample_period }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="sample_period in sample_periods"><a ng-click="selectSamplePeriod(sample_period.value)"> {{ sample_period.readable }}</a></li>
+                  </ul>
+            </div>
+            <div class="button--large">
+                Add / Remove City +
+            </div>
+        </div>
+    </div>
+
+
+    <ui-view></ui-view>
+</div>

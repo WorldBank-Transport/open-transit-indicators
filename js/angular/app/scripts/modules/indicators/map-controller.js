@@ -1,16 +1,16 @@
 'use strict';
 
 angular.module('transitIndicators')
-.controller('OTIMapController',
-        ['config', '$scope', '$state', '$cookieStore', 'leafletData', 'OTIMapService', 'authService',
-        function (config, $scope, $state, $cookieStore, leafletData, mapService, authService) {
+.controller('OTIIndicatorsMapController',
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIIndicatorsService, mapService) {
 
     $scope.$state = $state;
     $scope.indicator_dropdown_open = false;
 
     // Object used to configure the indicator displayed on the map
     // Retrieve last selected indicator from session cookie, if available
-    $scope.indicator = $cookieStore.get("indicator");
+    $scope.indicator = $cookieStore.get('indicator');
 
     if (!$scope.indicator) {
         $scope.indicator = new mapService.IndicatorConfig({
@@ -20,7 +20,7 @@ angular.module('transitIndicators')
             aggregation: 'route'
         });
 
-        $cookieStore.put("indicator", $scope.indicator);
+        $cookieStore.put('indicator', $scope.indicator);
     }
 
     /* LEAFLET CONFIG */
@@ -49,19 +49,7 @@ angular.module('transitIndicators')
         layers: angular.extend(config.leaflet.layers, layers),
         markers: []
     };
-    $scope.leaflet = angular.extend(config.leaflet, leaflet);
-
-    // asks the server for the data extent and zooms to it
-    var zoomToDataExtent = function () {
-        mapService.getMapInfo().then(function(mapInfo) {
-            if (mapInfo.extent) {
-                $scope.leaflet.bounds = mapInfo.extent;
-            } else {
-                // no extent; zoom out to world
-                $scope.leaflet.bounds = config.worldExtent;
-            }
-        });
-    };
+    $scope.leaflet = angular.extend($scope.leafletDefaults, leaflet);
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {
@@ -104,10 +92,10 @@ angular.module('transitIndicators')
      * angular-leaflet-directive does not support a way to redraw existing layers that have
      * updated properties but haven't changed their layer key
      *
-     * @param indicator: mapService.Indicator instance
+     * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $cookieStore.put("indicator", $scope.indicator);
+        $cookieStore.put('indicator', $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -125,23 +113,9 @@ angular.module('transitIndicators')
         });
     };
 
-    $scope.logout = function () {
-        authService.logout();
-    };
-
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
         utfGridMarker(leafletEvent);
-    });
-
-    // zoom to the new extent whenever a GTFS file is uploaded
-    $scope.$on('upload-controller:gtfs-uploaded', function() {
-        zoomToDataExtent();
-    });
-
-    // zoom out to world view when data deleted
-    $scope.$on('upload-controller:gtfs-deleted', function() {
-        $scope.leaflet.bounds = config.worldExtent;
     });
 
     $scope.$on('map-controller:set-indicator-version', function (event, version) {
@@ -150,10 +124,7 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
-        // always zoom to the extent when the map is first loaded
-        zoomToDataExtent();
-
-        mapService.getIndicatorVersion(function (version) {
+        OTIIndicatorsService.getIndicatorVersion(function (version) {
             $scope.setIndicatorVersion(version);
         });
     };
