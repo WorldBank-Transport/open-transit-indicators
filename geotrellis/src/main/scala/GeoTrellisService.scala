@@ -250,16 +250,12 @@ object GeoTrellisService {
         case Some(data) =>
       }
 
-      // create the indicators calculator
+      // calculate and store the indicators
       gtfsData match {
         case None => false
         case Some(data) => {
-          // run calculations for each sample period
-          for (period <- calcParams.sample_periods) {
-            // this will eventually be queued and processed in the background
-            val calc = new IndicatorsCalculator(data, period)
-            storeIndicators(calcParams.token, calcParams.version, period, calc)
-          }
+          val calc = new IndicatorsCalculator(data, calcParams)
+          calc.storeIndicators
           true
         }
       }
