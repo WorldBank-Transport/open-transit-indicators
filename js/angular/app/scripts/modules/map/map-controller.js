@@ -2,21 +2,26 @@
 
 angular.module('transitIndicators')
 .controller('OTIMapController',
-        ['config', '$scope', '$state', 'leafletData', 'OTIMapService', 'authService',
-        function (config, $scope, $state, leafletData, mapService, authService) {
+        ['config', '$scope', '$state', '$cookieStore', 'leafletData', 'OTIMapService', 'authService',
+        function (config, $scope, $state, $cookieStore, leafletData, mapService, authService) {
 
     $scope.$state = $state;
     $scope.indicator_dropdown_open = false;
 
     // Object used to configure the indicator displayed on the map
-    // TODO: Save this indicator somewhere else to save map state on refresh
-    //       or set via page GET params
-    $scope.indicator = new mapService.IndicatorConfig({
-        version: 0,
-        type: 'num_stops',
-        sample_period: 'morning',
-        aggregation: 'route'
-    });
+    // Retrieve last selected indicator from session cookie, if available
+    $scope.indicator = $cookieStore.get("indicator");
+    
+    if (!$scope.indicator) {
+        $scope.indicator = new mapService.IndicatorConfig({
+            version: 0,
+            type: 'num_stops',
+            sample_period: 'morning',
+            aggregation: 'route'
+        });
+        
+        $cookieStore.put("indicator", $scope.indicator);
+    }
 
     /* LEAFLET CONFIG */
     var layers = {
@@ -103,6 +108,7 @@ angular.module('transitIndicators')
      * @param indicator: mapService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
+        $cookieStore.put("indicator", $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -140,7 +146,6 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('map-controller:set-indicator-version', function (event, version) {
-        $scope.indicator.version = version;
         $scope.updateIndicatorLayers($scope.indicator);
     });
 
