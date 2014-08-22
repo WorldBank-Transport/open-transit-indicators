@@ -33,7 +33,7 @@ angular.module('transitIndicators')
             if (nowDatetime.getTime() - startDatetime.getTime() > ASSIGNMENT_TIMEOUT_MS) {
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'Job timed out. Try again later.'
+                    msg: 'TIMEOUT'
                 });
             } else if (!(upload.is_valid && upload.is_loaded)) {
                 $scope.timeoutId = $timeout(function () {
@@ -45,12 +45,12 @@ angular.module('transitIndicators')
                 // Log error to bottom of assign fields section
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'Invalid selections.'
+                    msg: 'INVALID_SELECTIONS'
                 });
             } else {
                 addLoadAlert({
                     type: 'success',
-                    msg: 'Selections saved!'
+                    msg: 'SELECTIONS_SAVED'
                 });
                 $scope.setSidebarCheckmark('demographic', true);
                 // Send assignment success message
@@ -165,9 +165,10 @@ angular.module('transitIndicators')
             pollForAssignments($scope.uploadDemographic);
             addLoadAlert({
                 type: 'info',
-                msg: 'Saving...'
+                msg: 'SAVING'
             });
         }).error(function (data, status) {
+            // TODO: tranlsate
             addLoadAlert({
                 type: 'danger',
                 msg: _.values(data)[0] || (status + ': Unknown Error')

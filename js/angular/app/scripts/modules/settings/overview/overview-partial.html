@@ -1,12 +1,12 @@
 <div ng-init="init()">
-    <h1>Settings</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus.</p>
-    <h2>Getting Started</h2>
+    <h1>{{'VIEW.overview' | translate}}</h1>
+    <p>{{'SETTINGS.OVERVIEW_DESCRIPTION' | translate}}</p>
+    <h2>{{'SETTINGS.GETTING_STARTED' | translate}}</h2>
     <div class="settingsmodal-gettingstarted-item">
         <div class="row">
             <div class="col-sm-9 settingsmodal-gettingstarted-item-description">
-                <h3>Upload GTFS Data</h3>
-                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl.</span>
+                <h3>{{'SETTINGS.UPLOAD_GTFS' | translate}}</h3>
+                <span>{{'SETTINGS.UPLOAD_GTFS_DESCRIPTION' | translate}}</span>
             </div>
             <div class="col-sm-3 settingsmodal-gettingstarted-item-actions">
                 <div ui-sref="upload" class="btn btn-primary">Start</div>
@@ -16,24 +16,24 @@
     <div class="settingsmodal-gettingstarted-item">
         <div class="row">
             <div class="col-sm-9 settingsmodal-gettingstarted-item-description">
-                <h3>Upload Additional Data<span class="settingsmodal-gettingstarted-item-optional">Optional</span></h3>
-                <p><b>Boundary</b> Lorem ipsum dolor sit amet, consectetur.</p>
-                <p><b>Demographic</b> Aliquam a ipsum suscipit, lacinia lectus vitae.</p>
-                <p><b>Real-time</b> Ipsum suspicit, iaculis nisl.</p>
+                <h3>{{'SETTINGS.UPLOAD_ADDITIONAL_DATA' | translate}}<span class="settingsmodal-gettingstarted-item-optional">{{'TERM.OPTIONAL' | translate}}</span></h3>
+                <p><b>{{'VIEW.boundary' | translate}} </b>{{'SETTINGS.OVERVIEW_BOUNDARY_DESCRIPTION' | translate}}</p>
+                <p><b>{{'VIEW.demographic' | translate}} </b>{{'SETTINGS.OVERVIEW_DEMOGRAPHIC_DESCRIPTION' | translate}}</p>
+                <p><b>{{'VIEW.realtime' | translate}} </b>{{'SETTINGS.OVERVIEW_REALTIME_DESCRIPTION' | translate}}</p>
             </div>
             <div class="col-sm-3 settingsmodal-gettingstarted-item-actions">
-                <div ui-sref="boundary" class="btn btn-primary">Start</div>
+                <div ui-sref="boundary" class="btn btn-primary">{{'UI.BUTTON.START' | translate}}</div>
             </div>
         </div>
     </div>
     <div class="settingsmodal-gettingstarted-item">
         <div class="row">
             <div class="col-sm-9 settingsmodal-gettingstarted-item-description">
-                <h3>Configuration<span class="settingsmodal-gettingstarted-item-optional">Optional</span></h3>
-                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl.</span>
+                <h3>{{'VIEW.configuration' | translate}}<span class="settingsmodal-gettingstarted-item-optional">{{'TERM.OPTIONAL' | translate}}</span></h3>
+                <span>{{'SETTINGS.OVERVIEW_CONFIGURATION_DESCRIPTION' | translate}}</span>
             </div>
             <div class="col-sm-3 settingsmodal-gettingstarted-item-actions">
-                <div ui-sref="configuration" class="btn btn-primary">Start</div>
+                <div ui-sref="configuration" class="btn btn-primary">{{'UI.BUTTON.START' | translate}}</div>
             </div>
         </div>
     </div>

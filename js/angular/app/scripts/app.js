@@ -5,12 +5,13 @@ angular.module('transitIndicators', [
     'ngResource',
     'ui.router',
     'angularFileUpload',
+    'pascalprecht.translate',
     'leaflet-directive',
     'pollingUpload',
     'ui.bootstrap',
     'ui.utils'
-]).config(['$stateProvider', '$urlRouterProvider', 'config', '$httpProvider',
-        function ($stateProvider, $urlRouterProvider, config, $httpProvider) {
+]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
+        function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
 
     $httpProvider.interceptors.push('authInterceptor');
     $httpProvider.interceptors.push('logoutInterceptor');
@@ -63,6 +64,30 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
+}]).config(['$translateProvider', function($translateProvider) {
+    $translateProvider.useStaticFilesLoader({
+       prefix: 'i18n/',
+       suffix: '.json'
+    });
+    // Log untranslated tokens to console
+    $translateProvider.useMissingTranslationHandlerLog();
+    // Use browser's set language if one of our supported languages; otherwise, English
+    var languageActual = (navigator.language || navigator.userLanguage).substring(0,2);
+    /** list of IANA language tags used by browsers here:
+    * http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+    *
+    * zh -> Chinese (macrolanguage tag)
+    * vi -> Vietnamese
+    * lha -> Laha (Viet Nam)
+    * nut -> Nung (Viet Nam)
+    */
+    var languageUsing = (_.contains(['en', 'zh', 'vi', 'es', 'zu'], languageActual) ? languageActual : 'en');
+    // Interpret Zulu ('zu') to request dev language ('exclaim')
+    languageUsing = (languageUsing === 'zu' ? 'exclaim' : languageUsing);
+    $translateProvider.preferredLanguage(languageUsing);
+    $translateProvider.fallbackLanguage('en');
+}]).config(['$logProvider', function($logProvider) {
+    $logProvider.debugEnabled(true);
 }]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIUserService',
     function($rootScope, $state, $cookies, $http, authService, OTIUserService) {
 

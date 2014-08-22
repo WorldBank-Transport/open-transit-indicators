@@ -88,7 +88,7 @@ angular.module('transitIndicators')
     };
 
     $scope.setIndicatorVersion = function (version) {
-        $scope.indicator_version = version;
+        $scope.indicator.version = version;
         $scope.$broadcast('map-controller:set-indicator-version', version);
     };
 
