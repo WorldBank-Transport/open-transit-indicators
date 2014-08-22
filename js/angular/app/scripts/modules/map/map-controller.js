@@ -11,7 +11,7 @@ angular.module('transitIndicators')
     // Object used to configure the indicator displayed on the map
     // Retrieve last selected indicator from session cookie, if available
     $scope.indicator = $cookieStore.get("indicator");
-    
+
     if (!$scope.indicator) {
         $scope.indicator = new mapService.IndicatorConfig({
             version: 0,
@@ -19,7 +19,7 @@ angular.module('transitIndicators')
             sample_period: 'morning',
             aggregation: 'route'
         });
-        
+
         $cookieStore.put("indicator", $scope.indicator);
     }
 
@@ -88,7 +88,6 @@ angular.module('transitIndicators')
     };
 
     $scope.setIndicatorVersion = function (version) {
-        $scope.indicator_version = version;
         $scope.$broadcast('map-controller:set-indicator-version', version);
     };
 
@@ -146,6 +145,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('map-controller:set-indicator-version', function (event, version) {
+        $scope.indicator.version = version;
         $scope.updateIndicatorLayers($scope.indicator);
     });
 
