@@ -113,17 +113,6 @@ trait IndicatorCalculator {
     )
   }
 
-  // Gets a list of durations between stops per route
-  def durationsBetweenStopsPerRoute(period: SamplePeriod): Map[String, Seq[Double]] = {
-    routesInPeriod(period).map(route =>
-      route.id.toString -> {
-        tripsInPeriod(period, route).map(trip => {
-          calcStopDifferences(trip.stops).map(_ * 60.0)
-        }).flatten
-      }
-    ).toMap
-  }
-
   // Gets the differences between stop times
   def calcStopDifferences(stops: Array[StopDateTime]): Array[Double] = {
     stops.zip(stops.tail).map(pair =>

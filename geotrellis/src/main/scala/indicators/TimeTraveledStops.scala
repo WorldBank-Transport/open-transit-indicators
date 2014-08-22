@@ -25,4 +25,16 @@ class TimeTraveledStops(val gtfsData: GtfsData, val calcParams: CalcParams)
       }
     )
   }
+
+
+  // Gets a list of durations between stops per route
+  def durationsBetweenStopsPerRoute(period: SamplePeriod): Map[String, Seq[Double]] = {
+    routesInPeriod(period).map(route =>
+      route.id.toString -> {
+        tripsInPeriod(period, route).map(trip => {
+          calcStopDifferences(trip.stops).map(_ * 60.0)
+        }).flatten
+      }
+    ).toMap
+  }
 }
