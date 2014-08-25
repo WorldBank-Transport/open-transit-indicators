@@ -21,8 +21,8 @@ class GTFSFeedTestCase(TestCase):
     def setUp(self):
         self.client = OTIAPIClient()
         self.url = reverse('gtfsfeed-list', {})
-        file_directory = os.path.dirname(os.path.abspath(__file__))
-        self.test_gtfs_fh = open(file_directory + '/tests/test-gtfs.zip', 'rb')
+        self.file_directory = os.path.dirname(os.path.abspath(__file__))
+        self.test_gtfs_fh = open(self.file_directory + '/tests/test-gtfs.zip', 'rb')
 
     def tearDown(self):
         self.test_gtfs_fh.close()
@@ -57,6 +57,15 @@ class GTFSFeedTestCase(TestCase):
         problem_count = GTFSFeedProblem.objects.filter(gtfsfeed_id=response.data['id']).count()
         self.assertEqual(problem_count, 1, 'There should have been one problem for uploaded data')
 
+    def test_gtfs_validation_no_shapes(self):
+        """Test that verifies GTFS validation works correctly"""
+        self.client.authenticate(admin=True)
+        with open(self.file_directory + '/tests/patco.zip', 'rb') as patco:
+            response = self.client.post(self.url, {'source_file': patco})
+        sleep(2) # give time for celery to do job
+        problem_count = GTFSFeedProblem.objects.filter(gtfsfeed_id=response.data['id']).count()
+        self.assertEqual(problem_count, 1, 'There should have been one problem for uploaded data')
+
     def test_gtfs_upload_requires_admin(self):
         """Test that verifies GTFS upload requires an admin user"""
         # UNAUTHORIZED if no credentials
@@ -68,4 +77,3 @@ class GTFSFeedTestCase(TestCase):
         self.client.authenticate(admin=False)
         response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
