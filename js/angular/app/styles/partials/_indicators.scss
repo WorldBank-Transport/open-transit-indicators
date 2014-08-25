@@ -6,6 +6,8 @@
 .navigationsecondary {
   background-color: #eee;
   padding: .8rem;
+  // When the affix happens, needed to keep the bar full width
+  width: 100%;
 
   .btn-group {
     display: inline;
