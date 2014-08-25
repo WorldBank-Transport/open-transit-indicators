@@ -30,10 +30,10 @@ angular.module('transitIndicators')
     };
 
     var leaflet = {
-        layers: angular.extend(config.leaflet.layers, layers),
+        layers: angular.extend({}, config.leaflet.layers, layers),
         markers: []
     };
-    $scope.leaflet = angular.extend($scope.leafletDefaults, leaflet);
+    $scope.leaflet = angular.extend({}, $scope.leafletDefaults, leaflet);
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {
