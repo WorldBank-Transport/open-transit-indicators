@@ -1,15 +1,18 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', 'OTIIndicatorsService',
-            function ($scope, OTIIndicatorsService) {
+            ['$scope', '$cookieStore', 'OTIIndicatorsService',
+            function ($scope, $cookieStore, OTIIndicatorsService) {
 
-    $scope.indicator = new OTIIndicatorsService.IndicatorConfig({
+    var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         version: 0,
         type: 'num_stops',
         sample_period: 'morning',
         aggregation: 'route'
     });
+    // Object used to configure the indicator displayed on the map
+    // Retrieve last selected indicator from session cookie, if available
+    $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     $scope.dropdown_aggregation_open = false;
     $scope.dropdown_type_open = false;
@@ -29,31 +32,35 @@ angular.module('transitIndicators')
         $scope.sample_periods = data;
     });
 
-    $scope.selectType = function (type) {
-        $scope.indicator.type = type;
-        $scope.dropdown_type_open = false;
+    var setIndicator = function (indicator) {
+        angular.extend($scope.indicator, indicator);
+        $cookieStore.put('indicator', $scope.indicator);
         $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
+    };
+
+    $scope.selectType = function (type) {
+        $scope.dropdown_type_open = false;
+        setIndicator({type: type});
     };
 
     $scope.selectAggregation = function (aggregation) {
-        $scope.indicator.aggregation = aggregation;
         $scope.dropdown_aggregation_open = false;
-        $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
+        setIndicator({aggregation: aggregation});
     };
 
     $scope.selectSamplePeriod = function (sample_period) {
-        $scope.indicator.sample_period = sample_period;
         $scope.dropdown_sample_period_open = false;
-        $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
-    };
-
-    $scope.selectType = function (type) {
-        $scope.indicator.type = type;
-        $scope.dropdown_type_open = false;
-        $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
+        setIndicator({sample_period: sample_period});
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
         $scope.mapActive = toState.name === 'map' ? true : false;
     });
+
+    $scope.init = function () {
+        OTIIndicatorsService.getIndicatorVersion(function (version) {
+            setIndicator({version: version});
+        });
+    };
+    $scope.init();
 }]);
