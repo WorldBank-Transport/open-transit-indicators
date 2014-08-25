@@ -17,7 +17,28 @@
 // Move the zoom control; this might be better in a different location
 .leaflet-control-zoom {
     position: fixed;
-    top: 7rem;
+    top: 11rem;
     right: 1rem;
     margin-top: 0 !important;
+}
+
+.indicator-map {
+    position: relative;
+}
+
+.indicator-controls {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding-top: 2rem;
+    padding-left: 2rem;
+    border: solid 1px $gray-light;
+    background-color: white;
+    width: 30rem;
+    z-index: 99;
+}
+
+.indicator-control {
+    padding-bottom: 2rem;
+    padding-right: 2rem;
 }

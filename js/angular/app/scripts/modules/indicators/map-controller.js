@@ -2,10 +2,23 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$scope', '$state', 'leafletData', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-        function (config, $scope, $state, leafletData, OTIIndicatorsService, OTIIndicatorsMapService) {
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIIndicatorsService, OTIIndicatorsMapService) {
+
+    var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
+        version: 0,
+        type: 'num_stops',
+        sample_period: 'morning',
+        aggregation: 'route'
+    });
 
     $scope.$state = $state;
+    $scope.dropdown_aggregation_open = false;
+    $scope.dropdown_type_open = false;
+
+    // Object used to configure the indicator displayed on the map
+    // Retrieve last selected indicator from session cookie, if available
+    $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     /* LEAFLET CONFIG */
     var layers = {
@@ -59,6 +72,11 @@ angular.module('transitIndicators')
         }
     };
 
+    var setIndicator = function (indicator) {
+        angular.extend($scope.indicator, indicator);
+        $cookieStore.put('indicator', $scope.indicator);
+        $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
+    };
     /**
      * Indicator type to configure the layers with
      * Use the map object directly to iterate over layers
@@ -85,6 +103,16 @@ angular.module('transitIndicators')
         });
     };
 
+    $scope.selectType = function (type) {
+        $scope.dropdown_type_open = false;
+        setIndicator({type: type});
+    };
+
+    $scope.selectAggregation = function (aggregation) {
+        $scope.dropdown_aggregation_open = false;
+        setIndicator({aggregation: aggregation});
+    };
+
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
         utfGridMarker(leafletEvent);
@@ -93,4 +121,16 @@ angular.module('transitIndicators')
     $scope.$on(OTIIndicatorsService.Events.IndicatorUpdated, function (event, indicator) {
         $scope.updateIndicatorLayers(indicator);
     });
+
+    $scope.$on(OTIIndicatorsService.Events.SamplePeriodUpdated, function (event, sample_period) {
+        setIndicator({sample_period: sample_period});
+    });
+
+    $scope.init = function () {
+        // TODO: May need to be moved to OTIIndicatorsController
+        OTIIndicatorsService.getIndicatorVersion(function (version) {
+            setIndicator({version: version});
+        });
+    };
+    $scope.init();
 }]);
