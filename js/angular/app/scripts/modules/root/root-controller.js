@@ -1,13 +1,16 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$scope', 'OTIIndicatorsMapService', 'authService',
-            function (config, $scope, mapService, authService) {
+            ['config', '$cookieStore', '$scope', '$state', 'OTIIndicatorsMapService', 'authService',
+            function (config, $cookieStore, $scope, $state, mapService, authService) {
 
     // Setup defaults for all leaflet maps:
     // Includes: baselayers, center, bounds
     $scope.leafletDefaults = config.leaflet;
-    $scope.active = 'transit';
+    $scope.activeState = $cookieStore.get('activeState');
+    if (!$scope.activeState) {
+        $state.go('transit');
+    }
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
@@ -29,6 +32,11 @@ angular.module('transitIndicators')
         zoomToDataExtent();
     };
 
+    var setActiveState = function (activeState) {
+        $scope.activeState = activeState;
+        $cookieStore.put('activeState', activeState);
+    };
+
     // zoom to the new extent whenever a GTFS file is uploaded
     $scope.$on('upload-controller:gtfs-uploaded', function() {
         zoomToDataExtent();
@@ -46,7 +54,7 @@ angular.module('transitIndicators')
         } else if (toState.parent === 'settings') {
             activeState = 'settings';
         }
-        $scope.active = activeState;
+        setActiveState(activeState);
     });
 
     $scope.init();
