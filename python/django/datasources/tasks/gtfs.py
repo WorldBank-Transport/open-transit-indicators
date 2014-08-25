@@ -1,3 +1,4 @@
+import itertools
 import os
 import os.path
 import re
@@ -92,6 +93,18 @@ def run_validate_gtfs(gtfsfeed_id):
     logger.debug('Found %s problems in %s gtfs file',
                  errors_count + warnings_count,
                  gtfsfeed.source_file)
+
+    # Verify that able to calculate length of a route (need shapes.txt or shape_dist_traveled)
+    if len(schedule.GetShapeList()) == 0:
+      # Check if shapes.txt of shape_dist_traveled exist
+      stopdatetimes = itertools.chain(*[trip.GetStopTimes() for trip in schedule.trips.values()])
+      if not any([stopdatetime.shape_dist_traveled for stopdatetime in stopdatetimes]):
+        length_description = ('Unable to calculate route and system length without a shapes.txt' +
+                              ' or shapes_dist_traveled field in stop_times.txt')
+        _ = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
+                                           description=length_description,
+                                           title='Unable to calculate length',
+                                           type=GTFSFeedProblem.ProblemTypes.WARNING)
 
     gtfsfeed.is_valid = True if errors_count == 0 else False
     # send to GeoTrellis
