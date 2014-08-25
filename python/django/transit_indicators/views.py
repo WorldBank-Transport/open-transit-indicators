@@ -83,7 +83,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         return super(IndicatorViewSet, self).create(request, *args, **kwargs)
 
 
-class IndicatorsVersion(APIView):
+class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
 
     Currently just gets the highest integer since versions are timestamps
@@ -98,4 +98,42 @@ class IndicatorsVersion(APIView):
         return Response({'current_version': version }, status=status.HTTP_200_OK)
 
 
-indicators_version = IndicatorsVersion.as_view()
+class IndicatorTypes(APIView):
+    """ Indicator Types GET endpoint
+
+    Returns a dict where key is the db indicator type key and value is
+    the human readable, translated string description
+
+    """
+    def get(self, request, *args, **kwargs):
+        response = { key: value for key, value in Indicator.IndicatorTypes.CHOICES }
+        return Response(response, status=status.HTTP_200_OK)
+
+class IndicatorAggregationTypes(APIView):
+    """ Indicator Aggregation Types GET endpoint
+
+    Returns a dict where key is the db indicator type key and value is
+    the human readable, translated string description
+
+    """
+    def get(self, request, *args, **kwargs):
+        response = { key: value for key, value in Indicator.AggregationTypes.CHOICES }
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class SamplePeriodTypes(APIView):
+    """ Sample Period Types GET endpoint
+
+    Returns a dict where key is the db indicator type key and value is
+    the human readable, translated string description
+
+    """
+    def get(self, request, *args, **kwargs):
+        response = { key: value for key, value in SamplePeriod.SamplePeriodTypes.CHOICES }
+        return Response(response, status=status.HTTP_200_OK)
+
+
+indicator_version = IndicatorVersion.as_view()
+indicator_types = IndicatorTypes.as_view()
+indicator_aggregation_types = IndicatorAggregationTypes.as_view()
+sample_period_types = SamplePeriodTypes.as_view()

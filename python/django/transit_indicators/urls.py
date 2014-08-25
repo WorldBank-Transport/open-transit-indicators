@@ -26,5 +26,8 @@ urlpatterns = patterns('',  # NOQA
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', 'userdata.views.obtain_auth_token'),
-    url(r'^api/indicators_version/', 'transit_indicators.views.indicators_version')
+    url(r'^api/indicator-version/', 'transit_indicators.views.indicator_version'),
+    url(r'^api/indicator-types/', 'transit_indicators.views.indicator_types'),
+    url(r'^api/indicator-aggregation-types/', 'transit_indicators.views.indicator_aggregation_types'),
+    url(r'^api/sample-period-types/', 'transit_indicators.views.sample_period_types'),
 )
