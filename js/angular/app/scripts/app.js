@@ -3,14 +3,12 @@
 angular.module('transitIndicators', [
     'ngCookies',
     'ngResource',
-    'ngRoute',
     'ui.router',
     'angularFileUpload',
     'pascalprecht.translate',
     'leaflet-directive',
     'pollingUpload',
     'ui.bootstrap',
-    'mgcrea.bootstrap.affix',
     'ui.utils'
 ]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
         function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
