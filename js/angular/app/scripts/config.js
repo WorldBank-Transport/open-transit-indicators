@@ -12,6 +12,8 @@ var esri_map_url = 'https://{s}.arcgisonline.com/ArcGIS/rest/services/';
 
 angular.module('transitIndicators').constant('config', {
 
+    debug: true,
+
     leaflet: {
         center: {
             lat: 39.95,
@@ -111,32 +113,25 @@ angular.module('transitIndicators').constant('config', {
 
     settingsViews: [
         {
-            id: 'overview',
-            label: 'Overview'
+            id: 'overview'
         },
         {
-            id: 'upload',
-            label: 'GTFS'
+            id: 'upload'
         },
         {
-            id: 'boundary',
-            label: 'Boundary'
+            id: 'boundary'
         },
         {
-            id: 'demographic',
-            label: 'Demographic'
+            id: 'demographic'
         },
         {
-            id: 'realtime',
-            label: 'Real-Time'
+            id: 'realtime'
         },
         {
-            id: 'configuration',
-            label: 'Configuration'
+            id: 'configuration'
         },
         {
-            id: 'users',
-            label: 'Users'
+            id: 'users'
         }
     ]
 

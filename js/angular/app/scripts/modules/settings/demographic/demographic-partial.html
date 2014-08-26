@@ -1,6 +1,6 @@
 <div ng-init="init()">
-    <h1>Demographic</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+    <h1>{{'VIEW.demographic' | translate}}</h1>
+    <p>{{'SETTINGS.DEMOGRAPHIC_DESCRIPTION' | translate}}</p>
 
     <polling-upload url="/api/demographics/" upload="uploadDemographic" resource="DemographicUpload" options="demographicsOptions">
     </polling-upload>
@@ -8,14 +8,14 @@
     <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
             <div class="settingsmodal-notices-errors">
-                <h4>Errors</h4>
+                <h4>{{'TERM.ERRORS' | translate}}</h4>
                 <ul>
                     <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
                 </ul>
             </div>
         </div>
         <div class="settingsmodal-notices-warnings" ng-if="uploadProblems.warnings.length > 0">
-            <h4>Warnings</h4>
+            <h4>{{'TERM.WARNINGS' | translate}}</h4>
             <ul>
                 <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
             </ul>
@@ -23,13 +23,13 @@
     </div>
 
     <div class="dropzone" ng-show="uploadDemographic && uploadDemographic.is_processed">
-        <h3>Demographic Data: {{ upload.source_file }}</h3>
-        <h3>Assign Fields</h3>
-        <h4>Population</h4>
+        <h3>{{'SETTINGS.DEMOGRAPHIC_DATA' | translate}}: {{ upload.source_file }}</h3>
+        <h3>{{'SETTINGS.ASSIGN_FIELDS' | translate}}</h3>
+        <h4>{{'SETTINGS.POPULATION' | translate}}</h4>
         <div class="settingsmodal-fieldgroup">
             <div class="row">
                 <div class="col-sm-4">
-                    <p>Population Metric 1:</p>
+                    <p>{{'SETTINGS.POPULATION_METRIC_ONE' | translate}}</p>
                 </div>
                 <div class="col-sm-4">
                     <select ng-model="assign.pop_metric_1" name="pop_metric_1" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
@@ -40,18 +40,18 @@
         <div class="settingsmodal-fieldgroup">
             <div class="row">
                 <div class="col-sm-4">
-                    <p>Population Metric 2:</p>
+                    <p>{{'SETTINGS.POPULATION_METRIC_TWO' | translate}}</p>
                 </div>
                 <div class="col-sm-4">
                     <select ng-model="assign.pop_metric_2" name="pop_metric_2" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
                 </div>
             <div class="col-sm-4"></div>
         </div>
-        <h4>Demographic</h4>
+        <h4>{{'VIEW.demographic' | translate}}</h4>
         <div class="settingsmodal-fieldgroup">
             <div class="row">
                 <div class="col-sm-4">
-                <p>Demographic Metric:
+                <p>{{'SETTINGS.DEMOGRAPHIC_METRIC' | translate}}</p>
                 </div>
                 <div class="col-sm-4">
                     <select ng-model="assign.dest_metric_1" name="demo_metric_1" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
@@ -60,10 +60,10 @@
             </div>
         </div>
         <div class="settingsmodal-fieldgroup">
-            <button class="btn btn-primary" ng-click="save()">Save</button>
+            <button class="btn btn-primary" ng-click="save()">{{'STATUS.SAVE' | translate}}</button>
         </div>
         <div class="settingsmodal-fieldgroup">
-            <alert ng-show="loadAlert" type="loadAlert.type">{{ loadAlert.msg }}</alert>
+            <alert ng-show="loadAlert" type="loadAlert.type">{{loadAlert.msg | translate}}</alert>
         </div>
     </div>
 </div>

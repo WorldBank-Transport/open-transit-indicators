@@ -77,6 +77,14 @@ angular.module('transitIndicators')
         $cookieStore.put('indicator', $scope.indicator);
         $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
     };
+
+    // TODO: Update this method to allow changes on aggregation, version, sample_period
+    $scope.setIndicator = function (type) {
+        $scope.indicator.type = type;
+        $scope.updateIndicatorLayers($scope.indicator);
+        $scope.indicator_dropdown_open = false;
+    };
+
     /**
      * Indicator type to configure the layers with
      * Use the map object directly to iterate over layers
@@ -86,6 +94,7 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
+        $cookieStore.put("indicator", $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -118,8 +127,9 @@ angular.module('transitIndicators')
         utfGridMarker(leafletEvent);
     });
 
-    $scope.$on(OTIIndicatorsService.Events.IndicatorUpdated, function (event, indicator) {
-        $scope.updateIndicatorLayers(indicator);
+    // zoom to the new extent whenever a GTFS file is uploaded
+    $scope.$on('upload-controller:gtfs-uploaded', function() {
+        zoomToDataExtent();
     });
 
     $scope.$on(OTIIndicatorsService.Events.SamplePeriodUpdated, function (event, sample_period) {

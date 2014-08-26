@@ -1,46 +1,46 @@
 <div ng-init="init()">
-  <h1>Users</h1>
+  <h1>{{'VIEW.users' | translate}}</h1>
   <table>
     <tbody>
       <tr>
-        <th>Username</th>
-        <th>Role</th>
-        <th>Action</th>
+        <th>{{'SETTINGS.USERNAME' | translate}}</th>
+        <th>{{'SETTINGS.ROLE' | translate}}</th>
+        <th>{{'SETTINGS.ACTION' | translate}}</th>
       </tr>
       <tr ng-repeat="u in users | orderBy:'username'">
         <td>{{u.username}}</td>
         <td>{{u.is_staff | user_type}}</td>
         <td>
-          <a ng-click="resetPasswordModal(u)">Reset Password</a>
-          <span ng-hide="u.id == user.id">/ <a ng-click="deleteUserModal(u)">Delete</a></span>
+          <a ng-click="resetPasswordModal(u)">{{'SETTINGS.RESET_PASSWORD' | translate}}</a>
+          <span ng-hide="u.id == user.id">/ <a ng-click="deleteUserModal(u)">{{'TERM.DELETE' | translate}}</a></span>
         </td>
       </tr>
     </tbody>
   </table>
   <hr>
 
-  <div class="btn btn-primary" ng-hide="addingUser" ng-click="addUser()">Add New User</div>
+  <div class="btn btn-primary" ng-hide="addingUser" ng-click="addUser()">{{'SETTINGS.ADD_NEW_USER' | translate}}</div>
 
   <div class="settingsmodal-newuser" ng-show="addingUser">
-    <h3>Add New User</h3>
+    <h3>{{'SETTINGS.ADD_NEW_USER' | translate}}</h3>
     <form novalidate name="userCreateForm" ng-model="userCreateForm" class="settingsmodal-fieldgroup">
       <div class="row">
         <div class="col-sm-6">
-          <label>Username</label>
+          <label>{{'SETTINGS.USERNAME' | translate}}</label>
           <input required ng-model="userCreateForm.username" type="text">
         </div>
         <div class="col-sm-6">
-          <label>Role</label>
+          <label>{{'SETTINGS.ROLE' | translate}}</label>
           <select ng-model="userCreateForm.role" ng-options="u.label for u in userRoles"></select>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-6">
-          <label>Password</label>
+          <label>{{'TERM.PASSWORD' | translate}}</label>
           <input required ng-model="userCreateForm.password" name="password" type="password"/>
         </div>
         <div class="col-sm-6">
-          <label>Confirm Password</label>
+          <label>{{'SETTINGS.CONFIRM_PASSWORD' | translate}}</label>
           <input required ng-model="userCreateForm.confirm_password"
                  name="confirm_password"
                  ui-validate=" '$value==userCreateForm.password' "
@@ -49,8 +49,8 @@
         </div>
       </div>
       <br>
-      <button class="btn btn-primary" ng-click="createUser()" ng-disabled="userCreateForm.$invalid">Save</button>
-      <button class="btn btn-danger" ng-click="cancelUserCreate()">Cancel</button>
+      <button class="btn btn-primary" ng-click="createUser()" ng-disabled="userCreateForm.$invalid">{{'STATUS.SAVE' | translate}}</button>
+      <button class="btn btn-danger" ng-click="cancelUserCreate()">{{'STATUS.CANCEL' | translate}}</button>
     </form>
   </div>
 </div>
