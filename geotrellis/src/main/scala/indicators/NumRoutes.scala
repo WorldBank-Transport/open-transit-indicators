@@ -9,7 +9,8 @@ class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams) extends Indi
   val name = "num_routes"
 
   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
-    // a completely useless indicator, only here for symmetry
+    // this calculation isn't very interesting by itself, but when aggregated,
+    // it shows the average amount of time where the route is available at all.
     routesInPeriod(period).map(route =>
       (route.id.toString -> 1.0)
     ).toMap

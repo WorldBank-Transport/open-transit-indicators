@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 'period_start': s.period_start.isoformat(),
                 'period_end': s.period_end.isoformat(),
             }
-            for s in SamplePeriod.objects.all()
+            for s in SamplePeriod.objects.exclude(type="alltime")
         ]
 
         # construct the payload

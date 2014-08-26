@@ -83,15 +83,18 @@ class SamplePeriod(models.Model):
     subsequent dates if crossing midnight). There are five sample period types, three
     of which are specified by the user (morning rush, evening rush, weekend), and two
     of which are inferred by filling in the gaps between those (mid day, night).
+    There is also a special sample period: alltime that is used for all-time aggregation.
     """
 
     class SamplePeriodTypes(object):
+        ALLTIME = 'alltime'
         MORNING = 'morning'
         MIDDAY = 'midday'
         EVENING = 'evening'
         NIGHT = 'night'
         WEEKEND = 'weekend'
         CHOICES = (
+            (ALLTIME, 'All Time'),
             (MORNING, 'Morning Rush'),
             (MIDDAY, 'Mid Day'),
             (EVENING, 'Evening Rush'),
