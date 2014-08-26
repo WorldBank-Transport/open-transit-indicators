@@ -1,9 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', 'OTIIndicatorsMapService',
-            function (config, $scope, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
+            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
 
+    $scope.clearLeafletMap();
 
     var layers = {
         overlays: {
@@ -28,11 +29,9 @@ angular.module('transitIndicators')
             }
         }
     };
-    var leaflet = {
-        layers: angular.extend({}, config.leaflet.layers, layers),
-        markers: []
-    };
-    $scope.leaflet = angular.extend({}, $scope.leafletDefaults, leaflet);
+    _.each(layers.overlays, function (overlay, key) {
+        $scope.leaflet.layers.overlays[key] = overlay;
+    });
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
@@ -54,4 +53,5 @@ angular.module('transitIndicators')
             });
         }
     });
+
 }]);

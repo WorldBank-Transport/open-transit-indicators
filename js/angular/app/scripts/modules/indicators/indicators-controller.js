@@ -29,6 +29,6 @@ angular.module('transitIndicators')
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
-        $scope.mapActive = toState.name === 'map' ? true : false;
+        $scope.showingMap = toState.name === 'map' ? true : false;
     });
 }]);

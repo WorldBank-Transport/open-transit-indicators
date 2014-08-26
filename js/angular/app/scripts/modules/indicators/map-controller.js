@@ -21,6 +21,7 @@ angular.module('transitIndicators')
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     /* LEAFLET CONFIG */
+    $scope.clearLeafletMap();
     var layers = {
         overlays: {
             indicator: {
@@ -41,12 +42,9 @@ angular.module('transitIndicators')
             }
         }
     };
-
-    var leaflet = {
-        layers: angular.extend({}, config.leaflet.layers, layers),
-        markers: []
-    };
-    $scope.leaflet = angular.extend({}, $scope.leafletDefaults, leaflet);
+    _.each(layers.overlays, function (overlay, key) {
+        $scope.leaflet.layers.overlays[key] = overlay;
+    });
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {
