@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import datetime
 from django.utils.timezone import utc
 from django.db import migrations
 
@@ -7,9 +7,11 @@ def add_aggregate_sample_period(apps, schema_editor):
     """Adds a sample period row that represents an aggregate"""
     sample_period = apps.get_model('transit_indicators', 'SamplePeriod')
 
-    # Couldn't find a min/max datetime in python. These values won't be used for anything though.
-    start = datetime(1970, 1, 1, 0, 0, 0, tzinfo=utc)
-    end = datetime(2070, 1, 1, 0, 0, 0, tzinfo=utc)
+    # This is what datetime.min and datetime.max are set to behind the scenes,
+    # with the addition of a tzinfo, which the app expects.
+    # These values won't actually be used for anything.
+    start = datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=utc)
+    end = datetime.datetime(datetime.MAXYEAR, 12, 31, 23, 59, 59, 999999, tzinfo=utc)
     sample_period.objects.create(type='alltime', period_start=start, period_end=end)
 
 class Migration(migrations.Migration):
