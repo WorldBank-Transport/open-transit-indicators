@@ -1,37 +1,46 @@
-.button--large {
-    @include rem(padding, 14, 0);
-    @include rem(font-size, $h4);
-    cursor: pointer;
-    // font-weight: 100;
-    text-align: center;
-    background-color: $light-blue;
-    color: #fff;
-    border-right: solid 1px rgba(255, 255, 255, 1);
-    &:last-child {
-        border-right: 0;
-    }
-    &.active {
-        background-color: $medium-blue;
-    }
-}
 .button--small {
-    display: inline;
-    @include rem(padding, 14, 0);
-    @include rem(font-size, $h5);
-    cursor: pointer;
-    color: $light-blue;
+  color: $primary-color;
+  cursor: pointer;
+  display: inline;
+  padding: 1.4rem 0;
 }
+
+.button--large {
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: $h4;
+  padding: .4rem .8rem;
+
+  &:hover {
+    background-color: opacify($primary-color, .5);
+  }
+}
+
 .filter {
-    .button--small {
-        @include rem(margin-right, 10);
-        &:last-child {
-            margin-right: 0;
-        }
-        &.active {
-            color: $light-blue;
-        }
-        &.inactive {
-            color: #ccc;
-        }
+  .button--small {
+    margin-right: 1rem;
+
+    &:last-child {
+      margin-right: 0;
     }
+
+    &.active {
+      color: $primary-color;
+    }
+
+    &.inactive {
+      color: #ccc;
+    }
+  }
+}
+
+.button--navigationsecondary {
+  background-color: inherit;
+  border: 1px solid $light-line-grey;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: $h4;
+  padding: .4rem .8rem;
 }

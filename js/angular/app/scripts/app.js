@@ -3,11 +3,13 @@
 angular.module('transitIndicators', [
     'ngCookies',
     'ngResource',
+    'ngRoute',
     'ui.router',
     'angularFileUpload',
     'leaflet-directive',
     'pollingUpload',
     'ui.bootstrap',
+    'mgcrea.bootstrap.affix',
     'ui.utils'
 ]).config(['$stateProvider', '$urlRouterProvider', 'config', '$httpProvider',
         function ($stateProvider, $urlRouterProvider, config, $httpProvider) {
@@ -15,23 +17,53 @@ angular.module('transitIndicators', [
     $httpProvider.interceptors.push('authInterceptor');
     $httpProvider.interceptors.push('logoutInterceptor');
 
-    $urlRouterProvider.when('', '/');
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.when('', '/transit');
+    $urlRouterProvider.otherwise('/transit');
 
     $stateProvider
+        .state('root', {
+            abstract: true,
+            templateUrl: 'scripts/modules/root/root-partial.html',
+            controller: 'OTIRootController'
+        })
         .state('login', {
             url: '/login/',
             templateUrl: 'scripts/modules/auth/login-partial.html',
             controller: 'OTIAuthController'
         })
+        .state('transit', {
+            parent: 'root',
+            url: '/transit',
+            templateUrl: 'scripts/modules/transit/transit-partial.html',
+            controller: 'OTITransitController'
+        })
+        .state('indicators', {
+            parent: 'root',
+            url: '/indicators',
+            templateUrl: 'scripts/modules/indicators/indicators-partial.html',
+            controller: 'OTIIndicatorsController'
+        })
         .state('map', {
-            url: '/',
-            templateUrl: 'scripts/modules/map/map-partial.html',
-            controller: 'OTIMapController'
+            parent: 'indicators',
+            url: '/map',
+            templateUrl: 'scripts/modules/indicators/map-partial.html',
+            controller: 'OTIIndicatorsMapController'
+        })
+        .state('data', {
+            parent: 'indicators',
+            url: '/data',
+            templateUrl: 'scripts/modules/indicators/data-partial.html',
+            controller: 'OTIIndicatorsDataController'
+        })
+        .state('scenarios', {
+            parent: 'root',
+            url: '/scenarios',
+            templateUrl: 'scripts/modules/scenarios/scenarios-partial.html',
+            controller: 'OTIScenariosController'
         })
         .state('settings', {
-            parent: 'map',
-            url: 'settings',
+            parent: 'root',
+            url: '/settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
             controller: 'OTISettingsController'
         });
@@ -63,6 +95,7 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
+
 }]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIUserService',
     function($rootScope, $state, $cookies, $http, authService, OTIUserService) {
 

@@ -1,0 +1,26 @@
+<div class="indicators indicators-count-3">
+    <div bs-affix data-offset-top="0" class="navigationsecondary clearfix">
+        <div class="navigationsecondary-left">
+            <div class="navigationsecondary-menu filter">
+                <div ui-sref="data" class="button--small" ng-class="{inactive: mapActive}">Data</div>/
+                <div ui-sref="map" class="button--small" ng-class="{inactive: !mapActive}">Map</div>
+            </div>
+        </div>
+        <div class="navigationsecondary-right">
+            <div class="btn-group" dropdown is-open="dropdown_sample_period_open">
+                  <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                    <span class="glyphicon glyphicon-time"></span> {{ sample_periods[sample_period] }} <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="(key, value) in sample_periods"><a ng-click="selectSamplePeriod(key)"> {{ value }}</a></li>
+                  </ul>
+            </div>
+            <div class="button--large">
+                Add / Remove City +
+            </div>
+        </div>
+    </div>
+
+
+    <ui-view></ui-view>
+</div>

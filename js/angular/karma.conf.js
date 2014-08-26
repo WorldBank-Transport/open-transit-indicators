@@ -39,8 +39,10 @@ module.exports = function(config) {
     files: [
       'app/bower_components/jquery/dist/jquery.min.js',
       'app/bower_components/underscore/underscore.js',
-      'app/bower_components/bootstrap/dist/js/bootstrap.min.js',
+      'app/bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap.js',
+      'app/bower_components/leaflet/dist/leaflet.js',
       'app/bower_components/angular/angular.js',
+      'app/bower_components/angular-route/angular-route.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap.min.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
       'app/bower_components/angular-cookies/angular-cookies.min.js',
@@ -50,8 +52,9 @@ module.exports = function(config) {
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-translate/angular-translate.min.js',
-      'app/bower_components/leaflet-dist/leaflet.js',
       'app/bower_components/ng-file-upload/angular-file-upload.min.js',
+      'app/bower_components/angular-jquery/dist/angular-jquery.js',
+      'app/bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       // have no mock files yet; commenting out so it doesn't break things

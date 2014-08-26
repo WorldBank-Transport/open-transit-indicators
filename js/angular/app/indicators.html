@@ -25,58 +25,89 @@
 
     <!-- Add your site or application content here -->
 
-    <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
-
-    <div class="map" id="map" style="width: 100%; height: 100%; position: fixed;"></div>
-
     <header>
         <div class="navigation-buttongroup">
-            <div class="button--navigation active" id="navigation-scenario">Scenario</div>
+            <div class="button--navigation active" id="navigation-transit">Transit Map</div>
+            <div class="button--navigation" id="navigation-scenario">Scenario</div>
             <div class="button--navigation" id="navigation-indicators">Indicators</div>
             <div class="button--navigation" id="navigation-settings">Settings</div>
         </div>
     </header>
 
-    <div class="container">
-        <div class="book active">
-            <div class="page active" id="scenario">
-                <div class="content">
-                    <h4>GTFS Indicators</h4>
-                    <p>Indicators based on your GTFS, boundary, and demographic data.</p>
-                    <a class="button--small next" href="#scenario">View</a>
-                    <hr>
-                    <h4>Comparison Indicators</h4>
-                    <p>Compare scenarios to your original GTFS.</p>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <select>
-                                <option value="value1">New Bus 1</option>
-                                <option value="value2">Tokyo</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <select>
-                                <option value="value1">New Bus 1</option>
-                                <option value="value2">Tokyo</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6">
-                            <a class="button--small next" href="#scenario">+</a>
-                        </div>
-                    </div>
-                    <a class="button--small next" href="#scenario">View</a>
-                    <hr>
-                    <h4>Import Indicators</h4>
-                    <p>Compare a preset transit system from another city with your GTFS data.</p>
-                    <a class="button--small next" href="#scenario">Add</a>
+    <div class="indicators indicators-count-3">
+        <div class="navigationsecondary clearfix">
+            <div class="navigationsecondary-left">
+                <div class="navigationsecondary-menu filter">
+                    <div class="button--small active">Data</div><div class="button--small inactive">Map</div>
+                </div>
+            </div>
+            <div class="navigationsecondary-right">
+                <div class="btn-group" dropdown is-open="status.isopen">
+                      <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                        Overall <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                      </ul>
+                </div>
+                <div class="button--large">
+                    Add / Remove City +
+                </div>
+            </div>
+        </div>
+        <div class="indicators-heading">
+            <div class="indicators-description">
+                Viewing indicator results for Boston, Chicago, and Zhengzhou.
+            </div>
+            <div id="map" class="indicators-map">
+
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row indicators-row-heading">
+                <div class="indicators-cell indicators-label">City</div>
+                <div class="indicators-cell">Boston</div>
+                <div class="indicators-cell">Chicago</div>
+                <div class="indicators-cell">Zhengzhou</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Percent of sub-population within .5 km of a transit stop</div>
+                <div class="indicators-cell">25%</div>
+                <div class="indicators-cell">14%</div>
+                <div class="indicators-cell">38%</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Number of modes and types</div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="100" fill="#481924">
+                    </svg>
+                    415
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="70" fill="#481924">
+                    </svg>
+                    367
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="92" fill="#481924">
+                    </svg>
+                    401
                 </div>
             </div>
         </div>
     </div>
+
 
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
@@ -87,7 +118,9 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-jquery/dist/angular-jquery.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
@@ -122,5 +155,10 @@
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
         </script>
+
+
+
+
+
 </body>
 </html>

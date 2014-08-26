@@ -30,7 +30,7 @@ angular.module('transitIndicators')
         $scope.authenticated = authService.authenticate($scope.auth);
         $scope.authenticated.then(function(result) {
             if (result.isAuthenticated) {
-                $state.go('map');
+                $state.go('transit');
             } else {
                 handleError(result);
             }

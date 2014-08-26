@@ -1,0 +1,10 @@
+<header>
+    <div class="navigation-buttongroup">
+        <div ui-sref="transit" class="button--navigation" ng-class="{active: active === 'transit'}" id="navigation-transit">Transit Map</div>
+        <div ui-sref="scenarios" class="button--navigation" ng-class="{active: active === 'scenarios'}" id="navigation-scenario">Scenario</div>
+        <div ui-sref="data" class="button--navigation" ng-class="{active: active === 'indicators'}" id="navigation-indicators">Indicators</div>
+        <div ui-sref="overview" class="button--navigation" ng-class="{active: active === 'settings'}" id="navigation-settings">Settings</div>
+        <div class="button--navigation pull-right" ng-click="logout()">Logout</div>
+    </div>
+</header>
+<div class="app-view" ui-view></div>

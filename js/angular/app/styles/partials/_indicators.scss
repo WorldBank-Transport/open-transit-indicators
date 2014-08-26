@@ -1,0 +1,104 @@
+.indicators {
+  background-color: #fff;
+  top: 5.5rem;
+}
+
+.navigationsecondary {
+  background-color: #eee;
+  padding: .8rem;
+  // When the affix happens, needed to keep the bar full width
+  width: 100%;
+
+  .btn-group {
+    display: inline;
+  }
+}
+
+.indicators .leaflet-control-zoom {
+  display: none;
+}
+
+.navigationsecondary-menu {
+  font-size: $h4;
+}
+
+.navigationsecondary-left {
+  float: left;
+}
+
+.navigationsecondary-right {
+  float: right;
+}
+
+.indicators-heading {
+  font-size: $h1;
+  padding: 10rem 2rem;
+  min-height: 20rem;
+}
+
+.indicators-table {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.indicators-map {
+  height: 30rem;
+  width: 50%;
+  float: left;
+}
+
+.indicators-description {
+  width: 50%;
+  float: left;
+}
+
+.indicators-row {
+  display: table-row;
+}
+
+.indicators-cell {
+  display: table-cell;
+  text-align: center;
+  padding: 2rem 1.6rem;
+  border: 0 solid #eee;
+  border-width: 0 1px 1px 0;
+  font-size: $h1;
+  font-weight: bold;
+
+  &.indicators-label {
+    font-size: $h5 !important;
+    font-weight: normal;
+    text-align: left;
+  }
+}
+
+.indicators-row-heading > .indicators-cell {
+  border-top: 1px solid #eee;
+  border-bottom: 4px solid #eee;
+  font-size: $h4;
+}
+
+.graph {
+  max-width: 100%;
+}
+
+.indicators-count-1 {
+
+}
+
+.indicators-count-2 {
+
+}
+
+.indicators-count-3 {
+
+}
+
+.indicators-count-4 {
+
+}
+
+.indicators-count-5 {
+
+}

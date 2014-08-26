@@ -37,6 +37,7 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
@@ -65,19 +66,30 @@
     <script src="bower_components/leaflet-label/dist/leaflet.label.js"></script>
     <script src="bower_components/leaflet-tilelayer-geojson/TileLayer.GeoJSON.js"></script>
     <!-- endbower -->
+    <!-- Gruntfile bowerInstall task doesn't recognize these somehow, so add them to build but outside
+    the bower section to prevent the bower task from removing them -->
+    <script src="bower_components/angular-jquery/dist/angular-jquery.js"></script>
+    <!-- Has implicit ngRoute dependency not mentioned in the doc -->
+    <script src="bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js"></script>
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/directives/polling-upload.js"></script>
         <script src="scripts/app.js"></script>
         <script src="scripts/config.js"></script>
+        <script src="scripts/modules/root/root-controller.js"></script>
+        <script src="scripts/modules/transit/transit-controller.js"></script>
         <script src="scripts/modules/userdata/user-service.js"></script>
         <script src="scripts/modules/auth/auth-interceptor.js"></script>
         <script src="scripts/modules/auth/logout-interceptor.js"></script>
         <script src="scripts/modules/auth/auth-controller.js"></script>
         <script src="scripts/modules/auth/auth-service.js"></script>
-        <script src="scripts/modules/map/map-controller.js"></script>
-        <script src="scripts/modules/map/map-service.js"></script>
+        <script src="scripts/modules/scenarios/scenarios-controller.js"></script>
+        <script src="scripts/modules/indicators/indicators-controller.js"></script>
+        <script src="scripts/modules/indicators/map-controller.js"></script>
+        <script src="scripts/modules/indicators/data-controller.js"></script>
+        <script src="scripts/modules/indicators/indicators-service.js"></script>
+        <script src="scripts/modules/indicators/map-service.js"></script>
         <script src="scripts/modules/settings/settings-controller.js"></script>
         <script src="scripts/modules/settings/settings-service.js"></script>
         <script src="scripts/modules/settings/overview/overview-controller.js"></script>
