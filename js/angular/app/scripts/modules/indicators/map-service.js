@@ -7,6 +7,10 @@ angular.module('transitIndicators')
 
     var otiMapService = {};
 
+    otiMapService.Events = {
+        GotMapBounds: 'OTIMapService:GotMapBounds'
+    };
+
     // retrieves map information from the server
     otiMapService.getMapInfo = function() {
         var r = $resource('/gt/map-info');
@@ -29,6 +33,19 @@ angular.module('transitIndicators')
         url += '/tiles/transit_indicators/{version}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
+        return url;
+    };
+
+    otiMapService.getGTFSShapesUrl = function () {
+        var url = otiMapService.getWindshaftHost();
+        url += '/tiles/transit_indicators/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png';
+        return url;
+    };
+
+    otiMapService.getGTFSStopsUrl = function (filetype) {
+        var url = otiMapService.getWindshaftHost();
+        url += '/tiles/transit_indicators/0/gtfs_stops/morning/route/{z}/{x}/{y}';
+        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=stop_routes' : '.png';
         return url;
     };
 
