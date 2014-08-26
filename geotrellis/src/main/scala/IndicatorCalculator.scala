@@ -33,26 +33,22 @@ trait IndicatorCalculator {
     0.0
   }
 
-  // Stores all calculation results for this indicator
-  def storeIndicator = {
-    calcParams.sample_periods.foreach(period => {
-      // Per route
-      for ((route, value) <- calcByRoute(period)) {
-        djangoClient.postIndicator(calcParams.token, Indicator(
-          `type`=name, sample_period=period.`type`, aggregation="route",
-          route_id=route, version=calcParams.version, value=value,
-          the_geom=stringGeomForRouteId(period, route))
-        )
-      }
+  // Store all route indicators for all periods
+  lazy val routeIndicators = for { period <- calcParams.sample_periods
+                                   (route, value) <- calcByRoute(period) }
+                             yield {Indicator(`type`=name, sample_period=period.`type`, aggregation="route",
+                                              route_id=route, version=calcParams.version, value=value,
+                                              the_geom=stringGeomForRouteId(period, route))}
 
-      // Per mode
-      for ((mode, value) <- calcByMode(period)) {
-        djangoClient.postIndicator(calcParams.token, Indicator(
-          `type`=name, sample_period=period.`type`, aggregation="mode",
-          route_type=mode, version=calcParams.version, value=value)
-        )
-      }
-    })
+  // Store all mode indicators for all periods
+  lazy val modeIndicators = for { period <- calcParams.sample_periods
+                                  (mode, value) <- calcByMode(period) }
+                            yield { Indicator(`type`=name, sample_period=period.`type`, aggregation="mode",
+                                              route_type=mode, version=calcParams.version, value=value)}
+
+  // Post all indicators at once
+  def storeIndicators = {
+    djangoClient.postIndicators(calcParams.token, routeIndicators ++ modeIndicators)
   }
 
   // Return a text geometry with SRID 4326 for a given routeID
