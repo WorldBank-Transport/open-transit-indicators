@@ -89,10 +89,10 @@ object DjangoAdapter {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
 
     // Sends a POST request to the indicators endpoint
-    def postIndicator(token: String, indicator: Indicator) = {
+    def postIndicators(token: String, indicators: List[Indicator]) = {
       import JsonImplicits._
 
-      val post = Post(INDICATOR_URI, indicator) ~> addHeader("Authorization", s"Token $token")
+      val post = Post(INDICATOR_URI, indicators) ~> addHeader("Authorization", s"Token $token")
       pipeline(post).map(_.entity.asString) onComplete {
         case Success(response) => println(response)
         case Failure(error) => println("An error has occured: " + error.getMessage)

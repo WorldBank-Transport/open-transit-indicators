@@ -79,8 +79,25 @@ class IndicatorViewSet(OTIAdminViewSet):
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)
 
-        # Fall through to JSON if no form data present
-        return super(IndicatorViewSet, self).create(request, *args, **kwargs)
+        # Fall through to JSON if no form data is present
+
+        # If this is a post with many indicators, process as many
+        if isinstance(request.DATA, list):
+            many=True
+        else:
+            many=False
+
+        # Continue through normal serializer save process
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=many)
+        if serializer.is_valid():
+            self.pre_save(serializer.object)
+            self.object = serializer.save(force_insert=True)
+            self.post_save(self.object, created=True)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IndicatorsVersion(APIView):

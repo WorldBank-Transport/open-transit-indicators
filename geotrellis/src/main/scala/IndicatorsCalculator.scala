@@ -29,6 +29,6 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams) {
   // Ask each indicator calculator to store its results.
   // This will eventually be queued and processed in the background.
   def storeIndicators = {
-    calculators.foreach { calc => calc.storeIndicator }
+    for (calc <- calculators) calc.storeIndicators
   }
 }
