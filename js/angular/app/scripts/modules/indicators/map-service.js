@@ -7,10 +7,6 @@ angular.module('transitIndicators')
 
     var otiMapService = {};
 
-    otiMapService.Events = {
-        GotMapBounds: 'OTIMapService:GotMapBounds'
-    };
-
     // retrieves map information from the server
     otiMapService.getMapInfo = function() {
         var r = $resource('/gt/map-info');

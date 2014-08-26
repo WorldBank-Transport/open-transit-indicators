@@ -116,8 +116,8 @@ angular.module('transitIndicators', [
     $translateProvider.fallbackLanguage('en');
 }]).config(['$logProvider', function($logProvider) {
     $logProvider.debugEnabled(true);
-}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIUserService',
-    function($rootScope, $state, $cookies, $http, authService, OTIUserService) {
+}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIEvents', 'OTIUserService',
+    function($rootScope, $state, $cookies, $http, authService, OTIEvents, OTIUserService) {
 
         // Django CSRF Token compatibility
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
@@ -138,23 +138,23 @@ angular.module('transitIndicators', [
             }
         });
 
-        $rootScope.$on('authService:loggedIn', function () {
+        $rootScope.$on(OTIEvents.Auth.LoggedIn, function () {
             OTIUserService.getUser(authService.getUserId()).then(function (data) {
                 $rootScope.user = data;
             });
         });
 
-        $rootScope.$on('authService:loggedOut', function () {
+        $rootScope.$on(OTIEvents.Auth.LoggedOut, function () {
             $rootScope.user = null;
         });
 
-        $rootScope.$on('authService:logOutUser', function () {
+        $rootScope.$on(OTIEvents.Auth.LogOutUser, function () {
             authService.logout();
         });
 
         // Restore user session on full page refresh
         if (authService.isAuthenticated()) {
-            $rootScope.$broadcast('authService:loggedIn');
+            $rootScope.$broadcast(OTIEvents.Auth.LoggedIn);
         }
 }]);
 

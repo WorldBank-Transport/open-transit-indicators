@@ -8,11 +8,6 @@ angular.module('transitIndicators')
     var otiIndicatorsService = {};
     var nullVersion = 0;
 
-    otiIndicatorsService.Events = {
-        IndicatorUpdated: 'OTIIndicatorsService:IndicatorUpdated',
-        SamplePeriodUpdated: 'OTIIndicatorsService:SamplePeriodUpdated'
-    };
-
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
             method: 'PATCH',
