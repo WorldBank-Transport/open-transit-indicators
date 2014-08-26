@@ -61,6 +61,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
         fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id',
                   'route_type', 'city_bounded', 'value', 'version', 'city_name', 'the_geom')
         read_only_fields = ('id',)
+        write_only_fields = ('the_geom',)
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
