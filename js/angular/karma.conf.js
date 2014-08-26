@@ -52,6 +52,8 @@ module.exports = function(config) {
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-translate/angular-translate.min.js',
+      'app/bower_components/angular-translate-handler-log/angular-translate-handler-log.min.js',
+      'app/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
       'app/bower_components/ng-file-upload/angular-file-upload.min.js',
       'app/bower_components/angular-jquery/dist/angular-jquery.js',
       'app/bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js',
