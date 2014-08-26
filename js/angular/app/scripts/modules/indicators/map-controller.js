@@ -21,30 +21,25 @@ angular.module('transitIndicators')
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     /* LEAFLET CONFIG */
-    $scope.clearLeafletMap();
-    var layers = {
-        overlays: {
-            indicator: {
-                name: 'GTFS Indicator',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getIndicatorUrl('png'),
-                visible: true,
-                layerOptions: $scope.indicator
-            },
-            utfgrid: {
-                name: 'GTFS Indicator Interactivity',
-                type: 'utfGrid',
-                url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
-                visible: true,
-                // When copied to the internal L.Utfgrid class, these options end up on
-                //  layer.options, same as for TileLayers
-                pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
-            }
+    var overlays = {
+        indicator: {
+            name: 'GTFS Indicator',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            visible: true,
+            layerOptions: $scope.indicator
+        },
+        utfgrid: {
+            name: 'GTFS Indicator Interactivity',
+            type: 'utfGrid',
+            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            visible: true,
+            // When copied to the internal L.Utfgrid class, these options end up on
+            //  layer.options, same as for TileLayers
+            pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
         }
     };
-    _.each(layers.overlays, function (overlay, key) {
-        $scope.leaflet.layers.overlays[key] = overlay;
-    });
+    $scope.updateLeafletOverlays(overlays);
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {

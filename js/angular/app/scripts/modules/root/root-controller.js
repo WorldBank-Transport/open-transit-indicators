@@ -36,9 +36,12 @@ angular.module('transitIndicators')
         zoomToDataExtent();
     };
 
-    $scope.clearLeafletMap = function () {
+    $scope.updateLeafletOverlays = function (newOverlays) {
+        if (!newOverlays) {
+            newOverlays = {};
+        }
         $scope.leaflet.markers.length = 0;
-        $scope.leaflet.layers.overlays = {};
+        $scope.leaflet.layers.overlays = newOverlays;
     };
 
     var setActiveState = function (activeState) {

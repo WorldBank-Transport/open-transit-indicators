@@ -4,5 +4,5 @@ angular.module('transitIndicators')
             ['$scope',
             function ($scope) {
 
-    $scope.clearLeafletMap();
+    $scope.updateLeafletOverlays({});
 }]);

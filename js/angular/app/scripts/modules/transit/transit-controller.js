@@ -4,34 +4,28 @@ angular.module('transitIndicators')
             ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
             function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
 
-    $scope.clearLeafletMap();
-
-    var layers = {
-        overlays: {
-            gtfs_shapes: {
-                name: 'Transit Routes',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getGTFSShapesUrl(),
-                visible: true
-            },
-            gtfs_stops: {
-                name: 'Transit Stops',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
-                visible: true
-            },
-            gtfs_stops_utfgrid: {
-                name: 'Transit Stops Interactivity',
-                type: 'utfGrid',
-                url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
-                visible: true,
-                pluginOptions: { 'useJsonP': false }
-            }
+    var overlays = {
+        gtfs_shapes: {
+            name: 'Transit Routes',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getGTFSShapesUrl(),
+            visible: true
+        },
+        gtfs_stops: {
+            name: 'Transit Stops',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
+            visible: true
+        },
+        gtfs_stops_utfgrid: {
+            name: 'Transit Stops Interactivity',
+            type: 'utfGrid',
+            url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
+            visible: true,
+            pluginOptions: { 'useJsonP': false }
         }
     };
-    _.each(layers.overlays, function (overlay, key) {
-        $scope.leaflet.layers.overlays[key] = overlay;
-    });
+    $scope.updateLeafletOverlays(overlays);
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
