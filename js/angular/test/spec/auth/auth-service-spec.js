@@ -75,6 +75,7 @@ describe('Service: auth', function () {
 
         beforeEach(inject(function(_$httpBackend_) {
             $httpBackend = _$httpBackend_;
+            $httpBackend.when('GET', 'i18n/en.json').respond({});
         }));
 
         afterEach(function() {
