@@ -24,20 +24,34 @@ var config = {
     enable_cors: true,
     req2params: function(req, callback){
 
-        // Set indicator options
-        var indicatorOptions = _.extend({}, req.params, { ntiles: req.query.ntiles || 5 });
+        // Custom actions for the blank routes/stops tables
+        // version, sample_period, aggregation can all be 0 for these requests
+        if (req.params.type === 'gtfs_shapes') {
+            var gtfsShapes = new oti.GTFSShapes();
+            req.params.sql = gtfsShapes.getSql();
+            req.params.style = gtfsShapes.getStyle();
+        } else if (req.params.type === 'gtfs_stops') {
+            var gtfsStops = new oti.GTFSStops();
+            var filetype = req.query.interactivity ? 'utfgrid' : 'png';
+            req.params.sql = gtfsStops.getSql(filetype);
+            req.params.style = gtfsStops.getStyle();
+        } else {
+            // Default to displaying indicators from the url params
+            var indicatorOptions = _.extend({}, req.params, { ntiles: req.query.ntiles || 5 });
 
-        var indicator = new oti.Indicator(indicatorOptions);
+            var indicator = new oti.Indicator(indicatorOptions);
 
-        // Must set this to equal the tablename used in the custom sql, otherwise, blank tiles
-        req.params.table = oti.table;
-        // Set style/sql based on indicator config
-        req.params.style = indicator.getStyle();
-        req.params.sql = indicator.getSql();
+            // Set style/sql based on indicator config
+            req.params.style = indicator.getStyle();
+            req.params.sql = indicator.getSql();
+        }
 
         // Interactivity column comes through in our get params since it's optional
         // Forward along to params
         req.params.interactivity = req.query.interactivity;
+
+        // Must set this to equal the tablename used in the custom sql, otherwise, blank tiles
+        req.params.table = oti.table;
 
         // send the finished req object on
         callback(null,req);
