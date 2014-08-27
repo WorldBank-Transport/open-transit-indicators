@@ -11,6 +11,7 @@
 
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="bower_components/angular/angular-csp.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -38,7 +39,6 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
@@ -69,17 +69,13 @@
     <script src="bower_components/leaflet-label/dist/leaflet.label.js"></script>
     <script src="bower_components/leaflet-tilelayer-geojson/TileLayer.GeoJSON.js"></script>
     <!-- endbower -->
-    <!-- Gruntfile bowerInstall task doesn't recognize these somehow, so add them to build but outside
-    the bower section to prevent the bower task from removing them -->
-    <script src="bower_components/angular-jquery/dist/angular-jquery.js"></script>
-    <!-- Has implicit ngRoute dependency not mentioned in the doc -->
-    <script src="bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js"></script>
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/directives/polling-upload.js"></script>
         <script src="scripts/app.js"></script>
         <script src="scripts/config.js"></script>
+        <script src="scripts/modules/events/oti-events.js"></script>
         <script src="scripts/modules/root/root-controller.js"></script>
         <script src="scripts/modules/transit/transit-controller.js"></script>
         <script src="scripts/modules/userdata/user-service.js"></script>

@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIDemographicController',
-        ['$rootScope', '$scope', '$http', '$timeout', '$upload', 'OTIDemographicService',
-        function ($rootScope, $scope, $http, $timeout, $upload, OTIDemographicService) {
+        ['$rootScope', '$scope', '$http', '$timeout', '$upload', 'OTIEvents', 'OTIDemographicService',
+        function ($rootScope, $scope, $http, $timeout, $upload, OTIEvents, OTIDemographicService) {
 
     $scope.loadAlert = null;
     var addLoadAlert = function (alertObj) {
@@ -54,7 +54,7 @@ angular.module('transitIndicators')
                 });
                 $scope.setSidebarCheckmark('demographic', true);
                 // Send assignment success message
-                $rootScope.$broadcast('demographics-controller:assignment-done');
+                $rootScope.$broadcast(OTIEvents.Settings.Demographics.AssignmentDone);
             }
         };
         checkAssignments();

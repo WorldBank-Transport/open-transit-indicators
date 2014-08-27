@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', 'OTIIndicatorsService',
-            function ($scope, $cookieStore, OTIIndicatorsService) {
+            ['$scope', '$cookieStore', 'OTIEvents', 'OTIIndicatorsService',
+            function ($scope, $cookieStore, OTIEvents, OTIIndicatorsService) {
 
     $scope.dropdown_sample_period_open = false;
 
@@ -25,10 +25,10 @@ angular.module('transitIndicators')
         $scope.dropdown_sample_period_open = false;
         $scope.sample_period = sample_period;
         $cookieStore.put('sample_period', sample_period);
-        $scope.$broadcast(OTIIndicatorsService.Events.SamplePeriodUpdated, sample_period);
+        $scope.$broadcast(OTIEvents.Indicators.SamplePeriodUpdated, sample_period);
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
-        $scope.mapActive = toState.name === 'map' ? true : false;
+        $scope.showingMap = toState.name === 'map' ? true : false;
     });
 }]);

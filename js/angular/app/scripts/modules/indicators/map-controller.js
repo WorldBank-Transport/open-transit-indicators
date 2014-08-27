@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIIndicatorsService, OTIIndicatorsMapService) {
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         version: 0,
@@ -21,32 +21,25 @@ angular.module('transitIndicators')
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     /* LEAFLET CONFIG */
-    var layers = {
-        overlays: {
-            indicator: {
-                name: 'GTFS Indicator',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getIndicatorUrl('png'),
-                visible: true,
-                layerOptions: $scope.indicator
-            },
-            utfgrid: {
-                name: 'GTFS Indicator Interactivity',
-                type: 'utfGrid',
-                url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
-                visible: true,
-                // When copied to the internal L.Utfgrid class, these options end up on
-                //  layer.options, same as for TileLayers
-                pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
-            }
+    var overlays = {
+        indicator: {
+            name: 'GTFS Indicator',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            visible: true,
+            layerOptions: $scope.indicator
+        },
+        utfgrid: {
+            name: 'GTFS Indicator Interactivity',
+            type: 'utfGrid',
+            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            visible: true,
+            // When copied to the internal L.Utfgrid class, these options end up on
+            //  layer.options, same as for TileLayers
+            pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
         }
     };
-
-    var leaflet = {
-        layers: angular.extend({}, config.leaflet.layers, layers),
-        markers: []
-    };
-    $scope.leaflet = angular.extend({}, $scope.leafletDefaults, leaflet);
+    $scope.updateLeafletOverlays(overlays);
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {
@@ -75,7 +68,7 @@ angular.module('transitIndicators')
     var setIndicator = function (indicator) {
         angular.extend($scope.indicator, indicator);
         $cookieStore.put('indicator', $scope.indicator);
-        $scope.$broadcast(OTIIndicatorsService.Events.IndicatorUpdated, $scope.indicator);
+        $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
     };
 
     // TODO: Update this method to allow changes on aggregation, version, sample_period
@@ -127,12 +120,11 @@ angular.module('transitIndicators')
         utfGridMarker(leafletEvent);
     });
 
-    // zoom to the new extent whenever a GTFS file is uploaded
-    $scope.$on('upload-controller:gtfs-uploaded', function() {
-        zoomToDataExtent();
+    $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {
+        $scope.updateIndicatorLayers(indicator);
     });
 
-    $scope.$on(OTIIndicatorsService.Events.SamplePeriodUpdated, function (event, sample_period) {
+    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function (event, sample_period) {
         setIndicator({sample_period: sample_period});
     });
 

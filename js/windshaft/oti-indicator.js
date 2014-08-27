@@ -38,7 +38,6 @@ var styles = {
             '[route_type=5] {line-color: #e31a1c; } ' +
             '[route_type=6] {line-color: #fdbf6f; } ' +
             '[route_type=7] {line-color: #ff7f00; } ' +
-            '[route_type=8] {line-color: #cab2d6; } ' +
             '}';
         return cartocss;
     },

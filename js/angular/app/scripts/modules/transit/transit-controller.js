@@ -1,38 +1,31 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', 'OTIIndicatorsMapService',
-            function (config, $scope, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
+            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
 
-
-    var layers = {
-        overlays: {
-            gtfs_shapes: {
-                name: 'Transit Routes',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getGTFSShapesUrl(),
-                visible: true
-            },
-            gtfs_stops: {
-                name: 'Transit Stops',
-                type: 'xyz',
-                url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
-                visible: true
-            },
-            gtfs_stops_utfgrid: {
-                name: 'Transit Stops Interactivity',
-                type: 'utfGrid',
-                url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
-                visible: true,
-                pluginOptions: { 'useJsonP': false }
-            }
+    var overlays = {
+        gtfs_shapes: {
+            name: 'Transit Routes',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getGTFSShapesUrl(),
+            visible: true
+        },
+        gtfs_stops: {
+            name: 'Transit Stops',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
+            visible: true
+        },
+        gtfs_stops_utfgrid: {
+            name: 'Transit Stops Interactivity',
+            type: 'utfGrid',
+            url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
+            visible: true,
+            pluginOptions: { 'useJsonP': false }
         }
     };
-    var leaflet = {
-        layers: angular.extend({}, config.leaflet.layers, layers),
-        markers: []
-    };
-    $scope.leaflet = angular.extend({}, $scope.leafletDefaults, leaflet);
+    $scope.updateLeafletOverlays(overlays);
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
@@ -54,4 +47,5 @@ angular.module('transitIndicators')
             });
         }
     });
+
 }]);

@@ -35,7 +35,7 @@ describe('OTIIndicatorsController', function () {
         };
         scope.mapActive = false;
         rootScope.$broadcast('$stateChangeSuccess', toState);
-        expect(scope.mapActive).toEqual(true);
+        expect(scope.showingMap).toEqual(true);
     });
 
 });

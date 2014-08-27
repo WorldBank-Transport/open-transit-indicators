@@ -1,12 +1,16 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$scope', '$state', 'OTIIndicatorsMapService', 'authService',
-            function (config, $cookieStore, $scope, $state, mapService, authService) {
+            ['config', '$cookieStore', '$scope', '$state', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
+            function (config, $cookieStore, $scope, $state, OTIEvents, mapService, authService) {
+
+    var mapStates = ['map', 'transit', 'scenarios'];
 
     // Setup defaults for all leaflet maps:
     // Includes: baselayers, center, bounds
     $scope.leafletDefaults = config.leaflet;
+    $scope.leaflet = angular.extend({}, $scope.leafletDefaults);
+
     $scope.activeState = $cookieStore.get('activeState');
     if (!$scope.activeState) {
         $state.go('transit');
@@ -16,10 +20,10 @@ angular.module('transitIndicators')
     var zoomToDataExtent = function () {
         mapService.getMapInfo().then(function(mapInfo) {
             if (mapInfo.extent) {
-                $scope.leafletDefaults.bounds = mapInfo.extent;
+                $scope.leaflet.bounds = mapInfo.extent;
             } else {
                 // no extent; zoom out to world
-                $scope.leafletDefaults.bounds = config.worldExtent;
+                $scope.leaflet.bounds = config.worldExtent;
             }
         });
     };
@@ -32,22 +36,33 @@ angular.module('transitIndicators')
         zoomToDataExtent();
     };
 
+    $scope.updateLeafletOverlays = function (newOverlays) {
+        if (!newOverlays) {
+            newOverlays = {};
+        }
+        $scope.leaflet.markers.length = 0;
+        $scope.leaflet.layers.overlays = newOverlays;
+    };
+
     var setActiveState = function (activeState) {
         $scope.activeState = activeState;
         $cookieStore.put('activeState', activeState);
     };
 
     // zoom to the new extent whenever a GTFS file is uploaded
-    $scope.$on('upload-controller:gtfs-uploaded', function() {
+    $scope.$on(OTIEvents.Settings.Upload.GTFSDone, function() {
         zoomToDataExtent();
     });
 
     // zoom out to world view when data deleted
-    $scope.$on('upload-controller:gtfs-deleted', function() {
-        $scope.leafletDefaults.bounds = config.worldExtent;
+    $scope.$on(OTIEvents.Settings.Upload.GTFSDelete, function() {
+        $scope.leaflet.bounds = config.worldExtent;
     });
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
+
+        $scope.mapActive = _.find(mapStates, function (state) { return state === toState.name; }) ? true : false;
+
         var activeState = toState.name;
         if (toState.parent === 'indicators') {
             activeState = 'indicators';

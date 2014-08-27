@@ -14,11 +14,29 @@ angular.module('transitIndicators').constant('config', {
 
     debug: true,
 
+    worldExtent: {
+        southWest: {
+          lat: -57.0,
+          lng: -168.5
+        },
+        northEast: {
+          lat: 73.25,
+          lng: 158.1
+        }
+    },
+
     leaflet: {
         center: {
-            lat: 39.95,
-            lng: -75.1667,
-            zoom: 12
+        },
+        bounds: {
+            southWest: {
+                lat: -57.0,
+                lng: -168.5
+            },
+            northEast: {
+                lat: 73.25,
+                lng: 158.1
+            }
         },
         layers: {
             baselayers: {
@@ -78,8 +96,10 @@ angular.module('transitIndicators').constant('config', {
                         continuousWorld: true
                     }
                 }
-            }
+            },
+            overlays: {}
         },
+        markers: [],
         defaults: {
             maxZoom: 16,
             zoomControl: true,
@@ -93,17 +113,6 @@ angular.module('transitIndicators').constant('config', {
                 enable: ['mouseover', 'mouseout'],
                 logic: 'emit'
             }
-        }
-    },
-
-    worldExtent: {
-        southWest: {
-          lat: -57.0,
-          lng: -168.5
-        },
-        northEast: {
-          lat: 73.25,
-          lng: 158.1
         }
     },
 
@@ -124,9 +133,12 @@ angular.module('transitIndicators').constant('config', {
         {
             id: 'demographic'
         },
+        /*
+        // Temporarily removed until we decide to use it
         {
             id: 'realtime'
         },
+        */
         {
             id: 'configuration'
         },

@@ -7,10 +7,6 @@ angular.module('transitIndicators')
 
     var otiMapService = {};
 
-    otiMapService.Events = {
-        GotMapBounds: 'OTIMapService:GotMapBounds'
-    };
-
     // retrieves map information from the server
     otiMapService.getMapInfo = function() {
         var r = $resource('/gt/map-info');
@@ -25,7 +21,6 @@ angular.module('transitIndicators')
     /**
      * Create windshaft urls for leaflet map
      *
-     * @param indicator: otiIndicatorsService.Indicator instance
      * @param filetype: String, either png or utfgrid
      */
     otiMapService.getIndicatorUrl = function (filetype) {
@@ -36,12 +31,23 @@ angular.module('transitIndicators')
         return url;
     };
 
+    /**
+     * Create windshaft url for gtfs shapes overlay -- always png
+     * The version, sample_period, aggregation do not matter
+     */
     otiMapService.getGTFSShapesUrl = function () {
         var url = otiMapService.getWindshaftHost();
         url += '/tiles/transit_indicators/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png';
         return url;
     };
 
+    /**
+     * Create windshaft url for gtfs stops overlay
+     * The version, sample_period, aggregation do not matter
+     * Uses the stop_routes column for utfgrid interactivity
+     *
+     * @param filetype: String either png or utfgrid
+     */
     otiMapService.getGTFSStopsUrl = function (filetype) {
         var url = otiMapService.getWindshaftHost();
         url += '/tiles/transit_indicators/0/gtfs_stops/morning/route/{z}/{x}/{y}';
