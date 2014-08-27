@@ -74,6 +74,7 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_PORT=8001
 GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
+GEOTRELLIS_MEM_MB=3072      # For the oti-geotrellis upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -513,6 +514,9 @@ database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
 spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
+// Temporarily above 1s until we figure out why geotrellis is firing registration timeouts
+// during the upload process
+spray.can.server.registration-timeout = 1200 s
 "
 
 pushd $GEOTRELLIS_ROOT/src/main/resources/
@@ -526,7 +530,7 @@ kill timeout 30
 
 chdir $GEOTRELLIS_ROOT
 
-exec ./sbt run
+exec ./sbt -mem $GEOTRELLIS_MEM_MB run
 "
 geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
 echo "$geotrellis_conf" > "$geotrellis_conf_file"
