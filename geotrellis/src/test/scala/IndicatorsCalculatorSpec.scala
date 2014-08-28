@@ -236,49 +236,49 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
         ttsByRoute("WTR") should be (3.43258 plusOrMinus 1e-5)
       }
 
-      it should "calculate regularity_headways by mode for SEPTA" in {
-        val rhByMode = septaRailCalc.calculatorsByName("regularity_headways").calcByMode(period)
-        rhByMode(2) should be (0.25888 plusOrMinus 1e-5)
+      it should "calculate avg_service_freq by mode for SEPTA" in {
+        val asfByMode = septaRailCalc.calculatorsByName("avg_service_freq").calcByMode(period)
+        asfByMode(2) should be (0.25888 plusOrMinus 1e-5)
       }
 
-      it should "calculate overall regularity_headways by mode for SEPTA" in {
-        val rhByMode = septaRailCalc.calculatorsByName("regularity_headways").calcOverallByMode
-        rhByMode(2) should be (0.34069 plusOrMinus 1e-5)
+      it should "calculate overall avg_service_freq by mode for SEPTA" in {
+        val asfByMode = septaRailCalc.calculatorsByName("avg_service_freq").calcOverallByMode
+        asfByMode(2) should be (0.34069 plusOrMinus 1e-5)
       }
 
-      it should "calculate regularity_headways by route for SEPTA" in {
-        val rhByRoute = septaRailCalc.calculatorsByName("regularity_headways").calcByRoute(period)
-        rhByRoute("AIR") should be (0.30820 plusOrMinus 1e-5)
-        rhByRoute("CHE") should be (0.44895 plusOrMinus 1e-5)
-        rhByRoute("CHW") should be (0.38082 plusOrMinus 1e-5)
-        rhByRoute("CYN") should be (0.66370 plusOrMinus 1e-5)
-        rhByRoute("FOX") should be (0.46021 plusOrMinus 1e-5)
-        rhByRoute("LAN") should be (0.32222 plusOrMinus 1e-5)
-        rhByRoute("MED") should be (0.35719 plusOrMinus 1e-5)
-        rhByRoute("NOR") should be (0.34982 plusOrMinus 1e-5)
-        rhByRoute("PAO") should be (0.25363 plusOrMinus 1e-5)
-        rhByRoute("TRE") should be (0.39818 plusOrMinus 1e-5)
-        rhByRoute("WAR") should be (0.50407 plusOrMinus 1e-5)
-        rhByRoute("WIL") should be (0.40664 plusOrMinus 1e-5)
-        rhByRoute("WTR") should be (0.39992 plusOrMinus 1e-5)
+      it should "calculate avg_service_freq by route for SEPTA" in {
+        val asfByRoute = septaRailCalc.calculatorsByName("avg_service_freq").calcByRoute(period)
+        asfByRoute("AIR") should be (0.30820 plusOrMinus 1e-5)
+        asfByRoute("CHE") should be (0.44895 plusOrMinus 1e-5)
+        asfByRoute("CHW") should be (0.38082 plusOrMinus 1e-5)
+        asfByRoute("CYN") should be (0.66370 plusOrMinus 1e-5)
+        asfByRoute("FOX") should be (0.46021 plusOrMinus 1e-5)
+        asfByRoute("LAN") should be (0.32222 plusOrMinus 1e-5)
+        asfByRoute("MED") should be (0.35719 plusOrMinus 1e-5)
+        asfByRoute("NOR") should be (0.34982 plusOrMinus 1e-5)
+        asfByRoute("PAO") should be (0.25363 plusOrMinus 1e-5)
+        asfByRoute("TRE") should be (0.39818 plusOrMinus 1e-5)
+        asfByRoute("WAR") should be (0.50407 plusOrMinus 1e-5)
+        asfByRoute("WIL") should be (0.40664 plusOrMinus 1e-5)
+        asfByRoute("WTR") should be (0.39992 plusOrMinus 1e-5)
       }
 
-      it should "calculate overall regularity_headways by route for SEPTA" in {
-        val rhByRoute = septaRailCalc.calculatorsByName("regularity_headways").calcOverallByRoute
-        rhByRoute("AIR") should be (0.43618 plusOrMinus 1e-5)
-        rhByRoute("CHE") should be (0.52217 plusOrMinus 1e-5)
-        rhByRoute("CHW") should be (0.48045 plusOrMinus 1e-5)
-        rhByRoute("CYN") should be (0.21974 plusOrMinus 1e-5)
-        rhByRoute("FOX") should be (0.52466 plusOrMinus 1e-5)
-        rhByRoute("GLN") should be (0.00000 plusOrMinus 1e-5)
-        rhByRoute("LAN") should be (0.46935 plusOrMinus 1e-5)
-        rhByRoute("MED") should be (0.48672 plusOrMinus 1e-5)
-        rhByRoute("NOR") should be (0.48491 plusOrMinus 1e-5)
-        rhByRoute("PAO") should be (0.38301 plusOrMinus 1e-5)
-        rhByRoute("TRE") should be (0.47254 plusOrMinus 1e-5)
-        rhByRoute("WAR") should be (0.61901 plusOrMinus 1e-5)
-        rhByRoute("WIL") should be (0.51010 plusOrMinus 1e-5)
-        rhByRoute("WTR") should be (0.48118 plusOrMinus 1e-5)
+      it should "calculate overall avg_service_freq by route for SEPTA" in {
+        val asfByRoute = septaRailCalc.calculatorsByName("avg_service_freq").calcOverallByRoute
+        asfByRoute("AIR") should be (0.43618 plusOrMinus 1e-5)
+        asfByRoute("CHE") should be (0.52217 plusOrMinus 1e-5)
+        asfByRoute("CHW") should be (0.48045 plusOrMinus 1e-5)
+        asfByRoute("CYN") should be (0.21974 plusOrMinus 1e-5)
+        asfByRoute("FOX") should be (0.52466 plusOrMinus 1e-5)
+        asfByRoute("GLN") should be (0.00000 plusOrMinus 1e-5)
+        asfByRoute("LAN") should be (0.46935 plusOrMinus 1e-5)
+        asfByRoute("MED") should be (0.48672 plusOrMinus 1e-5)
+        asfByRoute("NOR") should be (0.48491 plusOrMinus 1e-5)
+        asfByRoute("PAO") should be (0.38301 plusOrMinus 1e-5)
+        asfByRoute("TRE") should be (0.47254 plusOrMinus 1e-5)
+        asfByRoute("WAR") should be (0.61901 plusOrMinus 1e-5)
+        asfByRoute("WIL") should be (0.51010 plusOrMinus 1e-5)
+        asfByRoute("WTR") should be (0.48118 plusOrMinus 1e-5)
       }
 
       it should "return map of Route ID's and their geometries" in {

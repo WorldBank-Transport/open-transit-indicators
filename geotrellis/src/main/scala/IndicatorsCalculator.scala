@@ -18,7 +18,7 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams) {
     new NumRoutes(data, params),
     new Length(data, params),
     new TimeTraveledStops(data, params),
-    new RegularityHeadways(data, params)
+    new AvgServiceFreq(data, params)
   )
 
   // Map of IndicatorCalculators by name

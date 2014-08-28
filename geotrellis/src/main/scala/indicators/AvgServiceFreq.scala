@@ -6,11 +6,11 @@ import com.github.nscala_time.time.Imports._
 import opentransitgt._
 import opentransitgt.DjangoAdapter._
 
-// Regularity of Headways
-class RegularityHeadways(val gtfsData: GtfsData, val calcParams: CalcParams)
+// Average Service Frequency
+class AvgServiceFreq(val gtfsData: GtfsData, val calcParams: CalcParams)
     extends IndicatorCalculator {
 
-  val name = "regularity_headways"
+  val name = "avg_service_freq"
 
   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
     routesInPeriod(period).map( route => route.id -> {
