@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 # helper method to get machine's primary IP address, for vagrant-proxyconf
 def local_ip
-  `hostname -I | cut -f1 -d' '`.strip
+  `ipconfig getifaddr eth0 || ipconfig getifaddr en0`.strip
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
