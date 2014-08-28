@@ -2,16 +2,16 @@ import django_filters
 
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
 from viewsets import OTIAdminViewSet
-from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator
+from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator, IndicatorJob
+from transit_indicators.tasks import start_indicator_calculation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
-                         SamplePeriodSerializer, IndicatorSerializer)
+                         SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -47,6 +47,21 @@ class IndicatorFilter(django_filters.FilterSet):
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
                   'route_type', 'city_bounded', 'version', 'city_name', 'local_city']
+
+
+class IndicatorJobViewSet(OTIAdminViewSet):
+    """Viewset for IndicatorJobs"""
+    model = IndicatorJob
+    lookup_field = 'version'
+    serializer_class = IndicatorJobSerializer
+
+    def create(self, request):
+        """Override request to handle kicking off celery task"""
+        response = super(IndicatorJobViewSet, self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
+        return response
+
 
 class IndicatorViewSet(OTIAdminViewSet):
     """Viewset for Indicator objects
@@ -110,8 +125,8 @@ class IndicatorVersion(APIView):
     """
     def get(self, request, *args, **kwargs):
         """ Return the current version of the indicators """
-        indicator = Indicator.objects.order_by('-version')[0]
-        version = indicator.version if indicator and indicator.version else None
+        indicator = Indicator.objects.order_by('-version_id')[0]
+        version = indicator.version_id if indicator and indicator.version else None
         return Response({'current_version': version }, status=status.HTTP_200_OK)
 
 
@@ -152,5 +167,6 @@ class SamplePeriodTypes(APIView):
 
 indicator_version = IndicatorVersion.as_view()
 indicator_types = IndicatorTypes.as_view()
+indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()
 sample_period_types = SamplePeriodTypes.as_view()

@@ -59,6 +59,11 @@ object DjangoAdapter {
     the_geom: String = ""
   )
 
+  case class IndicatorJob(
+    version: Int = 0,
+    job_status: String = "processing"
+  )
+
   // Custom JSON formatters
   object JsonImplicits extends DefaultJsonProtocol with SprayJsonSupport {
     // DateTime (nscala-time) isn't parsed by default, so we need to write our own
@@ -75,6 +80,7 @@ object DjangoAdapter {
     implicit val samplePeriodFormat = jsonFormat4(SamplePeriod)
     implicit val calcParamsFormat = jsonFormat3(CalcParams)
     implicit val indicatorFormat = jsonFormat9(Indicator)
+    implicit val indicatorJobFormat = jsonFormat2(IndicatorJob)
   }
 
   // Execution context for futures
@@ -88,15 +94,29 @@ object DjangoAdapter {
     // Pipeline for sending HTTP requests and receiving responses
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
 
+
+    def processResponse(response: HttpRequest) {
+      pipeline(response).map(_.entity.asString) onComplete {
+        case Success(response) => println(response)
+        case Failure(error) => println("An error has occured: " + error.getMessage)
+      }
+    }
+
+    // Send a PATCH to update processing status for celery job
+    def updateIndicatorJob(token: String, indicatorjob: IndicatorJob) = {
+      import JsonImplicits._
+
+      val indicator_job_uri = s"$BASE_URI/indicator-jobs/${indicatorjob.version}/"
+      val patch = Patch(indicator_job_uri, indicatorjob) ~> addHeader("Authorization", s"Token $token")
+      processResponse(patch)
+    }
+
     // Sends a POST request to the indicators endpoint
     def postIndicators(token: String, indicators: List[Indicator]) = {
       import JsonImplicits._
 
       val post = Post(INDICATOR_URI, indicators) ~> addHeader("Authorization", s"Token $token")
-      pipeline(post).map(_.entity.asString) onComplete {
-        case Success(response) => println(response)
-        case Failure(error) => println("An error has occured: " + error.getMessage)
-      }
+      processResponse(post)
     }
   }
 

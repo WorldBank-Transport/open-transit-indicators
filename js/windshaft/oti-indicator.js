@@ -132,7 +132,7 @@ Indicator.prototype.getSql = function () {
         "the_geom " +
         "FROM transit_indicators_indicator " +
         "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
-        "AND version='" + this.version + "' AND sample_period_id=" +
+        "AND version_id='" + this.version + "' AND sample_period_id=" +
         "(SELECT id from transit_indicators_sampleperiod WHERE type='" + this.sample_period + "')" +
         ") as " + result_tablename;
     return sqlString;

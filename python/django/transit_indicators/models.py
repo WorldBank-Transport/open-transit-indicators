@@ -4,6 +4,7 @@ from django.contrib.gis.db import models
 from django.db import transaction
 
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
+from userdata.models import OTIUser
 
 
 class OTIIndicatorsConfig(models.Model):
@@ -110,6 +111,29 @@ class SamplePeriod(models.Model):
     period_end = models.DateTimeField()
 
 
+class IndicatorJob(models.Model):
+    """Stores processing status of an indicator job"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        TIMEDOUT = 'timedout'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, "Job queued for processing"),
+            (PROCESSING, "Indicators being processed and calculated"),
+            (ERROR, "Error calculating indicators"),
+            (COMPLETE, "Completed indicator calculation")
+        )
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    version = models.IntegerField(unique=True)
+    payload = models.TextField()
+    sample_periods = models.ManyToManyField(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+
+
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
@@ -149,13 +173,15 @@ class Indicator(models.Model):
                 for row in dict_reader:
                     row['city_name'] = city_name
                     sp_type=row.pop('sample_period', None)
+                    version = row.pop('version', None)
+                    indicator_job = IndicatorJob.objects.get(version=version)
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
                     if not sample_period:
                         sample_period = SamplePeriod.objects.get(type=sp_type)
                         sample_period_cache[sp_type] = sample_period
-                    indicator = cls(sample_period=sample_period, **row)
+                    indicator = cls(sample_period=sample_period, version=indicator_job, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
@@ -261,7 +287,7 @@ class Indicator(models.Model):
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
     # will need to be added to the the GTFS (and other data) rows.
-    version = models.PositiveIntegerField(default=0)
+    version = models.ForeignKey(IndicatorJob, to_field='version')
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)

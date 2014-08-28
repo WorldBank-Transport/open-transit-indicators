@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+# Celery
+from kombu import Exchange, Queue
+
 # Import stuff created by the provision script
 from secret_key import *
 from provision_settings import *
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -88,6 +92,14 @@ STATIC_ROOT = '/projects/open-transit-indicators/static'
 # if we allow pickling of object as superuser
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_QUEUES = (
+    Queue('datasources', Exchange('datasources'), routing_key='datasources'),
+    Queue('indicators', Exchange('indicators'), routing_key='indicators')
+)
+CELERY_ROUTES = {
+    'datasource_import_tasks': {'queue': 'datasources', 'routing_key': 'datasources'},
+    'calculate_indicator_tasks': {'queue': 'indicators', 'routing_key': 'indicators'}
+}
 CELERY_ACCEPT_CONTENT=['json']
 
 
