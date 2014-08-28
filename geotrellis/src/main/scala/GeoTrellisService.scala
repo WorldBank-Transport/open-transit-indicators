@@ -256,6 +256,11 @@ object GeoTrellisService {
         case Some(data) => {
           val calc = new IndicatorsCalculator(data, calcParams)
           calc.storeIndicators
+
+          // Update indicator-job status
+          djangoClient.updateIndicatorJob(calcParams.token,
+                                          IndicatorJob(version=calcParams.version,
+                                                       job_status="complete"))
           true
         }
       }
