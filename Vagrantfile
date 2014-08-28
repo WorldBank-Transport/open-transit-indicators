@@ -4,11 +4,6 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
-# helper method to get machine's primary IP address, for vagrant-proxyconf
-def local_ip
-  `ipconfig getifaddr eth0 || ipconfig getifaddr en0`.strip
-end
-
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
@@ -76,13 +71,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell",
       path: "deployment/provision.sh",
       args: ["development"]
-      
-  # Wire up the proxy, if vagrant-proxyconf plugin installed
-  if Vagrant.has_plugin?("vagrant-proxyconf")
-    config.proxy.http     = "http://#{local_ip}:8123/"
-    config.proxy.https    = "http://#{local_ip}:8123/"
-    config.proxy.no_proxy = "localhost,127.0.0.1"
-  end
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
