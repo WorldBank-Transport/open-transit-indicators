@@ -54,6 +54,9 @@ GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
 GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="feature/slick"
 
+# Time limit for indicator calculations to finish before retrying
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="600"
+
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
@@ -395,9 +398,9 @@ popd
 # Celery setup          #
 #########################
 echo ''
-echo "Setting up celery upstart service"
+echo "Setting up celery upstart services"
 
-celery_conf="
+celery_datasources_conf="
 start on runlevel [2345]
 stop on runlevel [!2345]
 
@@ -405,14 +408,31 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue datasources --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
 "
 
-celery_conf_file="/etc/init/oti-celery.conf"
-echo "$celery_conf" > "$celery_conf_file"
-service oti-celery restart
+celery_datasources_conf_file="/etc/init/oti-celery-datasources.conf"
+echo "$celery_datasources_conf" > "$celery_datasources_conf_file"
 
-echo "Finished setting up celery and background process started"
+# indicators
+celery_indicators_conf="
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue indicators --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
+echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
+
+service oti-celery-datasources restart
+service oti-celery-indicators restart
+
+echo "Finished setting up celery and background processes started"
 
 #########################
 # Angular setup         #

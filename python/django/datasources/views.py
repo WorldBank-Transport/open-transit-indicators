@@ -25,7 +25,7 @@ class GTFSFeedViewSet(OTIAdminViewSet):
         """Override create method to call validation task with celery"""
         response = super(GTFSFeedViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            validate_gtfs.delay(self.object.id)
+            validate_gtfs.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
     def update(self, request, pk=None):
@@ -40,7 +40,7 @@ class GTFSFeedViewSet(OTIAdminViewSet):
         # Delete existing problems since it will be revalidated
         self.obj.gtfsfeedproblem_set.all().delete()
 
-        validate_gtfs.delay(self.object.id)
+        validate_gtfs.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
 
@@ -59,7 +59,7 @@ class OSMDataViewSet(OTIAdminViewSet):
         """Override create method to call import task with celery"""
         response = super(OSMDataViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            import_osm_data.delay(self.object.id)
+            import_osm_data.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
     def update(self, request, pk=None):
@@ -74,7 +74,7 @@ class OSMDataViewSet(OTIAdminViewSet):
         # Delete existing problems since it will be revalidated
         self.obj.osmdataproblem_set.all().delete()
 
-        import_osm_data.delay(self.object.id)
+        import_osm_data.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
 
@@ -93,7 +93,7 @@ class BoundaryViewSet(OTIAdminViewSet):
         """Run validation / import task via celery on creation."""
         response = super(BoundaryViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            shapefile_to_boundary.delay(self.object.id)
+            shapefile_to_boundary.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
 
@@ -125,7 +125,7 @@ class DemographicDataSourceViewSet(OTIAdminViewSet):
         """Validate shapefile and extract column headings."""
         response = super(DemographicDataSourceViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            get_shapefile_fields.delay(self.object.id)
+            get_shapefile_fields.apply_async(args=[self.object.id], queue='datasource_import_tasks')
         return response
 
     @action()
@@ -146,10 +146,11 @@ class DemographicDataSourceViewSet(OTIAdminViewSet):
             serializer.object.save()
             demog_data.is_loaded = False
             demog_data.save()
-            load_shapefile_data.delay(demog_data.id,
-                                      serializer.data.get('pop_metric_1_field', None),
-                                      serializer.data.get('pop_metric_2_field', None),
-                                      serializer.data.get('dest_metric_1_field', None))
+            load_shapefile_data.apply_async(args=[demog_data.id,
+                                                  serializer.data.get('pop_metric_1_field', None),
+                                                  serializer.data.get('pop_metric_2_field', None),
+                                                  serializer.data.get('dest_metric_1_field', None)],
+                                            queue='datasources')
             return Response({'status': 'Started loading data.'})
 
 
