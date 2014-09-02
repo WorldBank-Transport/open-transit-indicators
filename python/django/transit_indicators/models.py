@@ -157,6 +157,7 @@ class Indicator(models.Model):
         :param data: File object holding csv data with headers in Indicator.field_names
         :param city_name: Inserted into the Indicator.city_name field, is a human-readable
                           string which denotes which dataset the indicator is attached to
+        :param user: User loading this csv
 
         :return LoadStatus
 
