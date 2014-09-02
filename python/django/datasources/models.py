@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class DataSource(models.Model):
@@ -33,8 +34,8 @@ class DataSourceProblem(models.Model):
         ERROR = 'err'
         WARNING = 'war'
         CHOICES = (
-            (ERROR, 'Error'),
-            (WARNING, 'Warning'),
+            (ERROR, _(u'Error')),
+            (WARNING, _(u'Warning')),
         )
     type = models.CharField(max_length=3,
                             choices=ProblemTypes.CHOICES)
