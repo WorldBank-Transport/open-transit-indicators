@@ -1,23 +1,26 @@
 package opentransitgt
 
+import opentransitgt.DjangoAdapter._
+
 import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
+
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
-import com.typesafe.config.{ConfigFactory,Config}
-import geotrellis.process.{Error, Complete}
+
+import geotrellis.engine.{Error, Complete}
 import geotrellis.proj4._
-import geotrellis.render.ColorRamps
+import geotrellis.raster.render.ColorRamps
 import geotrellis.slick._
-import geotrellis.source.{ValueSource, RasterSource}
-import geotrellis.statistics.Histogram
-import org.joda.time.format.ISODateTimeFormat
-import opentransitgt.DjangoAdapter._
+import geotrellis.engine.{ValueSource, RasterSource}
+import geotrellis.raster.stats.Histogram
+
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
 import scala.slick.jdbc.meta.MTable
+
 import spray.http.MediaTypes
 import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
@@ -28,6 +31,9 @@ import spray.json._
 import spray.httpx.SprayJsonSupport
 import SprayJsonSupport._
 import DefaultJsonProtocol._
+
+import org.joda.time.format.ISODateTimeFormat
+import com.typesafe.config.{ConfigFactory, Config}
 
 trait GeoTrellisService extends HttpService {
   // For performing extent queries
@@ -210,7 +216,7 @@ object GeoTrellisService {
       // thing to do in this case.
       def geomTransform(srid: Int, table: String, geomType: String, column: String) =
         // only alter the table if it exists
-        if (!MTable.getTables(table).list().isEmpty) {
+        if (!MTable.getTables(table).list.isEmpty) {
           (Q.u +
             s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
             s"TYPE Geometry(${geomType},${srid}) " +

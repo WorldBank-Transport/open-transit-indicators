@@ -28,7 +28,7 @@ trait PostgresSpec extends Suite with BeforeAndAfterAll {
   // database initialization
   postgres withSession { implicit session: Session =>
     // drop the test database if it exists -- we want a fresh one for each spec
-    Q.updateNA(s"DROP DATABASE IF EXISTS $dbName").execute()
+    Q.updateNA(s"DROP DATABASE IF EXISTS $dbName").execute
 
     // initialize the test database via the setup_db script
     s"sudo -u postgres ../deployment/setup_db.sh $dbName $dbUser $dbPassword ..".!!
@@ -37,7 +37,7 @@ trait PostgresSpec extends Suite with BeforeAndAfterAll {
   // after all tests have been run in the spec, drop the test database
   override def afterAll() {
     postgres withSession { implicit session: Session =>
-      Q.updateNA(s"DROP DATABASE $dbName").execute()
+      Q.updateNA(s"DROP DATABASE $dbName").execute
     }
   }
 }
