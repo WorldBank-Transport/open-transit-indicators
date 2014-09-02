@@ -137,7 +137,7 @@ class IndicatorJob(models.Model):
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'version']
 
     class LoadStatus(object):
@@ -150,7 +150,7 @@ class Indicator(models.Model):
             self.errors = []
 
     @classmethod
-    def load(cls, data, city_name):
+    def load(cls, data, city_name, user):
         """ Load passed csv into Indicator table using city_name as a reference value
 
         :param data: File object holding csv data with headers in Indicator.field_names
@@ -162,6 +162,10 @@ class Indicator(models.Model):
         """
         response = cls.LoadStatus()
         sample_period_cache = {}
+        # create new job for this import, so the version number may be set
+        import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+                                  payload="csv_import",
+                                  created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')
             return response
@@ -172,24 +176,33 @@ class Indicator(models.Model):
             with transaction.atomic():
                 for row in dict_reader:
                     row['city_name'] = city_name
-                    sp_type=row.pop('sample_period', None)
+                    sp_type = row.pop('sample_period', None)
                     version = row.pop('version', None)
-                    indicator_job = IndicatorJob.objects.get(version=version)
+                    if not import_job.version:
+                        import_job.version = version
+                        import_job.save()
+                    indicator_job = import_job
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
                     if not sample_period:
                         sample_period = SamplePeriod.objects.get(type=sp_type)
                         sample_period_cache[sp_type] = sample_period
+                    # autonumber ID field (do not use imported ID)
+                    row.pop('id')
                     indicator = cls(sample_period=sample_period, version=indicator_job, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
                 response.success = True
+                import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
+                import_job.save()
 
         except Exception as e:
             response.success = False
             response.errors.append(str(e))
+            import_job.job_status = IndicatorJob.StatusChoices.ERROR
+            import_job.save()
 
         return response
 
