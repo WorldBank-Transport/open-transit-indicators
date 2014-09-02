@@ -30,8 +30,8 @@ angular.module('transitIndicators')
  * Main controller for OTI upload page
  */
 .controller('OTIUploadController',
-    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIUploadService',
-    function ($scope, $rootScope, $timeout, $upload, OTIUploadService) {
+    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIUploadService', 'OTIEvents',
+    function ($scope, $rootScope, $timeout, $upload, OTIUploadService, OTIEvents) {
 
     /**
      * Clears the uploadProblems dict
@@ -188,6 +188,7 @@ angular.module('transitIndicators')
         viewProblems();
         $scope.retryOSMImport();
         $scope.setSidebarCheckmark('upload', true);
+        $rootScope.$broadcast(OTIEvents.Settings.Upload.GTFSDone);
     });
 
     $scope.$on('pollingUpload:processingError', function () {
@@ -207,6 +208,7 @@ angular.module('transitIndicators')
         $scope.osmImport = null;
         $scope.osmImportProgress = -1;
         $scope.osmImportProblems = {};
+        $rootScope.$broadcast(OTIEvents.Settings.Upload.GTFSDelete);
     });
 
     // Set initial scope variables and constants

@@ -29,12 +29,15 @@
 
     <div class="map" id="map" style="width: 100%; height: 100%; position: fixed;"></div>
 
-    <div style="width: 400px; position: absolute; top: 20px; left: 40px; background-color: white;" class="container">
-        <div class="navigation-button-group row">
-            <div class="button--large active col-sm-4">Scenario</div>
-            <div class="button--large col-sm-4" id="button-indicators">Indicators</div>
-            <div class="button--large col-sm-4" id="button-settings">Settings</div>
+    <header>
+        <div class="navigation-buttongroup">
+            <div class="button--navigation active" id="navigation-scenario">Scenario</div>
+            <div class="button--navigation" id="navigation-indicators">Indicators</div>
+            <div class="button--navigation" id="navigation-settings">Settings</div>
         </div>
+    </header>
+
+    <div class="container">
         <div class="book active">
             <div class="page active" id="scenario">
                 <div class="content">

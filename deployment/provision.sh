@@ -54,6 +54,9 @@ GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
 GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="feature/slick"
 
+# Time limit for indicator calculations to finish before retrying
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="600"
+
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
@@ -74,6 +77,7 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_PORT=8001
 GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
+GEOTRELLIS_MEM_MB=3072      # For the oti-geotrellis upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -394,9 +398,9 @@ popd
 # Celery setup          #
 #########################
 echo ''
-echo "Setting up celery upstart service"
+echo "Setting up celery upstart services"
 
-celery_conf="
+celery_datasources_conf="
 start on runlevel [2345]
 stop on runlevel [!2345]
 
@@ -404,14 +408,31 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue datasources --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
 "
 
-celery_conf_file="/etc/init/oti-celery.conf"
-echo "$celery_conf" > "$celery_conf_file"
-service oti-celery restart
+celery_datasources_conf_file="/etc/init/oti-celery-datasources.conf"
+echo "$celery_datasources_conf" > "$celery_datasources_conf_file"
 
-echo "Finished setting up celery and background process started"
+# indicators
+celery_indicators_conf="
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue indicators --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
+echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
+
+service oti-celery-datasources restart
+service oti-celery-indicators restart
+
+echo "Finished setting up celery and background processes started"
 
 #########################
 # Angular setup         #
@@ -513,6 +534,9 @@ database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
 spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
+// Temporarily above 1s until we figure out why geotrellis is firing registration timeouts
+// during the upload process
+spray.can.server.registration-timeout = 1200 s
 "
 
 pushd $GEOTRELLIS_ROOT/src/main/resources/
@@ -526,7 +550,7 @@ kill timeout 30
 
 chdir $GEOTRELLIS_ROOT
 
-exec ./sbt run
+exec ./sbt -mem $GEOTRELLIS_MEM_MB run
 "
 geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
 echo "$geotrellis_conf" > "$geotrellis_conf_file"

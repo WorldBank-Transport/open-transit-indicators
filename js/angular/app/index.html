@@ -1,8 +1,9 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en" ng-app="transitIndicators" ng-csp> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en" ng-app="transitIndicators" ng-csp> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang="en" ng-app="transitIndicators" ng-csp> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" ng-app="transitIndicators" ng-csp> <!--<![endif]-->
+
   <head>
     <meta charset="utf-8">
     <title>Open Transit Indicators</title>
@@ -10,10 +11,13 @@
 
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8">      <!-- required by d3.js -->
+    <link rel="stylesheet" href="bower_components/angular/angular-csp.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="bower_components/nvd3/src/nv.d3.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
@@ -43,6 +47,8 @@
     <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/angular-translate/angular-translate.js"></script>
+    <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+    <script src="bower_components/angular-translate-handler-log/angular-translate-handler-log.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
@@ -64,6 +70,9 @@
     <script src="bower_components/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
     <script src="bower_components/leaflet-label/dist/leaflet.label.js"></script>
     <script src="bower_components/leaflet-tilelayer-geojson/TileLayer.GeoJSON.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/nvd3/nv.d3.js"></script>
+    <script src="bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -71,13 +80,20 @@
         <script src="scripts/directives/polling-upload.js"></script>
         <script src="scripts/app.js"></script>
         <script src="scripts/config.js"></script>
+        <script src="scripts/modules/events/oti-events.js"></script>
+        <script src="scripts/modules/root/root-controller.js"></script>
+        <script src="scripts/modules/transit/transit-controller.js"></script>
         <script src="scripts/modules/userdata/user-service.js"></script>
         <script src="scripts/modules/auth/auth-interceptor.js"></script>
         <script src="scripts/modules/auth/logout-interceptor.js"></script>
         <script src="scripts/modules/auth/auth-controller.js"></script>
         <script src="scripts/modules/auth/auth-service.js"></script>
-        <script src="scripts/modules/map/map-controller.js"></script>
-        <script src="scripts/modules/map/map-service.js"></script>
+        <script src="scripts/modules/scenarios/scenarios-controller.js"></script>
+        <script src="scripts/modules/indicators/indicators-controller.js"></script>
+        <script src="scripts/modules/indicators/map-controller.js"></script>
+        <script src="scripts/modules/indicators/data-controller.js"></script>
+        <script src="scripts/modules/indicators/indicators-service.js"></script>
+        <script src="scripts/modules/indicators/map-service.js"></script>
         <script src="scripts/modules/settings/settings-controller.js"></script>
         <script src="scripts/modules/settings/settings-service.js"></script>
         <script src="scripts/modules/settings/overview/overview-controller.js"></script>

@@ -25,6 +25,8 @@ import spray.http.MediaTypes
 import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 // JSON support
 import spray.json._
@@ -48,7 +50,7 @@ trait GeoTrellisService extends HttpService {
     pathPrefix("gt") {
       path("ping") {
         get {
-          complete("pong!")
+          complete(future("pong!"))
         }
       }
     }
@@ -59,7 +61,7 @@ trait GeoTrellisService extends HttpService {
       path("gtfs") {
         post {
           parameter('gtfsDir.as[String]) { gtfsDir =>
-            complete {
+            complete(future {
               println(s"parsing GTFS data from: $gtfsDir")
               val data = GeoTrellisService.parseAndStore(gtfsDir)
 
@@ -67,7 +69,7 @@ trait GeoTrellisService extends HttpService {
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Imported ${data.routes.size} routes")
               )
-            }
+            })
           }
         }
       }
@@ -111,7 +113,7 @@ trait GeoTrellisService extends HttpService {
     pathPrefix("gt") {
       path("map-info") {
         get {
-          complete {
+          complete(future {
             GeoTrellisService.db withSession { implicit session: Session =>
               // use the stops to find the extent, since they are required
               val q = Q.queryNA[Extent]("""
@@ -141,7 +143,7 @@ trait GeoTrellisService extends HttpService {
               // return the map info json
               JsObject("extent" -> extentJson)
             }
-          }
+          })
         }
       }
     }
@@ -157,7 +159,7 @@ trait GeoTrellisService extends HttpService {
           println(e.getStackTrace.mkString("\n"))
           // replace double quotes with single so our message is more json safe
           val jsonMessage = e.getMessage.replace("\"", "'")
-          complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
+          complete(future(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" ))
         }
     }
 }
@@ -262,6 +264,11 @@ object GeoTrellisService {
         case Some(data) => {
           val calc = new IndicatorsCalculator(data, calcParams)
           calc.storeIndicators
+
+          // Update indicator-job status
+          djangoClient.updateIndicatorJob(calcParams.token,
+                                          IndicatorJob(version=calcParams.version,
+                                                       job_status="complete"))
           true
         }
       }

@@ -12,11 +12,31 @@ var esri_map_url = 'https://{s}.arcgisonline.com/ArcGIS/rest/services/';
 
 angular.module('transitIndicators').constant('config', {
 
+    debug: true,
+
+    worldExtent: {
+        southWest: {
+          lat: -57.0,
+          lng: -168.5
+        },
+        northEast: {
+          lat: 73.25,
+          lng: 158.1
+        }
+    },
+
     leaflet: {
         center: {
-            lat: 39.95,
-            lng: -75.1667,
-            zoom: 12
+        },
+        bounds: {
+            southWest: {
+                lat: -57.0,
+                lng: -168.5
+            },
+            northEast: {
+                lat: 73.25,
+                lng: 158.1
+            }
         },
         layers: {
             baselayers: {
@@ -76,8 +96,10 @@ angular.module('transitIndicators').constant('config', {
                         continuousWorld: true
                     }
                 }
-            }
+            },
+            overlays: {}
         },
+        markers: [],
         defaults: {
             maxZoom: 16,
             zoomControl: true,
@@ -94,49 +116,34 @@ angular.module('transitIndicators').constant('config', {
         }
     },
 
-    worldExtent: {
-        southWest: {
-          lat: -57.0,
-          lng: -168.5
-        },
-        northEast: {
-          lat: 73.25,
-          lng: 158.1
-        }
-    },
-
     windshaft: {
         port: 8067
     },
 
     settingsViews: [
         {
-            id: 'overview',
-            label: 'Overview'
+            id: 'overview'
         },
         {
-            id: 'upload',
-            label: 'GTFS'
+            id: 'upload'
         },
         {
-            id: 'boundary',
-            label: 'Boundary'
+            id: 'boundary'
         },
         {
-            id: 'demographic',
-            label: 'Demographic'
+            id: 'demographic'
+        },
+        /*
+        // Temporarily removed until we decide to use it
+        {
+            id: 'realtime'
+        },
+        */
+        {
+            id: 'configuration'
         },
         {
-            id: 'realtime',
-            label: 'Real-Time'
-        },
-        {
-            id: 'configuration',
-            label: 'Configuration'
-        },
-        {
-            id: 'users',
-            label: 'Users'
+            id: 'users'
         }
     ]
 

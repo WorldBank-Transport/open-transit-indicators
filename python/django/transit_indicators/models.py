@@ -2,8 +2,10 @@ import csv
 
 from django.contrib.gis.db import models
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
+from userdata.models import OTIUser
 
 
 class OTIIndicatorsConfig(models.Model):
@@ -83,20 +85,23 @@ class SamplePeriod(models.Model):
     subsequent dates if crossing midnight). There are five sample period types, three
     of which are specified by the user (morning rush, evening rush, weekend), and two
     of which are inferred by filling in the gaps between those (mid day, night).
+    There is also a special sample period: alltime that is used for all-time aggregation.
     """
 
     class SamplePeriodTypes(object):
+        ALLTIME = 'alltime'
         MORNING = 'morning'
         MIDDAY = 'midday'
         EVENING = 'evening'
         NIGHT = 'night'
         WEEKEND = 'weekend'
         CHOICES = (
-            (MORNING, 'Morning Rush'),
-            (MIDDAY, 'Mid Day'),
-            (EVENING, 'Evening Rush'),
-            (NIGHT, 'Night'),
-            (WEEKEND, 'Weekend'),
+            (ALLTIME, _(u'All Time')),
+            (MORNING, _(u'Morning Rush')),
+            (MIDDAY, _(u'Mid Day')),
+            (EVENING, _(u'Evening Rush')),
+            (NIGHT, _(u'Night')),
+            (WEEKEND, _(u'Weekend')),
         )
     type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES, unique=True)
 
@@ -107,10 +112,33 @@ class SamplePeriod(models.Model):
     period_end = models.DateTimeField()
 
 
+class IndicatorJob(models.Model):
+    """Stores processing status of an indicator job"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        TIMEDOUT = 'timedout'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Job queued for processing')),
+            (PROCESSING, _(u'Indicators being processed and calculated')),
+            (ERROR, _(u'Error calculating indicators')),
+            (COMPLETE, _(u'Completed indicator calculation')),
+        )
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    version = models.IntegerField(unique=True)
+    payload = models.TextField()
+    sample_periods = models.ManyToManyField(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+
+
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'version']
 
     class LoadStatus(object):
@@ -123,7 +151,7 @@ class Indicator(models.Model):
             self.errors = []
 
     @classmethod
-    def load(cls, data, city_name):
+    def load(cls, data, city_name, user):
         """ Load passed csv into Indicator table using city_name as a reference value
 
         :param data: File object holding csv data with headers in Indicator.field_names
@@ -135,6 +163,10 @@ class Indicator(models.Model):
         """
         response = cls.LoadStatus()
         sample_period_cache = {}
+        # create new job for this import, so the version number may be set
+        import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+                                  payload="csv_import",
+                                  created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')
             return response
@@ -145,22 +177,33 @@ class Indicator(models.Model):
             with transaction.atomic():
                 for row in dict_reader:
                     row['city_name'] = city_name
-                    sp_type=row.pop('sample_period', None)
+                    sp_type = row.pop('sample_period', None)
+                    version = row.pop('version', None)
+                    if not import_job.version:
+                        import_job.version = version
+                        import_job.save()
+                    indicator_job = import_job
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
                     if not sample_period:
                         sample_period = SamplePeriod.objects.get(type=sp_type)
                         sample_period_cache[sp_type] = sample_period
-                    indicator = cls(sample_period=sample_period, **row)
+                    # autonumber ID field (do not use imported ID)
+                    row.pop('id')
+                    indicator = cls(sample_period=sample_period, version=indicator_job, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
                 response.success = True
+                import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
+                import_job.save()
 
         except Exception as e:
             response.success = False
             response.errors.append(str(e))
+            import_job.job_status = IndicatorJob.StatusChoices.ERROR
+            import_job.save()
 
         return response
 
@@ -169,9 +212,9 @@ class Indicator(models.Model):
         MODE = 'mode'
         SYSTEM = 'system'
         CHOICES = (
-            (ROUTE, 'Route'),
-            (MODE, 'Mode'),
-            (SYSTEM, 'System'),
+            (ROUTE, _(u'Route')),
+            (MODE, _(u'Mode')),
+            (SYSTEM, _(u'System')),
         )
 
     class IndicatorTypes(object):
@@ -202,32 +245,32 @@ class Indicator(models.Model):
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
         CHOICES = (
-            (ACCESS_INDEX, 'Access index'),
-            (AFFORDABILITY, 'Affordability'),
-            (AVG_SERVICE_FREQ, 'Average Service Frequency'),
-            (COVERAGE, 'System coverage'),
-            (COVERAGE_STOPS, 'Coverage of transit stops'),
-            (DISTANCE_STOPS, 'Distance between stops'),
-            (DWELL_TIME, 'Dwell Time Performance'),
-            (HOURS_SERVICE, 'Weekly number of hours of service'),
-            (JOB_ACCESS, 'Job accessibility'),
-            (LENGTH, 'Transit system length'),
-            (LINES_ROADS, 'Ratio of transit lines length over road length'),
-            (LINE_NETWORK_DENSITY, 'Transit line network density'),
-            (NUM_MODES, 'Number of modes'),
-            (NUM_ROUTES, 'Number of routes'),
-            (NUM_STOPS, 'Number of stops'),
-            (NUM_TYPES, 'Number of route types'),
-            (ON_TIME_PERF, 'On-Time Performance'),
-            (REGULARITY_HEADWAYS, 'Regularity of Headways'),
-            (SERVICE_FREQ_WEIGHTED, 'Service frequency weighted by served population'),
-            (STOPS_ROUTE_LENGTH, 'Ratio of number of stops to route-length'),
-            (SUBURBAN_LINES, 'Ratio of the Transit-Pattern Operating Suburban Lines'),
-            (SYSTEM_ACCESS, 'System accessibility'),
-            (SYSTEM_ACCESS_LOW, 'System accessibility - low-income'),
-            (TIME_TRAVELED_STOPS, 'Time traveled between stops'),
-            (TRAVEL_TIME, 'Travel Time Performance'),
-            (WEEKDAY_END_FREQ, 'Weekday / weekend frequency'),
+            (ACCESS_INDEX, _(u'Access index')),
+            (AFFORDABILITY, _(u'Affordability')),
+            (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
+            (COVERAGE, _(u'System coverage')),
+            (COVERAGE_STOPS, _(u'Coverage of transit stops')),
+            (DISTANCE_STOPS, _(u'Distance between stops')),
+            (DWELL_TIME, _(u'Dwell Time Performance')),
+            (HOURS_SERVICE, _(u'Weekly number of hours of service')),
+            (JOB_ACCESS, _(u'Job accessibility')),
+            (LENGTH, _(u'Transit system length')),
+            (LINES_ROADS, _(u'Ratio of transit lines length over road length')),
+            (LINE_NETWORK_DENSITY, _(u'Transit line network density')),
+            (NUM_MODES, _(u'Number of modes')),
+            (NUM_ROUTES, _(u'Number of routes')),
+            (NUM_STOPS, _(u'Number of stops')),
+            (NUM_TYPES, _(u'Number of route types')),
+            (ON_TIME_PERF, _(u'On-Time Performance')),
+            (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
+            (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
+            (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
+            (SYSTEM_ACCESS, _(u'System accessibility')),
+            (SYSTEM_ACCESS_LOW, _(u'System accessibility - low-income')),
+            (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
+            (TRAVEL_TIME, _(u'Travel Time Performance')),
+            (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
         )
 
     # Slice of time used for calculating this indicator
@@ -258,7 +301,7 @@ class Indicator(models.Model):
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
     # will need to be added to the the GTFS (and other data) rows.
-    version = models.PositiveIntegerField(default=0)
+    version = models.ForeignKey(IndicatorJob, to_field='version')
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)

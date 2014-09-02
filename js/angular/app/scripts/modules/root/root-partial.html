@@ -1,0 +1,17 @@
+<header>
+    <div class="navigation-buttongroup">
+        <div ui-sref="transit" class="button--navigation" ng-class="{active: activeState === 'transit'}" id="navigation-transit">Transit Map</div>
+        <div ui-sref="scenarios" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">Scenario</div>
+        <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">Indicators</div>
+        <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">Settings</div>
+        <div class="button--navigation pull-right" ng-click="logout()">Logout</div>
+    </div>
+</header>
+
+<div class="app-view">
+    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive }"
+             defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
+             markers="leaflet.markers" layers="leaflet.layers" height="100%" width="100%">
+    </leaflet>
+    <div ui-view></div>
+</div>

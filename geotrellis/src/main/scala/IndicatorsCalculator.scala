@@ -18,7 +18,8 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams) {
     new NumRoutes(data, params),
     new Length(data, params),
     new TimeTraveledStops(data, params),
-    new RegularityHeadways(data, params)
+    new AvgServiceFreq(data, params),
+    new DistanceStops(data, params)
   )
 
   // Map of IndicatorCalculators by name
@@ -29,6 +30,6 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams) {
   // Ask each indicator calculator to store its results.
   // This will eventually be queued and processed in the background.
   def storeIndicators = {
-    calculators.foreach { calc => calc.storeIndicator }
+    for (calc <- calculators) calc.storeIndicators
   }
 }

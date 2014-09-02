@@ -1,67 +1,45 @@
 'use strict';
 
 angular.module('transitIndicators')
-.controller('OTIMapController',
-        ['config', '$scope', '$state', '$cookieStore', 'leafletData', 'OTIMapService', 'authService',
-        function (config, $scope, $state, $cookieStore, leafletData, mapService, authService) {
+.controller('OTIIndicatorsMapController',
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
+
+    var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
+        version: 0,
+        type: 'num_stops',
+        sample_period: 'morning',
+        aggregation: 'route'
+    });
 
     $scope.$state = $state;
-    $scope.indicator_dropdown_open = false;
+    $scope.dropdown_aggregation_open = false;
+    $scope.dropdown_type_open = false;
 
     // Object used to configure the indicator displayed on the map
     // Retrieve last selected indicator from session cookie, if available
-    $scope.indicator = $cookieStore.get("indicator");
-
-    if (!$scope.indicator) {
-        $scope.indicator = new mapService.IndicatorConfig({
-            version: 0,
-            type: 'num_stops',
-            sample_period: 'morning',
-            aggregation: 'route'
-        });
-
-        $cookieStore.put("indicator", $scope.indicator);
-    }
+    $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     /* LEAFLET CONFIG */
-    var layers = {
-        overlays: {
-            indicator: {
-                name: 'GTFS Indicator',
-                type: 'xyz',
-                url: mapService.getIndicatorUrl('png'),
-                visible: true,
-                layerOptions: $scope.indicator
-            },
-            utfgrid: {
-                name: 'GTFS Indicator Interactivity',
-                type: 'utfGrid',
-                url: mapService.getIndicatorUrl('utfgrid'),
-                visible: true,
-                // When copied to the internal L.Utfgrid class, these options end up on
-                //  layer.options, same as for TileLayers
-                pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
-            }
+    var overlays = {
+        indicator: {
+            name: 'GTFS Indicator',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            visible: true,
+            layerOptions: $scope.indicator
+        },
+        utfgrid: {
+            name: 'GTFS Indicator Interactivity',
+            type: 'utfGrid',
+            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            visible: true,
+            // When copied to the internal L.Utfgrid class, these options end up on
+            //  layer.options, same as for TileLayers
+            pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
         }
     };
-
-    var leaflet = {
-        layers: angular.extend(config.leaflet.layers, layers),
-        markers: []
-    };
-    $scope.leaflet = angular.extend(config.leaflet, leaflet);
-
-    // asks the server for the data extent and zooms to it
-    var zoomToDataExtent = function () {
-        mapService.getMapInfo().then(function(mapInfo) {
-            if (mapInfo.extent) {
-                $scope.leaflet.bounds = mapInfo.extent;
-            } else {
-                // no extent; zoom out to world
-                $scope.leaflet.bounds = config.worldExtent;
-            }
-        });
-    };
+    $scope.updateLeafletOverlays(overlays);
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent) {
@@ -87,8 +65,10 @@ angular.module('transitIndicators')
         }
     };
 
-    $scope.setIndicatorVersion = function (version) {
-        $scope.$broadcast('map-controller:set-indicator-version', version);
+    var setIndicator = function (indicator) {
+        angular.extend($scope.indicator, indicator);
+        $cookieStore.put('indicator', $scope.indicator);
+        $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
     };
 
     // TODO: Update this method to allow changes on aggregation, version, sample_period
@@ -104,7 +84,7 @@ angular.module('transitIndicators')
      * angular-leaflet-directive does not support a way to redraw existing layers that have
      * updated properties but haven't changed their layer key
      *
-     * @param indicator: mapService.Indicator instance
+     * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
         $cookieStore.put("indicator", $scope.indicator);
@@ -125,8 +105,14 @@ angular.module('transitIndicators')
         });
     };
 
-    $scope.logout = function () {
-        authService.logout();
+    $scope.selectType = function (type) {
+        $scope.dropdown_type_open = false;
+        setIndicator({type: type});
+    };
+
+    $scope.selectAggregation = function (aggregation) {
+        $scope.dropdown_aggregation_open = false;
+        setIndicator({aggregation: aggregation});
     };
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
@@ -134,27 +120,18 @@ angular.module('transitIndicators')
         utfGridMarker(leafletEvent);
     });
 
-    // zoom to the new extent whenever a GTFS file is uploaded
-    $scope.$on('upload-controller:gtfs-uploaded', function() {
-        zoomToDataExtent();
+    $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {
+        $scope.updateIndicatorLayers(indicator);
     });
 
-    // zoom out to world view when data deleted
-    $scope.$on('upload-controller:gtfs-deleted', function() {
-        $scope.leaflet.bounds = config.worldExtent;
-    });
-
-    $scope.$on('map-controller:set-indicator-version', function (event, version) {
-        $scope.indicator.version = version;
-        $scope.updateIndicatorLayers($scope.indicator);
+    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function (event, sample_period) {
+        setIndicator({sample_period: sample_period});
     });
 
     $scope.init = function () {
-        // always zoom to the extent when the map is first loaded
-        zoomToDataExtent();
-
-        mapService.getIndicatorVersion(function (version) {
-            $scope.setIndicatorVersion(version);
+        // TODO: May need to be moved to OTIIndicatorsController
+        OTIIndicatorsService.getIndicatorVersion(function (version) {
+            setIndicator({version: version});
         });
     };
     $scope.init();

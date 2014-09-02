@@ -32,5 +32,4 @@ angular.module('transitIndicators')
     otiuploadservice.osmImportProblems = $resource('/api/osm-data-problems/:id');
 
     return otiuploadservice;
-}
-]);
+}]);
