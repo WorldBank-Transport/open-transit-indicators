@@ -42,6 +42,7 @@ class IndicatorFilter(django_filters.FilterSet):
 
     """
     local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
+    sample_period = django_filters.CharFilter(name="sample_period__type")
 
     class Meta:
         model = Indicator
