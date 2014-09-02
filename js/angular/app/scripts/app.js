@@ -9,7 +9,8 @@ angular.module('transitIndicators', [
     'leaflet-directive',
     'pollingUpload',
     'ui.bootstrap',
-    'ui.utils'
+    'ui.utils',
+    'nvd3ChartDirectives'
 ]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
         function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
 
