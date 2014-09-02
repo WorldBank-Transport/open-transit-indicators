@@ -297,6 +297,28 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
           case Some(shapeLine) => shapeLine.points.length should be (805)
         }
       }
+      
+      it should "calcuate overall distance_between_stops by route for SEPTA" in {
+        val dbsByMode = septaRailCalc.calculatorsByName("distance_stops").calcOverallByMode
+        dbsByMode(2) should be (2.37463 plusOrMinus 1e-5)
+      }
+      
+      it should "calcuate distance_between_stops by route for SEPTA" in {
+        val dbsByRoute = septaRailCalc.calculatorsByName("distance_stops").calcOverallByRoute
+        dbsByRoute("PAO") should be (1.87185 plusOrMinus 1e-5)
+        dbsByRoute("MED") should be (1.50170 plusOrMinus 1e-5)
+        dbsByRoute("WAR") should be (1.70507 plusOrMinus 1e-5)
+        dbsByRoute("NOR") should be (1.75658 plusOrMinus 1e-5)
+        dbsByRoute("LAN") should be (2.19893 plusOrMinus 1e-5)
+        dbsByRoute("CYN") should be (1.01335 plusOrMinus 1e-5)
+        dbsByRoute("WIL") should be (5.45808 plusOrMinus 1e-5)
+        dbsByRoute("AIR") should be (1.97381 plusOrMinus 1e-5)
+        dbsByRoute("CHW") should be (1.37672 plusOrMinus 1e-5)
+        dbsByRoute("WTR") should be (2.30839 plusOrMinus 1e-5)
+        dbsByRoute("FOX") should be (1.67826 plusOrMinus 1e-5)
+        dbsByRoute("CHE") should be (1.04458 plusOrMinus 1e-5)
+        dbsByRoute("TRE") should be (5.58536 plusOrMinus 1e-5)
+      }
 
       // this doesn't test an indicator, but is an example for how to read data from the db
       it should "be able to read trips from the database" in {
