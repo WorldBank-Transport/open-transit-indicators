@@ -8,34 +8,39 @@ import opentransitgt.DjangoAdapter._
 class DistanceStops(val gtfsData: GtfsData, val calcParams: CalcParams) extends IndicatorCalculator {
   val name = "distance_stops"
 
-  def calcByRoute(period: SamplePeriod): Map[String, Double] = {
-    val gotRoutes = routesInPeriod(period)
-    gotRoutes.map(route =>
-      route.id.toString -> {
-        val gotTrips = tripsInPeriod(period, route)
-        
-        // for each route, get tuple of:
-        // (sum of trip shape lengths, maximum number of stops in any trip)
-        val sumLengthAndMaxStops = gotTrips
-            .foldLeft((0.0, 0.0)) {(sumLengthAndMaxStops, trip) => trip.rec.shape_id match {
-            case None => sumLengthAndMaxStops
-            case Some(shapeID) => {
-              gtfsData.shapesById.get(shapeID) match {
-                case None => sumLengthAndMaxStops
-                case Some(tripShape) => {
-                  (sumLengthAndMaxStops._1 + tripShape.line.length, 
-                  math.max(sumLengthAndMaxStops._2, trip.stops.size))
+  def calcByRoute(period: SamplePeriod): Map[String, Double] =
+    // for each route, get tuple of:
+    // (sum of trip shape lengths, maximum number of stops in any trip)
+    routesInPeriod(period)
+      .map { route =>
+        val (totalLength, maxStops, count) = 
+            tripsInPeriod(period, route)
+              .foldLeft((0.0, 0.0, 0.0)) { (acc, trip) => 
+                  val (totalLength, maxStops, count) = acc
+                  trip.rec.shape_id match {
+                    case None => (totalLength, maxStops, count + 1)
+                    case Some(shapeID) => {
+                      gtfsData.shapesById.get(shapeID) match {
+                        case None => (totalLength, maxStops, count + 1)
+                        case Some(tripShape) =>
+                         (totalLength + tripShape.line.length, 
+                         math.max(maxStops, trip.stops.size),
+                         count + 1)
+
+                  }
                 }
               }
             }
-          }
-        }
+
         // per route, calculate:
         // average length of trips in km / max # of legs in any trip (total stops, -1)
-        ((sumLengthAndMaxStops._1 / 1000) / gotTrips.size) / (sumLengthAndMaxStops._2 - 1)
+        val result = 
+          ((totalLength / 1000) / count) / (maxStops - 1)
+      
+        (route.id.toString, result)
       }
-    ).toMap
-  }
+     .toMap
+
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
     // get the average distance between stops per route, group by route type, 
