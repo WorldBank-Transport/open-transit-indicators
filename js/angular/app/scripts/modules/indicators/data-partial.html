@@ -23,24 +23,27 @@
 <div class="indicators-table">
     <div class="indicators-row">
         <div class="indicators-cell indicators-label">Number of modes and types</div>
-        <div class="indicators-cell">
-            <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="100" fill="#481924">
-            </svg>
-            415
-        </div>
-        <div class="indicators-cell">
-            <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="70" fill="#481924">
-            </svg>
-            367
-        </div>
-        <div class="indicators-cell">
-            <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="92" fill="#481924">
-            </svg>
-            401
-        </div>
+        <nvd3-pie-chart class="indicators-cell"
+            data="exampleData" id="exampleId" height="170"
+            margin="{left:0,top:20,bottom:20,right:0}"
+            x="xFunction()" y="yFunction()"
+            tooltips="true" showLabels="true" labelType="percent">
+            <svg></svg>
+        </nvd3-pie-chart>
+        <nvd3-pie-chart class="indicators-cell"
+            data="exampleData" id="exampleId2" height="170"
+            margin="{left:0,top:20,bottom:20,right:0}"
+            x="xFunction()" y="yFunction()"
+            tooltips="true" showLabels="true" labelType="percent">
+            <svg></svg>
+        </nvd3-pie-chart>
+        <nvd3-pie-chart class="indicators-cell"
+            data="exampleData" id="exampleId3" height="170"
+            margin="{left:0,top:20,bottom:20,right:0}"
+            x="xFunction()" y="yFunction()"
+            tooltips="true" showLabels="true" labelType="percent">
+            <svg></svg>
+        </nvd3-pie-chart>
     </div>
 </div>
 <div class="indicators-table">
