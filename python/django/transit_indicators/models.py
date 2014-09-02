@@ -2,6 +2,7 @@ import csv
 
 from django.contrib.gis.db import models
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
 from userdata.models import OTIUser
@@ -95,12 +96,12 @@ class SamplePeriod(models.Model):
         NIGHT = 'night'
         WEEKEND = 'weekend'
         CHOICES = (
-            (ALLTIME, 'All Time'),
-            (MORNING, 'Morning Rush'),
-            (MIDDAY, 'Mid Day'),
-            (EVENING, 'Evening Rush'),
-            (NIGHT, 'Night'),
-            (WEEKEND, 'Weekend'),
+            (ALLTIME, _(u'All Time')),
+            (MORNING, _(u'Morning Rush')),
+            (MIDDAY, _(u'Mid Day')),
+            (EVENING, _(u'Evening Rush')),
+            (NIGHT, _(u'Night')),
+            (WEEKEND, _(u'Weekend')),
         )
     type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES, unique=True)
 
@@ -121,10 +122,10 @@ class IndicatorJob(models.Model):
         TIMEDOUT = 'timedout'
         COMPLETE = 'complete'
         CHOICES = (
-            (QUEUED, "Job queued for processing"),
-            (PROCESSING, "Indicators being processed and calculated"),
-            (ERROR, "Error calculating indicators"),
-            (COMPLETE, "Completed indicator calculation")
+            (QUEUED, _(u'Job queued for processing')),
+            (PROCESSING, _(u'Indicators being processed and calculated')),
+            (ERROR, _(u'Error calculating indicators')),
+            (COMPLETE, _(u'Completed indicator calculation')),
         )
 
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
@@ -198,9 +199,9 @@ class Indicator(models.Model):
         MODE = 'mode'
         SYSTEM = 'system'
         CHOICES = (
-            (ROUTE, 'Route'),
-            (MODE, 'Mode'),
-            (SYSTEM, 'System'),
+            (ROUTE, _(u'Route')),
+            (MODE, _(u'Mode')),
+            (SYSTEM, _(u'System')),
         )
 
     class IndicatorTypes(object):
@@ -231,32 +232,32 @@ class Indicator(models.Model):
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
         CHOICES = (
-            (ACCESS_INDEX, 'Access index'),
-            (AFFORDABILITY, 'Affordability'),
-            (AVG_SERVICE_FREQ, 'Average Service Frequency'),
-            (COVERAGE, 'System coverage'),
-            (COVERAGE_STOPS, 'Coverage of transit stops'),
-            (DISTANCE_STOPS, 'Distance between stops'),
-            (DWELL_TIME, 'Dwell Time Performance'),
-            (HOURS_SERVICE, 'Weekly number of hours of service'),
-            (JOB_ACCESS, 'Job accessibility'),
-            (LENGTH, 'Transit system length'),
-            (LINES_ROADS, 'Ratio of transit lines length over road length'),
-            (LINE_NETWORK_DENSITY, 'Transit line network density'),
-            (NUM_MODES, 'Number of modes'),
-            (NUM_ROUTES, 'Number of routes'),
-            (NUM_STOPS, 'Number of stops'),
-            (NUM_TYPES, 'Number of route types'),
-            (ON_TIME_PERF, 'On-Time Performance'),
-            (REGULARITY_HEADWAYS, 'Regularity of Headways'),
-            (SERVICE_FREQ_WEIGHTED, 'Service frequency weighted by served population'),
-            (STOPS_ROUTE_LENGTH, 'Ratio of number of stops to route-length'),
-            (SUBURBAN_LINES, 'Ratio of the Transit-Pattern Operating Suburban Lines'),
-            (SYSTEM_ACCESS, 'System accessibility'),
-            (SYSTEM_ACCESS_LOW, 'System accessibility - low-income'),
-            (TIME_TRAVELED_STOPS, 'Time traveled between stops'),
-            (TRAVEL_TIME, 'Travel Time Performance'),
-            (WEEKDAY_END_FREQ, 'Weekday / weekend frequency'),
+            (ACCESS_INDEX, _(u'Access index')),
+            (AFFORDABILITY, _(u'Affordability')),
+            (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
+            (COVERAGE, _(u'System coverage')),
+            (COVERAGE_STOPS, _(u'Coverage of transit stops')),
+            (DISTANCE_STOPS, _(u'Distance between stops')),
+            (DWELL_TIME, _(u'Dwell Time Performance')),
+            (HOURS_SERVICE, _(u'Weekly number of hours of service')),
+            (JOB_ACCESS, _(u'Job accessibility')),
+            (LENGTH, _(u'Transit system length')),
+            (LINES_ROADS, _(u'Ratio of transit lines length over road length')),
+            (LINE_NETWORK_DENSITY, _(u'Transit line network density')),
+            (NUM_MODES, _(u'Number of modes')),
+            (NUM_ROUTES, _(u'Number of routes')),
+            (NUM_STOPS, _(u'Number of stops')),
+            (NUM_TYPES, _(u'Number of route types')),
+            (ON_TIME_PERF, _(u'On-Time Performance')),
+            (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
+            (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
+            (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
+            (SYSTEM_ACCESS, _(u'System accessibility')),
+            (SYSTEM_ACCESS_LOW, _(u'System accessibility - low-income')),
+            (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
+            (TRAVEL_TIME, _(u'Travel Time Performance')),
+            (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
         )
 
     # Slice of time used for calculating this indicator
