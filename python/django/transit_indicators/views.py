@@ -90,7 +90,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         source_file = request.FILES.get('source_file', None)
         if source_file:
             city_name = request.DATA.get('city_name', None)
-            load_status = Indicator.load(source_file, city_name)
+            load_status = Indicator.load(source_file, city_name, request.user)
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)
 
