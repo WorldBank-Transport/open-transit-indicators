@@ -89,9 +89,9 @@ class IndicatorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Indicator
-        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'value', 'version', 'city_name', 'the_geom')
-        read_only_fields = ('id',)
+        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type', 
+                  'city_bounded', 'value', 'formatted_value', 'version', 'city_name', 'the_geom')
+        read_only_fields = ('id', 'formatted_value')
         write_only_fields = ('the_geom',)
 
 
