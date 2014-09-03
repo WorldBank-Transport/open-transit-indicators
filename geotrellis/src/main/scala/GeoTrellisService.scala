@@ -9,12 +9,8 @@ import com.azavea.gtfs.slick._
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
 
-import geotrellis.engine.{Error, Complete}
 import geotrellis.proj4._
-import geotrellis.raster.render.ColorRamps
 import geotrellis.slick._
-import geotrellis.engine.{ValueSource, RasterSource}
-import geotrellis.raster.stats.Histogram
 
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
