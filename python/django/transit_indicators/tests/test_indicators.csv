@@ -1,2 +1,2 @@
-aggregation,city_bounded,city_name,route_id,route_type,sample_period,type,value,version
-mode,True,,,3,morning,num_stops,13,1
+aggregation,city_bounded,city_name,id,route_id,route_type,sample_period,type,value,version
+mode,True,,,,3,morning,num_stops,13,1
