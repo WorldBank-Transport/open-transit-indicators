@@ -58,6 +58,8 @@ logs/
 *.swo
 *~
 ~*
+\#*#
+.#*
 
 # OS X
 .DS_Store
