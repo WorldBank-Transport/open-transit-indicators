@@ -22,4 +22,8 @@ angular.module('transitIndicators')
         };
     };
 
+    $scope.getIndicatorDescriptionTranslationKey = function(key) {
+        return 'INDICATOR_DESCRIPTION.' + key;
+    };
+
 }]);

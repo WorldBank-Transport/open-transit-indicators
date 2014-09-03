@@ -43,6 +43,10 @@
         "time_traveled_stops": "Avg Time Between Stops",
         "avg_service_freq": "Avg Service Frequency"
     },
+    "INDICATOR_DESCRIPTION": {
+        "num_stops": "Number of stops in the transit system for a given aggregation type",
+        "length": "The length in kilometers of a transit geometry for a given aggregation."
+    },
     "VIEW": {
         "overview": "Overview",
         "upload": "GTFS",
