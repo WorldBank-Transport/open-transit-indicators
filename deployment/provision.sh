@@ -534,9 +534,6 @@ database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
 spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
-// Temporarily above 1s until we figure out why geotrellis is firing registration timeouts
-// during the upload process
-spray.can.server.registration-timeout = 1200 s
 "
 
 pushd $GEOTRELLIS_ROOT/src/main/resources/
