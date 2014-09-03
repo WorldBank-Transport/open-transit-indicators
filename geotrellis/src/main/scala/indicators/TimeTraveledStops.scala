@@ -3,9 +3,10 @@ package opentransitgt.indicators
 import com.azavea.gtfs.data._
 import opentransitgt._
 import opentransitgt.DjangoAdapter._
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
 
 // Time traveled between stops
-class TimeTraveledStops(val gtfsData: GtfsData, val calcParams: CalcParams)
+class TimeTraveledStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef)
     extends IndicatorCalculator {
 
   val name = "time_traveled_stops"

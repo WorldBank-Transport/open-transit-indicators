@@ -9,13 +9,14 @@ import org.joda.time.PeriodType
 import opentransitgt.DjangoAdapter._
 import opentransitgt.indicators._
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
-import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 // Calculator interface for a particular indicator
 trait IndicatorCalculator {
   val gtfsData: GtfsData
   val calcParams: CalcParams
   val name: String
+  val db: DatabaseDef
 
   // Per-period calculations by each aggregation type
   // TODO: calculator results should be cached to prevent recalculating them during aggregations
@@ -23,10 +24,7 @@ trait IndicatorCalculator {
   def calcByMode(period: SamplePeriod): Map[Int, Double]
 
   // System calculation
-  def calcBySystem(period: SamplePeriod): Double = {
-    // TODO: system calculations have not been implemented yet.
-    0.0
-  }
+  def calcBySystem(period: SamplePeriod): Double = ???
 
   // Overall aggregation by route, taking into account all periods
   def calcOverallByRoute: Map[String, Double] = {
@@ -110,7 +108,7 @@ trait IndicatorCalculator {
   // Returns Option[Line] for the given routeID in lat/long coordinates.
   // Assumes that all shapes for a given trip are the same, may not be valid.
   def lineForRouteIDLatLng(period: SamplePeriod): Map[String, Option[Line]] = {
-    GeoTrellisService.db withSession { implicit session: Session =>
+    db withSession { implicit session: Session =>
       // Find the SRID of the UTM column and construct a CRS.
       //
       // Note: this is only needed because there is currently a bug

@@ -94,7 +94,6 @@ object DjangoAdapter {
     // Pipeline for sending HTTP requests and receiving responses
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
 
-
     def processResponse(response: HttpRequest) {
       pipeline(response).map(_.entity.asString) onComplete {
         case Success(response) => println(response)
@@ -103,11 +102,11 @@ object DjangoAdapter {
     }
 
     // Send a PATCH to update processing status for celery job
-    def updateIndicatorJob(token: String, indicatorjob: IndicatorJob) = {
+    def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
       import JsonImplicits._
 
-      val indicator_job_uri = s"$BASE_URI/indicator-jobs/${indicatorjob.version}/"
-      val patch = Patch(indicator_job_uri, indicatorjob) ~> addHeader("Authorization", s"Token $token")
+      val indicator_job_uri = s"$BASE_URI/indicator-jobs/${indicatorJob.version}/"
+      val patch = Patch(indicator_job_uri, indicatorJob) ~> addHeader("Authorization", s"Token $token")
       processResponse(patch)
     }
 
