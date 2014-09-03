@@ -42,6 +42,7 @@ class IndicatorFilter(django_filters.FilterSet):
 
     """
     local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
+    sample_period = django_filters.CharFilter(name="sample_period__type")
 
     class Meta:
         model = Indicator
@@ -153,6 +154,18 @@ class IndicatorAggregationTypes(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class IndicatorCities(APIView):
+    """ Indicator Cities GET endpoint
+    
+    Returns a list of city names that have indicators loaded
+    
+    """
+    def get(self, request, *args, **kwargs):
+        response = Indicator.objects.values_list('city_name', flat=True).filter(
+                                                 city_name__isnull=False).distinct()
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class SamplePeriodTypes(APIView):
     """ Sample Period Types GET endpoint
 
@@ -169,4 +182,5 @@ indicator_version = IndicatorVersion.as_view()
 indicator_types = IndicatorTypes.as_view()
 indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()
+indicator_cities = IndicatorCities.as_view()
 sample_period_types = SamplePeriodTypes.as_view()
