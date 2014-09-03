@@ -16,7 +16,7 @@
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
-            <span class="h4">{{'SETTINGS.REPRESENTATIVE_WEEKDAY' | translate}}</span>
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKDAY' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKDAY' | translate}}</span>
         </div>
         <div class="col-sm-6 config-datepicker">
             <p class="input-group">
@@ -35,7 +35,7 @@
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
-            <span class="h4">{{'SETTINGS.REPRESENTATIVE_WEEKEND' | translate}}</span>
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKEND' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKEND' | translate}}</span>
         </div>
         <div class="col-sm-6 config-datepicker">
             <p class="input-group">
@@ -59,7 +59,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-5">
-                    <span class="h4">{{'SETTINGS.MORNING_PEAK' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MORNING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MORNING_PEAK' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <select ng-model="morningPeakStart" name="morningPeakStart" ng-required="true"
@@ -83,7 +83,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-5">
-                    <span class="h4">{{'SETTINGS.EVENING_PEAK' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.EVENING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.EVENING_PEAK' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <select ng-model="eveningPeakStart" name="eveningPeakStart" ng-required="true"
@@ -122,7 +122,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">{{'SETTINGS.POVERTY_LINE' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.POVERTY_LINE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.POVERTY_LINE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" ng-model="config.poverty_line" min="0" />
@@ -136,7 +136,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">{{'SETTINGS.AVG_FARE' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
@@ -150,7 +150,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">{{'SETTINGS.DISTANCE_BUFFER' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.DISTANCE_BUFFER' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.DISTANCE_BUFFER' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="nearby_buffer_distance_m"
@@ -165,7 +165,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">{{'SETTINGS.JOB_TRAVEL_TIME' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_TRAVEL_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_TRAVEL_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="max_commute_time_min"
@@ -181,7 +181,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">{{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MAX_WALK_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="max_walk_time_min" ng-model="max_walk_time_min"
