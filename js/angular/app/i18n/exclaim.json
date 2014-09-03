@@ -43,6 +43,10 @@
         "time_traveled_stops": "!Avg Time Between Stops",
         "avg_service_freq": "!Avg Service Frequency"
     },
+    "INDICATOR_DESCRIPTION": {
+        "num_stops": "!Number of stops in the transit system for a given aggregation type",
+        "length": "!The length in kilometers of a transit geometry for a given aggregation."
+    },
     "VIEW": {
         "overview": "!Overview",
         "upload": "!GTFS",
@@ -58,6 +62,19 @@
             "VIEW_MAP": "!@:TERM.VIEW_MAP",
             "START": "!@:TERM.START",
             "SELECT_FILE": "!@:TERM.SELECT_FILE"
+        },
+        "TOOLTIP": {
+            "CITY": "!City Tooltip",
+            "REGION": "!Region Tooltip",
+            "REPRESENTATIVE_WEEKDAY": "!Representative Weekday Tooltip",
+            "REPRESENTATIVE_WEEKEND": "!Representative Weekend Tooltip",
+            "MORNING_PEAK": "!Morning Peak Tooltip",
+            "EVENING_PEAK": "!Evening Peak Tooltip",
+            "POVERTY_LINE": "!Poverty Line Tooltip",
+            "AVG_FARE": "!Average Fare Tooltip",
+            "DISTANCE_BUFFER": "!Distance Buffer Tooltip",
+            "JOB_TRAVEL_TIME": "!Job Travel Time Tooltip",
+            "MAX_WALK_TIME": "!Max Walk Time Tooltip"
         }
     },
     "SETTINGS": {
