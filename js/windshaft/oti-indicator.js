@@ -127,7 +127,7 @@ var Indicator = function (options) {
  */
 Indicator.prototype.getSql = function () {
     var sqlString =
-        "(SELECT value, " +
+        "(SELECT formatted_value as value, " +
         "ntile(" + this.options.ntiles + ") over (order by value) as ntiles_bin, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +

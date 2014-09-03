@@ -1,3 +1,4 @@
+# coding=UTF-8
 import csv
 
 from django.contrib.gis.db import models
@@ -138,7 +139,7 @@ class IndicatorJob(models.Model):
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'version']
 
     class LoadStatus(object):
@@ -149,6 +150,15 @@ class Indicator(models.Model):
             self.success = False
             self.count = 0
             self.errors = []
+
+    def save(self, *args, **kwargs):
+        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
+        if units:
+            self.formatted_value = u"%s %s" % (round(self.value, 2), units)
+        else:
+            self.formatted_value = u"%s" % round(self.value, 2)
+
+        super(Indicator, self).save(*args, **kwargs)
 
     @classmethod
     def load(cls, data, city_name, user):
@@ -182,8 +192,7 @@ class Indicator(models.Model):
                     version = row.pop('version', None)
                     if not import_job.version:
                         import_job.version = version
-                        import_job.save()
-                    indicator_job = import_job
+                        import_job.save()                 
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
@@ -192,7 +201,8 @@ class Indicator(models.Model):
                         sample_period_cache[sp_type] = sample_period
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
-                    indicator = cls(sample_period=sample_period, version=indicator_job, **row)
+                    value = float(row.pop('value')) 
+                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)   
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
@@ -245,6 +255,42 @@ class Indicator(models.Model):
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
+        
+        class Units(object):
+            AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
+            AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
+            AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
+            HOURS = _(u'hrs')
+            KILOMETERS = _(u'km')
+            KM_PER_AREA = _(u'km/km²')
+            LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
+            MINUTES = _(u'min')
+            POP_PER_500_METERS = _(u'population within 500m of a stop')   
+            STOPS_PER_500_METERS = _(u'stops/500m radius')
+            STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+
+        # units of measurement for the IndicatorTypes
+        INDICATOR_UNITS = {
+                            AVG_SERVICE_FREQ: Units.HOURS,
+                            COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
+                            DISTANCE_STOPS: Units.KILOMETERS,
+                            DWELL_TIME: Units.AVG_DWELL_DEVIATION,
+                            HOURS_SERVICE: Units.HOURS,
+                            LENGTH: Units.KILOMETERS,
+                            LINE_NETWORK_DENSITY: Units.KM_PER_AREA,
+                            ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
+                            REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
+                            SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
+                            STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
+                            SYSTEM_ACCESS: Units.POP_PER_500_METERS,
+                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
+                            TIME_TRAVELED_STOPS: Units.HOURS,
+                            TRAVEL_TIME: Units.HOURS,
+                            TIME_TRAVELED_STOPS: Units.MINUTES,
+                            WEEKDAY_END_FREQ: Units.HOURS     
+        }                 
+
         CHOICES = (
             (ACCESS_INDEX, _(u'Access index')),
             (AFFORDABILITY, _(u'Affordability')),
@@ -306,6 +352,9 @@ class Indicator(models.Model):
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
+    
+    # Value of the calculation, formatted for display
+    formatted_value = models.CharField(max_length=255, null=True)
 
     # Cached geometry for this indicator only used by Windshaft
     the_geom = models.GeometryField(srid=4326, null=True)

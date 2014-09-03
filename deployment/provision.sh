@@ -166,7 +166,7 @@ else
 
     # also install dependencies for building postgis
     apt-get -y install \
-        git htop multitail \
+        git htop multitail gettext \
         python-pip python-dev python-all-dev  \
         libxml2-dev libxslt1-dev \
         build-essential libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
