@@ -161,8 +161,8 @@ class IndicatorCities(APIView):
     
     """
     def get(self, request, *args, **kwargs):
-        response = [city[0] for city in Indicator.objects.values_list(
-                                        'city_name').filter(city_name__isnull=False).distinct()]
+        response = Indicator.objects.values_list('city_name', flat=True).filter(
+                                                 city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
 
 
