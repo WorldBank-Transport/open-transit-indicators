@@ -30,5 +30,6 @@ urlpatterns = patterns('',  # NOQA
     url(r'^api/indicator-version/', 'transit_indicators.views.indicator_version'),
     url(r'^api/indicator-types/', 'transit_indicators.views.indicator_types'),
     url(r'^api/indicator-aggregation-types/', 'transit_indicators.views.indicator_aggregation_types'),
+    url(r'^api/indicator-cities/', 'transit_indicators.views.indicator_cities'),
     url(r'^api/sample-period-types/', 'transit_indicators.views.sample_period_types'),
 )
