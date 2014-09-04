@@ -166,11 +166,8 @@ ALTER TABLE public.gtfs_pickup_dropoff_types OWNER TO transit_indicators;
 --
 -- Name: gtfs_route_types; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
 --
-
-CREATE TABLE gtfs_route_types (
-    route_type integer NOT NULL PRIMARY KEY,
-    description text
-);
+--  This table is created in a Django Data Migration (transit_indicators:0023)
+--
 
 
 ALTER TABLE public.gtfs_route_types OWNER TO transit_indicators;
