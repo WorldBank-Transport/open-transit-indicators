@@ -43,9 +43,6 @@ if [ 0 -ne $has_spatial_db ]; then
     # add database triggers
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_trigger.sql
 
-    # Populate the route types lookup table
-    psql -d $DB_NAME -f $PATH_PREFIX/deployment/gtfs_route_types.sql
-
     # Populate the UTM zone->srid lookup table
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/utm_zone_boundaries.sql
 else

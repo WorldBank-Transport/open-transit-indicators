@@ -5,8 +5,26 @@ from django.contrib.gis.db import models
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from transit_indicators.gtfs import GTFSRouteTypes
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
 from userdata.models import OTIUser
+
+
+class GTFSRouteType(models.Model):
+    """ Static definition of the gtfs route types
+
+    This model is populated by a data migration using the
+    gtfs.GTFSRouteTypes.CHOICES tuple
+
+    """
+    # Integer route type, is unique
+    route_type = models.IntegerField(unique=True, choices=GTFSRouteTypes.CHOICES)
+
+    # String description of gtfs route type
+    description = models.CharField(max_length=255)
+
+    class Meta(object):
+        db_table = 'gtfs_route_types'
 
 
 class OTIIndicatorsConfig(models.Model):
@@ -192,7 +210,7 @@ class Indicator(models.Model):
                     version = row.pop('version', None)
                     if not import_job.version:
                         import_job.version = version
-                        import_job.save()                 
+                        import_job.save()
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
@@ -201,8 +219,8 @@ class Indicator(models.Model):
                         sample_period_cache[sp_type] = sample_period
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
-                    value = float(row.pop('value')) 
-                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)   
+                    value = float(row.pop('value'))
+                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
@@ -255,7 +273,7 @@ class Indicator(models.Model):
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
-        
+
         class Units(object):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
@@ -266,7 +284,7 @@ class Indicator(models.Model):
             KM_PER_AREA = _(u'km/km²')
             LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
             MINUTES = _(u'min')
-            POP_PER_500_METERS = _(u'population within 500m of a stop')   
+            POP_PER_500_METERS = _(u'population within 500m of a stop')
             STOPS_PER_500_METERS = _(u'stops/500m radius')
             STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
 
@@ -288,8 +306,8 @@ class Indicator(models.Model):
                             TIME_TRAVELED_STOPS: Units.HOURS,
                             TRAVEL_TIME: Units.HOURS,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
-                            WEEKDAY_END_FREQ: Units.HOURS     
-        }                 
+                            WEEKDAY_END_FREQ: Units.HOURS
+        }
 
         CHOICES = (
             (ACCESS_INDEX, _(u'Access index')),
@@ -352,7 +370,7 @@ class Indicator(models.Model):
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
-    
+
     # Value of the calculation, formatted for display
     formatted_value = models.CharField(max_length=255, null=True)
 
