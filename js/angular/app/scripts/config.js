@@ -100,6 +100,7 @@ angular.module('transitIndicators').constant('config', {
             overlays: {}
         },
         markers: [],
+        legend: {},
         defaults: {
             maxZoom: 16,
             zoomControl: true,
