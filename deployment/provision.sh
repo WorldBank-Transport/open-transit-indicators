@@ -52,7 +52,7 @@ GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
 GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
 GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
-GTFS_PARSER_REPO_BRANCH="feature/slick"
+GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
 INDICATOR_SOFT_TIME_LIMIT_SECONDS="600"

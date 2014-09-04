@@ -3,9 +3,10 @@ package opentransitgt.indicators
 import com.azavea.gtfs.data._
 import opentransitgt._
 import opentransitgt.DjangoAdapter._
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
 
 // Number of routes
-class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams) extends IndicatorCalculator {
+class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator {
   val name = "num_routes"
 
   def calcByRoute(period: SamplePeriod): Map[String, Double] = {

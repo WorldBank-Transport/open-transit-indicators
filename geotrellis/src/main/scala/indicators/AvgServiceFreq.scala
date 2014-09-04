@@ -5,19 +5,39 @@ import com.azavea.gtfs.data._
 import com.github.nscala_time.time.Imports._
 import opentransitgt._
 import opentransitgt.DjangoAdapter._
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
 
 // Average Service Frequency
-class AvgServiceFreq(val gtfsData: GtfsData, val calcParams: CalcParams)
+class AvgServiceFreq(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef)
     extends IndicatorCalculator {
 
   val name = "avg_service_freq"
 
-  def calcByRoute(period: SamplePeriod): Map[String, Double] = {
-    routesInPeriod(period).map( route => route.id -> {
-      tripsInPeriod(period, route).map( trip => trip.stops).flatten
-    }).toMap.mapValues(stops => calculateHeadway(stops.toArray))
-    .mapValues( stop_differences => stop_differences.sum / stop_differences.size )
-  }
+  /** This implicit class adds a function on Seq[StopDateTime] that calculates the headway */
+  implicit class SeqStopDateTimeWrapper(stops: Seq[StopDateTime]) {
+    def calculateHeadway(): Seq[Double] =
+      stops
+        .groupBy(_.stop_id)
+        .mapValues { stops =>
+          calcStopDifferences(stops.sortBy(_.arrival).toArray)
+         }
+        .values
+        .toSeq
+        .flatten
+   }
+
+  def calcByRoute(period: SamplePeriod): Map[String, Double] =
+    routesInPeriod(period)
+      .map { route =>
+        val result =
+          tripsInPeriod(period, route)
+            .map(_.stops)
+            .flatten
+            .calculateHeadway
+        (route.id,result)
+       }
+      .toMap
+      .mapValues { stop_differences => stop_differences.sum / stop_differences.size }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
     routesInPeriod(period).groupBy(_.route_type.id.toInt).mapValues(routes => {
