@@ -8,7 +8,12 @@ from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
 from viewsets import OTIAdminViewSet
-from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator, IndicatorJob
+from models import (OTIIndicatorsConfig,
+                    OTIDemographicConfig,
+                    SamplePeriod,
+                    Indicator,
+                    IndicatorJob,
+                    GTFSRouteType)
 from transit_indicators.tasks import start_indicator_calculation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
                          SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer)
@@ -156,9 +161,9 @@ class IndicatorAggregationTypes(APIView):
 
 class IndicatorCities(APIView):
     """ Indicator Cities GET endpoint
-    
+
     Returns a list of city names that have indicators loaded
-    
+
     """
     def get(self, request, *args, **kwargs):
         response = Indicator.objects.values_list('city_name', flat=True).filter(
@@ -178,9 +183,30 @@ class SamplePeriodTypes(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class GTFSRouteTypes(APIView):
+    """ Endpoint to GET the gtfs route types from the database
+
+    Pass GET param ?extended=1 to get the extended set of route_types, not just the gtfs core types
+
+    """
+    def get(self, request, *args, **kwargs):
+        get_extended = request.QUERY_PARAMS.get('extended', None)
+        route_types = None
+        if get_extended:
+            route_types = GTFSRouteType.objects.all()
+        else:
+            # TODO: Move this filter logic to a static method on the GTFSRouteType class
+            route_types = GTFSRouteType.objects.filter(route_type__lt=10)
+        route_types = route_types.order_by('route_type')
+
+        response = [{ 'route_type': rt.route_type, 'description': rt.description } for rt in route_types]
+        return Response(response, status=status.HTTP_200_OK)
+
+
 indicator_version = IndicatorVersion.as_view()
 indicator_types = IndicatorTypes.as_view()
 indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()
 indicator_cities = IndicatorCities.as_view()
 sample_period_types = SamplePeriodTypes.as_view()
+gtfs_route_types = GTFSRouteTypes.as_view()
