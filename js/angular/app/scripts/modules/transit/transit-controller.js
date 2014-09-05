@@ -25,6 +25,7 @@ angular.module('transitIndicators')
             pluginOptions: { 'useJsonP': false }
         }
     };
+
     $scope.updateLeafletOverlays(overlays);
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
