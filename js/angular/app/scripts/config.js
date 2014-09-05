@@ -49,7 +49,7 @@ angular.module('transitIndicators').constant('config', {
                             '<a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> ' +
                             '&mdash; ' + osm_attr,
                         subdomains: ['a', 'b', 'c', 'd'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -63,7 +63,7 @@ angular.module('transitIndicators').constant('config', {
                             '<a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> ' +
                             '&mdash; ' + osm_attr,
                         subdomains: ['a', 'b', 'c', 'd'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -77,7 +77,7 @@ angular.module('transitIndicators').constant('config', {
                             'GSA, Esri, DeLorme, HERE, Intermap,  iPC, TomTom, USGS, ' +
                             'METI/NASA, USDA, EPA' + esri_attr_close,
                         subdomains: ['server', 'services'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -91,7 +91,19 @@ angular.module('transitIndicators').constant('config', {
                             'i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, ' +
                             'swisstopo, and the GIS User Community' + esri_attr_close,
                         subdomains: ['server', 'services'],
-                        minZoom: 0,
+                        minZoom: 3,
+                        maxZoom: 20,
+                        continuousWorld: true
+                    }
+                },
+                mapabc: {
+                    name: 'mapabc',
+                    type: 'xyz',
+                    url: 'http://emap{s}.mapabc.com/mapabc/maptile?x={x}&y={y}&z={z}',
+                    layerOptions: {
+                        attribution: 'MapABC',
+                        subdomains: ['1', '2', '3'],
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -101,6 +113,7 @@ angular.module('transitIndicators').constant('config', {
         },
         markers: [],
         defaults: {
+            minZoom: 3,
             maxZoom: 16,
             zoomControl: true,
             doubleClickZoom: true,
