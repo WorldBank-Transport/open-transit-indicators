@@ -6,6 +6,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.db import connection
 
 from datasources.models import (Boundary, BoundaryProblem, DataSourceProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
@@ -272,6 +273,11 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
             except ValueError as e:
                 error_factory.warn('Could not import 1 feature.', str(e))
 
+        # make raw SQL query to execute function that processes demographic data
+        # into regular point grid
+        with connection.cursor() as c:
+            c.execute('SELECT CreateGrid();')
+        
         demog_data.is_loaded = True
         demog_data.save()
         num_loaded_features = DemographicDataFeature.objects.filter(datasource=demog_data).count()

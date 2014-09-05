@@ -381,6 +381,10 @@ popd
 pushd $PROJECT_ROOT
     echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+    echo 'Adding Fishnet PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
+    echo 'Adding Demographic Grid PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/grid_function.sql
     # This needs to be run as the transit_indicators user so that it has ownership
     # over the tables, otherwise changing the SRID from GeoTrellis fails.
     echo 'Adding Shapefile reprojection PostgreSQL triggers'
