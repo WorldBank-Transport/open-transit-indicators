@@ -257,9 +257,9 @@ echo 'Installing django'
 pushd $TEMP_ROOT
     # Check for Django version
     django_vers=`python -c "import django; print(django.get_version())"` || true
-    if [ '1.7c1' != "$django_vers" ]; then
+    if [ '1.7' != "$django_vers" ]; then
         echo "Installing Django 1.7"
-        pip install -q -U git+git://github.com/django/django.git@1.7c1
+        pip install -q -U Django==1.7
     else
         echo 'Django already found, skipping.'
     fi
