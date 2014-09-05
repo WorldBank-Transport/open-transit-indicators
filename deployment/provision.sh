@@ -250,21 +250,6 @@ else
 fi
 
 ############################################
-
-# Install Django
-# TODO remove this once 1.7 is released and we can install using pip.
-echo 'Installing django'
-pushd $TEMP_ROOT
-    # Check for Django version
-    django_vers=`python -c "import django; print(django.get_version())"` || true
-    if [ '1.7' != "$django_vers" ]; then
-        echo "Installing Django 1.7"
-        pip install -q -U Django==1.7
-    else
-        echo 'Django already found, skipping.'
-    fi
-popd
-
 echo 'Installing python dependencies'
 pushd $PROJECT_ROOT
     pip install -q -r "deployment/requirements.txt"
