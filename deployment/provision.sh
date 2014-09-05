@@ -250,21 +250,6 @@ else
 fi
 
 ############################################
-
-# Install Django
-# TODO remove this once 1.7 is released and we can install using pip.
-echo 'Installing django'
-pushd $TEMP_ROOT
-    # Check for Django version
-    django_vers=`python -c "import django; print(django.get_version())"` || true
-    if [ '1.7c1' != "$django_vers" ]; then
-        echo "Installing Django 1.7"
-        pip install -q -U git+git://github.com/django/django.git@1.7c1
-    else
-        echo 'Django already found, skipping.'
-    fi
-popd
-
 echo 'Installing python dependencies'
 pushd $PROJECT_ROOT
     pip install -q -r "deployment/requirements.txt"
@@ -381,6 +366,10 @@ popd
 pushd $PROJECT_ROOT
     echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+    echo 'Adding Fishnet PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
+    echo 'Adding Demographic Grid PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/grid_function.sql
     # This needs to be run as the transit_indicators user so that it has ownership
     # over the tables, otherwise changing the SRID from GeoTrellis fails.
     echo 'Adding Shapefile reprojection PostgreSQL triggers'
