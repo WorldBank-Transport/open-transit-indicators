@@ -59,6 +59,12 @@ angular.module('transitIndicators')
         $scope.leaflet.bounds = config.worldExtent;
     });
 
+    $scope.$on('$stateChangeStart', function () {
+        // Always clear the legend when going to a state, we will always need to redraw it with
+        // the proper legend in the child state
+        $scope.leaflet.legend = {};
+    });
+
     $scope.$on('$stateChangeSuccess', function (event, toState) {
 
         $scope.mapActive = _.find(mapStates, function (state) { return state === toState.name; }) ? true : false;

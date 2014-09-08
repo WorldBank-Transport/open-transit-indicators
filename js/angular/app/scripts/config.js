@@ -10,6 +10,20 @@ var osm_attr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap
 // ESRI map server
 var esri_map_url = 'https://{s}.arcgisonline.com/ArcGIS/rest/services/';
 
+// These colors should match the colors found in
+//  js/windshaft/oti-indicators.js:style.gtfs_shapes()
+// TODO: Figure out a way to DRY this...
+var gtfsRouteTypeColors = [
+    '#a6cee3',
+    '#1f78b4',
+    '#b2df8a',
+    '#33a02c',
+    '#fb9a99',
+    '#e31a1c',
+    '#fdbf6f',
+    '#ff7f00'
+];
+
 angular.module('transitIndicators').constant('config', {
 
     debug: true,
@@ -129,6 +143,8 @@ angular.module('transitIndicators').constant('config', {
             }
         }
     },
+
+    gtfsRouteTypeColors: gtfsRouteTypeColors,
 
     windshaft: {
         port: 8067
