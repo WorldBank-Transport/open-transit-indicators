@@ -219,8 +219,7 @@ class IndicatorsTestCase(TestCase):
 
         self.user = OTIUser.objects.create_user('test', 'test@testing.com')
         self.indicator_job = IndicatorJob.objects.create(job_status='complete',
-                                                         version=1,
-                                                         payload='{}',
+                                                         version="cbe1f916-42d3-4630-8466-68b753024767",
                                                          created_by=self.user)
         # initialize a sample_period
         start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
@@ -276,7 +275,7 @@ class IndicatorsTestCase(TestCase):
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,,42.0,2,,,morning,num_routes,42.0,1\r\n'
+        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,,42.0,2,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):

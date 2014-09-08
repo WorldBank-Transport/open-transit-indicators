@@ -14,7 +14,7 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
   val geomColumnName = config.getString("database.geom-name-utm")
 
   // initialize sample periods
-  val calcParams = CalcParams("Token", 123, List[SamplePeriod](
+  val calcParams = CalcParams("Token", "cbe1f916-42d3-4630-8466-68b753024767", List[SamplePeriod](
     SamplePeriod(1, "night",
       new DateTime("2010-01-01T00:00:00.000-05:00"),
       new DateTime("2010-01-01T08:00:00.000-05:00")),

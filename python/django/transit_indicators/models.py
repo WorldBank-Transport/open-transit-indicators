@@ -1,5 +1,6 @@
 # coding=UTF-8
 import csv
+import uuid
 
 from django.contrib.gis.db import models
 from django.db import transaction
@@ -148,8 +149,8 @@ class IndicatorJob(models.Model):
         )
 
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
-    version = models.IntegerField(unique=True)
-    payload = models.TextField()
+    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+    is_latest_version = models.BooleanField(default=False)
     sample_periods = models.ManyToManyField(SamplePeriod)
     created_by = models.ForeignKey(OTIUser)
 
@@ -194,7 +195,6 @@ class Indicator(models.Model):
         sample_period_cache = {}
         # create new job for this import, so the version number may be set
         import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
-                                  payload="csv_import",
                                   created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')

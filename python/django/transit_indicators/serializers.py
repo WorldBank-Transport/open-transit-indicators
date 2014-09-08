@@ -35,28 +35,14 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
     """Serializer for Indicator Jobs"""
 
     def validate(self, attrs):
-        """Handle validation to set read only fields"""
+        """Handle validation to set read-only fields"""
         if not attrs.get("sample_periods"):
             attrs["sample_periods"] = SamplePeriod.objects.exclude(type="alltime")
-        token = OTIUser.objects.get(username='oti-admin').auth_token.key
-        attrs["payload"] = json.dumps({
-            'version': attrs["version"],
-            'token': token,
-            'sample_periods': [
-                {
-                    'id': s.id,
-                    'type': s.type,
-                    'period_start': s.period_start.isoformat(),
-                    'period_end': s.period_end.isoformat(),
-                }
-                for s in attrs["sample_periods"]
-            ],
-        })
         return super(IndicatorJobSerializer,self).validate(attrs)
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'sample_periods', 'payload')
+        read_only_fields = ('id', 'sample_periods', 'is_latest_version', 'version')
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
