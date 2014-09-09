@@ -1,25 +1,20 @@
 .angular-leaflet-map {
-    // Expands leaflet map to entire view bounds
-    // This class is on the div element created by
-    // angular-leaflet-directive and is placed here since there is
-    // no support for setting this style via the directive.
-    // The map will disappear if angular-leaflet-directive updates this class name
-    // in the future
-    position: fixed;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    &.navigationpadding-1 {
+        top: 5.5rem;
+    }
+    &.navigationpadding-2 {
+        top: 11rem;
+    }
 }
 
 .gtfs-map-controls {
     position: absolute;
     top: 1rem;
     left: 5rem;
-}
-
-// Move the zoom control; this might be better in a different location
-.leaflet-control-zoom {
-    //position: absolute;
-    //top: 11rem;
-    //right: 1rem;
-    //margin-top: 0 !important;
 }
 
 .indicator-map {
@@ -41,10 +36,6 @@
 .indicator-control {
     padding-bottom: 2rem;
     padding-right: 2rem;
-}
-
-.leaflet-bottom .leaflet-control {
-    margin-bottom: 2.5rem;
 }
 
 .legend {
