@@ -9,7 +9,8 @@
 </header>
 
 <div class="app-view">
-    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive }"
+    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive, 'navigationpadding-2': mapClassNav2 }"
+             class="navigationpadding-1"
              defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
              markers="leaflet.markers" layers="leaflet.layers">
     </leaflet>
