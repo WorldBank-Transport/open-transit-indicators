@@ -20,6 +20,7 @@ angular.module('transitIndicators')
      *  call the success/failure callbacks on function return as detailed here:
      *  HTTP GET "class" actions: Resource.action([parameters], [success], [error])
      * My guess is the redirect from the stripTrailingSlash is at work again...
+     * TODO: Filter out route aggregations in request
      */
     otiIndicatorsService.search = function (config) {
         var dfd = $q.defer();
