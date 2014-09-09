@@ -16,6 +16,23 @@ angular.module('transitIndicators')
     });
 
     /**
+     * This is here rather than as a 'search' method on Indicator because the function refused to
+     *  call the success/failure callbacks on function return as detailed here:
+     *  HTTP GET "class" actions: Resource.action([parameters], [success], [error])
+     * My guess is the redirect from the stripTrailingSlash is at work again...
+     */
+    otiIndicatorsService.search = function (config) {
+        var dfd = $q.defer();
+        $http.get('/api/indicators/', {params: config}).success(function (data) {
+            dfd.resolve(data);
+        }).error(function (error) {
+            console.error('otiIndicatorsService.search():', error);
+            dfd.resolve([]);
+        });
+        return dfd.promise;
+    };
+
+    /**
      * Thin wrapper for Indicator used in the controller for setting the map properties
      */
     otiIndicatorsService.IndicatorConfig = function (config) {

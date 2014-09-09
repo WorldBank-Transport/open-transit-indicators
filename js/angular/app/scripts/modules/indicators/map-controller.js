@@ -128,11 +128,11 @@ angular.module('transitIndicators')
         setIndicator({sample_period: sample_period});
     });
 
+    $scope.$on(OTIEvents.Indicators.IndicatorVersionUpdated, function (event, version) {
+        setIndicator({version: version});
+    });
+
     $scope.init = function () {
-        // TODO: May need to be moved to OTIIndicatorsController
-        OTIIndicatorsService.getIndicatorVersion(function (version) {
-            setIndicator({version: version});
-        });
     };
     $scope.init();
 }]);

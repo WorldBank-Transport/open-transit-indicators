@@ -1,35 +1,47 @@
 <div class="indicators-heading">
     <div class="indicators-description">
-        Viewing indicator results for Boston, Chicago, and Zhengzhou.
+        Viewing indicator results for {{ cities.join(', ') }}
     </div>
     <div class="indicators-map"></div>
 </div>
 <div class="indicators-table">
     <div class="indicators-row indicators-row-heading">
         <div class="indicators-cell indicators-label">City</div>
-        <div class="indicators-cell">Boston</div>
-        <div class="indicators-cell">Chicago</div>
-        <div class="indicators-cell">Zhengzhou</div>
+        <div ng-repeat="cityname in cities" class="indicators-cell">{{ cityname }}</div>
     </div>
 </div>
-<div ng-repeat="(key, value) in types" class="indicators-table">
+<div ng-repeat="(name, indicator) in indicatorData" class="indicators-table">
     <div class="indicators-row">
         <div class="indicators-cell indicators-label">
-            <h3>{{ value }}</h3>
-            <p>{{ getIndicatorDescriptionTranslationKey(key) | translate }}</p>
+            <h3>{{ types[name] }}</h3>
+            <p>{{ getIndicatorDescriptionTranslationKey(name) | translate }}</p>
         </div>
-        <nvd3-pie-chart class="indicators-cell"
-            data="exampleData" id="{{ key }}-pie-chart" height="170"
-            margin="{left:0,top:20,bottom:20,right:0}"
-            x="xFunction()" y="yFunction()"
-            tooltips="true" showLabels="true" labelType="percent">
-            <svg></svg>
-        </nvd3-pie-chart>
-        <div class="indicators-cell">
-            14%
-        </div>
-        <div class="indicators-cell">
-            86%
+        <div ng-repeat="(cityname, citydata) in indicator" class="indicators-cell">
+            <div ng-if="citydata.route && citydata.route.length > 0">
+                <span>By Route:</span>
+                <nvd3-pie-chart
+                    data="citydata.route" id="{{ name }}-{{ cityname }}-route-pie-chart" height="170"
+                    margin="{left:0,top:10,bottom:0,right:0}"
+                    x="routeXFunction()" y="yFunction()"
+                    tooltips="true" showLabels="true" labelType="percent">
+                    <svg></svg>
+                </nvd3-pie-chart>
+            </div>
+            <div ng-if="citydata.mode && citydata.mode.length > 1">
+                <span>By Mode:</span>
+                <nvd3-pie-chart
+                    data="citydata.mode" id="{{ name }}-{{ cityname }}-mode-pie-chart" height="170"
+                    margin="{left:0,top:10,bottom:0,right:0}"
+                    x="modeXFunction()" y="yFunction()"
+                    tooltips="true" showLabels="true" labelType="percent">
+                    <svg></svg>
+                </nvd3-pie-chart>
+            </div>
+            <div ng-if="citydata.mode && citydata.mode.length === 1">
+                <span>By Mode: {{ citydata.mode[0].route_type }} - {{ citydata.mode[0].formatted_value }}</span>
+            </div>
+            <span ng-if="citydata.system && citydata.system.length > 0">{{ citydata.system[0].formatted_value }}</span>
+            <span ng-if="!(citydata.system && citydata.system.length > 0)">No System-wide Data</span>
         </div>
     </div>
 </div>
