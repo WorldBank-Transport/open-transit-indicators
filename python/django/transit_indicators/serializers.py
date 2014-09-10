@@ -1,10 +1,11 @@
-import datetime
+import json
+import time
 
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator
-
+from transit_indicators.models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator, IndicatorJob
+from userdata.models import OTIUser
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
     """Serializer for SamplePeriods -- performs validation of times"""
@@ -30,11 +31,24 @@ class SamplePeriodSerializer(serializers.ModelSerializer):
         model = SamplePeriod
         fields = ('period_start', 'period_end', 'type')
 
+class IndicatorJobSerializer(serializers.ModelSerializer):
+    """Serializer for Indicator Jobs"""
+
+    def validate(self, attrs):
+        """Handle validation to set read-only fields"""
+        if not attrs.get("sample_periods"):
+            attrs["sample_periods"] = SamplePeriod.objects.exclude(type="alltime")
+        return super(IndicatorJobSerializer,self).validate(attrs)
+
+    class Meta:
+        model = IndicatorJob
+        read_only_fields = ('id', 'sample_periods', 'is_latest_version', 'version')
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
+    version = serializers.SlugRelatedField(slug_field='version')
 
     def validate(self, attrs):
         """Validate indicator fields"""
@@ -58,9 +72,10 @@ class IndicatorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Indicator
-        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'value', 'version', 'city_name', 'the_geom')
-        read_only_fields = ('id',)
+        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type', 
+                  'city_bounded', 'value', 'formatted_value', 'version', 'city_name', 'the_geom')
+        read_only_fields = ('id', 'formatted_value')
+        write_only_fields = ('the_geom',)
 
 
 class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):

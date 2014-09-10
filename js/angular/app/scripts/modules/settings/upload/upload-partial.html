@@ -1,6 +1,6 @@
 <div ng-init="init()">
-    <h1>GTFS</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+    <h1>{{'VIEW.upload' | translate}}</h1>
+    <p>{{'SETTINGS.UPLOAD_DESCRIPTION' | translate}}</p>
 
     <polling-upload url="/api/gtfs-feeds/" upload="gtfsUpload" resource="GTFSUploads" options="gtfsOptions">
     </polling-upload>
@@ -8,14 +8,14 @@
     <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
             <div class="settingsmodal-notices-errors">
-                <h4>Errors</h4>
+                <h4>{{'TERM.ERRORS' | translate}}</h4>
                 <ul>
                     <li ng-repeat="problem in uploadProblems.errors">{{ problem.description }}</li>
                 </ul>
             </div>
         </div>
         <div class="settingsmodal-notices-warnings" ng-if="uploadProblems.warnings.length > 0">
-            <h4>Warnings</h4>
+            <h4>{{'TERM.WARNINGS' | translate}}</h4>
             <ul>
                 <li ng-repeat="problem in uploadProblems.warnings">{{ problem.description }}</li>
             </ul>
@@ -23,30 +23,30 @@
     </div>
 
     <div class="dropzone error" ng-if="osmImportProgress === STATUS.UPLOADERROR">
-      <div class="h4">Error importing OpenStreetMap data <span class="h5 pull-right"><button class="btn btn-danger" ng-click="retryOSMImport()">Retry</button></span></div>
+      <div class="h4">{{'SETTINGS.OSM_IMPORT_ERROR' | translate}} <span class="h5 pull-right"><button class="btn btn-danger" ng-click="retryOSMImport()">{{'STATUS.RETRY' | translate}}</button></span></div>
     </div>
 
     <div class="dropzone inprogress" ng-show="osmImportProgress >= 0 && osmImportProgress <= 100">
-        <div class="h4">Importing OpenStreetMap data ...</div>
+        <div class="h4">{{'SETTINGS.IMPORTING_OSM' | translate}}</div>
     </div>
 
     <div class="dropzone" ng-if="osmImportProgress === STATUS.DONE">
         <div class="h3">
-            <span class="glyphicon glyphicon-ok"></span> OpenStreetMap Data Loaded
+            <span class="glyphicon glyphicon-ok"></span> {{'SETTINGS.OSM_LOADED' | translate}}
         </div>
     </div>
 
     <div class="dropzone notices" ng-if="osmImportProblems.warnings.length > 0 || osmImportProblems.errors.length > 0">
         <div class="settingsmodal-notices" ng-if="osmImportProblems.errors.length > 0">
             <div class="settingsmodal-notices-errors">
-                <h4>Errors</h4>
+                <h4>{{'TERM.ERRORS' | translate}}</h4>
                 <ul>
                     <li ng-repeat="problem in osmImportProblems.errors">{{ problem.description }}</li>
                 </ul>
             </div>
         </div>
         <div class="settingsmodal-notices-warnings" ng-if="osmImportProblems.warnings.length > 0">
-            <h4>Warnings</h4>
+            <h4>{{'TERM.WARNINGS' | translate}}</h4>
             <ul>
                 <li ng-repeat="problem in osmImportProblems.warnings">{{ problem.description }}</li>
             </ul>

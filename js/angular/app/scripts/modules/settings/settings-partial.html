@@ -1,8 +1,9 @@
+<!-- TODO: Remove modal "look" of this page -->
 <div class="settingsmodal-wrapper">
     <div class="settingsmodal clearfix">
         <div class="settingsmodal-sidebar clearfix">
-            <div ng-repeat="view in views" class="settingsmodal-sidebar-tab" ng-class="{'settingsmodal-sidebar-active': view.id === activeView}" ui-sref="{{ view.id }}">{{ view.label }}<span ng-show="checkmarks.{{ view.id }}" class="pull-right glyphicon glyphicon-ok"></span></div>
-            <div class="settingsmodal-sidebar-tab" ><button class="btn btn-primary" ui-sref="map" ui-sref-opts="reload">View Map</button></div>
+            <div ng-repeat="view in views" class="settingsmodal-sidebar-tab" ng-class="{'settingsmodal-sidebar-active': view.id === activeView}" ui-sref="{{ view.id }}">{{'VIEW.' + view.id | translate}}<span ng-show="checkmarks.{{ view.id }}" class="pull-right glyphicon glyphicon-ok"></span></div>
+            <div class="settingsmodal-sidebar-tab" ><button class="btn btn-primary" ui-sref="transit" ui-sref-opts="reload">{{'UI.BUTTON.VIEW_MAP' | translate}}</button></div>
         </div>
         <!-- Data Loading Page:
         Should have "dropzone" drag and drop upload process like this: http://buildinternet.com/2013/08/drag-and-drop-file-upload-with-angularjs/

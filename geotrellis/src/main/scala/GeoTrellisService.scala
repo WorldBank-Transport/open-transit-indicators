@@ -1,27 +1,28 @@
 package opentransitgt
 
+import opentransitgt.DjangoAdapter._
+
 import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.slick._
+
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
-import com.typesafe.config.{ConfigFactory,Config}
-import geotrellis.process.{Error, Complete}
+
 import geotrellis.proj4._
-import geotrellis.render.ColorRamps
 import geotrellis.slick._
-import geotrellis.source.{ValueSource, RasterSource}
-import geotrellis.statistics.Histogram
-import org.joda.time.format.ISODateTimeFormat
-import opentransitgt.DjangoAdapter._
+
 import scala.slick.driver.PostgresDriver
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
-import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.slick.jdbc.meta.MTable
+
 import spray.http.MediaTypes
 import spray.http.StatusCodes.{Created, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 // JSON support
 import spray.json._
@@ -29,12 +30,45 @@ import spray.httpx.SprayJsonSupport
 import SprayJsonSupport._
 import DefaultJsonProtocol._
 
-trait GeoTrellisService extends HttpService {
+import org.joda.time.format.ISODateTimeFormat
+import com.typesafe.config.{ConfigFactory, Config}
+
+trait GtfsDatabase {
+  val db: DatabaseDef
+}
+
+trait ProductionGtfsDatabase extends GtfsDatabase {
+  val db = {
+    val config = ConfigFactory.load
+    val dbName = config.getString("database.name")
+    val dbUser = config.getString("database.user")
+    val dbPassword = config.getString("database.password")
+    Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
+      user = dbUser, password = dbPassword)
+  }
+}
+
+trait LoadedGtfsData { self: GtfsDatabase =>
+  // In-memory GTFS data storage
+  lazy val gtfsData: GtfsData = {
+    val config = ConfigFactory.load
+    val dbGeomNameUtm = config.getString("database.geom-name-utm")
+
+    db withSession { implicit session =>
+      val dao = new DAO()
+      // data is read from the db as the reprojected UTM projection
+      dao.geomColumnName = dbGeomNameUtm
+      dao.toGtfsData
+    }
+  }
+}
+
+trait GeoTrellisServiceRoute extends HttpService with GeoTrellisService { self: GtfsDatabase =>
   // For performing extent queries
   case class Extent(xmin: Double, xmax: Double, ymin: Double, ymax: Double)
   implicit val getExtentResult = GetResult(r => Extent(r.<<, r.<<, r.<<, r.<<))
 
-  // All the routes that are defined by our API
+ // All the routes that are defined by our API
   def rootRoute = pingRoute ~ gtfsRoute ~ indicatorsRoute ~ mapInfoRoute
 
   // Endpoint for testing: browsing to /ping should return the text
@@ -42,7 +76,7 @@ trait GeoTrellisService extends HttpService {
     pathPrefix("gt") {
       path("ping") {
         get {
-          complete("pong!")
+          complete(future("pong!"))
         }
       }
     }
@@ -53,15 +87,15 @@ trait GeoTrellisService extends HttpService {
       path("gtfs") {
         post {
           parameter('gtfsDir.as[String]) { gtfsDir =>
-            complete {
+            complete(future {
               println(s"parsing GTFS data from: $gtfsDir")
-              val data = GeoTrellisService.parseAndStore(gtfsDir)
+              val data = parseAndStore(gtfsDir)
 
               JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Imported ${data.routes.size} routes")
               )
-            }
+            })
           }
         }
       }
@@ -81,17 +115,20 @@ trait GeoTrellisService extends HttpService {
         post {
           entity(as[CalcParams]) { calcParams =>
             complete {
-              if (GeoTrellisService.calculateIndicators(calcParams)) {
+              try {
+                calculateIndicators(calcParams)
+
                 // return a 201 created
                 Created -> JsObject(
                   "success" -> JsBoolean(true),
                   "message" -> JsString(s"Calculations started (version ${calcParams.version})")
                 )
-              } else {
-                JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No GTFS data")
-                )
+              } catch {
+                case _: Exception =>
+                  JsObject(
+                    "success" -> JsBoolean(false),
+                    "message" -> JsString("No GTFS data")
+                  )
               }
             }
           }
@@ -105,8 +142,8 @@ trait GeoTrellisService extends HttpService {
     pathPrefix("gt") {
       path("map-info") {
         get {
-          complete {
-            GeoTrellisService.db withSession { implicit session: Session =>
+          complete(future {
+            db withSession { implicit session: Session =>
               // use the stops to find the extent, since they are required
               val q = Q.queryNA[Extent]("""
                 SELECT ST_XMIN(ST_Extent(the_geom)) as xmin, ST_XMAX(ST_Extent(the_geom)) as xmax,
@@ -135,7 +172,7 @@ trait GeoTrellisService extends HttpService {
               // return the map info json
               JsObject("extent" -> extentJson)
             }
-          }
+          })
         }
       }
     }
@@ -151,31 +188,32 @@ trait GeoTrellisService extends HttpService {
           println(e.getStackTrace.mkString("\n"))
           // replace double quotes with single so our message is more json safe
           val jsonMessage = e.getMessage.replace("\"", "'")
-          complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
+          complete(future(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" ))
         }
     }
 }
 
-// Companion object for GeoTrellisService -- makes it easier to unit test
-object GeoTrellisService {
+trait GeoTrellisService extends LoadedGtfsData { self: GtfsDatabase =>
   val config = ConfigFactory.load
-  val dao = new DAO()
   val dbGeomNameLatLng = config.getString("database.geom-name-lat-lng")
-  val dbGeomNameUtm = config.getString("database.geom-name-utm")
-  val dbName = config.getString("database.name")
-  val dbUser = config.getString("database.user")
-  val dbPassword = config.getString("database.password")
-  var db = Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
-    user = dbUser, password = dbPassword)
 
-  // In-memory GTFS data storage
-  var gtfsData: Option[GtfsData] = None
+  // Triggers an indicator calculation with the specified calculation parameters.
+  // Returns true if calculation has begun, false if there is a problem
+  def calculateIndicators(calcParams: CalcParams): Boolean = {
+    val calc = new IndicatorsCalculator(gtfsData, calcParams, db)
+    calc.storeIndicators
+
+    // Update indicator-job status
+    djangoClient.updateIndicatorJob(calcParams.token, IndicatorJob(version=calcParams.version, job_status="complete"))
+    true
+  }
 
   // Parses a GTFS directory from the specified location, stores it in the db and reprojects
   def parseAndStore(gtfsDir: String): GtfsData = {
     db withSession { implicit session: Session =>
       val data = GtfsData.fromFile(gtfsDir)
 
+      val dao = new DAO
       // data is read from the file and inserted into the db as lat/lng
       dao.geomColumnName = dbGeomNameLatLng
 
@@ -210,7 +248,7 @@ object GeoTrellisService {
       // thing to do in this case.
       def geomTransform(srid: Int, table: String, geomType: String, column: String) =
         // only alter the table if it exists
-        if (!MTable.getTables(table).list().isEmpty) {
+        if (!MTable.getTables(table).list.isEmpty) {
           (Q.u +
             s"ALTER TABLE ${table} ALTER COLUMN ${column} " +
             s"TYPE Geometry(${geomType},${srid}) " +
@@ -233,32 +271,6 @@ object GeoTrellisService {
 
       println("Finished transforming to local UTM zone.")
       data
-    }
-  }
-
-  // Triggers an indicator calculation with the specified calculation parameters.
-  // Returns true if calculation has begun, false if there is a problem
-  def calculateIndicators(calcParams: CalcParams): Boolean = {
-    db withSession { implicit session: Session =>
-
-      // data is read from the db as the reprojected UTM projection
-      dao.geomColumnName = dbGeomNameUtm
-
-      // load GTFS data if it doesn't exist in memory
-      gtfsData match {
-        case None => gtfsData = Some(dao.toGtfsData)
-        case Some(data) =>
-      }
-
-      // calculate and store the indicators
-      gtfsData match {
-        case None => false
-        case Some(data) => {
-          val calc = new IndicatorsCalculator(data, calcParams)
-          calc.storeIndicators
-          true
-        }
-      }
     }
   }
 }

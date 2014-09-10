@@ -1,9 +1,31 @@
+# coding=UTF-8
 import csv
+import uuid
 
 from django.contrib.gis.db import models
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
+from transit_indicators.gtfs import GTFSRouteTypes
 from datasources.models import Boundary, DemographicDataFieldName, DemographicDataSource
+from userdata.models import OTIUser
+
+
+class GTFSRouteType(models.Model):
+    """ Static definition of the gtfs route types
+
+    This model is populated by a data migration using the
+    gtfs.GTFSRouteTypes.CHOICES tuple
+
+    """
+    # Integer route type, is unique
+    route_type = models.IntegerField(unique=True, choices=GTFSRouteTypes.CHOICES)
+
+    # String description of gtfs route type
+    description = models.CharField(max_length=255)
+
+    class Meta(object):
+        db_table = 'gtfs_route_types'
 
 
 class OTIIndicatorsConfig(models.Model):
@@ -83,20 +105,23 @@ class SamplePeriod(models.Model):
     subsequent dates if crossing midnight). There are five sample period types, three
     of which are specified by the user (morning rush, evening rush, weekend), and two
     of which are inferred by filling in the gaps between those (mid day, night).
+    There is also a special sample period: alltime that is used for all-time aggregation.
     """
 
     class SamplePeriodTypes(object):
+        ALLTIME = 'alltime'
         MORNING = 'morning'
         MIDDAY = 'midday'
         EVENING = 'evening'
         NIGHT = 'night'
         WEEKEND = 'weekend'
         CHOICES = (
-            (MORNING, 'Morning Rush'),
-            (MIDDAY, 'Mid Day'),
-            (EVENING, 'Evening Rush'),
-            (NIGHT, 'Night'),
-            (WEEKEND, 'Weekend'),
+            (ALLTIME, _(u'All Time')),
+            (MORNING, _(u'Morning Rush')),
+            (MIDDAY, _(u'Mid Day')),
+            (EVENING, _(u'Evening Rush')),
+            (NIGHT, _(u'Night')),
+            (WEEKEND, _(u'Weekend')),
         )
     type = models.CharField(max_length=7, choices=SamplePeriodTypes.CHOICES, unique=True)
 
@@ -107,10 +132,33 @@ class SamplePeriod(models.Model):
     period_end = models.DateTimeField()
 
 
+class IndicatorJob(models.Model):
+    """Stores processing status of an indicator job"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        TIMEDOUT = 'timedout'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Job queued for processing')),
+            (PROCESSING, _(u'Indicators being processed and calculated')),
+            (ERROR, _(u'Error calculating indicators')),
+            (COMPLETE, _(u'Completed indicator calculation')),
+        )
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+    is_latest_version = models.BooleanField(default=False)
+    sample_periods = models.ManyToManyField(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+
+
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'version']
 
     class LoadStatus(object):
@@ -122,19 +170,32 @@ class Indicator(models.Model):
             self.count = 0
             self.errors = []
 
+    def save(self, *args, **kwargs):
+        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
+        if units:
+            self.formatted_value = u"%s %s" % (round(self.value, 2), units)
+        else:
+            self.formatted_value = u"%s" % round(self.value, 2)
+
+        super(Indicator, self).save(*args, **kwargs)
+
     @classmethod
-    def load(cls, data, city_name):
+    def load(cls, data, city_name, user):
         """ Load passed csv into Indicator table using city_name as a reference value
 
         :param data: File object holding csv data with headers in Indicator.field_names
         :param city_name: Inserted into the Indicator.city_name field, is a human-readable
                           string which denotes which dataset the indicator is attached to
+        :param user: User loading this csv
 
         :return LoadStatus
 
         """
         response = cls.LoadStatus()
         sample_period_cache = {}
+        # create new job for this import, so the version number may be set
+        import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+                                  created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')
             return response
@@ -145,22 +206,33 @@ class Indicator(models.Model):
             with transaction.atomic():
                 for row in dict_reader:
                     row['city_name'] = city_name
-                    sp_type=row.pop('sample_period', None)
+                    sp_type = row.pop('sample_period', None)
+                    version = row.pop('version', None)
+                    if not import_job.version:
+                        import_job.version = version
+                        import_job.save()
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
                     if not sample_period:
                         sample_period = SamplePeriod.objects.get(type=sp_type)
                         sample_period_cache[sp_type] = sample_period
-                    indicator = cls(sample_period=sample_period, **row)
+                    # autonumber ID field (do not use imported ID)
+                    row.pop('id')
+                    value = float(row.pop('value'))
+                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
                 response.success = True
+                import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
+                import_job.save()
 
         except Exception as e:
             response.success = False
             response.errors.append(str(e))
+            import_job.job_status = IndicatorJob.StatusChoices.ERROR
+            import_job.save()
 
         return response
 
@@ -169,9 +241,9 @@ class Indicator(models.Model):
         MODE = 'mode'
         SYSTEM = 'system'
         CHOICES = (
-            (ROUTE, 'Route'),
-            (MODE, 'Mode'),
-            (SYSTEM, 'System'),
+            (ROUTE, _(u'Route')),
+            (MODE, _(u'Mode')),
+            (SYSTEM, _(u'System')),
         )
 
     class IndicatorTypes(object):
@@ -201,33 +273,69 @@ class Indicator(models.Model):
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
+
+        class Units(object):
+            AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
+            AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
+            AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
+            HOURS = _(u'hrs')
+            KILOMETERS = _(u'km')
+            KM_PER_AREA = _(u'km/km²')
+            LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
+            MINUTES = _(u'min')
+            POP_PER_500_METERS = _(u'population within 500m of a stop')
+            STOPS_PER_500_METERS = _(u'stops/500m radius')
+            STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+
+        # units of measurement for the IndicatorTypes
+        INDICATOR_UNITS = {
+                            AVG_SERVICE_FREQ: Units.HOURS,
+                            COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
+                            DISTANCE_STOPS: Units.KILOMETERS,
+                            DWELL_TIME: Units.AVG_DWELL_DEVIATION,
+                            HOURS_SERVICE: Units.HOURS,
+                            LENGTH: Units.KILOMETERS,
+                            LINE_NETWORK_DENSITY: Units.KM_PER_AREA,
+                            ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
+                            REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
+                            SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
+                            STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
+                            SYSTEM_ACCESS: Units.POP_PER_500_METERS,
+                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
+                            TIME_TRAVELED_STOPS: Units.HOURS,
+                            TRAVEL_TIME: Units.HOURS,
+                            TIME_TRAVELED_STOPS: Units.MINUTES,
+                            WEEKDAY_END_FREQ: Units.HOURS
+        }
+
         CHOICES = (
-            (ACCESS_INDEX, 'Access index'),
-            (AFFORDABILITY, 'Affordability'),
-            (AVG_SERVICE_FREQ, 'Average Service Frequency'),
-            (COVERAGE, 'System coverage'),
-            (COVERAGE_STOPS, 'Coverage of transit stops'),
-            (DISTANCE_STOPS, 'Distance between stops'),
-            (DWELL_TIME, 'Dwell Time Performance'),
-            (HOURS_SERVICE, 'Weekly number of hours of service'),
-            (JOB_ACCESS, 'Job accessibility'),
-            (LENGTH, 'Transit system length'),
-            (LINES_ROADS, 'Ratio of transit lines length over road length'),
-            (LINE_NETWORK_DENSITY, 'Transit line network density'),
-            (NUM_MODES, 'Number of modes'),
-            (NUM_ROUTES, 'Number of routes'),
-            (NUM_STOPS, 'Number of stops'),
-            (NUM_TYPES, 'Number of route types'),
-            (ON_TIME_PERF, 'On-Time Performance'),
-            (REGULARITY_HEADWAYS, 'Regularity of Headways'),
-            (SERVICE_FREQ_WEIGHTED, 'Service frequency weighted by served population'),
-            (STOPS_ROUTE_LENGTH, 'Ratio of number of stops to route-length'),
-            (SUBURBAN_LINES, 'Ratio of the Transit-Pattern Operating Suburban Lines'),
-            (SYSTEM_ACCESS, 'System accessibility'),
-            (SYSTEM_ACCESS_LOW, 'System accessibility - low-income'),
-            (TIME_TRAVELED_STOPS, 'Time traveled between stops'),
-            (TRAVEL_TIME, 'Travel Time Performance'),
-            (WEEKDAY_END_FREQ, 'Weekday / weekend frequency'),
+            (ACCESS_INDEX, _(u'Access index')),
+            (AFFORDABILITY, _(u'Affordability')),
+            (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
+            (COVERAGE, _(u'System coverage')),
+            (COVERAGE_STOPS, _(u'Coverage of transit stops')),
+            (DISTANCE_STOPS, _(u'Distance between stops')),
+            (DWELL_TIME, _(u'Dwell Time Performance')),
+            (HOURS_SERVICE, _(u'Weekly number of hours of service')),
+            (JOB_ACCESS, _(u'Job accessibility')),
+            (LENGTH, _(u'Transit system length')),
+            (LINES_ROADS, _(u'Ratio of transit lines length over road length')),
+            (LINE_NETWORK_DENSITY, _(u'Transit line network density')),
+            (NUM_MODES, _(u'Number of modes')),
+            (NUM_ROUTES, _(u'Number of routes')),
+            (NUM_STOPS, _(u'Number of stops')),
+            (NUM_TYPES, _(u'Number of route types')),
+            (ON_TIME_PERF, _(u'On-Time Performance')),
+            (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
+            (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
+            (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
+            (SYSTEM_ACCESS, _(u'System accessibility')),
+            (SYSTEM_ACCESS_LOW, _(u'System accessibility - low-income')),
+            (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
+            (TRAVEL_TIME, _(u'Travel Time Performance')),
+            (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
         )
 
     # Slice of time used for calculating this indicator
@@ -258,10 +366,13 @@ class Indicator(models.Model):
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
     # will need to be added to the the GTFS (and other data) rows.
-    version = models.PositiveIntegerField(default=0)
+    version = models.ForeignKey(IndicatorJob, to_field='version')
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
+
+    # Value of the calculation, formatted for display
+    formatted_value = models.CharField(max_length=255, null=True)
 
     # Cached geometry for this indicator only used by Windshaft
     the_geom = models.GeometryField(srid=4326, null=True)

@@ -5,7 +5,7 @@ import spray.util.LoggingContext
 import spray.routing.ExceptionHandler
 import spray.http.StatusCodes._
 
-class GeoTrellisServiceActor extends GeoTrellisService with Actor {
+class GeoTrellisServiceActor extends GeoTrellisServiceRoute with Actor with ProductionGtfsDatabase {
   // The HttpService trait (which GeoTrellisService will extend) defines
   // only one abstract member, which connects the services environment
   // to the enclosing actor or test.

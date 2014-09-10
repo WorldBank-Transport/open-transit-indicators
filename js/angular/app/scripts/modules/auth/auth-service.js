@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('authService',
-        ['config', '$q', '$http', '$cookieStore', '$rootScope', '$timeout', '$window',
-        function (config, $q, $http, $cookieStore, $rootScope, $timeout, $window) {
+        ['config', '$q', '$http', '$cookieStore', '$rootScope', '$timeout', '$window', 'OTIEvents',
+        function (config, $q, $http, $cookieStore, $rootScope, $timeout, $window, OTIEvents) {
 
     var userIdCookieString = 'authService.userId';
     var tokenCookieString = 'authService.token';
@@ -58,7 +58,7 @@ angular.module('transitIndicators')
                 }
                 result.isAuthenticated = authService.isAuthenticated();
                 if (result.isAuthenticated) {
-                    $rootScope.$broadcast('authService:loggedIn');
+                    $rootScope.$broadcast(OTIEvents.Auth.LoggedIn);
                 } else {
                     result.error = 'Unknown error logging in.';
                 }
@@ -95,7 +95,7 @@ angular.module('transitIndicators')
         logout: function () {
             setUserId(null);
             $cookieStore.remove(tokenCookieString);
-            $rootScope.$broadcast('authService:loggedOut');
+            $rootScope.$broadcast(OTIEvents.Auth.LoggedOut);
             if (cookieTimeout) {
                 $timeout.cancel(cookieTimeout);
                 cookieTimeout = null;

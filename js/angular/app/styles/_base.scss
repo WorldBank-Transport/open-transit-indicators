@@ -1,22 +1,20 @@
 // Variables
-
-$light-blue             : rgb(65, 188, 255); // Light Blue
-$medium-blue            : rgb(93, 122, 146); // Light Blue
-$heading-color          : rgb(0, 0, 0);
-$text-color             : rgb(0, 0, 0);
-$two-percent            : rgb(0, 0, 0);
+$primary-color          : rgb(65, 188, 255);
+$secondary-color        : #5d7a92;
+$tertiary-color         : #586063;
+$heading-color          : #222;
 $lighter-bg-grey        : rgb(230, 230, 230);
 $light-line-grey        : rgb(200, 200, 200);
 $error-red              : rgb(223, 26, 35);
 $warning-orange         : rgb(207, 136, 19);
 $hr-border              : #ccc;
 // http://modularscale.com/scale/?px1=13&px2=&ra1=1.25&ra2=0
-$h1                     : 31.739;
-$h2                     : 25.391;
-$h3                     : 20.313;
-$h4                     : 16.25;
-$h5                     : 13;
-$gutter                 : 15;
+$h1                     : 3.1739rem;
+$h2                     : 2.5391rem;
+$h3                     : 2.0313rem;
+$h4                     : 1.625rem;
+$h5                     : 1.3rem;
+$gutter                 : 1.5rem;
 
 //== Media queries breakpoints
 //
@@ -50,37 +48,3 @@ $screen-lg-desktop:          $screen-lg-min !default;
 $screen-xs-max:              ($screen-sm-min - 1) !default;
 $screen-sm-max:              ($screen-md-min - 1) !default;
 $screen-md-max:              ($screen-lg-min - 1) !default;
-
-// Rem with pixel fallback mixin
-
-@mixin rem($property, $values...) {
-  $max: length($values);
-  $remvalues: '';
-  $remValues: '';
-  @for $i from 1 through $max {
-    $value: nth($values, $i);
-    @if type-of($value) == "number" {
-      $remvalues: #{$remvalues + $value}px;
-    }
-    @else {
-      $remvalues: #{$remvalues + $value};
-    }
-    @if $i < $max {
-      $remvalues: #{$remvalues + " "};
-    }
-  }
-  @for $i from 1 through $max {
-    $value: nth($values, $i);
-    @if type-of($value) == "number" {
-      $remValues: #{$remValues + $value/10}rem;
-    }
-    @else {
-      $remValues: #{$remValues + $value};
-    }
-    @if $i < $max {
-      $remValues: #{$remValues + " "};
-    }
-  }
-    #{$property}: $remvalues;
-    #{$property}: $remValues;
-}

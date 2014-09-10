@@ -1,0 +1,747 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-05 15:12+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: datasources/models.py:37
+msgid "Error"
+msgstr ""
+
+#: datasources/models.py:38
+msgid "Warning"
+msgstr ""
+
+#: transit_indicators/gtfs.py:13
+msgid "Tram, Light Rail, Streetcar"
+msgstr ""
+
+#: transit_indicators/gtfs.py:14
+msgid "Subway, Metro"
+msgstr ""
+
+#: transit_indicators/gtfs.py:15
+msgid "Rail"
+msgstr ""
+
+#: transit_indicators/gtfs.py:16
+msgid "Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:17
+msgid "Ferry"
+msgstr ""
+
+#: transit_indicators/gtfs.py:18
+msgid "Cable Car"
+msgstr ""
+
+#: transit_indicators/gtfs.py:19
+msgid "Gondola, Suspended cable car"
+msgstr ""
+
+#: transit_indicators/gtfs.py:20
+msgid "Funicular"
+msgstr ""
+
+#: transit_indicators/gtfs.py:21
+msgid "Railway Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:22
+msgid "High Speed Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:23
+msgid "Long Distance Trains"
+msgstr ""
+
+#: transit_indicators/gtfs.py:24
+msgid "Inter Regional Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:25
+msgid "Car Transport Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:26
+msgid "Sleeper Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:27
+msgid "Regional Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:28
+msgid "Tourist Railway Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:29
+msgid "Rail Shuttle (Within Complex)"
+msgstr ""
+
+#: transit_indicators/gtfs.py:30
+msgid "Suburban Railway"
+msgstr ""
+
+#: transit_indicators/gtfs.py:31
+msgid "Replacement Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:32
+msgid "Special Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:33
+msgid "Lorry Transport Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:34
+msgid "All Rail Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:35
+msgid "Cross-Country Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:36
+msgid "Vehicle Transport Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:37
+msgid "Rack and Pinion Railway"
+msgstr ""
+
+#: transit_indicators/gtfs.py:38
+msgid "Additional Rail Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:39
+msgid "Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:40
+msgid "International Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:41
+msgid "National Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:42
+msgid "Shuttle Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:43
+msgid "Regional Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:44
+msgid "Special Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:45
+msgid "Sightseeing Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:46
+msgid "Tourist Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:47
+msgid "Commuter Coach Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:48
+msgid "All Coach Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:49
+msgid "Suburban Railway Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:50 transit_indicators/gtfs.py:53
+msgid "Urban Railway Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:51 transit_indicators/gtfs.py:56
+msgid "Metro Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:52 transit_indicators/gtfs.py:57
+msgid "Underground Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:54
+msgid "All Urban Railway Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:55
+msgid "Monorail"
+msgstr ""
+
+#: transit_indicators/gtfs.py:58
+msgid "Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:59
+msgid "Regional Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:60
+msgid "Express Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:61
+msgid "Stopping Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:62
+msgid "Local Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:63
+msgid "Night Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:64
+msgid "Post Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:65
+msgid "Special Needs Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:66
+msgid "Mobility Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:67
+msgid "Mobility Bus for Registered Disabled"
+msgstr ""
+
+#: transit_indicators/gtfs.py:68
+msgid "Sightseeing Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:69
+msgid "Shuttle Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:70
+msgid "School Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:71
+msgid "School and Public Service Bus"
+msgstr ""
+
+#: transit_indicators/gtfs.py:72
+msgid "Rail Replacement Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:73
+msgid "Demand and Response Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:74
+msgid "All Bus Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:75
+msgid "Trolleybus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:76
+msgid "Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:77
+msgid "City Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:78
+msgid "Local Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:79
+msgid "Regional Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:80
+msgid "Sightseeing Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:81
+msgid "Shuttle Tram Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:82
+msgid "All Tram Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:83
+msgid "Water Transport Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:84
+msgid "International Car Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:85
+msgid "National Car Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:86
+msgid "Regional Car Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:87
+msgid "Local Car Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:88
+msgid "International Passenger Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:89
+msgid "National Passenger Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:90
+msgid "Regional Passenger Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:91
+msgid "Local Passenger Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:92
+msgid "Post Boat Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:93
+msgid "Train Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:94
+msgid "Road-Link Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:95
+msgid "Airport-Link Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:96
+msgid "Car High-Speed Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:97
+msgid "Passenger High-Speed Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:98
+msgid "Sightseeing Boat Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:99
+msgid "School Boat"
+msgstr ""
+
+#: transit_indicators/gtfs.py:100
+msgid "Cable-Drawn Boat Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:101
+msgid "River Bus Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:102
+msgid "Scheduled Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:103
+msgid "Shuttle Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:104
+msgid "All Water Transport Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:105
+msgid "Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:106
+msgid "International Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:107
+msgid "Domestic Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:108
+msgid "Intercontinental Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:109
+msgid "Domestic Scheduled Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:110
+msgid "Shuttle Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:111
+msgid "Intercontinental Charter Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:112
+msgid "International Charter Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:113
+msgid "Round-Trip Charter Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:114
+msgid "Sightseeing Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:115
+msgid "Helicopter Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:116
+msgid "Domestic Charter Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:117
+msgid "Schengen-Area Air Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:118
+msgid "Airship Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:119
+msgid "All Air Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:120
+msgid "Ferry Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:121 transit_indicators/gtfs.py:122
+msgid "Telecabin Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:123
+msgid "Cable Car Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:124
+msgid "Elevator Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:125
+msgid "Chair Lift Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:126
+msgid "Drag Lift Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:127
+msgid "Small Telecabin Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:128
+msgid "All Telecabin Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:129 transit_indicators/gtfs.py:130
+msgid "Funicular Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:131
+msgid "All Funicular Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:132
+msgid "Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:133
+msgid "Communal Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:134
+msgid "Water Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:135
+msgid "Rail Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:136
+msgid "Bike Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:137
+msgid "Licensed Taxi Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:138
+msgid "Private Hire Service Vehicle"
+msgstr ""
+
+#: transit_indicators/gtfs.py:139
+msgid "All Taxi Services"
+msgstr ""
+
+#: transit_indicators/gtfs.py:140
+msgid "Self Drive"
+msgstr ""
+
+#: transit_indicators/gtfs.py:141
+msgid "Hire Car"
+msgstr ""
+
+#: transit_indicators/gtfs.py:142
+msgid "Hire Van"
+msgstr ""
+
+#: transit_indicators/gtfs.py:143
+msgid "Hire Motorbike"
+msgstr ""
+
+#: transit_indicators/gtfs.py:144
+msgid "Hire Cycle"
+msgstr ""
+
+#: transit_indicators/gtfs.py:145
+msgid "Miscellaneous Service"
+msgstr ""
+
+#: transit_indicators/gtfs.py:146
+msgid "Horse-drawn Carriage"
+msgstr ""
+
+#: transit_indicators/models.py:118
+msgid "All Time"
+msgstr ""
+
+#: transit_indicators/models.py:119
+msgid "Morning Rush"
+msgstr ""
+
+#: transit_indicators/models.py:120
+msgid "Mid Day"
+msgstr ""
+
+#: transit_indicators/models.py:121
+msgid "Evening Rush"
+msgstr ""
+
+#: transit_indicators/models.py:122
+msgid "Night"
+msgstr ""
+
+#: transit_indicators/models.py:123
+msgid "Weekend"
+msgstr ""
+
+#: transit_indicators/models.py:144
+msgid "Job queued for processing"
+msgstr ""
+
+#: transit_indicators/models.py:145
+msgid "Indicators being processed and calculated"
+msgstr ""
+
+#: transit_indicators/models.py:146
+msgid "Error calculating indicators"
+msgstr ""
+
+#: transit_indicators/models.py:147
+msgid "Completed indicator calculation"
+msgstr ""
+
+#: transit_indicators/models.py:244
+msgid "Route"
+msgstr ""
+
+#: transit_indicators/models.py:245
+msgid "Mode"
+msgstr ""
+
+#: transit_indicators/models.py:246
+msgid "System"
+msgstr ""
+
+#: transit_indicators/models.py:278
+msgid "avg deviation from scheduled dwell time"
+msgstr ""
+
+#: transit_indicators/models.py:279
+msgid "avg deviation from scheduled frequency"
+msgstr ""
+
+#: transit_indicators/models.py:280
+msgid "avg deviation from scheduled time"
+msgstr ""
+
+#: transit_indicators/models.py:281
+msgid "stops per hr/pop within 500m"
+msgstr ""
+
+#: transit_indicators/models.py:282
+msgid "hrs"
+msgstr ""
+
+#: transit_indicators/models.py:283
+msgid "km"
+msgstr ""
+
+#: transit_indicators/models.py:284
+msgid "km/km²"
+msgstr ""
+
+#: transit_indicators/models.py:285
+msgid "low-income population within 500m of a stop"
+msgstr ""
+
+#: transit_indicators/models.py:286
+msgid "min"
+msgstr ""
+
+#: transit_indicators/models.py:287
+msgid "population within 500m of a stop"
+msgstr ""
+
+#: transit_indicators/models.py:288
+msgid "stops/500m radius"
+msgstr ""
+
+#: transit_indicators/models.py:289
+msgid "stops/route length, in km"
+msgstr ""
+
+#: transit_indicators/models.py:313
+msgid "Access index"
+msgstr ""
+
+#: transit_indicators/models.py:314
+msgid "Affordability"
+msgstr ""
+
+#: transit_indicators/models.py:315
+msgid "Average Service Frequency"
+msgstr ""
+
+#: transit_indicators/models.py:316
+msgid "System coverage"
+msgstr ""
+
+#: transit_indicators/models.py:317
+msgid "Coverage of transit stops"
+msgstr ""
+
+#: transit_indicators/models.py:318
+msgid "Distance between stops"
+msgstr ""
+
+#: transit_indicators/models.py:319
+msgid "Dwell Time Performance"
+msgstr ""
+
+#: transit_indicators/models.py:320
+msgid "Weekly number of hours of service"
+msgstr ""
+
+#: transit_indicators/models.py:321
+msgid "Job accessibility"
+msgstr ""
+
+#: transit_indicators/models.py:322
+msgid "Transit system length"
+msgstr ""
+
+#: transit_indicators/models.py:323
+msgid "Ratio of transit lines length over road length"
+msgstr ""
+
+#: transit_indicators/models.py:324
+msgid "Transit line network density"
+msgstr ""
+
+#: transit_indicators/models.py:325
+msgid "Number of modes"
+msgstr ""
+
+#: transit_indicators/models.py:326
+msgid "Number of routes"
+msgstr ""
+
+#: transit_indicators/models.py:327
+msgid "Number of stops"
+msgstr ""
+
+#: transit_indicators/models.py:328
+msgid "Number of route types"
+msgstr ""
+
+#: transit_indicators/models.py:329
+msgid "On-Time Performance"
+msgstr ""
+
+#: transit_indicators/models.py:330
+msgid "Regularity of Headways"
+msgstr ""
+
+#: transit_indicators/models.py:331
+msgid "Service frequency weighted by served population"
+msgstr ""
+
+#: transit_indicators/models.py:332
+msgid "Ratio of number of stops to route-length"
+msgstr ""
+
+#: transit_indicators/models.py:333
+msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
+msgstr ""
+
+#: transit_indicators/models.py:334
+msgid "System accessibility"
+msgstr ""
+
+#: transit_indicators/models.py:335
+msgid "System accessibility - low-income"
+msgstr ""
+
+#: transit_indicators/models.py:336
+msgid "Time traveled between stops"
+msgstr ""
+
+#: transit_indicators/models.py:337
+msgid "Travel Time Performance"
+msgstr ""
+
+#: transit_indicators/models.py:338
+msgid "Weekday / weekend frequency"
+msgstr ""

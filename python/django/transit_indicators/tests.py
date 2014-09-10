@@ -9,7 +9,7 @@ from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
-from transit_indicators.models import OTIIndicatorsConfig, Indicator
+from transit_indicators.models import OTIIndicatorsConfig, Indicator, IndicatorJob
 
 from userdata.models import OTIUser
 
@@ -216,6 +216,11 @@ class IndicatorsTestCase(TestCase):
         self.client.authenticate(admin=True)
         self.list_url = reverse('indicator-list', {})
 
+
+        self.user = OTIUser.objects.create_user('test', 'test@testing.com')
+        self.indicator_job = IndicatorJob.objects.create(job_status='complete',
+                                                         version="cbe1f916-42d3-4630-8466-68b753024767",
+                                                         created_by=self.user)
         # initialize a sample_period
         start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
         end = datetime(2000, 1, 1, 12, 0, 0, tzinfo=utc)
@@ -226,6 +231,7 @@ class IndicatorsTestCase(TestCase):
         """Ensure that a valid Indicator can be created."""
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
+                                                        version=self.indicator_job.version,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -237,14 +243,14 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=1,
+                                             version=self.indicator_job,
                                              value=42)
         indicator.save()
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=1,
+                                             version=self.indicator_job,
                                              value=42,
                                              city_name="Rivendell")
         indicator2.save()
@@ -257,19 +263,19 @@ class IndicatorsTestCase(TestCase):
     def test_csv(self):
         """Ensure that indicators can be dumped via csv"""
 
+
         indicator = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=1,
+                                             version=self.indicator_job,
                                              value=42)
         indicator.save()
 
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,city_name,id,route_id,route_type,sample_period,the_geom,type,value,version\r\n'
-        csv_response += 'system,True,,2,,,morning,,num_routes,42.0,1\r\n'
+        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,,42.0,2,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
@@ -283,6 +289,7 @@ class IndicatorsTestCase(TestCase):
         self.sample_period.save()
 
         response = self.client.post(self.list_url, {'city_name': 'Rivendell', 'source_file': test_csv})
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(self.list_url, {'source_file': test_csv})
@@ -322,6 +329,7 @@ class IndicatorsTestCase(TestCase):
         # Good: a route aggregation with a route_id and no route_type
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
+                                                        version=self.indicator_job.version,
                                                         aggregation='route',
                                                         route_id='ABC',
                                                         value=100),
@@ -354,6 +362,7 @@ class IndicatorsTestCase(TestCase):
                                                         type='num_stops',
                                                         aggregation='mode',
                                                         route_type=1,
+                                                        version=self.indicator_job.version,
                                                         value=100),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

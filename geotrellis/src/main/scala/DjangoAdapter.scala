@@ -42,7 +42,7 @@ object DjangoAdapter {
   // Calculation request parameters
   case class CalcParams(
     token: String,
-    version: Int,
+    version: String,
     sample_periods: List[SamplePeriod]
   )
 
@@ -54,9 +54,14 @@ object DjangoAdapter {
     route_id: String = "",
     route_type: Int = 0,
     city_bounded: Boolean = false,
-    version: Int = 0,
+    version: String = "",
     value: Double = 0,
     the_geom: String = ""
+  )
+
+  case class IndicatorJob(
+    version: String = "",
+    job_status: String = "processing"
   )
 
   // Custom JSON formatters
@@ -75,6 +80,7 @@ object DjangoAdapter {
     implicit val samplePeriodFormat = jsonFormat4(SamplePeriod)
     implicit val calcParamsFormat = jsonFormat3(CalcParams)
     implicit val indicatorFormat = jsonFormat9(Indicator)
+    implicit val indicatorJobFormat = jsonFormat2(IndicatorJob)
   }
 
   // Execution context for futures
@@ -88,15 +94,28 @@ object DjangoAdapter {
     // Pipeline for sending HTTP requests and receiving responses
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
 
-    // Sends a POST request to the indicators endpoint
-    def postIndicator(token: String, indicator: Indicator) = {
-      import JsonImplicits._
-
-      val post = Post(INDICATOR_URI, indicator) ~> addHeader("Authorization", s"Token $token")
-      pipeline(post).map(_.entity.asString) onComplete {
+    def processResponse(response: HttpRequest) {
+      pipeline(response).map(_.entity.asString) onComplete {
         case Success(response) => println(response)
         case Failure(error) => println("An error has occured: " + error.getMessage)
       }
+    }
+
+    // Send a PATCH to update processing status for celery job
+    def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
+      import JsonImplicits._
+
+      val indicator_job_uri = s"$BASE_URI/indicator-jobs/${indicatorJob.version}/"
+      val patch = Patch(indicator_job_uri, indicatorJob) ~> addHeader("Authorization", s"Token $token")
+      processResponse(patch)
+    }
+
+    // Sends a POST request to the indicators endpoint
+    def postIndicators(token: String, indicators: List[Indicator]) = {
+      import JsonImplicits._
+
+      val post = Post(INDICATOR_URI, indicators) ~> addHeader("Authorization", s"Token $token")
+      processResponse(post)
     }
   }
 

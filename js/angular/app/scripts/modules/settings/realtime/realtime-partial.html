@@ -1,12 +1,12 @@
 <div ng-init="init()">
-    <h1>Real-Time</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+    <h1>{{'VIEW.realtime' | translate}}</h1>
+    <p>{{'SETTINGS.REALTIME_DESCRIPTION' | translate}}</p>
     <div class="dropzone">
-        <div class="h4">Drop file here or <span class="btn btn-primary">Select a File</span></div>
+        <div class="h4">{{'TERM.DROP_FILE_HERE_OR' | translate}}<span class="btn btn-primary">{{'UI.BUTTON.SELECT_FILE' | translate}}</span></div>
     </div>
     <div class="dropzone inprogress">
-        <div class="h4">Processing your file (20%) <span class="h5"><a href="#">Cancel</a></span></div>
+        <div class="h4">{{'STATUS.PROCESSING_FILE' | translate}} <span class="h5"><a href="#">{{'STATUS.CANCEL' | translate}}</a></span></div>
     </div>
 
-    <button class="btn btn-primary">Skip</button>
+    <button class="btn btn-primary">{{'STATUS.CANCEL' | translate}}</button>
 </div>

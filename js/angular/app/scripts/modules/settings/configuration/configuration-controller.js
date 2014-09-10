@@ -21,11 +21,11 @@ angular.module('transitIndicators')
     $scope.samplePeriods = null;
 
     $scope.savePeriodsButton = {
-        text: 'Save',
+        text: 'STATUS.SAVE',
         enabled: true
     };
     $scope.saveConfigButton = {
-        text: 'Save',
+        text: 'STATUS.SAVE',
         enabled: true
     };
     $scope.samplePeriodsError = false;
@@ -38,12 +38,12 @@ angular.module('transitIndicators')
     var setSaveConfigButton = function (enabled) {
         if (enabled) {
             $scope.saveConfigButton = {
-                text: 'Save',
+                text: 'STATUS.SAVE',
                 enabled: true
             };
         } else {
             $scope.saveConfigButton = {
-                text: 'Saving...',
+                text: 'STATUS.SAVING',
                 enabled: false
             };
         }
@@ -56,12 +56,12 @@ angular.module('transitIndicators')
     var setSavePeriodsButton = function (enabled) {
         if (enabled) {
             $scope.savePeriodsButton = {
-                text: 'Save',
+                text: 'STATUS.SAVE',
                 enabled: true
             };
         } else {
             $scope.savePeriodsButton = {
-                text: 'Saving...',
+                text: 'STATUS.SAVING',
                 enabled: false
             };
         }

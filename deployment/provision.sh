@@ -52,7 +52,10 @@ GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
 GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
 GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
-GTFS_PARSER_REPO_BRANCH="feature/slick"
+GTFS_PARSER_REPO_BRANCH="master"
+
+# Time limit for indicator calculations to finish before retrying
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="600"
 
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
@@ -74,6 +77,7 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_PORT=8001
 GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
+GEOTRELLIS_MEM_MB=3072      # For the oti-geotrellis upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -162,7 +166,7 @@ else
 
     # also install dependencies for building postgis
     apt-get -y install \
-        git htop multitail \
+        git htop multitail gettext \
         python-pip python-dev python-all-dev  \
         libxml2-dev libxslt1-dev \
         build-essential libproj-dev libjson0-dev xsltproc docbook-xsl docbook-mathml \
@@ -246,21 +250,6 @@ else
 fi
 
 ############################################
-
-# Install Django
-# TODO remove this once 1.7 is released and we can install using pip.
-echo 'Installing django'
-pushd $TEMP_ROOT
-    # Check for Django version
-    django_vers=`python -c "import django; print(django.get_version())"` || true
-    if [ '1.7c1' != "$django_vers" ]; then
-        echo "Installing Django 1.7"
-        pip install -q -U git+git://github.com/django/django.git@1.7c1
-    else
-        echo 'Django already found, skipping.'
-    fi
-popd
-
 echo 'Installing python dependencies'
 pushd $PROJECT_ROOT
     pip install -q -r "deployment/requirements.txt"
@@ -377,6 +366,10 @@ popd
 pushd $PROJECT_ROOT
     echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+    echo 'Adding Fishnet PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
+    echo 'Adding Demographic Grid PostgreSQL Function'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/grid_function.sql
     # This needs to be run as the transit_indicators user so that it has ownership
     # over the tables, otherwise changing the SRID from GeoTrellis fails.
     echo 'Adding Shapefile reprojection PostgreSQL triggers'
@@ -394,9 +387,9 @@ popd
 # Celery setup          #
 #########################
 echo ''
-echo "Setting up celery upstart service"
+echo "Setting up celery upstart services"
 
-celery_conf="
+celery_datasources_conf="
 start on runlevel [2345]
 stop on runlevel [!2345]
 
@@ -404,14 +397,31 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue datasources --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
 "
 
-celery_conf_file="/etc/init/oti-celery.conf"
-echo "$celery_conf" > "$celery_conf_file"
-service oti-celery restart
+celery_datasources_conf_file="/etc/init/oti-celery-datasources.conf"
+echo "$celery_datasources_conf" > "$celery_datasources_conf_file"
 
-echo "Finished setting up celery and background process started"
+# indicators
+celery_indicators_conf="
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue indicators --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
+echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
+
+service oti-celery-datasources restart
+service oti-celery-indicators restart
+
+echo "Finished setting up celery and background processes started"
 
 #########################
 # Angular setup         #
@@ -526,7 +536,7 @@ kill timeout 30
 
 chdir $GEOTRELLIS_ROOT
 
-exec ./sbt run
+exec ./sbt -mem $GEOTRELLIS_MEM_MB run
 "
 geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
 echo "$geotrellis_conf" > "$geotrellis_conf_file"

@@ -1,13 +1,13 @@
 <div ng-init="init()">
-<h1>Configuration</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam a ipsum suscipit, lacinia lectus vitae, iaculis nisl. Ut et nisi egestas, vehicula mi sodales, convallis lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget euismod magna, in aliquam est. Etiam ac lobortis neque. Quisque congue ipsum non mauris lacinia, non adipiscing leo adipiscing.</p>
+<h1>{{'VIEW.configuration' | translate}}</h1>
+<p>{{'SETTINGS.CONFIGURATION_DESCRIPTION' | translate}}</p>
 
 <div ng-if="samplePeriods === null" class="row">
     <img class="center-block" src="/images/ajax-loader.gif" />
 </div>
 <div ng-if="samplePeriodsLoadError" class="row text-center">
     <div class="col-med-12">
-        <h3 class="bg-danger">Network error loading time period configuration.</h3>
+        <h3 class="bg-danger">{{'SETTINGS.TIME_PERIOD_CONFIG_NETWORK_ERROR' | translate}}</h3>
     </div>
 </div>
 <!-- Cannot use ng-if for this form, as it prevents ng-clicks and the samplePeriodsForm object
@@ -16,7 +16,7 @@
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
-            <span class="h4">Representative Weekday</span>
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKDAY' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKDAY' | translate}}</span>
         </div>
         <div class="col-sm-6 config-datepicker">
             <p class="input-group">
@@ -35,7 +35,7 @@
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
-            <span class="h4">Representative Weekend</span>
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKEND' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKEND' | translate}}</span>
         </div>
         <div class="col-sm-6 config-datepicker">
             <p class="input-group">
@@ -59,7 +59,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-5">
-                    <span class="h4">Morning Peak</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MORNING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MORNING_PEAK' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <select ng-model="morningPeakStart" name="morningPeakStart" ng-required="true"
@@ -83,7 +83,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-5">
-                    <span class="h4">Evening Peak</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.EVENING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.EVENING_PEAK' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <select ng-model="eveningPeakStart" name="eveningPeakStart" ng-required="true"
@@ -102,8 +102,8 @@
         </div>
     </div>
 </div>
-<button type="submit" ng-disabled="!savePeriodsButton.enabled || samplePeriodsForm.$invalid" class="btn" ng-class="{'btn-primary': savePeriodsButton.enabled}">{{ savePeriodsButton.text }}</button>
-<span ng-show="samplePeriodsError" class="label label-danger">Error</span>
+<button type="submit" ng-disabled="!savePeriodsButton.enabled || samplePeriodsForm.$invalid" class="btn" ng-class="{'btn-primary': savePeriodsButton.enabled}">{{savePeriodsButton.text | translate}}</button>
+<span ng-show="samplePeriodsError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
 </form>
 
 <hr />
@@ -113,7 +113,7 @@
 </div>
 <div ng-if="configLoadError" class="row text-center">
     <div class="col-med-12">
-        <h3 class="bg-danger">Network error loading app configuration.</h3>
+        <h3 class="bg-danger">{{'SETTINGS.APP_CONFIG_NETWORK_ERROR' | translate}}</h3>
     </div>
 </div>
 <form ng-submit="saveConfig()" name="configForm" ng-show="config" autocomplete="off">
@@ -122,7 +122,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">Poverty Line (local currency)</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.POVERTY_LINE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.POVERTY_LINE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" ng-model="config.poverty_line" min="0" />
@@ -136,7 +136,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">Average Fare (local currency)</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
@@ -150,7 +150,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">Distance Buffer (meters)</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.DISTANCE_BUFFER' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.DISTANCE_BUFFER' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="nearby_buffer_distance_m"
@@ -165,7 +165,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">Job Travel Time (minutes)</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_TRAVEL_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_TRAVEL_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="max_commute_time_min"
@@ -181,7 +181,7 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
-                    <span class="h4">Maximum Walk Time (minutes)</span>
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MAX_WALK_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
                     <input type="number" name="max_walk_time_min" ng-model="max_walk_time_min"
@@ -192,7 +192,7 @@
     </div>
 </div>
 
-<button ng-disabled="!saveConfigButton.enabled" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled}">{{ saveConfigButton.text }}</button>
-<span ng-show="configError" class="label label-danger">Error</span>
+<button ng-disabled="!saveConfigButton.enabled" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled}">{{saveConfigButton.text | translate}}</button>
+<span ng-show="configError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
 </form>
 </div>

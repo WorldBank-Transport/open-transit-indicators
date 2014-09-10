@@ -94,6 +94,7 @@ def run_validate_gtfs(gtfsfeed_id):
                  errors_count + warnings_count,
                  gtfsfeed.source_file)
 
+<<<<<<< HEAD
     # Verify that able to calculate length of a route (need shapes.txt or shape_dist_traveled)
     if len(schedule.GetShapeList()) == 0:
       # Check if shapes.txt of shape_dist_traveled exist
@@ -105,6 +106,23 @@ def run_validate_gtfs(gtfsfeed_id):
                                            description=length_description,
                                            title='Unable to calculate length',
                                            type=GTFSFeedProblem.ProblemTypes.WARNING)
+=======
+    # This adds a warning message to the import process if
+    # both a shapes.txt and no shapes_dist_traveled are available
+    # since length for routes and modes will not be available.
+    # Note: In developing this, no gtfs files with a shape_dist_traveled,
+    # but no shapes.txt file were able to be found.
+    if len(schedule.GetShapeList()) == 0:
+        # Check if shapes.txt of shape_dist_traveled exist
+        stopdatetimes = itertools.chain(*[trip.GetStopTimes() for trip in schedule.trips.values()])
+        if not any([stopdatetime.shape_dist_traveled for stopdatetime in stopdatetimes]):
+            length_description = ('Unable to calculate route and system length without a shapes.txt' +
+                                  ' or shapes_dist_traveled field in stop_times.txt')
+            _ = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
+                                               description=length_description,
+                                               title='Unable to calculate length',
+                                               type=GTFSFeedProblem.ProblemTypes.WARNING)
+>>>>>>> c1ebc324bdb7cca9f678e63b4996d789acc835a9
 
     gtfsfeed.is_valid = True if errors_count == 0 else False
     # send to GeoTrellis

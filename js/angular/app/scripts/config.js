@@ -10,13 +10,47 @@ var osm_attr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap
 // ESRI map server
 var esri_map_url = 'https://{s}.arcgisonline.com/ArcGIS/rest/services/';
 
+// These colors should match the colors found in
+//  js/windshaft/oti-indicators.js:style.gtfs_shapes()
+// TODO: Figure out a way to DRY this...
+var gtfsRouteTypeColors = [
+    '#a6cee3',
+    '#1f78b4',
+    '#b2df8a',
+    '#33a02c',
+    '#fb9a99',
+    '#e31a1c',
+    '#fdbf6f',
+    '#ff7f00'
+];
+
 angular.module('transitIndicators').constant('config', {
+
+    debug: true,
+
+    worldExtent: {
+        southWest: {
+          lat: -57.0,
+          lng: -168.5
+        },
+        northEast: {
+          lat: 73.25,
+          lng: 158.1
+        }
+    },
 
     leaflet: {
         center: {
-            lat: 39.95,
-            lng: -75.1667,
-            zoom: 12
+        },
+        bounds: {
+            southWest: {
+                lat: -57.0,
+                lng: -168.5
+            },
+            northEast: {
+                lat: 73.25,
+                lng: 158.1
+            }
         },
         layers: {
             baselayers: {
@@ -29,7 +63,7 @@ angular.module('transitIndicators').constant('config', {
                             '<a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> ' +
                             '&mdash; ' + osm_attr,
                         subdomains: ['a', 'b', 'c', 'd'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -43,7 +77,7 @@ angular.module('transitIndicators').constant('config', {
                             '<a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> ' +
                             '&mdash; ' + osm_attr,
                         subdomains: ['a', 'b', 'c', 'd'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -57,7 +91,7 @@ angular.module('transitIndicators').constant('config', {
                             'GSA, Esri, DeLorme, HERE, Intermap,  iPC, TomTom, USGS, ' +
                             'METI/NASA, USDA, EPA' + esri_attr_close,
                         subdomains: ['server', 'services'],
-                        minZoom: 0,
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
@@ -71,14 +105,30 @@ angular.module('transitIndicators').constant('config', {
                             'i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, ' +
                             'swisstopo, and the GIS User Community' + esri_attr_close,
                         subdomains: ['server', 'services'],
-                        minZoom: 0,
+                        minZoom: 3,
+                        maxZoom: 20,
+                        continuousWorld: true
+                    }
+                },
+                mapabc: {
+                    name: 'mapabc',
+                    type: 'xyz',
+                    url: 'http://emap{s}.mapabc.com/mapabc/maptile?x={x}&y={y}&z={z}',
+                    layerOptions: {
+                        attribution: 'MapABC',
+                        subdomains: ['1', '2', '3'],
+                        minZoom: 3,
                         maxZoom: 20,
                         continuousWorld: true
                     }
                 }
-            }
+            },
+            overlays: {}
         },
+        markers: [],
+        legend: {},
         defaults: {
+            minZoom: 3,
             maxZoom: 16,
             zoomControl: true,
             doubleClickZoom: true,
@@ -94,16 +144,7 @@ angular.module('transitIndicators').constant('config', {
         }
     },
 
-    worldExtent: {
-        southWest: {
-          lat: -57.0,
-          lng: -168.5
-        },
-        northEast: {
-          lat: 73.25,
-          lng: 158.1
-        }
-    },
+    gtfsRouteTypeColors: gtfsRouteTypeColors,
 
     windshaft: {
         port: 8067
@@ -111,32 +152,28 @@ angular.module('transitIndicators').constant('config', {
 
     settingsViews: [
         {
-            id: 'overview',
-            label: 'Overview'
+            id: 'overview'
         },
         {
-            id: 'upload',
-            label: 'GTFS'
+            id: 'upload'
         },
         {
-            id: 'boundary',
-            label: 'Boundary'
+            id: 'boundary'
         },
         {
-            id: 'demographic',
-            label: 'Demographic'
+            id: 'demographic'
+        },
+        /*
+        // Temporarily removed until we decide to use it
+        {
+            id: 'realtime'
+        },
+        */
+        {
+            id: 'configuration'
         },
         {
-            id: 'realtime',
-            label: 'Real-Time'
-        },
-        {
-            id: 'configuration',
-            label: 'Configuration'
-        },
-        {
-            id: 'users',
-            label: 'Users'
+            id: 'users'
         }
     ]
 

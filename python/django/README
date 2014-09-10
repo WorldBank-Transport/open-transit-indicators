@@ -1,0 +1,23 @@
+### Internationalization
+
+The API has a few endpoints that return human-readable text, indended for display on a client app.
+These strings are translated by the django app via the django translation system and are stored in
+settings.LOCALE_DIRS.
+
+For an example endpoint, see: /api/indicator-types/
+
+Currently supported languages include:
+  - es
+  - vi
+  - zh
+
+Like any other django app, update translations with:
+
+```
+
+manage.py makemessages --locale=es --locale=vi --locale=zh
+// now edit files created in the settings.LOCALE_DIRS directory
+manage.py compilemessages
+sudo service oti-gunicorn restart
+
+```

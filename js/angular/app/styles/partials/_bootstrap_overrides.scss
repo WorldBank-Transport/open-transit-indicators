@@ -1,5 +1,5 @@
 body {
-  @include rem(font-size, $h5);
+  font-size: $h5;
 }
 
 .btn-link-danger {
@@ -7,5 +7,5 @@ body {
 }
 
 .btn {
-  @include rem(font-size, $h5);
+  font-size: $h5;
 }
