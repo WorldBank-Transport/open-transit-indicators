@@ -68,10 +68,12 @@ angular.module('transitIndicators')
     $scope.$on('$stateChangeSuccess', function (event, toState) {
 
         $scope.mapActive = _.find(mapStates, function (state) { return state === toState.name; }) ? true : false;
+        $scope.mapClassNav2 = false;
 
         var activeState = toState.name;
         if (toState.parent === 'indicators') {
             activeState = 'indicators';
+            $scope.mapClassNav2 = true;
         } else if (toState.parent === 'settings') {
             activeState = 'settings';
         }
