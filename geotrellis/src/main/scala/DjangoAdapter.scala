@@ -42,7 +42,7 @@ object DjangoAdapter {
   // Calculation request parameters
   case class CalcParams(
     token: String,
-    version: Int,
+    version: String,
     sample_periods: List[SamplePeriod]
   )
 
@@ -54,13 +54,13 @@ object DjangoAdapter {
     route_id: String = "",
     route_type: Int = 0,
     city_bounded: Boolean = false,
-    version: Int = 0,
+    version: String = "",
     value: Double = 0,
     the_geom: String = ""
   )
 
   case class IndicatorJob(
-    version: Int = 0,
+    version: String = "",
     job_status: String = "processing"
   )
 
