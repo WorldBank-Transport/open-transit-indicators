@@ -41,7 +41,13 @@ angular.module('transitIndicators', [
             parent: 'root',
             url: '/indicators',
             templateUrl: 'scripts/modules/indicators/indicators-partial.html',
-            controller: 'OTIIndicatorsController'
+            controller: 'OTIIndicatorsController',
+            resolve: {
+               OTIIndicatorsService: 'OTIIndicatorsService',
+               cities: function (OTIIndicatorsService) {
+                    return OTIIndicatorsService.getCities();
+               }
+            }
         })
         .state('map', {
             parent: 'indicators',

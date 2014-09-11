@@ -35,7 +35,13 @@
         "OPTIONAL": "Optional",
         "DROP_FILE_HERE_OR": "Drop file here or ",
         "SELECT_FILE": "Select a File",
-        "DELETE": "Delete"
+        "DELETE": "Delete",
+        "ADD": "Add",
+        "FINISH": "Finish",
+        "REMOVE": "Remove",
+        "SELECTONE": "Select One",
+        "UPLOAD": "Upload",
+        "RESET": "Reset"
     },
     "INDICATOR": {
         "num_stops": "Num stops per route",
@@ -71,6 +77,16 @@
         "travel_time" : "",
         "weekday_end_freq" : ""
     },
+    "CITYMODAL": {
+        "CURRENTCITIES": "Current Cities",
+        "ADDCITY": "Add a City from Scenarios",
+        "MYSCENARIOS": "My Scenarios",
+        "COLLEAGUESCENARIOS": "Colleague's Scenarios",
+        "IMPORTCITY": "Import a City",
+        "IMPORTINSTRUCTIONS": "The upload file must be a CSV file exported via this application, containing indicator data.",
+        "IMPORTBADFILE": "Invalid file format. Ensure the file matches the format above and try again.",
+        "IMPORTERROR": "Unknown error. Try again later."
+    },
     "VIEW": {
         "overview": "Overview",
         "upload": "GTFS",
@@ -85,7 +101,13 @@
             "LOGIN": "@:TERM.LOGIN",
             "VIEW_MAP": "@:TERM.VIEW_MAP",
             "START": "@:TERM.START",
-            "SELECT_FILE": "@:TERM.SELECT_FILE"
+            "SELECT_FILE": "@:TERM.SELECT_FILE",
+            "ADD": "@:TERM.ADD",
+            "FINISH": "@:TERM.FINISH",
+            "REMOVE": "@:TERM.REMOVE",
+            "SELECTONE": "@:TERM.SELECTONE",
+            "UPLOAD": "@:TERM.UPLOAD",
+            "RESET": "@:TERM.RESET"
         },
         "TOOLTIP": {
             "CITY": "The Area of Interest boundary will be used to define a subregion of the transit system area served, such as a business district or city center.",

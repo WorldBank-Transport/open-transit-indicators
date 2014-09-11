@@ -22,9 +22,13 @@ angular.module('transitIndicators')
      * My guess is the redirect from the stripTrailingSlash is at work again...
      * TODO: Filter out route aggregations in request
      */
-    otiIndicatorsService.search = function (config) {
+    otiIndicatorsService.query = function (method, config) {
         var dfd = $q.defer();
-        $http.get('/api/indicators/', {params: config}).success(function (data) {
+        $http({
+            method: method,
+            url: '/api/indicators/',
+            params: config
+        }).success(function (data) {
             dfd.resolve(data);
         }).error(function (error) {
             console.error('otiIndicatorsService.search():', error);
@@ -55,6 +59,20 @@ angular.module('transitIndicators')
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
         return url;
+    };
+
+    /**
+     * Get the list of cities loaded into the app
+     */
+    otiIndicatorsService.getCities = function () {
+        var dfd = $q.defer();
+        $http.get('/api/indicator-cities/').success(function (data) {
+            dfd.resolve(data);
+        }).error(function(error) {
+            console.error('OTIIndicatorsService.getCities:', error);
+            dfd.resolve([]);
+        });
+        return dfd.promise;
     };
 
     /**
