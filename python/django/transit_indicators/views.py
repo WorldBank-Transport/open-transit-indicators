@@ -45,6 +45,8 @@ class IndicatorFilter(django_filters.FilterSet):
     Allows searching for all the local instance indicators with GET param:
     local_city=True
 
+    TODO: Filter all but the most recent version for each city in the sent response
+
     """
     local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
     sample_period = django_filters.CharFilter(name="sample_period__type")

@@ -5,11 +5,17 @@ angular.module('transitIndicators')
             function ($scope, $cookieStore, OTIEvents, OTIIndicatorsService) {
 
     $scope.dropdown_sample_period_open = false;
+    $scope.indicatorVersion = 0;
 
     $scope.aggregations = {};
     $scope.types = {};
     $scope.sample_periods = {};
     $scope.sample_period = $cookieStore.get('sample_period') || 'morning';
+
+    var setIndicatorVersion = function (version) {
+        $scope.indicatorVersion = version;
+        $scope.$broadcast(OTIEvents.Indicators.IndicatorVersionUpdated, version);
+    };
 
     OTIIndicatorsService.getIndicatorTypes().then(function (data) {
         $scope.types = data;
@@ -31,4 +37,11 @@ angular.module('transitIndicators')
     $scope.$on('$stateChangeSuccess', function (event, toState) {
         $scope.showingMap = toState.name === 'map' ? true : false;
     });
+
+    $scope.init = function () {
+        OTIIndicatorsService.getIndicatorVersion(function (version) {
+            setIndicatorVersion(version);
+        });
+    };
+    $scope.init();
 }]);
