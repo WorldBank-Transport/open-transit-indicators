@@ -26,7 +26,6 @@ angular.module('transitIndicators')
     // City controls
 
     $scope.remove = function (city) {
-        console.log('DELETE:', city);
         OTIIndicatorsService.query('DELETE', {
             city_name: city
         }).then(function () {
@@ -61,7 +60,6 @@ angular.module('transitIndicators')
     };
 
     $scope.upload = function () {
-        console.log($scope.uploadFile);
         $scope.uploading = true;
         $scope.uploadProgress = 1;
         $scope.alert = null;

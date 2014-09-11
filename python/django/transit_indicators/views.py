@@ -42,19 +42,15 @@ class SamplePeriodViewSet(OTIAdminViewSet):
 class IndicatorFilter(django_filters.FilterSet):
     """Custom filter for indicator
 
-    Allows searching for all the local instance indicators with GET param:
-    local_city=True
-
     TODO: Filter all but the most recent version for each city in the sent response
 
     """
-    local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
     sample_period = django_filters.CharFilter(name="sample_period__type")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name', 'local_city']
+                  'route_type', 'city_bounded', 'version', 'city_name']
 
 
 class IndicatorJobViewSet(OTIAdminViewSet):
@@ -76,7 +72,7 @@ class IndicatorViewSet(OTIAdminViewSet):
 
     Can be rendered as CSV in addition to the defaults
     Example CSV Export for all indicators calculated for the local GTFSFeed:
-    GET /api/indicators/?format=csv&local_city=True
+    GET /api/indicators/?format=csv&city_name=My%20City
 
     """
     model = Indicator
@@ -144,7 +140,6 @@ class IndicatorViewSet(OTIAdminViewSet):
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-        print 'No indicators to delete'
         return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
 
 
