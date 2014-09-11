@@ -9,9 +9,11 @@
 </header>
 
 <div class="app-view">
-    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive }"
+    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive, 'navigationpadding-2': mapClassNav2 }"
+             class="navigationpadding-1"
              defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
-             markers="leaflet.markers" layers="leaflet.layers" legend="leaflet.legend" height="100%" width="100%">
+             markers="leaflet.markers" layers="leaflet.layers">
     </leaflet>
+    <oti-legend labels="leaflet.legend.labels" colors="leaflet.legend.colors"></oti-legend>
     <div ui-view></div>
 </div>

@@ -19,6 +19,18 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Get the route type labels from the API and return in order as an array
+     */
+    otiMapService.getRouteTypeLabels = function () {
+        var r = $resource('/api/gtfs-route-types/');
+        var dfd = $q.defer();
+        var result = r.query({}, function () {
+            dfd.resolve(_.pluck(result, 'description'));
+        });
+        return dfd.promise;
+    };
+
+    /**
      * Create windshaft urls for leaflet map
      *
      * @param filetype: String, either png or utfgrid

@@ -120,6 +120,9 @@ angular.module('transitIndicators', [
 }]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIEvents', 'OTIUserService',
     function($rootScope, $state, $cookies, $http, authService, OTIEvents, OTIUserService) {
 
+        // Create cache object for useful global objects, e.g. the legends
+        $rootScope.cache = {};
+
         // Django CSRF Token compatibility
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
 

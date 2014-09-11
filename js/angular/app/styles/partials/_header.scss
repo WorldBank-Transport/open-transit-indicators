@@ -3,6 +3,20 @@ header {
   position: fixed;
   width: 100%;
   z-index: 200;
+  height: 5.5rem;
+}
+
+.navigationsecondary {
+  background-color: #eee;
+  padding: .8rem;
+  height: 5.5rem;
+  // When the affix happens, needed to keep the bar full width
+  width: 100%;
+  position: fixed;
+
+  .btn-group {
+    display: inline;
+  }
 }
 
 .app-view {

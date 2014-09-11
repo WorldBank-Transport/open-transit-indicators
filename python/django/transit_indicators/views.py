@@ -123,18 +123,22 @@ class IndicatorViewSet(OTIAdminViewSet):
 
 class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
-
-    Currently just gets the highest integer since versions are timestamps
-    Could add a POST method here to set the version if versioning gets more complicated
-    TODO: Update logic once we actually solve versioning
+    
+    Returns most recent indicator version.
 
     """
+    
     def get(self, request, *args, **kwargs):
         """ Return the current version of the indicators """
-        indicator = Indicator.objects.order_by('-version_id')[0]
-        version = indicator.version_id if indicator and indicator.version else None
-        return Response({'current_version': version }, status=status.HTTP_200_OK)
-
+        try:
+            job = IndicatorJob.objects.get(is_latest_version=True)
+            version = job.version
+            return Response({'current_version': version}, status=status.HTTP_200_OK)
+        except IndicatorJob.DoesNotExist:
+            return Response({'current_version': None}, status=status.HTTP_200_OK)
+        except IndicatorJob.MultipleObjectsReturned:
+            return Response({'error':'Multiple versions found'},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class IndicatorTypes(APIView):
     """ Indicator Types GET endpoint
