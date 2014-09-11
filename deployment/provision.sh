@@ -178,7 +178,8 @@ else
         libmapnik libmapnik-dev python-mapnik mapnik-utils redis-server \
         nginx \
         gunicorn \
-        libgeos++-dev libpq-dev libbz2-dev proj libtool automake
+        libgeos++-dev libpq-dev libbz2-dev proj libtool automake \
+        monit
 
 fi
 
@@ -397,7 +398,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue datasources --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=3
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue datasources --logfile $LOG_ROOT/celery.log -l debug --pidfile /var/run/celery-datasources.pid --autoreload --concurrency=3
 "
 
 celery_datasources_conf_file="/etc/init/oti-celery-datasources.conf"
@@ -412,7 +413,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue indicators --logfile $LOG_ROOT/celery.log -l debug --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue indicators --logfile $LOG_ROOT/celery.log -l debug --pidfile /var/run/celery-indicators.pid --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
 "
 
 celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
@@ -467,8 +468,15 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     start on runlevel [2345]
     stop on runlevel [!2345]
 
-    chdir $WINDSHAFT_ROOT
-    exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
+    script
+        echo \$\$ > /var/run/windshaft.pid
+        chdir $WINDSHAFT_ROOT
+        exec sudo -u $WEB_USER /bin/bash -c 'nodejs server.js >> $WINDSHAFT_ROOT/windshaft.log 2>&1'
+    end script
+
+    pre-stop script
+        rm /var/run/windshaft.pid
+    end script
     "
 
     windshaft_upstart_file="/etc/init/oti-windshaft.conf"
@@ -534,9 +542,15 @@ stop on runlevel [!2345]
 
 kill timeout 30
 
-chdir $GEOTRELLIS_ROOT
+script
+    echo \$\$ > /var/run/oti-indicators.pid
+    chdir $GEOTRELLIS_ROOT
+    exec ./sbt -mem $GEOTRELLIS_MEM_MB run
+end script
 
-exec ./sbt -mem $GEOTRELLIS_MEM_MB run
+pre-stop script
+    rm /var/run/oti-indicators.pid
+end script
 "
 geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
 echo "$geotrellis_conf" > "$geotrellis_conf_file"
@@ -555,7 +569,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -614,6 +628,15 @@ nginx_conf="server {
     location /static {
         alias $DJANGO_STATIC_FILES_ROOT;
     }
+
+    location = /monit {
+        return 301 http://\$http_host\$request_uri/;
+    }
+
+    location /monit {
+        rewrite ^/monit/(.*) /\$1 break;
+        proxy_pass http://localhost:2812/;
+    }
 }
 "
 nginx_conf_file="/etc/nginx/sites-enabled/oti"
@@ -628,6 +651,85 @@ fi
 echo 'Restarting nginx'
 service nginx restart
 echo 'Nginx now running'
+
+#########################
+# Monit setup           #
+#########################
+echo 'Setting up monit for service management'
+monit_conf='
+# This configuration generation by provision.sh and will be overwritten on re-provision.
+set httpd port 2812 and
+  use address 0.0.0.0  # only accept connection from localhost
+  allow oti-admin:oti-admin      # require user "admin" with password "monit"
+#################
+# Filesystem    #
+#################
+check filesystem root with path /
+  # Ordinarily we would want to alert when free space is low but that
+  # does not really work for this app.
+
+###############
+# Services    #
+###############
+# Generic service names so this will be usable to non-Azaveans.
+# nginx (http proxy)
+check process web-server-nginx with pidfile /var/run/nginx.pid
+  start program = "/etc/init.d/nginx start"
+  stop program = "/etc/init.d/nginx stop"
+  if failed host localhost port 80
+    protocol HTTP request "/static/nginx-check"
+    then restart
+  if 5 restarts within 5 cycles then timeout
+
+# postgresql (database)
+check process database-PostgreSQL with pidfile /var/run/postgresql/9.1-main.pid
+  start program = "/etc/init.d/postgresql start"
+  stop program = "/etc/init.d/postgresql stop"
+  if failed unixsocket /var/run/postgresql/.s.PGSQL.5432
+    protocol pgsql
+    then restart
+  if 5 restarts within 5 cycles then timeout
+
+# gunicorn (Web app)
+check process webapp-gunicorn with pidfile /var/run/gunicorn/gunicorn.pid
+  start program = "/sbin/start oti-gunicorn"
+  stop program = "/sbin/stop oti-gunicorn"
+  if failed unixsocket /tmp/gunicorn.sock
+    protocol HTTP request "/api/"
+    then restart
+  if 5 restarts within 5 cycles then timeout
+
+# windshaft (map tiles)
+check process tileserver-windshaft with pidfile /var/run/windshaft.pid
+  start program = "/sbin/start oti-windshaft"
+  stop program = "/sbin/stop oti-windshaft"
+  if failed host localhost port 4000
+    protocol HTTP request "/"
+    then restart
+  if 5 restarts within 5 cycles then timeout
+
+# celery indicators (indicator calculation task queue)
+check process indicator-queue-celery with pidfile /var/run/celery-indicators.pid
+  start program = "/sbin/start oti-celery-indicators"
+  stop program = "/sbin/stop oti-celery-indicators"
+
+# celery datasources (datasource import task queue)
+check process datasource-queue-celery with pidfile /var/run/celery-datasources.pid
+  start program = "/sbin/start oti-celery-datasources"
+  stop program = "/sbin/stop oti-celery-datasources"
+  if cpu usage > 90% for 10 cycles then restart
+
+# indicators service (indicator calculation service)
+check process indicator-calc-scala with pidfile /var/run/oti-indicators.pid
+  start program = "/sbin/start oti-geotrellis"
+  stop program = "/sbin/stop oti-geotrellis"
+  if cpu usage > 90% for 40 cycles then restart
+'
+monit_conf_file="/etc/monit/conf.d/oti"
+echo "$monit_conf" > "$monit_conf_file"
+service monit restart
+echo "Monit now running. Access service management console at:"
+echo "http://$HOST:2812 (2067 on vagrant); user / pass: oti-admin / oti-admin"
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
