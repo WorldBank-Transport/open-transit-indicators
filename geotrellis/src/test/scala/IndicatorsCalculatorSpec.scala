@@ -286,7 +286,6 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
 
   it should "return map of Route ID's and their geometries" in {
     val lengthCalc = septaRailCalc.calculatorsByName("length")
-
     lengthCalc.lineForRouteIDLatLng(period)("AIR") match {
       case None => fail
       case Some(shapeLine) => shapeLine.points.length should be (160)
@@ -300,7 +299,20 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
       case Some(shapeLine) => shapeLine.points.length should be (805)
     }
   }
-  
+
+  it should "return map of Route modes and their geometries" in {
+    val lengthCalc = septaRailCalc.calculatorsByName("length")
+
+    lengthCalc.multiLineForRouteModeLatLng(period)(2) match {
+      case None => fail
+      case Some(shapeLine) => shapeLine.lines(0).points.length should be (160) // this is the "AIR" line above
+    }
+    lengthCalc.multiLineForRouteModeLatLng(period)(2) match {
+      case None => fail
+      case Some(shapeLine) => shapeLine.lines.length should be (13) // there are 13 lines for this mode
+    }
+  }
+
   it should "calcuate overall distance_between_stops by route for SEPTA" in {
     val dbsByMode = septaRailCalc.calculatorsByName("distance_stops").calcOverallByMode
     dbsByMode(2) should be (2.37463 plusOrMinus 1e-5)
