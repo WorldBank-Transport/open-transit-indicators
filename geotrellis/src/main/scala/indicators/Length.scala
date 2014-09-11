@@ -31,6 +31,6 @@ class Length(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Databas
     // get the transit length per route, group by route type, and sum all the lengths
     calcByRoute(period).toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
-      .mapValues(v => v.map(_._2).sum)
+      .map { case (key, value) => key -> value.map(_._2).sum }
   }
 }

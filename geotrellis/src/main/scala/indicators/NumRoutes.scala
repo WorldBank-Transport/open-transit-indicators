@@ -21,6 +21,6 @@ class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Data
     // get all routes, group by route type, and count the size of each group
     routesInPeriod(period)
       .groupBy(_.route_type.id)
-      .mapValues(_.size)
+      .map { case (key, value) => key -> value.size.toDouble }
   }
 }
