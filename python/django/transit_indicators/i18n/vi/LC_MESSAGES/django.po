@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-05 15:12+0000\n"
+"POT-Creation-Date: 2014-09-11 20:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -542,43 +542,43 @@ msgstr ""
 msgid "Horse-drawn Carriage"
 msgstr ""
 
-#: transit_indicators/models.py:118
+#: transit_indicators/models.py:119
 msgid "All Time"
 msgstr ""
 
-#: transit_indicators/models.py:119
+#: transit_indicators/models.py:120
 msgid "Morning Rush"
 msgstr ""
 
-#: transit_indicators/models.py:120
+#: transit_indicators/models.py:121
 msgid "Mid Day"
 msgstr ""
 
-#: transit_indicators/models.py:121
+#: transit_indicators/models.py:122
 msgid "Evening Rush"
 msgstr ""
 
-#: transit_indicators/models.py:122
+#: transit_indicators/models.py:123
 msgid "Night"
 msgstr ""
 
-#: transit_indicators/models.py:123
+#: transit_indicators/models.py:124
 msgid "Weekend"
 msgstr ""
 
-#: transit_indicators/models.py:144
+#: transit_indicators/models.py:145
 msgid "Job queued for processing"
 msgstr ""
 
-#: transit_indicators/models.py:145
+#: transit_indicators/models.py:146
 msgid "Indicators being processed and calculated"
 msgstr ""
 
-#: transit_indicators/models.py:146
+#: transit_indicators/models.py:147
 msgid "Error calculating indicators"
 msgstr ""
 
-#: transit_indicators/models.py:147
+#: transit_indicators/models.py:148
 msgid "Completed indicator calculation"
 msgstr ""
 
@@ -744,4 +744,8 @@ msgstr ""
 
 #: transit_indicators/models.py:338
 msgid "Weekday / weekend frequency"
+msgstr ""
+
+#: transit_indicators/models.py:364
+msgid "My City"
 msgstr ""
