@@ -1,0 +1,43 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "aws_region": "us-east-1",
+    "ubuntu_ami": "ami-44a00d2c",
+    "oti_branch": "develop",
+    "instance_type": "m1.medium"
+  },
+  "builders": [
+    {
+      "name": "open-transit-indicators-ami",
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `aws_region`}}",
+      "source_ami": "{{user `ubuntu_ami`}}",
+      "instance_type": "{{user `instance_type`}}",
+      "ssh_username": "ubuntu",
+      "ami_name": "WorldBankTransit - Open-Transit-Indicators {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sleep 10",
+        "sudo apt-get update",
+        "sudo apt-get -y install git",
+        "sudo rm -rf /projects/open-transit-indicators",
+        "sudo mkdir -p /projects",
+        "sudo chown ubuntu:ubuntu /projects",
+        "cd /projects",
+        "git clone -b {{user `oti_branch`}} https://github.com/WorldBank-Transport/open-transit-indicators.git"
+      ]
+    },
+    {
+      "type": "shell",
+      "script": "../provision.sh",
+      "execute_command": "sudo bash {{ .Path }} production"
+    }
+  ]
+}

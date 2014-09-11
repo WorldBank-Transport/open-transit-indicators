@@ -34,3 +34,20 @@ located in `/home/myusername/open-transit-indicators`, the line should become
 This will create a development installation of the program. If you are simply planning to
 use the program (rather than make changes to it), run `sudo ./deployment/provision.sh production`
 instead.
+
+### AMI Generation
+
+If you want to generate an [Amazon Web Service's](http://aws.amazon.com/) (AWS) [Amazon Machine Image](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (AMI) you can use
+Packer to handle the provisioning.
+
+Use the following instructions to do so:
+
+1.  Create an AWS account if you do not have one already
+2.  Get the [API keys](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html) for a new user or an existing user in your AWS account
+2.  [Download and install Packer](http://www.packer.io/)
+3.  Navigate to the `deployment/packer` directory
+4.  Copy the `open-transit-vars.json.example` file and save it as `open-transit-vars.json`
+5.  Edit `open-transit-vars.json` with the API keys downloaded in step 2
+6.  Run the following command to generate a new AMI: `packer build -var-file=open-transit-vars.json open-transit-indicators.json` PLEASE NOTE: Running this command will cause resources to be created in AWS and will cost money
+7.  Once the process finishes installing (could take up to an hour), make note of the AMI ID
+8.  Launch the AMI using the AWS EC2 management console and browse to the public DNS hostname provided by Amazon
