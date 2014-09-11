@@ -44,6 +44,7 @@ class DistanceStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: 
 
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
+    println("in calcByMode for DistanceStops")
     // get the average distance between stops per route, group by route type, 
     // and average all the distances
     calcByRoute(period).toList

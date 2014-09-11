@@ -10,6 +10,7 @@ class NumStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Datab
   val name = "num_stops"
 
   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
+    println("in calcByRoute for NumStops")
     // for each route, find the maximum number of stops across all trips
     routesInPeriod(period).map(route =>
       route.id.toString -> tripsInPeriod(period, route)
@@ -24,6 +25,7 @@ class NumStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Datab
   }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
+    println("in calcByMode for NumStops")
      // get all routes, group by route type, and find the unique stop ids per route (via trips)
     routesInPeriod(period)
       .groupBy(_.route_type.id)

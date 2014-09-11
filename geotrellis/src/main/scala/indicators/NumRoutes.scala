@@ -10,6 +10,7 @@ class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Data
   val name = "num_routes"
 
   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
+    println("in calcByRoute for NumRoutes")
     // this calculation isn't very interesting by itself, but when aggregated,
     // it shows the average amount of time where the route is available at all.
     routesInPeriod(period).map(route =>
@@ -18,6 +19,7 @@ class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Data
   }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
+    println("in calcByMode for NumRoutes")
     // get all routes, group by route type, and count the size of each group
     routesInPeriod(period)
       .groupBy(_.route_type.id)
