@@ -122,14 +122,39 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, *args, **kwargs):
+        """ Bulk delete of indicators based on a filter field
+
+        Return 400 BAD REQUEST if no filter fields provided or all filter fields provided are
+        not in delete_filter_fields
+        e.g. We do not want to allow someone to delete all the indicators with a DELETE to this
+        endpoint with no params
+
+        """
+        delete_filter_fields = ('city_name')
+        filters = []
+        for field in request.QUERY_PARAMS:
+            if field in delete_filter_fields:
+                filters.append(field)
+
+        if filters:
+            indicators = Indicator.objects.all();
+            for field in filters:
+                indicators = indicators.filter(**{field: request.QUERY_PARAMS[field]})
+            indicators.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        print 'No indicators to delete'
+        return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
-    
+
     Returns most recent indicator version.
 
     """
-    
+
     def get(self, request, *args, **kwargs):
         """ Return the current version of the indicators """
         try:
