@@ -17,6 +17,9 @@ Installation
 If you're using Vagrant, then installation is as simple as cloning the repo and then
 issuing `vagrant up` from the root of the repository directory.
 
+To change the default amount of memory allocated to the vagrant machine, set the environment
+variable `OTI_VAGRANT_MEMORY` to the preferred size, in MB.
+
 ### Server installation
 
 If you're installing directly onto a dedicated server, follow these steps after

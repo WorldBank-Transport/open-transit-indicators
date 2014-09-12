@@ -214,7 +214,7 @@ angular.module('transitIndicators')
     // Set initial scope variables and constants
     $scope.gtfsUpload = null;
     $scope.gtfsOptions = {
-        uploadTimeoutMs: 10 * 60 * 1000
+        uploadTimeoutMs: 90 * 60 * 1000
     };
     $scope.GTFSUploads = OTIUploadService.gtfsUploads;
     $scope.osmImport = null;

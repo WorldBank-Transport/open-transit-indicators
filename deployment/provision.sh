@@ -55,7 +55,7 @@ GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
-INDICATOR_SOFT_TIME_LIMIT_SECONDS="600"
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="5400"
 
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
@@ -77,7 +77,7 @@ VHOST_NAME=$DB_NAME
 GEOTRELLIS_PORT=8001
 GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
-GEOTRELLIS_MEM_MB=3072      # For the oti-geotrellis upstart job
+GEOTRELLIS_MEM_MB=7168      # For the oti-geotrellis upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -550,7 +550,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $GEOTRELLIS_ROOT
-    exec ./sbt -mem $GEOTRELLIS_MEM_MB run
+    exec ./sbt -mem $GEOTRELLIS_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
 end script
 
 pre-stop script
@@ -608,7 +608,7 @@ nginx_conf="server {
 
     location /gt {
         proxy_pass $GEOTRELLIS_HOST;
-        proxy_read_timeout 300s;
+        proxy_read_timeout 1800s;
         proxy_redirect off;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -619,7 +619,7 @@ nginx_conf="server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
-        client_max_body_size 50M;
+        client_max_body_size 100M;
     }
 
     location /tiles {
