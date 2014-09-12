@@ -18,8 +18,8 @@ class AvgServiceFreq(val gtfsData: GtfsData, val calcParams: CalcParams, val db:
     def calculateHeadway(): Seq[Double] =
       stops
         .groupBy(_.stop_id)
-        .mapValues { stops =>
-          calcStopDifferences(stops.sortBy(_.arrival).toArray)
+        .map { case (key, stops) =>
+          key -> calcStopDifferences(stops.sortBy(_.arrival).toArray)
          }
         .values
         .toSeq
@@ -37,17 +37,20 @@ class AvgServiceFreq(val gtfsData: GtfsData, val calcParams: CalcParams, val db:
         (route.id,result)
        }
       .toMap
-      .mapValues { stop_differences => stop_differences.sum / stop_differences.size }
+      .map { case (key, stop_differences) => key -> stop_differences.sum / stop_differences.size }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
-    routesInPeriod(period).groupBy(_.route_type.id.toInt).mapValues(routes => {
-      routes.map(tripsInPeriod(period, _)).flatten.map(trip => trip.stops).flatten
-    }).mapValues(calculateHeadway).mapValues(diff_list => diff_list.sum / diff_list.size)
+    routesInPeriod(period).groupBy(_.route_type.id.toInt).map {
+      case (key, routes) =>
+      key -> { routes.map(tripsInPeriod(period, _)).flatten.map(trip => trip.stops).flatten }
+    }.map { case (key, value) => key -> calculateHeadway(value) }.map {
+      case (key, diff_list) => key -> (diff_list.sum / diff_list.size)
+    }
   }
 
   // Helper function to calculate headway for each stop + trip (hours per vehicle)
   def calculateHeadway(stops: Array[StopDateTime]) = {
-    stops.groupBy(_.stop_id).mapValues(stops =>
-      calcStopDifferences(stops.sortBy(_.arrival).toArray)).values.flatten
+    stops.groupBy(_.stop_id).map { case (key, stops) =>
+      key ->calcStopDifferences(stops.sortBy(_.arrival).toArray) }.values.flatten
   }
 }

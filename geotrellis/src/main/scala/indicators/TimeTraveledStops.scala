@@ -20,11 +20,11 @@ class TimeTraveledStops(val gtfsData: GtfsData, val calcParams: CalcParams, val 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
     durationsBetweenStopsPerRoute(period).toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
-      .mapValues(routesToDurations => {
+      .map { case (key, routesToDurations) => key -> {
         val durations = routesToDurations.map(_._2).flatten
-        durations.sum / durations.size
+        durations.sum / durations.size.toDouble
       }
-    )
+    }
   }
 
 
