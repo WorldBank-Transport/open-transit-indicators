@@ -45,6 +45,8 @@ def aggregation_filter(queryset, values):
     The multiple choice filter field does not quite work and some pre-processing
     is necessary to allow comma-separated-values in query parameters
     """
+    if not values:
+        return queryset
     split_values = values.split(',')
     return queryset.filter(aggregation__in=split_values)
 
