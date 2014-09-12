@@ -39,6 +39,16 @@ class SamplePeriodViewSet(OTIAdminViewSet):
     serializer_class = SamplePeriodSerializer
 
 
+def aggregation_filter(queryset, values):
+    """Action/filter used to allow choosing multiple aggregation types
+
+    The multiple choice filter field does not quite work and some pre-processing
+    is necessary to allow comma-separated-values in query parameters
+    """
+    split_values = values.split(',')
+    return queryset.filter(aggregation__in=split_values)
+
+
 class IndicatorFilter(django_filters.FilterSet):
     """Custom filter for indicator
 
@@ -46,6 +56,7 @@ class IndicatorFilter(django_filters.FilterSet):
 
     """
     sample_period = django_filters.CharFilter(name="sample_period__type")
+    aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
 
     class Meta:
         model = Indicator
