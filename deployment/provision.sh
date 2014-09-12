@@ -431,6 +431,7 @@ echo "Finished setting up celery and background processes started"
 #########################
 echo 'Setting up angular'
 if [ "$INSTALL_TYPE" != "travis" ]; then
+    mkdir -p /home/$WEB_USER/.npm
     pushd "$ANGULAR_ROOT"
         # Hack to get get permissions set correctly for AMI generation
         sudo chown $WEB_USER:$WEB_USER /home/$WEB_USER/.npm
