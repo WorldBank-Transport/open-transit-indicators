@@ -108,7 +108,9 @@ case "$INSTALL_TYPE" in
         ;;
     "production")
         echo "Selecting production installation"
-        ANGULAR_STATIC="$ANGULAR_ROOT/dist"
+        # Should be set to $ANGULAR_ROOT/dist
+        # Change once issue #161 is resolved
+        ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS=""
         WEB_USER='ubuntu'
         ;;
