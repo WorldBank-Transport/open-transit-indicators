@@ -7,7 +7,10 @@ import com.github.nscala_time.time.Imports._
 import com.typesafe.config.{ConfigFactory,Config}
 import opentransitgt.DjangoAdapter._
 import org.scalatest._
-import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import geotrellis.vector.MultiPolygon
+import geotrellis.vector.io._
 
 class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers {
   val config = ConfigFactory.load
@@ -401,9 +404,31 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
   }
 
   // this doesn't test an indicator, but is an example for how to read data from the db
-  it should "be able to read trips from the database" in {
+  it should "read trips from the database" in {
     db withSession { implicit session: Session =>
       dao.toGtfsData.trips.size should be (1662)
     }
   }
+
+  it should "calculate the ratio of suburban rail lines" in {
+    val suburbRateByMode = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcByMode(period)
+    suburbRateByMode(2) should be (0.846 plusOrMinus 1e-3)
+  }
+
+  it should "calculate the ratio of suburban lines" in {
+    val suburbRateBySystem = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcBySystem(period)
+    suburbRateBySystem should be (0.846 plusOrMinus 1e-3)
+  }
+
+  import geotrellis.vector.io._
+  import geotrellis.vector._
+  it should "read OSM data about roads" in {
+    db withSession { implicit session: Session =>
+      val osmRoads = Q.queryNA[String]("SELECT way FROM planet_osm_roads LIMIT 10").list
+      val a = osmRoads map (WKB.read[Line](_))
+      println((a map (_.length)).sum)
+      println(MultiLine(a: _*))
+    }
+  }
+
 }
