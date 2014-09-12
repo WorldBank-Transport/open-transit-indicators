@@ -117,7 +117,9 @@ trait GeoTrellisServiceRoute extends HttpService with GeoTrellisService { self: 
             complete {
               try {
                 println("Going to start calculating things now...")
-                calculateIndicators(calcParams)
+                future {
+                    calculateIndicators(calcParams)
+                }
                 println("Have started calculating things!")
 
                 // return a 201 created
@@ -203,23 +205,13 @@ trait GeoTrellisService extends LoadedGtfsData { self: GtfsDatabase =>
   // Returns true if calculation has begun, false if there is a problem
   def calculateIndicators(calcParams: CalcParams): Boolean = {
     println("In calculateIndicators function...")
-    def t = new Thread(new Runnable() {
-      override def run {
-        try {
-          val calc = new IndicatorsCalculator(gtfsData, calcParams, db)
-          println("Indicators calcuated; going to call storeIndicators...")
-          calc.storeIndicators
-          // Update indicator-job status
-          djangoClient.updateIndicatorJob(calcParams.token,
-                                          IndicatorJob(version=calcParams.version,
-                                          job_status="complete"))
-        } catch {
-          case e:Throwable => throw e
-        }
-      }
-    })
-    
-    t.start()
+    val calc = new IndicatorsCalculator(gtfsData, calcParams, db)
+    println("Indicators calcuated; going to call storeIndicators...")
+    calc.storeIndicators
+    // Update indicator-job status
+    djangoClient.updateIndicatorJob(calcParams.token,
+                                    IndicatorJob(version=calcParams.version,
+                                    job_status="complete"))
     true
   }
 
