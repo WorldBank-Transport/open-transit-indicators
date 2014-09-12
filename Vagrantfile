@@ -4,7 +4,7 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
-if ENV['VAGRANT_MEMORY'].nil?
+if ENV['OTI_VAGRANT_MEMORY'].nil?
     MEMORY_MB = "10240"
 else
     MEMORY_MB = ENV['VAGRANT_MEMORY']
