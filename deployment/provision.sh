@@ -108,9 +108,11 @@ case "$INSTALL_TYPE" in
         ;;
     "production")
         echo "Selecting production installation"
-        ANGULAR_STATIC="$ANGULAR_ROOT/dist"
+        # Should be set to $ANGULAR_ROOT/dist
+        # Change once issue #161 is resolved
+        ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS=""
-        # TODO: Set variables for production deployment here
+        WEB_USER='ubuntu'
         ;;
     "travis")
         echo "Selecting CI installation"
@@ -430,6 +432,9 @@ echo "Finished setting up celery and background processes started"
 echo 'Setting up angular'
 if [ "$INSTALL_TYPE" != "travis" ]; then
     pushd "$ANGULAR_ROOT"
+        # Hack to get get permissions set correctly for AMI generation
+        sudo chown $WEB_USER:$WEB_USER /home/$WEB_USER/.npm
+        sudo chmod 777 -R /home/$WEB_USER/.npm
         # Bower gets angry if you run it as root, so external script again.
         # Hu preserves home directory settings.
         sudo -Hu "$WEB_USER" $PROJECT_ROOT/deployment/setup_angular.sh "$INSTALL_TYPE"
