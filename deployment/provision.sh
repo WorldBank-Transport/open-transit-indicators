@@ -629,12 +629,12 @@ nginx_conf="server {
         alias $DJANGO_STATIC_FILES_ROOT;
     }
 
-    location = /monit {
+    location = /monitoring {
         return 301 http://\$http_host\$request_uri/;
     }
 
-    location /monit {
-        rewrite ^/monit/(.*) /\$1 break;
+    location /monitoring {
+        rewrite ^/monitoring/(.*) /\$1 break;
         proxy_pass http://localhost:2812/;
     }
 }
@@ -655,81 +655,84 @@ echo 'Nginx now running'
 #########################
 # Monit setup           #
 #########################
-echo 'Setting up monit for service management'
-monit_conf='
-# This configuration generation by provision.sh and will be overwritten on re-provision.
-set httpd port 2812 and
-  use address 0.0.0.0  # only accept connection from localhost
-  allow oti-admin:oti-admin      # require user "admin" with password "monit"
-#################
-# Filesystem    #
-#################
-check filesystem root with path /
-  # Ordinarily we would want to alert when free space is low but that
-  # does not really work for this app.
+# Don't install monit on Travis; could lead to strange test behavior
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    echo 'Setting up monit for service management'
+    monit_conf='
+    # This configuration generation by provision.sh and will be overwritten on re-provision.
+    set httpd port 2812 and
+      use address 127.0.0.1  # only accept connection from localhost
+      allow oti-admin:oti-admin      # require user "admin" with password "monit"
+    #################
+    # Filesystem    #
+    #################
+    check filesystem root with path /
+      # Ordinarily we would want to alert when free space is low but that
+      # does not really work for this app.
 
-###############
-# Services    #
-###############
-# Generic service names so this will be usable to non-Azaveans.
-# nginx (http proxy)
-check process web-server-nginx with pidfile /var/run/nginx.pid
-  start program = "/etc/init.d/nginx start"
-  stop program = "/etc/init.d/nginx stop"
-  if failed host localhost port 80
-    protocol HTTP request "/static/nginx-check"
-    then restart
-  if 5 restarts within 5 cycles then timeout
+    ###############
+    # Services    #
+    ###############
+    # Generic service names so this will be usable to non-Azaveans.
+    # nginx (http proxy)
+    check process web-server-nginx with pidfile /var/run/nginx.pid
+      start program = "/etc/init.d/nginx start"
+      stop program = "/etc/init.d/nginx stop"
+      if failed host localhost port 80
+        protocol HTTP request "/static/nginx-check"
+        then restart
+      if 5 restarts within 5 cycles then timeout
 
-# postgresql (database)
-check process database-PostgreSQL with pidfile /var/run/postgresql/9.1-main.pid
-  start program = "/etc/init.d/postgresql start"
-  stop program = "/etc/init.d/postgresql stop"
-  if failed unixsocket /var/run/postgresql/.s.PGSQL.5432
-    protocol pgsql
-    then restart
-  if 5 restarts within 5 cycles then timeout
+    # postgresql (database)
+    check process database-PostgreSQL with pidfile /var/run/postgresql/9.1-main.pid
+      start program = "/etc/init.d/postgresql start"
+      stop program = "/etc/init.d/postgresql stop"
+      if failed unixsocket /var/run/postgresql/.s.PGSQL.5432
+        protocol pgsql
+        then restart
+      if 5 restarts within 5 cycles then timeout
 
-# gunicorn (Web app)
-check process webapp-gunicorn with pidfile /var/run/gunicorn/gunicorn.pid
-  start program = "/sbin/start oti-gunicorn"
-  stop program = "/sbin/stop oti-gunicorn"
-  if failed unixsocket /tmp/gunicorn.sock
-    protocol HTTP request "/api/"
-    then restart
-  if 5 restarts within 5 cycles then timeout
+    # gunicorn (Web app)
+    check process webapp-gunicorn with pidfile /var/run/gunicorn/gunicorn.pid
+      start program = "/sbin/start oti-gunicorn"
+      stop program = "/sbin/stop oti-gunicorn"
+      if failed unixsocket /tmp/gunicorn.sock
+        protocol HTTP request "/api/"
+        then restart
+      if 5 restarts within 5 cycles then timeout
 
-# windshaft (map tiles)
-check process tileserver-windshaft with pidfile /var/run/windshaft.pid
-  start program = "/sbin/start oti-windshaft"
-  stop program = "/sbin/stop oti-windshaft"
-  if failed host localhost port 4000
-    protocol HTTP request "/"
-    then restart
-  if 5 restarts within 5 cycles then timeout
+    # windshaft (map tiles)
+    check process tileserver-windshaft with pidfile /var/run/windshaft.pid
+      start program = "/sbin/start oti-windshaft"
+      stop program = "/sbin/stop oti-windshaft"
+      if failed host localhost port 4000
+        protocol HTTP request "/"
+        then restart
+      if 5 restarts within 5 cycles then timeout
 
-# celery indicators (indicator calculation task queue)
-check process indicator-queue-celery with pidfile /var/run/celery-indicators.pid
-  start program = "/sbin/start oti-celery-indicators"
-  stop program = "/sbin/stop oti-celery-indicators"
+    # celery indicators (indicator calculation task queue)
+    check process indicator-queue-celery with pidfile /var/run/celery-indicators.pid
+      start program = "/sbin/start oti-celery-indicators"
+      stop program = "/sbin/stop oti-celery-indicators"
 
-# celery datasources (datasource import task queue)
-check process datasource-queue-celery with pidfile /var/run/celery-datasources.pid
-  start program = "/sbin/start oti-celery-datasources"
-  stop program = "/sbin/stop oti-celery-datasources"
-  if cpu usage > 90% for 10 cycles then restart
+    # celery datasources (datasource import task queue)
+    check process datasource-queue-celery with pidfile /var/run/celery-datasources.pid
+      start program = "/sbin/start oti-celery-datasources"
+      stop program = "/sbin/stop oti-celery-datasources"
+      if cpu usage > 90% for 10 cycles then restart
 
-# indicators service (indicator calculation service)
-check process indicator-calc-scala with pidfile /var/run/oti-indicators.pid
-  start program = "/sbin/start oti-geotrellis"
-  stop program = "/sbin/stop oti-geotrellis"
-  if cpu usage > 90% for 40 cycles then restart
-'
-monit_conf_file="/etc/monit/conf.d/oti"
-echo "$monit_conf" > "$monit_conf_file"
-service monit restart
-echo "Monit now running. Access service management console at:"
-echo "http://$HOST:2812 (2067 on vagrant); user / pass: oti-admin / oti-admin"
+    # indicators service (indicator calculation service)
+    check process indicator-calc-scala with pidfile /var/run/oti-indicators.pid
+      start program = "/sbin/start oti-geotrellis"
+      stop program = "/sbin/stop oti-geotrellis"
+      if cpu usage > 90% for 40 cycles then restart
+    '
+    monit_conf_file="/etc/monit/conf.d/oti"
+    echo "$monit_conf" > "$monit_conf_file"
+    service monit restart
+    echo "Monit now running. Access service management console at:"
+    echo "http://$HOST/monitoring/; user / pass: oti-admin / oti-admin"
+fi
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
