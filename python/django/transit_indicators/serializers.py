@@ -65,7 +65,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
         if attrs['aggregation'] == Indicator.AggregationTypes.MODE:
             if 'route_id' in attrs and attrs['route_id']:
                 raise serializers.ValidationError('Mode aggregation should not have route_id')
-            if 'route_type' not in attrs or not attrs['route_type']:
+            if 'route_type' not in attrs:
                 raise serializers.ValidationError('Mode aggregation requires route_type')
 
         return attrs
