@@ -5,7 +5,6 @@ angular.module('transitIndicators')
             function ($scope, OTIEvents, OTIIndicatorsService) {
 
     var cache = {};
-    $scope.cities = [];
     $scope.updating = false;
 
     $scope.routeXFunction = function () {
@@ -76,16 +75,6 @@ angular.module('transitIndicators')
         return transformed;
     };
 
-    /**
-     * Get a unique list of String city names, sorted alphabetically
-     *
-     * @param source data structure, of type [OTIIndicatorService.Indicator]
-     * @return unique array of city names
-     */
-    var setCities = function (data) {
-        return _.chain(data).groupBy('city_name').keys().value().sort();
-    };
-
     var getIndicatorData = function () {
         $scope.updating = true;
         var period = $scope.sample_period;
@@ -98,10 +87,7 @@ angular.module('transitIndicators')
                 $scope.indicatorData = cache[period];
                 $scope.updating = false;
             } else {
-                OTIIndicatorsService.search(params).then(function (data) {
-                    if ($scope.cities.length === 0) {
-                        $scope.cities = setCities(data);
-                    }
+                OTIIndicatorsService.query('GET', params).then(function (data) {
                     var indicators = transformData(data, $scope.cities);
                     $scope.indicatorData = null;
                     $scope.indicatorData = indicators;
@@ -120,6 +106,11 @@ angular.module('transitIndicators')
     };
 
     $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function () {
+        getIndicatorData();
+    });
+
+    $scope.$on(OTIEvents.Indicators.CitiesUpdated, function () {
+        cache = {};
         getIndicatorData();
     });
 

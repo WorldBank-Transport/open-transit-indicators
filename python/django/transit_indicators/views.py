@@ -42,19 +42,15 @@ class SamplePeriodViewSet(OTIAdminViewSet):
 class IndicatorFilter(django_filters.FilterSet):
     """Custom filter for indicator
 
-    Allows searching for all the local instance indicators with GET param:
-    local_city=True
-
     TODO: Filter all but the most recent version for each city in the sent response
 
     """
-    local_city = django_filters.CharFilter(name="city_name", lookup_type="isnull")
     sample_period = django_filters.CharFilter(name="sample_period__type")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name', 'local_city']
+                  'route_type', 'city_bounded', 'version', 'city_name']
 
 
 class IndicatorJobViewSet(OTIAdminViewSet):
@@ -76,7 +72,7 @@ class IndicatorViewSet(OTIAdminViewSet):
 
     Can be rendered as CSV in addition to the defaults
     Example CSV Export for all indicators calculated for the local GTFSFeed:
-    GET /api/indicators/?format=csv&local_city=True
+    GET /api/indicators/?format=csv&city_name=My%20City
 
     """
     model = Indicator
@@ -122,14 +118,38 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, *args, **kwargs):
+        """ Bulk delete of indicators based on a filter field
+
+        Return 400 BAD REQUEST if no filter fields provided or all filter fields provided are
+        not in delete_filter_fields
+        e.g. We do not want to allow someone to delete all the indicators with a DELETE to this
+        endpoint with no params
+
+        """
+        delete_filter_fields = ('city_name')
+        filters = []
+        for field in request.QUERY_PARAMS:
+            if field in delete_filter_fields:
+                filters.append(field)
+
+        if filters:
+            indicators = Indicator.objects.all();
+            for field in filters:
+                indicators = indicators.filter(**{field: request.QUERY_PARAMS[field]})
+            indicators.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
-    
+
     Returns most recent indicator version.
 
     """
-    
+
     def get(self, request, *args, **kwargs):
         """ Return the current version of the indicators """
         try:

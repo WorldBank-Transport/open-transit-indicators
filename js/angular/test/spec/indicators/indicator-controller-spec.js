@@ -12,7 +12,8 @@ describe('OTIIndicatorsController', function () {
         scope = $rootScope.$new();
         state = $state;
         indicatorsCtl = $controller('OTIIndicatorsController', {
-            $scope: scope
+            $scope: scope,
+            cities: []
         });
     }));
 

@@ -15,7 +15,7 @@
                     <li ng-repeat="(key, value) in sample_periods"><a ng-click="selectSamplePeriod(key)"> {{ value }}</a></li>
                   </ul>
             </div>
-            <div class="button--large">
+            <div ng-click="openCityModal()" class="button--large">
                 Add / Remove City +
             </div>
         </div>

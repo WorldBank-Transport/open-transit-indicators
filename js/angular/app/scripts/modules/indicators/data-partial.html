@@ -21,7 +21,7 @@
             <div ng-if="citydata.route && citydata.route.length > 0">
                 <span class="h4">By Route:</span>
                 <nvd3-pie-chart
-                    data="citydata.route" id="{{ type }}-{{ cityname }}-route-pie-chart" height="170"
+                    data="citydata.route" id="{{ type }}-{{ $index }}-route-pie-chart" height="170"
                     margin="{left:0,top:10,bottom:0,right:0}"
                     x="routeXFunction()" y="yFunction()"
                     tooltips="true" showLabels="true" labelType="percent">

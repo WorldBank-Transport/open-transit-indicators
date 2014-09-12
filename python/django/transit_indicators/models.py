@@ -359,9 +359,9 @@ class Indicator(models.Model):
     city_bounded = models.BooleanField(default=False)
 
     # A city name used to differentiate indicator sets
-    # The indicators calculated for this app's GTFSFeed will always have city_name=null
+    # The indicators calculated for this app's GTFSFeed will always have city_name=default
     # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, null=True)
+    city_name = models.CharField(max_length=255, default=_(u'My City'))
 
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions

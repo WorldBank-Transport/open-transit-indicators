@@ -91,3 +91,30 @@
 .indicators-count-5 {
 
 }
+
+.indicators-city-modal-window {
+    margin-top: 11rem;
+}
+
+.indicators-city-modal {
+    padding: 2rem;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.dropdown-menu > li > span {
+    // Copy of dropdown menu a elements for header spans
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: bold;
+    line-height: 1.428571429;
+    color: #333333;
+    white-space: nowrap;
+}
+
+.city-modal-row {
+    padding-top: 2rem;
+}
