@@ -194,7 +194,10 @@ class Indicator(models.Model):
         response = cls.LoadStatus()
         sample_period_cache = {}
         # create new job for this import, so the version number may be set
+        # Always has is_latest_version true to indicate that these indicators are available
+        # for display
         import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+                                  is_latest_version=True,
                                   created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')

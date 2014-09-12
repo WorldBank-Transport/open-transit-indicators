@@ -54,16 +54,20 @@ def aggregation_filter(queryset, values):
 class IndicatorFilter(django_filters.FilterSet):
     """Custom filter for indicator
 
+    For is_latest_version must pass pythons boolean, True|False as the value:
+    e.g. indicators?is_latest_version=True
+
     TODO: Filter all but the most recent version for each city in the sent response
 
     """
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
+    is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name']
+                  'route_type', 'city_bounded', 'version', 'city_name', 'is_latest_version']
 
 
 class IndicatorJobViewSet(OTIAdminViewSet):
