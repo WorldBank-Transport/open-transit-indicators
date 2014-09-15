@@ -14,27 +14,37 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
   val geomColumnName = config.getString("database.geom-name-utm")
 
   // initialize sample periods
-  val calcParams = CalcParams("Token", "cbe1f916-42d3-4630-8466-68b753024767", List[SamplePeriod](
-    SamplePeriod(1, "night",
-      new DateTime("2010-01-01T00:00:00.000-05:00"),
-      new DateTime("2010-01-01T08:00:00.000-05:00")),
+  val calcParams = CalcParams("Token", "cbe1f916-42d3-4630-8466-68b753024767",
+    20000,  // poverty line ($)
+    500,    // nearby buffer distance (m)
+    3600,   // max commute time (s)
+    1800,   // max walk time (s)
+    1,      // city boundary id
+    2,      // region boundary id
+    2,      // average fare ($)
+    List[SamplePeriod](
+      SamplePeriod(1, "night",
+        new DateTime("2010-01-01T00:00:00.000-05:00"),
+        new DateTime("2010-01-01T08:00:00.000-05:00")),
 
-    SamplePeriod(1, "morning",
-      new DateTime("2010-01-01T08:00:00.000-05:00"),
-      new DateTime("2010-01-01T11:00:00.000-05:00")),
+      SamplePeriod(1, "morning",
+        new DateTime("2010-01-01T08:00:00.000-05:00"),
+        new DateTime("2010-01-01T11:00:00.000-05:00")),
 
-    SamplePeriod(1, "midday",
-      new DateTime("2010-01-01T11:00:00.000-05:00"),
-      new DateTime("2010-01-01T16:30:00.000-05:00")),
+      SamplePeriod(1, "midday",
+        new DateTime("2010-01-01T11:00:00.000-05:00"),
+        new DateTime("2010-01-01T16:30:00.000-05:00")),
 
-    SamplePeriod(1, "evening",
-      new DateTime("2010-01-01T16:30:00.000-05:00"),
-      new DateTime("2010-01-01T23:59:59.999-05:00")),
+      SamplePeriod(1, "evening",
+        new DateTime("2010-01-01T16:30:00.000-05:00"),
+        new DateTime("2010-01-01T23:59:59.999-05:00")),
 
-    SamplePeriod(1, "weekend",
-      new DateTime("2010-01-02T00:00:00.000-05:00"),
-      new DateTime("2010-01-02T23:59:59.999-05:00"))
-  ))
+      SamplePeriod(1, "weekend",
+        new DateTime("2010-01-02T00:00:00.000-05:00"),
+        new DateTime("2010-01-02T23:59:59.999-05:00"))
+    )
+  )
+
   val period = calcParams.sample_periods.head
   val dao = new DAO
 
