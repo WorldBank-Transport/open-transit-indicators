@@ -104,6 +104,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     numStopsByRoute("WTR") should be (22.38963 plusOrMinus 1e-5)
   }
 
+  it should "calculate num_stops by system for SEPTA" in {
+    val numStopsBySystem = septaRailCalc.calculatorsByName("num_stops").calcBySystem(period)
+    numStopsBySystem should be (154)
+  }
+
+  it should "calculate overall num_stops by system for SEPTA" in {
+    val numStopsBySystem = septaRailCalc.calculatorsByName("num_stops").calcOverallBySystem
+    numStopsBySystem should be (150.72149 plusOrMinus 1e-5)
+  }
+
   it should "calculate num_routes by mode for SEPTA" in {
     val numRoutesByMode = septaRailCalc.calculatorsByName("num_routes").calcByMode(period)
     numRoutesByMode(2) should be (13)
@@ -147,6 +157,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     numRoutesByRoute("WAR") should be (1.0000 plusOrMinus 1e-4)
     numRoutesByRoute("WIL") should be (1.0000 plusOrMinus 1e-4)
     numRoutesByRoute("WTR") should be (1.0000 plusOrMinus 1e-4)
+  }
+
+  it should "calculate num_routes by system for SEPTA" in {
+    val numRoutesBySystem = septaRailCalc.calculatorsByName("num_routes").calcBySystem(period)
+    numRoutesBySystem should be (13)
+  }
+
+  it should "calculate overall num_routes by system for SEPTA" in {
+    val numRoutesBySystem = septaRailCalc.calculatorsByName("num_routes").calcOverallBySystem
+    numRoutesBySystem should be (12.40164 plusOrMinus 1e-5)
   }
 
   it should "calculate length by mode for SEPTA" in {
@@ -194,6 +214,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     lengthByRoute("WTR") should be ( 53.44757 plusOrMinus 1e-5)
   }
 
+  it should "calculate length by system for SEPTA" in {
+    val lengthBySystem = septaRailCalc.calculatorsByName("length").calcBySystem(period)
+    lengthBySystem should be (656.38489 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall length by system for SEPTA" in {
+    val lengthBySystem = septaRailCalc.calculatorsByName("length").calcOverallBySystem
+    lengthBySystem should be (589.67491 plusOrMinus 1e-5)
+  }
+
   it should "calculate time_traveled_stops by mode for SEPTA" in {
     val ttsByMode = septaRailCalc.calculatorsByName("time_traveled_stops").calcByMode(period)
     ttsByMode(2) should be (3.65945 plusOrMinus 1e-5)
@@ -239,6 +269,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     ttsByRoute("WTR") should be (3.43258 plusOrMinus 1e-5)
   }
 
+  it should "calculate time_traveled_stops by system for SEPTA" in {
+    val ttsBySystem = septaRailCalc.calculatorsByName("time_traveled_stops").calcBySystem(period)
+    ttsBySystem should be (3.65945 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall time_traveled_stops by system for SEPTA" in {
+    val ttsBySystem = septaRailCalc.calculatorsByName("time_traveled_stops").calcOverallBySystem
+    ttsBySystem should be (3.46391 plusOrMinus 1e-5)
+  }
+
   it should "calculate avg_service_freq by mode for SEPTA" in {
     val asfByMode = septaRailCalc.calculatorsByName("avg_service_freq").calcByMode(period)
     asfByMode(2) should be (0.25888 plusOrMinus 1e-5)
@@ -282,6 +322,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     asfByRoute("WAR") should be (0.61901 plusOrMinus 1e-5)
     asfByRoute("WIL") should be (0.51010 plusOrMinus 1e-5)
     asfByRoute("WTR") should be (0.48118 plusOrMinus 1e-5)
+  }
+
+  it should "calculate avg_service_freq by system for SEPTA" in {
+    val asfBySystem = septaRailCalc.calculatorsByName("avg_service_freq").calcBySystem(period)
+    asfBySystem should be (0.36349 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall avg_service_freq by system for SEPTA" in {
+    val asfBySystem = septaRailCalc.calculatorsByName("avg_service_freq").calcOverallBySystem
+    asfBySystem should be (0.47632 plusOrMinus 1e-5)
   }
 
   it should "return map of Route ID's and their geometries" in {
@@ -333,6 +383,11 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     dbsByRoute("FOX") should be (1.67826 plusOrMinus 1e-5)
     dbsByRoute("CHE") should be (1.04458 plusOrMinus 1e-5)
     dbsByRoute("TRE") should be (5.58536 plusOrMinus 1e-5)
+  }
+
+  it should "calcuate overall distance_between_stops by system for SEPTA" in {
+    val dbsBySystem = septaRailCalc.calculatorsByName("distance_stops").calcOverallBySystem
+    dbsBySystem should be (2.35755 plusOrMinus 1e-5)
   }
 
   // this doesn't test an indicator, but is an example for how to read data from the db

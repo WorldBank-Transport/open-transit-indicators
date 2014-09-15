@@ -35,4 +35,6 @@ class Length(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Databas
       .groupBy(kv => routeByID(kv._1).route_type.id)
       .map { case (key, value) => key -> value.map(_._2).sum }
   }
+
+  def calcBySystem(period: SamplePeriod): Double = simpleSumBySystem(period)
 }

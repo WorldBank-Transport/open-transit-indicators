@@ -29,6 +29,14 @@ class TimeTraveledStops(val gtfsData: GtfsData, val calcParams: CalcParams, val 
     }
   }
 
+  def calcBySystem(period: SamplePeriod): Double = {
+    println("in calcBySystem for TimeTraveledStops")
+    val durations = durationsBetweenStopsPerRoute(period)
+      .toList
+      .flatMap(_._2)
+
+    durations.sum / durations.length
+  }
 
   // Gets a list of durations between stops per route
   def durationsBetweenStopsPerRoute(period: SamplePeriod): Map[String, Seq[Double]] = {

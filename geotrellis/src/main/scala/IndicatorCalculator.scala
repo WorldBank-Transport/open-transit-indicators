@@ -23,6 +23,12 @@ trait IndicatorCalculator {
   // TODO: calculator results should be cached to prevent recalculating them during aggregations
   def calcByRoute(period: SamplePeriod): Map[String, Double]
   def calcByMode(period: SamplePeriod): Map[Int, Double]
+  def calcBySystem(period: SamplePeriod): Double
+
+  // Helper function for summing the values obtained in calcByMode.
+  def simpleSumBySystem(period: SamplePeriod): Double = {
+    calcByMode(period).toList.foldLeft(0.0){ case(sum, (_, value)) => sum + value }
+  }
 
   // Overall aggregation by route, taking into account all periods
   def calcOverallByRoute: Map[String, Double] = {
@@ -56,15 +62,12 @@ trait IndicatorCalculator {
     sumsByMode.map{ case (routeType, sum) => routeType -> sum / (24 * 7) }.toMap
   }
 
-  // This can be uncommented only when the proper methods are added to each indicator
-  // until then, uncommenting this bit of code will prevent compilation
-  //def calcBySystem(period: SamplePeriod): Double
-  /*def calcOverallBySystem: Double = {
-    // Double of systemic value
+  // Overall aggregation by system, taking into account all periods
+  def calcOverallBySystem: Double = {
     calcParams.sample_periods.map(period => {
       calcBySystem(period) * getPeriodMultiplier(period)
-    }).foldLeft(0.0){ (a, b) => a + b }
-  }*/
+    }).foldLeft(0.0){ (a, b) => a + b } / (24 * 7)
+  }
 
   // Gets the multiplier for weighting a period in an aggregation
   def getPeriodMultiplier(period: SamplePeriod): Double = {
@@ -108,8 +111,8 @@ trait IndicatorCalculator {
     )
   }
 
-  // See note above regarding uncommenting
-  /*lazy val systemIndicators = for {
+  // Store all system indicators for all periods
+  lazy val systemIndicators = for {
     period <- calcParams.sample_periods
     value = calcBySystem(period)
   } yield {
@@ -121,7 +124,7 @@ trait IndicatorCalculator {
       value=value,
       the_geom=stringGeomForSystem(period)
     )
-  }*/
+  }
 
   // Store aggregate route indicators
   lazy val aggRouteIndicators = for {
@@ -151,10 +154,22 @@ trait IndicatorCalculator {
     )
   }
 
+  // Store aggregate system indicators
+  lazy val aggSystemIndicators = List(Indicator(
+    `type`=name,
+    sample_period="alltime",
+    aggregation="system",
+    version=calcParams.version,
+    value=calcOverallBySystem
+  ))
+
   // Post all indicators at once
   def storeIndicators = {
-    djangoClient.postIndicators(calcParams.token, routeIndicators ++ modeIndicators ++
-      aggRouteIndicators ++ aggModeIndicators)
+    djangoClient.postIndicators(calcParams.token,
+      routeIndicators ++ aggRouteIndicators ++
+      modeIndicators ++ aggModeIndicators ++
+      systemIndicators ++ aggSystemIndicators
+    )
   }
 
   // Return a text geometry with SRID 4326 for a given routeID
