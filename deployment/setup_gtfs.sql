@@ -278,6 +278,20 @@ CREATE TABLE gtfs_stops (
 ALTER TABLE public.gtfs_stops OWNER TO transit_indicators;
 
 --
+-- Name: gtfs_stops_buffers; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Description: Contains a buffer around a GTFS feeds stop locations.
+--
+
+CREATE TABLE gtfs_stops_buffers (
+    radius_m float NOT NULL,
+    the_geom geometry(GeometryCollection,4326),
+    geom geometry(GeometryCollection,32616)
+);
+
+
+ALTER TABLE public.gtfs_stops_buffers OWNER TO transit_indicators;
+
+--
 -- Name: gtfs_stops_info; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
 -- Description: Stops descriptive information, for UTFGrid interactivity
 --
