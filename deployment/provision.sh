@@ -55,7 +55,7 @@ GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
-INDICATOR_SOFT_TIME_LIMIT_SECONDS="5400"
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
 
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
@@ -94,6 +94,7 @@ WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
 GUNICORN_WORKERS=3
+GUNICORN_TIMEOUT=300
 
 # Create logs directory
 mkdir -p $LOG_ROOT
@@ -575,7 +576,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS
+exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -620,6 +621,7 @@ nginx_conf="server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
+        proxy_read_timeout 600s;
         client_max_body_size 100M;
     }
 
