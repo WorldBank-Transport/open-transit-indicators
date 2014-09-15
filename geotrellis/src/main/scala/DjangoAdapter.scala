@@ -43,6 +43,13 @@ object DjangoAdapter {
   case class CalcParams(
     token: String,
     version: String,
+    poverty_line: Double,
+    nearby_buffer_distance_m: Double,
+    max_commute_time_s: Int,
+    max_walk_time_s: Int,
+    city_boundary_id: Int,
+    region_boundary_id: Int,
+    avg_fare: Double,
     sample_periods: List[SamplePeriod]
   )
 
@@ -78,7 +85,7 @@ object DjangoAdapter {
 
     // Use built-in JSON formats for our case classes
     implicit val samplePeriodFormat = jsonFormat4(SamplePeriod)
-    implicit val calcParamsFormat = jsonFormat3(CalcParams)
+    implicit val calcParamsFormat = jsonFormat10(CalcParams)
     implicit val indicatorFormat = jsonFormat9(Indicator)
     implicit val indicatorJobFormat = jsonFormat2(IndicatorJob)
   }
