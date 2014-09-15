@@ -55,7 +55,7 @@ GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
 GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
-INDICATOR_SOFT_TIME_LIMIT_SECONDS="5400"
+INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
 
 UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded files
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
