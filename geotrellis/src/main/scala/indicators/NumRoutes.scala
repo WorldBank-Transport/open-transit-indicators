@@ -25,4 +25,6 @@ class NumRoutes(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Data
       .groupBy(_.route_type.id)
       .map { case (key, value) => key -> value.size.toDouble }
   }
+
+  def calcBySystem(period: SamplePeriod): Double = simpleSumBySystem(period)
 }
