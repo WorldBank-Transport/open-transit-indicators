@@ -283,7 +283,7 @@ ALTER TABLE public.gtfs_stops OWNER TO transit_indicators;
 --
 
 CREATE TABLE gtfs_stops_buffers (
-    radius_m float NOT NULL,
+    radius_m double precision NOT NULL,
     the_geom geometry(GeometryCollection,4326),
     geom geometry(GeometryCollection,32616)
 );

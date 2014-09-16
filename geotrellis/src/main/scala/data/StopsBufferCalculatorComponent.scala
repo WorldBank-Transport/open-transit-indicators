@@ -1,4 +1,4 @@
-package opentransitgt.data_access
+package opentransitgt.data
 
 import com.azavea.gtfs._
 import scala.slick.driver.PostgresDriver
@@ -10,7 +10,7 @@ import opentransitgt.IndicatorCalculator
  * A trait providing a stops buffer to an IndicatorCalculator
  */
 trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
-  def bufferRadiusMeters: Float
+  val bufferRadiusMeters: Double
 
   // Wrap Slick persistence items to prevent potential naming conflicts.
   object sbSlick {
@@ -25,18 +25,18 @@ trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
    * A buffer around a set of GTFS stops. Used for calculating stop coverage indicators
    */
   case class StopsBuffer(
-    radius: Float,
-    geom: Projected[GeometryCollection], // Location-dependent SRID (UTM zone)
-    theGeom: Projected[GeometryCollection] // SRID EPSG:4326
+    radius: Double,
+    geom: Projected[MultiPolygon], // Location-dependent SRID (UTM zone)
+    theGeom: Projected[MultiPolygon] // SRID EPSG:4326
   )
   
   /**
    * Table class supporting Slick persistence
    */
   class StopsBuffers(tag: Tag) extends Table[StopsBuffer](tag, "gtfs_stops_buffers") {
-    def radius = column[Float]("radius_m")
-    def geom = column[Projected[GeometryCollection]]("geom")
-    def theGeom = column[Projected[GeometryCollection]]("the_geom")
+    def radius = column[Double]("radius_m")
+    def geom = column[Projected[MultiPolygon]]("geom")
+    def theGeom = column[Projected[MultiPolygon]]("the_geom")
 
     def * = (radius, geom, theGeom) <> (StopsBuffer.tupled, StopsBuffer.unapply)
   }
@@ -63,10 +63,9 @@ trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
                 case PolygonResult(p) => MultiPolygon(p)
               }
             }
-          val unprojected = GeometryCollection(Seq(bufferMp))
           val newBuffer = StopsBuffer(bufferRadiusMeters,
-            unprojected.withSRID(srid),
-            unprojected.withSRID(4326))
+            bufferMp.withSRID(srid),
+            bufferMp.withSRID(4326))
           stopsBufferTable.insert(newBuffer)
           newBuffer
       }
