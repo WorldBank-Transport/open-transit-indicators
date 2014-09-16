@@ -105,7 +105,6 @@ CELERY_ROUTES = {
 }
 CELERY_ACCEPT_CONTENT=['json']
 
-
 # Rest Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
@@ -124,3 +123,6 @@ REST_FRAMEWORK = {
 
 # Settings for Geometry data stored in database
 DJANGO_SRID = 3857
+
+# Temporary default city_name for indicators
+OTI_CITY_NAME = 'My City'

@@ -2,6 +2,7 @@
 import csv
 import uuid
 
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -194,6 +195,8 @@ class Indicator(models.Model):
         response = cls.LoadStatus()
         sample_period_cache = {}
         # create new job for this import, so the version number may be set
+        # Always has is_latest_version true to indicate that these indicators are available
+        # for display
         import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                   created_by=user)
         if not city_name:
@@ -226,6 +229,7 @@ class Indicator(models.Model):
                 response.count = num_saved
                 response.success = True
                 import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
+                import_job.is_latest_version = True
                 import_job.save()
 
         except Exception as e:
@@ -359,9 +363,9 @@ class Indicator(models.Model):
     city_bounded = models.BooleanField(default=False)
 
     # A city name used to differentiate indicator sets
-    # The indicators calculated for this app's GTFSFeed will always have city_name=default
+    # The indicators calculated for this app's GTFSFeed will always have city_name=settings.OTI_CITY_NAME
     # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=_(u'My City'))
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
 
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions

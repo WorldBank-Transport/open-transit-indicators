@@ -3,13 +3,14 @@ from time import sleep
 
 from celery.utils.log import get_task_logger
 import requests
-from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
+from transit_indicators.models import Indicator, IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
 GT_INDICATORS_ENDPOINT = 'http://localhost/gt/indicators'
 
-def run_indicator_calculation(indicator_job):
+def run_indicator_calculation(indicator_job, city_name):
+    logger.debug('Starting indicator job: %s for city %s', indicator_job, city_name)
     indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
     indicator_job.save()
 
@@ -67,6 +68,9 @@ def run_indicator_calculation(indicator_job):
     if status == IndicatorJob.StatusChoices.COMPLETE:
         logger.info('Job completed successfully; updating current indicator version to %s',
                     indicator_job.version)
-        IndicatorJob.objects.update(is_latest_version=False)
+        versions = Indicator.objects.filter(city_name=city_name).values('version').annotate()
+        versions = [obj['version'] for obj in versions]
+        IndicatorJob.objects.filter(version__in=versions).update(is_latest_version=False)
+
         indicator_job.is_latest_version = True
         indicator_job.save()
