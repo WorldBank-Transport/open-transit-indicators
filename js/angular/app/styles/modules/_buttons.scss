@@ -3,6 +3,9 @@
   cursor: pointer;
   display: inline;
   padding: 1.4rem 0;
+  &.default {
+    font-weight: 600;
+  }
 }
 
 .button--large {
