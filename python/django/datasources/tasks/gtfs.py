@@ -10,7 +10,7 @@ from django.conf import settings
 from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInterface
 from urllib import urlencode
 
-from datasources.models import GTFSFeed, GTFSFeedProblem
+from datasources.models import *
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -111,7 +111,12 @@ def run_validate_gtfs(gtfsfeed_id):
                                                type=GTFSFeedProblem.ProblemTypes.WARNING)
 
     gtfsfeed.is_valid = True if errors_count == 0 else False
+    
+    # delete any uploaded shapefiles that aren't for this GTFS' city
+    delete_other_city_uploads(gtfsfeed.city_name)
+
     # send to GeoTrellis
+    logger.debug('going to send gtfs to geotrellis')
     result = send_to_geotrellis(gtfsfeed.source_file) if gtfsfeed.is_valid else False
 
     # Update processing status
@@ -119,6 +124,18 @@ def run_validate_gtfs(gtfsfeed_id):
     gtfsfeed.is_processed = result
     gtfsfeed.save()
 
+
+def delete_other_city_uploads(cityname):
+    """Helper function to delete uploaded shapefiles for cities other than the given city name.
+    
+    Arguments:
+    :param cityname: String that is the name of the current city (keep files for this city)
+    """
+    logger.debug('going to delete uploads for cities other than %s', cityname)
+    # deleting these data objects will cascade deletion of their related objects
+    Boundary.objects.exclude(city_name=cityname).delete()
+    OSMData.objects.exclude(city_name=cityname).delete()
+    DemographicDataSource.objects.exclude(city_name=cityname).delete()  
 
 def send_to_geotrellis(gtfs_file):
     """Sends GTFS data to GeoTrellis for storage
