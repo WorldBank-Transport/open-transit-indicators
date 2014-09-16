@@ -8,9 +8,10 @@ import zipfile
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInterface
+from transit_indicators.models import IndicatorJob
 from urllib import urlencode
 
-from datasources.models import *
+from datasources.models import Boundary, GTFSFeed, GTFSFeedProblem, OSMData, DemographicDataSource
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -116,8 +117,7 @@ def run_validate_gtfs(gtfsfeed_id):
     delete_other_city_uploads(gtfsfeed.city_name)
     
     # invalidate last set of indicators calculated for this city (need to re-run them for this GTFS)
-    # TODO: get IndicatorJob here
-    #Indicator.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
+    IndicatorJob.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
 
     # send to GeoTrellis
     logger.debug('going to send gtfs to geotrellis')

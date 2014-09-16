@@ -65,6 +65,7 @@ class IndicatorFilter(django_filters.FilterSet):
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
     is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
+    city_name = django_filters.CharFilter(name="version__city_name")
 
     class Meta:
         model = Indicator
@@ -82,7 +83,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         """Override request to handle kicking off celery task"""
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            start_indicator_calculation.apply_async(args=[self.object.id, settings.OTI_CITY_NAME], queue='indicators')
+            start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
 
 
@@ -172,7 +173,8 @@ class IndicatorVersion(APIView):
     """
     def get(self, request, *args, **kwargs):
         """ Return the current versions of the indicators """
-        versions = Indicator.objects.filter(version__is_latest_version=True).values('version', 'city_name').annotate()
+        versions = Indicator.objects.filter(version__is_latest_version=True).values('version',
+                                            'version__city_name').annotate()
         return Response({'current_versions': versions}, status=status.HTTP_200_OK)
 
 
@@ -207,7 +209,7 @@ class IndicatorCities(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = Indicator.objects.values_list('city_name', flat=True).filter(
+        response = IndicatorJob.objects.values_list('city_name', flat=True).filter(
                                                  city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
 

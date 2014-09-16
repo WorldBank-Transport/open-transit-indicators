@@ -49,6 +49,10 @@ class IndicatorSerializer(serializers.ModelSerializer):
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
     version = serializers.SlugRelatedField(slug_field='version')
+    city_name = serializers.SerializerMethodField('get_city_name')
+
+    def get_city_name(self, obj):
+        return obj.version.city_name
 
     def validate(self, attrs):
         """Validate indicator fields"""
