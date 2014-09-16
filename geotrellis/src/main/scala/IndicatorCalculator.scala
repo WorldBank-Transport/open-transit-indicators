@@ -196,25 +196,17 @@ trait IndicatorCalculator {
     }
   }
 
+  // Finds the Line in Lat/Lng associated with the route
   def routeToLine(period: SamplePeriod, route: Route): Option[Line] = {
-    db withSession { implicit session: Session =>
-      // Find the SRID of the UTM column and construct a CRS.
-      //
-      // Note: this is only needed because there is currently a bug
-      //   in the GTFS parser that causes the SRID on the geometry object
-      //   to be set to -1. If this is fixed, it can be obtained from
-      //   the object directly.
-      val sridQ = Q.queryNA[Int]("""SELECT Find_SRID('public', 'gtfs_shape_geoms', 'geom');""")
-      val utmCrs = CRS.fromName(s"EPSG:${sridQ.list.head}")
-
-      val shape_id : Option[String] = tripsInPeriod(period, route).head.rec.shape_id
-      val shapeTrip : Option[TripShape] = shape_id.flatMap {
-        shapeID => gtfsData.shapesById.get(shapeID)
+    val shape_id : Option[String] = tripsInPeriod(period, route).head.rec.shape_id
+    val shapeTrip : Option[TripShape] = shape_id.flatMap {
+      shapeID => gtfsData.shapesById.get(shapeID)
+    }
+    shapeTrip map {
+      tripShape => {
+        val utmCrs = CRS.fromName(s"EPSG:${tripShape.line.srid}")
+        tripShape.line.reproject(utmCrs, LatLng)(4326)
       }
-      val maybeShapeLine : Option[Line] = shapeTrip map {
-        tripShape => tripShape.line.reproject(utmCrs, LatLng)(4326)
-      }
-      maybeShapeLine
     }
   }
 
