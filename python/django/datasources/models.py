@@ -80,6 +80,21 @@ class OSMDataProblem(DataSourceProblem):
     osmdata = models.ForeignKey(OSMData)
 
 
+class RealTime(FileDataSource):
+    """ Represents a stop_times.txt_new upload
+
+    File must be generated via Mike Smith's Stop Times software
+    Calls a /gt endpoint to load the data via scala
+
+    """
+    pass
+
+
+class RealTimeProblem(DataSourceProblem):
+    """ Problem with a RealTime import """
+    realtime = models.ForeignKey(RealTime)
+
+
 class BoundaryProblem(DataSourceProblem):
     """Problem (warning or error) with a Boundary."""
     boundary = models.ForeignKey(Boundary)
