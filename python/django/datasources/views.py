@@ -6,12 +6,13 @@ from rest_framework.response import Response
 
 from transit_indicators.viewsets import OTIAdminViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
+                                RealTime, RealTimeProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
                                 DemographicDataFeature, OSMData, OSMDataProblem)
-from datasources.serializers import (GTFSFeedSerializer, BoundarySerializer,
+from datasources.serializers import (GTFSFeedSerializer, BoundarySerializer, RealTimeSerializer,
                                      DemographicDataSourceSerializer, OSMDataSerializer)
 from datasources.tasks import (validate_gtfs, shapefile_to_boundary, get_shapefile_fields,
-                               load_shapefile_data, import_osm_data)
+                               load_shapefile_data, import_osm_data, import_real_time_data)
 from transit_indicators.models import OTIDemographicConfig
 from transit_indicators.serializers import OTIDemographicConfigSerializer
 
@@ -48,6 +49,27 @@ class GTFSFeedProblemViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for GTFS data"""
     model = GTFSFeedProblem
     filter_fields = ('gtfsfeed',)
+
+
+class RealTimeViewSet(OTIAdminViewSet):
+    """ View set for dealing wth RealTime uploads """
+    model = RealTime
+    serializer_class = RealTimeSerializer
+
+    def create(self, request):
+        """ Override create to load realtime data via geotrellis """
+        response = super(RealTimeViewSet, self).create(request)
+        self.object.is_valid = True
+        self.object.save()
+        if response.status_code == status.HTTP_201_CREATED:
+            import_real_time_data.apply_async(args=[self.object.id], queue='datasources')
+        return response
+
+
+class RealTimeProblemViewSet(OTIAdminViewSet):
+    """ View set for dealing with RealTime problems """
+    model = RealTimeProblem
+    filter_fields = ('realtime',)
 
 
 class OSMDataViewSet(OTIAdminViewSet):

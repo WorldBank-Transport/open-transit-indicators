@@ -163,12 +163,9 @@ angular.module('transitIndicators').constant('config', {
         {
             id: 'demographic'
         },
-        /*
-        // Temporarily removed until we decide to use it
         {
             id: 'realtime'
         },
-        */
         {
             id: 'configuration'
         },

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from models import (GTFSFeed, GTFSFeedProblem, DataSourceProblem, Boundary,
                     BoundaryProblem, DemographicDataSource, DemographicDataSourceProblem,
-                    DemographicDataFieldName, OSMData, OSMDataProblem)
+                    DemographicDataFieldName, OSMData, OSMDataProblem, RealTime, RealTimeProblem)
 
 
 # TODO: Refactor as an actual custom field if we start adding lots of custom
@@ -51,6 +51,22 @@ class ValidateZipMixin(object):
         return attrs
 
 
+class ValidateTxtMixin(object):
+    """Provides functionality to validate that a file has the .txt extension."""
+    def _validate_txt_extension(self, filename):
+        """ Checks that filename ends in txt """
+        name, extension = os.path.splitext(filename)
+        if extension != '.txt':
+            msg = "Uploaded filename must end in .txt"
+            raise serializers.ValidationError(msg)
+
+    def validate_txt_file(self, attrs, source):
+        fileobj = attrs[source]
+        self._validate_txt_extension(fileobj.name)
+        # TODO: Validate column headers match stop_times.txt?
+        return attrs
+
+
 class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
                          ValidateZipMixin):
     problems = serializers.SerializerMethodField('get_datasource_problem_counts')
@@ -61,6 +77,20 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
     class Meta:
         model = GTFSFeed
         problem_model = GTFSFeedProblem
+        read_only_fields = ('is_valid', 'is_processed')
+        ordering = ('-id',)
+
+
+class RealTimeSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
+                         ValidateTxtMixin):
+    problems = serializers.SerializerMethodField('get_datasource_problem_counts')
+
+    def validate_source_file(self, attrs, source):
+        return self.validate_txt_file(attrs, source)
+
+    class Meta:
+        model = RealTime
+        problem_model = RealTimeProblem
         read_only_fields = ('is_valid', 'is_processed')
         ordering = ('-id',)
 

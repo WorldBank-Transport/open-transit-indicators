@@ -87,7 +87,6 @@ class RealTime(FileDataSource):
     Calls a /gt endpoint to load the data via scala
 
     """
-    pass
 
 
 class RealTimeProblem(DataSourceProblem):
