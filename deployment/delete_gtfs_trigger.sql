@@ -30,7 +30,6 @@ CREATE OR REPLACE FUNCTION empty_gtfs() RETURNS trigger AS $empty_gtfs$
         EXECUTE 'DELETE FROM gtfs_wheelchair_boardings';
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeed_id_seq RESTART WITH 1';
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeedproblem_id_seq RESTART WITH 1';
-        UPDATE transit_indicators_indicatorjob SET is_latest_version = false;
         RETURN NULL;
     END;
 $empty_gtfs$ LANGUAGE plpgsql;
