@@ -7,6 +7,9 @@ angular.module('transitIndicators')
 
     var otiIndicatorsService = {};
     var nullVersion = 0;
+    // TODO: Replace this with call to get user-defined city name once implemented
+    // Should equal django.conf.settings.OTI_CITY_NAME
+    var selfCityName = 'My City';
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
@@ -82,7 +85,10 @@ angular.module('transitIndicators')
      */
     otiIndicatorsService.getIndicatorVersion = function (callback) {
         $http.get('/api/indicator-version/').success(function (data) {
-            var version = data.current_version || nullVersion;
+            var version = nullVersion;
+            if (data && data.current_versions) {
+                version = _.findWhere(data.current_versions, {city_name: selfCityName}).version || nullVersion;
+            }
             callback(version);
         }).error(function (error) {
             console.error('getIndicatorVersion:', error);

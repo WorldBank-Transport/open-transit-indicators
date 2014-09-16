@@ -1,5 +1,7 @@
 import django_filters
 
+from django.conf import settings
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -80,7 +82,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         """Override request to handle kicking off celery task"""
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
+            start_indicator_calculation.apply_async(args=[self.object.id, settings.OTI_CITY_NAME], queue='indicators')
         return response
 
 
@@ -163,21 +165,16 @@ class IndicatorViewSet(OTIAdminViewSet):
 class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
 
-    Returns most recent indicator version.
+    Returns currently valid indicator versions and associated city_name. Valid defined as:
+        - IndicatorJob.version has at least one indicator in the Indicator table
+        - IndicatorJob.is_latest_version = True
 
     """
-
     def get(self, request, *args, **kwargs):
-        """ Return the current version of the indicators """
-        try:
-            job = IndicatorJob.objects.get(is_latest_version=True)
-            version = job.version
-            return Response({'current_version': version}, status=status.HTTP_200_OK)
-        except IndicatorJob.DoesNotExist:
-            return Response({'current_version': None}, status=status.HTTP_200_OK)
-        except IndicatorJob.MultipleObjectsReturned:
-            return Response({'error':'Multiple versions found'},
-                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        """ Return the current versions of the indicators """
+        versions = Indicator.objects.filter(version__is_latest_version=True).values('version', 'city_name').annotate()
+        return Response({'current_versions': versions}, status=status.HTTP_200_OK)
+
 
 class IndicatorTypes(APIView):
     """ Indicator Types GET endpoint
@@ -189,6 +186,7 @@ class IndicatorTypes(APIView):
     def get(self, request, *args, **kwargs):
         response = { key: value for key, value in Indicator.IndicatorTypes.CHOICES }
         return Response(response, status=status.HTTP_200_OK)
+
 
 class IndicatorAggregationTypes(APIView):
     """ Indicator Aggregation Types GET endpoint
