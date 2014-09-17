@@ -36,6 +36,7 @@
   clip: rect(0, auto, auto, 0);
   position: absolute;
   transition: all 200ms;
+  -webkit-transition: all 200ms;
   width: 100%;
   width: 400px;
   position: absolute;
@@ -51,6 +52,7 @@
   position: absolute;
   width: 100%;
   transition: all 200ms;
+  -webkit-transition: all 200ms;
   transform: translate3d(100%, 0, 0);
   -webkit-transform: translate3d(100%, 0, 0);
   -ms-transform: translate3d(100%, 0, 0);
