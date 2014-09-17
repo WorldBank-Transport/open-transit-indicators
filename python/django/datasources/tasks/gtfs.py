@@ -95,19 +95,6 @@ def run_validate_gtfs(gtfsfeed_id):
                  errors_count + warnings_count,
                  gtfsfeed.source_file)
 
-<<<<<<< HEAD
-    # Verify that able to calculate length of a route (need shapes.txt or shape_dist_traveled)
-    if len(schedule.GetShapeList()) == 0:
-      # Check if shapes.txt of shape_dist_traveled exist
-      stopdatetimes = itertools.chain(*[trip.GetStopTimes() for trip in schedule.trips.values()])
-      if not any([stopdatetime.shape_dist_traveled for stopdatetime in stopdatetimes]):
-        length_description = ('Unable to calculate route and system length without a shapes.txt' +
-                              ' or shapes_dist_traveled field in stop_times.txt')
-        _ = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
-                                           description=length_description,
-                                           title='Unable to calculate length',
-                                           type=GTFSFeedProblem.ProblemTypes.WARNING)
-=======
     # This adds a warning message to the import process if
     # both a shapes.txt and no shapes_dist_traveled are available
     # since length for routes and modes will not be available.
@@ -123,13 +110,12 @@ def run_validate_gtfs(gtfsfeed_id):
                                                description=length_description,
                                                title='Unable to calculate length',
                                                type=GTFSFeedProblem.ProblemTypes.WARNING)
->>>>>>> c1ebc324bdb7cca9f678e63b4996d789acc835a9
 
     gtfsfeed.is_valid = True if errors_count == 0 else False
-    
+
     # delete any uploaded shapefiles that aren't for this GTFS' city
     delete_other_city_uploads(gtfsfeed.city_name)
-    
+
     # invalidate last set of indicators calculated for this city (need to re-run them for this GTFS)
     IndicatorJob.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
 
@@ -145,7 +131,7 @@ def run_validate_gtfs(gtfsfeed_id):
 
 def delete_other_city_uploads(cityname):
     """Helper function to delete uploaded shapefiles for cities other than the given city name.
-    
+
     Arguments:
     :param cityname: String that is the name of the current city (keep files for this city)
     """
@@ -153,7 +139,7 @@ def delete_other_city_uploads(cityname):
     # deleting these data objects will cascade deletion of their related objects
     Boundary.objects.exclude(city_name=cityname).delete()
     OSMData.objects.exclude(city_name=cityname).delete()
-    DemographicDataSource.objects.exclude(city_name=cityname).delete()  
+    DemographicDataSource.objects.exclude(city_name=cityname).delete()
 
 def send_to_geotrellis(gtfs_file):
     """Sends GTFS data to GeoTrellis for storage
