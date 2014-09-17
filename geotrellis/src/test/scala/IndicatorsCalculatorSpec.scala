@@ -422,12 +422,11 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
 
   import geotrellis.vector.io._
   import geotrellis.vector._
-  it should "read OSM data about roads" in {
+  it should "read OSM data from the test database" in {
     db withSession { implicit session: Session =>
       val osmRoads = Q.queryNA[String]("SELECT way FROM planet_osm_roads LIMIT 10").list
       val a = osmRoads map (WKB.read[Line](_))
-      println((a map (_.length)).sum)
-      println(MultiLine(a: _*))
+      a.head.length should be (181.19214 plusOrMinus 1e-5)
     }
   }
 
