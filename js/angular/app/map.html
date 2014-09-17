@@ -37,74 +37,249 @@
         </div>
     </header>
 
-    <div class="container">
-        <div class="book active">
-            <div class="page active" id="scenario">
-                <div class="content">
-                    <h4>GTFS Indicators</h4>
-                    <p>Indicators based on your GTFS, boundary, and demographic data.</p>
-                    <a class="button--small next" href="#scenario">View</a>
-                    <hr>
-                    <h4>Comparison Indicators</h4>
-                    <p>Compare scenarios to your original GTFS.</p>
+    <!--
+
+    Scenario Window Animations:
+
+    When a ".scenario-page" becomes active, it should receive the ".active" class. All ".scenario-page"
+    elements that proceed it in the ".scenario-pages" element should receive the ".previous" class (and
+    remove ".active" class if that was previously assigned). All ".scenario-page" elements that come after
+    it should have neither the ".active" nor the ".previous" class.
+
+    Once the ".active" and ".previous" elements are set, the height of the ".scenario" element should be set
+    to the sum of the outerHeight of the ".scenario.active" element and the outerHeight of the ".scenario-heading"
+    elements. Example:
+
+    var height = $('.scenario-page.active').outerHeight() + $('.scenario-heading').outerHeight();
+    $('.scenario').height(height);
+
+    -->
+
+    <div class="scenario">
+        <div class="scenario-heading">
+            Scenario New Bus 12 > Route 119 > Trip 1
+        </div>
+        <div class="scenario-pages">
+            <div class="scenario-page active" id="scenario-1">
+                <div class="scenario-page-content">
+                    <h3>Confirm Times</h3>
+                    <p>How do the below times look?</p>
+                    <table>
+                        <tr>
+                            <td><span class="badge">1</span></td>
+                            <td>17th St & Lehigh Av</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">2</span></td>
+                            <td>Frankford Av & Magee St</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">3</span></td>
+                            <td>60th St & Race St</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">4</span></td>
+                            <td>Cheltenham Av & Hillcrest Rd</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">5</span></td>
+                            <td>Shadeland Av & Bryn Mawr Av 2</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">6</span></td>
+                            <td>Peterson Av & Bryn Mawr Av</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">7</span></td>
+                            <td>Montgomery Street Station</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                    </table>
+                    <div class="filter">
+                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
+                    </div>
                     <div class="row">
                         <div class="col-sm-6">
-                            <select>
-                                <option value="value1">New Bus 1</option>
-                                <option value="value2">Tokyo</option>
-                            </select>
+                            <label>Fare ID</label>
+                            <input type="text" value="20">
                         </div>
                         <div class="col-sm-6">
+                            <label>Price</label>
+                            <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-6">
-                            <select>
-                                <option value="value1">New Bus 1</option>
-                                <option value="value2">Tokyo</option>
-                            </select>
+                            <label>Currency Type</label>
+                            <input type="text" value="20">
                         </div>
                         <div class="col-sm-6">
-                            <a class="button--small next" href="#scenario">+</a>
+                            <label>Payment Method</label>
+                            <input type="text" value="2.40">
                         </div>
                     </div>
-                    <a class="button--small next" href="#scenario">View</a>
-                    <hr>
-                    <h4>Import Indicators</h4>
-                    <p>Compare a preset transit system from another city with your GTFS data.</p>
-                    <a class="button--small next" href="#scenario">Add</a>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Transfers</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Transfer Duration (sec.)</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <select></select>
+                        </div>
+                        <div class="col-sm-4">
+                            <a class="button--small">Edit Route</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="scenario-2">
+                <div class="scenario-page-content">
+                    <h3>Confirm Times</h3>
+                    <p>How do the below times look?</p>
+                    <div class="filter">
+                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Currency Type</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Payment Method</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Transfers</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Transfer Duration (sec.)</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <select></select>
+                        </div>
+                        <div class="col-sm-4">
+                            <a class="button--small">Edit Route</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="scenario-3">
+                <div class="scenario-page-content">
+                    <h3>Confirm Times</h3>
+                    <p>How do the below times look?</p>
+                    <table>
+                        <tr>
+                            <td><span class="badge">1</span></td>
+                            <td>17th St & Lehigh Av</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">2</span></td>
+                            <td>Frankford Av & Magee St</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">3</span></td>
+                            <td>60th St & Race St</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">4</span></td>
+                            <td>Cheltenham Av & Hillcrest Rd</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">5</span></td>
+                            <td>Shadeland Av & Bryn Mawr Av 2</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">6</span></td>
+                            <td>Peterson Av & Bryn Mawr Av</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">7</span></td>
+                            <td>Montgomery Street Station</td>
+                            <td><input type="text" class="time"></td>
+                        </tr>
+                    </table>
+                    <div class="filter">
+                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Fare ID</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Price</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Currency Type</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Payment Method</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Transfers</label>
+                            <input type="text" value="20">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Transfer Duration (sec.)</label>
+                            <input type="text" value="2.40">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <select></select>
+                        </div>
+                        <div class="col-sm-4">
+                            <a class="button--small">Edit Route</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!--[if lt IE 9]>
-    <script src="bower_components/es5-shim/es5-shim.js"></script>
-    <script src="bower_components/json3/lib/json3.min.js"></script>
-    <![endif]-->
-
-    <!-- build:js scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
-    <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="bower_components/leaflet-dist/leaflet.js"></script>
-    <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-    <script src="bower_components/angular-translate/angular-translate.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/underscore/underscore.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="scripts/modules/gtfs-upload/gtfs-upload-controller.js"></script>
-        <script src="scripts/modules/gtfs-upload/gtfs-upload-service.js"></script>
-        <!-- endbuild -->
         <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
         <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.3"></script>
         <script type="text/javascript">
@@ -115,12 +290,5 @@
             map.setView([39.95,-75.1947], 14);
         </script>
 
-        <script type="text/javascript">
-            var toner = new  L.StamenTileLayer("toner-lite");
-            var map = L.map('map').setView([51.505, -0.09], 13);
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-        </script>
 </body>
 </html>
