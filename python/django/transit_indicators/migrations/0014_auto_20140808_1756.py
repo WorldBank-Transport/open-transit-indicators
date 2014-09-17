@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='indicator',
-            unique_together=set([(b'sample_period', b'type', b'aggregation', b'route_id', b'route_type', b'city_name', b'version')]),
+            unique_together=set([('sample_period', 'type', 'aggregation', 'route_id', 'route_type', 'city_name', 'version')]),
         ),
     ]
