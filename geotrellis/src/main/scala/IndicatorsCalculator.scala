@@ -22,7 +22,8 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams, db: Datab
     new TimeTraveledStops(data, params, db),
     new AvgServiceFreq(data, params, db),
     new DistanceStops(data, params, db),
-    new RatioSuburbLines(data, params, db)
+    new RatioSuburbLines(data, params, db),
+    new CoverageRatio500M(data, params, db)
   )
 
   // Map of IndicatorCalculators by name

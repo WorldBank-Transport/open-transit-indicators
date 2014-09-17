@@ -7,29 +7,24 @@ import geotrellis.slick._
 import opentransitgt.IndicatorCalculator
 
 /**
+ * A buffer around a set of GTFS stops. Used for calculating stop coverage indicators
+ */
+case class StopsBuffer(
+  radius: Double,
+  geom: Projected[MultiPolygon], // Location-dependent SRID (UTM zone)
+  theGeom: Projected[MultiPolygon] // SRID EPSG:4326
+)
+
+/**
  * A trait providing a stops buffer to an IndicatorCalculator
  */
 trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
+  import PostgresDriver.simple._
+  private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
+  import gisSupport._
+
   val bufferRadiusMeters: Double
 
-  // Wrap Slick persistence items to prevent potential naming conflicts.
-  object sbSlick {
-    val profile = PostgresDriver
-    val gis = new PostGisProjectionSupport(profile)
-  }
-  import sbSlick.profile.simple._
-  import sbSlick.gis._
-
-
-  /**
-   * A buffer around a set of GTFS stops. Used for calculating stop coverage indicators
-   */
-  case class StopsBuffer(
-    radius: Double,
-    geom: Projected[MultiPolygon], // Location-dependent SRID (UTM zone)
-    theGeom: Projected[MultiPolygon] // SRID EPSG:4326
-  )
-  
   /**
    * Table class supporting Slick persistence
    */
@@ -51,8 +46,10 @@ trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
    * along with the other GTFS tables on deletion.
    */
   def stopsBuffer(): StopsBuffer = {
+    // TODO: The indicator spec specifies that if stops data is unavailable, the route lines
+    // will be buffered instead. This doesn't appear to be supported by the GTFS parser yet.
     db withSession { implicit session: Session =>
-      val srid = systemSRIDFixMe()
+      val srid = gtfsData.stops(0).geom.srid
       stopsBufferTable.firstOption match {
         case Some(sb) => sb
         case None => 

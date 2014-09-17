@@ -16,13 +16,12 @@ class CoverageRatio500M(val gtfsData: GtfsData, val calcParams: CalcParams, val 
   val name = "coverage_ratio_500m"
   val bufferRadiusMeters = calcParams.nearby_buffer_distance_m
 
-  // The following are explicitly not implemented because this indicator is
-  // system-wide only.
-  def calcByMode(period: SamplePeriod): Map[Int, Double] = ???
-  def calcByRoute(period: SamplePeriod): Map[String, Double] = ???
+  // The following are just fake values because this is a system-wide indicator only
+  def calcByMode(period: SamplePeriod): Map[Int, Double] = { Map(0 -> 0.0) }
 
-  // This punts on calculating by both city and region boundaries but makes
-  // it easy to implement later.
+  def calcByRoute(period: SamplePeriod): Map[String, Double] = { Map("Fake" -> 0.0) }
+
+  // Only calculate by City boundary for now.
   def calcBySystem(period: SamplePeriod): Double = {
     val systemBuffer = stopsBuffer()
     val cityBounds: MultiPolygon = boundaryWithId(calcParams.city_boundary_id) match {
@@ -37,9 +36,10 @@ class CoverageRatio500M(val gtfsData: GtfsData, val calcParams: CalcParams, val 
    *
    */
   def clippedAreaRatio(boundary: MultiPolygon, coverage: MultiPolygon): Double = {
-    boundary.area / ((boundary & coverage) match {
+    ((boundary & coverage) match {
       case MultiPolygonResult(mp) => mp.area
       case PolygonResult(p) => p.area
-    })
+      case _ => 0.0
+    }) / boundary.area
   }
 }
