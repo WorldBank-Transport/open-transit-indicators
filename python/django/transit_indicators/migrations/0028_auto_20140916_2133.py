@@ -11,8 +11,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name='indicator',
+            unique_together=None
+        ),
         migrations.RemoveField(
             model_name='indicator',
             name='city_name',
+        ),
+        migrations.AlterUniqueTogether(
+            name='indicator',
+            unique_together=set([('sample_period', 'type', 'aggregation', 'route_id', 'route_type', 'version')]),
         ),
     ]
