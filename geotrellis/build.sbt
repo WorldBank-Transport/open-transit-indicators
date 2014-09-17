@@ -19,7 +19,6 @@ libraryDependencies ++= Seq(
   "com.azavea" %% "gtfs-parser" % "0.1-SNAPSHOT",
   "com.github.nscala-time" %% "nscala-time" % "1.4.0",
   "org.scalatest" %% "scalatest" % "2.1.5" % "test",
-
   "ch.qos.logback" % "logback-classic" % "1.1.1",
   "org.clapper" %% "grizzled-slf4j" % "1.0.2"
 )
