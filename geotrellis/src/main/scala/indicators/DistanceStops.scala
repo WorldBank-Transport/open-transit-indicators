@@ -48,6 +48,6 @@ class DistanceStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: 
     // and average all the distances
     calcByRoute(period).toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
-      .mapValues(v => v.map(_._2).sum / v.size)
+      .map { case (key, value) => key -> value.map(_._2).sum / value.size }
   }
 }

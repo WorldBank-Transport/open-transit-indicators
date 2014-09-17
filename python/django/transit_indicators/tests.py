@@ -227,7 +227,7 @@ class IndicatorsTestCase(TestCase):
         self.sample_period = SamplePeriod.objects.create(type='morning',
                                                          period_start=start, period_end=end)
 
-    def test_create(self):
+    def test_crud(self):
         """Ensure that a valid Indicator can be created."""
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
@@ -236,9 +236,23 @@ class IndicatorsTestCase(TestCase):
                                                         value=100),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        config_id = response.data['id']
+        detail_url = reverse('indicator-detail', [config_id])
 
-    def test_filter(self):
-        """Ensure that the local_city filter only returns city_name == null"""
+        # DELETE
+        response = self.client.delete(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete(self):
+        """ Ensure a valid indicator can be deleted """
+        response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
+                                                        type='num_stops',
+                                                        version=self.indicator_job.version,
+                                                        aggregation='system',
+                                                        value=100),
+                                    format='json')
+
+    def test_bulkdelete(self):
         indicator = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
@@ -254,10 +268,53 @@ class IndicatorsTestCase(TestCase):
                                              value=42,
                                              city_name="Rivendell")
         indicator2.save()
+        indicator3 = Indicator.objects.create(sample_period=self.sample_period,
+                                             type=Indicator.IndicatorTypes.NUM_ROUTES,
+                                             aggregation=Indicator.AggregationTypes.MODE,
+                                             city_bounded=True,
+                                             version=self.indicator_job,
+                                             value=42,
+                                             city_name="Rivendell")
+        indicator3.save()
 
-        response = self.client.get(self.list_url, data={ 'local_city': 'True' })
+        self.assertEqual(2, len(Indicator.objects.filter(city_name='Rivendell')))
+        response = self.client.delete(self.list_url + '?city_name=Rivendell')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(0, len(Indicator.objects.filter(city_name='Rivendell')))
+
+        # Test delete all indicators, should fail 400 BAD REQUEST
+        response = self.client.delete(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test delete invalid filter param, should fail 400 BAD REQUEST
+        response = self.client.delete(self.list_url + '?test_param=invalid')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_filter(self):
+        """Ensure that the local_city filter only returns city_name == database default"""
+        indicator = Indicator.objects.create(sample_period=self.sample_period,
+                                             type=Indicator.IndicatorTypes.NUM_ROUTES,
+                                             aggregation=Indicator.AggregationTypes.SYSTEM,
+                                             city_bounded=True,
+                                             version=self.indicator_job,
+                                             value=42)
+        indicator.save()
+
+        city_name = indicator.city_name
+
+        indicator2 = Indicator.objects.create(sample_period=self.sample_period,
+                                             type=Indicator.IndicatorTypes.NUM_ROUTES,
+                                             aggregation=Indicator.AggregationTypes.SYSTEM,
+                                             city_bounded=True,
+                                             version=self.indicator_job,
+                                             value=42,
+                                             city_name="Rivendell")
+        indicator2.save()
+
+        response = self.client.get(self.list_url, data={ 'city_name': city_name })
         self.assertEqual(len(response.data), 1)
-        self.assertIsNone(response.data[0]['city_name'])
+        self.assertEqual(response.data[0]['city_name'], city_name)
 
 
     def test_csv(self):
@@ -275,7 +332,7 @@ class IndicatorsTestCase(TestCase):
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,,42.0,2,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
+        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,My City,42.0,5,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
@@ -289,7 +346,7 @@ class IndicatorsTestCase(TestCase):
         self.sample_period.save()
 
         response = self.client.post(self.list_url, {'city_name': 'Rivendell', 'source_file': test_csv})
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(self.list_url, {'source_file': test_csv})

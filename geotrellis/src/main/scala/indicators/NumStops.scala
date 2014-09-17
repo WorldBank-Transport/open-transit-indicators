@@ -27,10 +27,12 @@ class NumStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Datab
      // get all routes, group by route type, and find the unique stop ids per route (via trips)
     routesInPeriod(period)
       .groupBy(_.route_type.id)
-      .mapValues(_.map(_.id)
-        .map(routeID => tripsInPeriod(period, routeByID(routeID))
+      .map { case (key, value) => key -> value.map(_.id)
+        .map(
+          routeID => tripsInPeriod(period, routeByID(routeID))
           .map(stopsInPeriod(period, _).map(_.stop_id))
           .flatten
-      ).flatten.distinct.length)
+        ).flatten.distinct.length.toDouble
+      }
   }
 }

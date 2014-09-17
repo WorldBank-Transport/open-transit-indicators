@@ -18,7 +18,7 @@ class Length(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Databas
             gtfsData.shapesById.get(shapeID) match {
               case None => max
               case Some(tripShape) => {
-                math.max(max, tripShape.line.length)
+                math.max(max, tripShape.line.length / 1000)
               }
             }
           }
@@ -28,9 +28,9 @@ class Length(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Databas
   }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
-    // get the transit length per route, group by route type, and average all the lengths
+    // get the transit length per route, group by route type, and sum all the lengths
     calcByRoute(period).toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
-      .mapValues(v => v.map(_._2).sum / v.size)
+      .map { case (key, value) => key -> value.map(_._2).sum }
   }
 }

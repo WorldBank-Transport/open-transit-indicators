@@ -18,8 +18,10 @@ angular.module('transitIndicators')
     };
 
     otiEvents.Indicators = {
+        IndicatorVersionUpdated: 'OTIIndicatorsService:IndicatorVersionUpdated',
         IndicatorUpdated: 'OTIIndicatorsService:IndicatorUpdated',
-        SamplePeriodUpdated: 'OTIIndicatorsService:SamplePeriodUpdated'
+        SamplePeriodUpdated: 'OTIIndicatorsService:SamplePeriodUpdated',
+        CitiesUpdated: 'OTIIndicatorsService:CitiesUpdated'
     };
 
     otiEvents.Auth = {

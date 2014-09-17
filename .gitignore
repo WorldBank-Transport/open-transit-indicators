@@ -86,3 +86,7 @@ target
 
 # Log files
 *.log
+
+# ctags
+tags
+.tags

@@ -33,6 +33,8 @@ import DefaultJsonProtocol._
 import org.joda.time.format.ISODateTimeFormat
 import com.typesafe.config.{ConfigFactory, Config}
 
+import grizzled.slf4j.Logging
+
 trait GtfsDatabase {
   val db: DatabaseDef
 }
@@ -63,7 +65,7 @@ trait LoadedGtfsData { self: GtfsDatabase =>
   }
 }
 
-trait GeoTrellisServiceRoute extends HttpService with GeoTrellisService { self: GtfsDatabase =>
+trait GeoTrellisServiceRoute extends HttpService with GeoTrellisService with Logging { self: GtfsDatabase =>
   // For performing extent queries
   case class Extent(xmin: Double, xmax: Double, ymin: Double, ymax: Double)
   implicit val getExtentResult = GetResult(r => Extent(r.<<, r.<<, r.<<, r.<<))
@@ -116,6 +118,7 @@ trait GeoTrellisServiceRoute extends HttpService with GeoTrellisService { self: 
           entity(as[CalcParams]) { calcParams =>
             complete {
               try {
+                debug(s"gt/indicators called with $calcParams")
                 calculateIndicators(calcParams)
 
                 // return a 201 created
