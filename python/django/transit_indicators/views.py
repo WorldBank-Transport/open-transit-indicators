@@ -113,7 +113,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Handle as csv upload if form data present
         source_file = request.FILES.get('source_file', None)
         if source_file:
-            city_name = request.DATA.get('city_name', None)
+            city_name = request.DATA.pop('city_name', None)
             load_status = Indicator.load(source_file, city_name, request.user)
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)
@@ -147,7 +147,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         endpoint with no params
 
         """
-        delete_filter_fields = ('city_name')
+        delete_filter_fields = {'city_name': 'version__city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
@@ -156,7 +156,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         if filters:
             indicators = Indicator.objects.all();
             for field in filters:
-                indicators = indicators.filter(**{field: request.QUERY_PARAMS[field]})
+                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 

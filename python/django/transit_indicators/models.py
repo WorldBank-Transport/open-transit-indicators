@@ -199,6 +199,7 @@ class Indicator(models.Model):
         sample_period_cache = {}
         if not city_name:
             response.errors.append('city_name parameter required')
+            response.success = False
             return response
         try:
             # first, invalidate previous indicator calculations uploaded for this city
@@ -213,6 +214,11 @@ class Indicator(models.Model):
             dict_reader.next()
             with transaction.atomic():
                 for row in dict_reader:
+                    # check that the exported city name matches the one the user specified
+                    # (ignore any other cities in the uploaded CSV)
+                    this_city = row.pop('city_name')
+                    if this_city != city_name:
+                        continue
                     sp_type = row.pop('sample_period', None)
                     version = row.pop('version', None)
                     if not import_job.version:
