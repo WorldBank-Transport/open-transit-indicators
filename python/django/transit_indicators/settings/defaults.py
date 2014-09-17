@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'django_extensions',
 
     'datasources',
+    'gtfs_realtime',
     'transit_indicators',
     'userdata',
 )

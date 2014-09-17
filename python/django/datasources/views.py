@@ -59,9 +59,9 @@ class RealTimeViewSet(OTIAdminViewSet):
     def create(self, request):
         """ Override create to load realtime data via geotrellis """
         response = super(RealTimeViewSet, self).create(request)
-        self.object.is_valid = True
-        self.object.save()
         if response.status_code == status.HTTP_201_CREATED:
+            self.object.is_valid = True
+            self.object.save()
             import_real_time_data.apply_async(args=[self.object.id], queue='datasources')
         return response
 
