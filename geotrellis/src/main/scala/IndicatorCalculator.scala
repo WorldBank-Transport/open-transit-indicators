@@ -4,8 +4,7 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.github.nscala_time.time.Imports._
 import geotrellis.proj4._
-import geotrellis.vector.Line
-import geotrellis.vector.MultiLine
+import geotrellis.vector.{Line, MultiLine}
 import org.joda.time.PeriodType
 import opentransitgt.DjangoAdapter._
 import opentransitgt.indicators._
