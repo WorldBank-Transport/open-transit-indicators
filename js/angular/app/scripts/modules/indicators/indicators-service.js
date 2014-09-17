@@ -87,7 +87,9 @@ angular.module('transitIndicators')
         $http.get('/api/indicator-version/').success(function (data) {
             var version = nullVersion;
             if (data && data.current_versions) {
-                version = _.findWhere(data.current_versions, {city_name: selfCityName}).version || nullVersion;
+                console.log(data);
+                console.log(selfCityName);
+                version = _.findWhere(data.current_versions, {version__city_name: selfCityName}).version || nullVersion;
             }
             callback(version);
         }).error(function (error) {

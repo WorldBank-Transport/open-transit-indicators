@@ -21,6 +21,12 @@ BEGIN
     ALTER TABLE demographic_grid ADD COLUMN population_metric_2 double precision;
     ALTER TABLE demographic_grid ADD COLUMN destination_metric_1 double precision;
     CREATE INDEX demographic_grid_feature_id ON demographic_grid(feature_id);
+    
+    -- create FK, so the demographic_grid values will be deleted on related features deletion
+    ALTER TABLE demographic_grid ADD CONSTRAINT demographic_grid_feature_id_fk
+                FOREIGN KEY (feature_id)
+                REFERENCES datasources_demographicdatafeature(id)
+                ON DELETE CASCADE;
 
     UPDATE demographic_grid g SET feature_id = (SELECT id FROM datasources_demographicdatafeature f
     WHERE ST_Intersects(f.geom, g.geom));

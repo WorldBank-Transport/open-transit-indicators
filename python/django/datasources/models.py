@@ -10,6 +10,8 @@ class DataSource(models.Model):
 
     create_date = models.DateTimeField(auto_now_add=True)
     last_modify_date = models.DateTimeField(auto_now=True)
+    # make user-configurable with upload
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
 
     class Meta(object):
         abstract = True

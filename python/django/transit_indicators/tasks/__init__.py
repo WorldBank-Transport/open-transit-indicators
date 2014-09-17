@@ -5,10 +5,10 @@ from transit_indicators.celery_settings import app
 
 
 @app.task(bind=True, max_retries=3)
-def start_indicator_calculation(self, indicator_job_id, city_name):
+def start_indicator_calculation(self, indicator_job_id):
     try:
         indicator_job = IndicatorJob.objects.get(pk=indicator_job_id)
-        run_indicator_calculation(indicator_job, city_name)
+        run_indicator_calculation(indicator_job)
     except Exception as e:
         IndicatorJob.objects.get(pk=indicator_job_id).job_status = IndicatorJob.StatusChoices.ERROR
         indicator_job.save()
