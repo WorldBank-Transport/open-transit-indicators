@@ -3,6 +3,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.filters import OrderingFilter
 
 from transit_indicators.viewsets import OTIAdminViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
@@ -55,6 +56,8 @@ class RealTimeViewSet(OTIAdminViewSet):
     """ View set for dealing wth RealTime uploads """
     model = RealTime
     serializer_class = RealTimeSerializer
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ('id', 'last_modify_date',)
 
     def create(self, request):
         """ Override create to load realtime data via geotrellis """

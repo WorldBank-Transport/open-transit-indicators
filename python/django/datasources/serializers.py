@@ -51,18 +51,18 @@ class ValidateZipMixin(object):
         return attrs
 
 
-class ValidateTxtMixin(object):
+class ValidateTxtNewMixin(object):
     """Provides functionality to validate that a file has the .txt extension."""
-    def _validate_txt_extension(self, filename):
-        """ Checks that filename ends in txt """
+    def _validate_txtnew_extension(self, filename):
+        """ Checks that filename ends in txt_new """
         name, extension = os.path.splitext(filename)
-        if extension != '.txt':
-            msg = "Uploaded filename must end in .txt"
+        if extension != '.txt_new':
+            msg = "Uploaded filename must end in .txt_new"
             raise serializers.ValidationError(msg)
 
-    def validate_txt_file(self, attrs, source):
+    def validate_txtnew_file(self, attrs, source):
         fileobj = attrs[source]
-        self._validate_txt_extension(fileobj.name)
+        self._validate_txtnew_extension(fileobj.name)
         # TODO: Validate column headers match stop_times.txt?
         return attrs
 
@@ -82,11 +82,11 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
 
 
 class RealTimeSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
-                         ValidateTxtMixin):
+                         ValidateTxtNewMixin):
     problems = serializers.SerializerMethodField('get_datasource_problem_counts')
 
     def validate_source_file(self, attrs, source):
-        return self.validate_txt_file(attrs, source)
+        return self.validate_txtnew_file(attrs, source)
 
     class Meta:
         model = RealTime
