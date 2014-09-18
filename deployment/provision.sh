@@ -42,7 +42,7 @@ HOST='127.0.0.1'  # TODO: set for production / travis
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
-GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
+SCALA_ROOT="$PROJECT_ROOT/scala"
 
 # Additional repos for snapshot versions of GeoTrellis and GTFS parser.
 # The changes in these repos haven't been published to Maven and may
@@ -74,10 +74,10 @@ REDIS_HOST=$HOST
 REDIS_PORT='6379'
 VHOST_NAME=$DB_NAME
 
-GEOTRELLIS_PORT=8001
-GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
+SPRAY_PORT=8001
+SPRAY_HOST="http://127.0.0.1:$SPRAY_PORT"
 GEOTRELLIS_CATALOG="data/catalog.json"
-GEOTRELLIS_MEM_MB=7168      # For the oti-geotrellis upstart job
+SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -530,7 +530,7 @@ echo 'Setting up geotrellis'
 
 gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
 geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
-geotrellis.port = \"$GEOTRELLIS_PORT\"
+opentransit.spray.port = \"$SPRAY_PORT\"
 database.geom-name-lat-lng = \"the_geom\"
 database.geom-name-utm = \"geom\"
 database.name = \"$DB_NAME\"
@@ -540,7 +540,7 @@ spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
 "
 
-pushd $GEOTRELLIS_ROOT/src/main/resources/
+pushd $SCALA_ROOT/src/main/resources/
     echo "$gt_application_conf" > application.conf
 popd
 
@@ -551,8 +551,8 @@ kill timeout 30
 
 script
     echo \$\$ > /var/run/oti-indicators.pid
-    chdir $GEOTRELLIS_ROOT
-    exec ./sbt -mem $GEOTRELLIS_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    chdir $SCALA_ROOT
+    exec ./sbt -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
 end script
 
 pre-stop script
@@ -609,7 +609,7 @@ nginx_conf="server {
     }
 
     location /gt {
-        proxy_pass $GEOTRELLIS_HOST;
+        proxy_pass $SPRAY_HOST;
         proxy_read_timeout 1800s;
         proxy_redirect off;
         proxy_set_header Host \$host;
