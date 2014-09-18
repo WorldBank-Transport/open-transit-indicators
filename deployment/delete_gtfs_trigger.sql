@@ -21,7 +21,7 @@ CREATE OR REPLACE FUNCTION empty_gtfs() RETURNS trigger AS $empty_gtfs$
         EXECUTE 'DELETE FROM gtfs_shapes';
         EXECUTE 'DELETE FROM gtfs_stop_times';
         EXECUTE 'DELETE FROM gtfs_stops';
-	EXECUTE 'DELETE FROM gtfs_stops_buffers';
+        EXECUTE 'DELETE FROM gtfs_stops_buffers';
         EXECUTE 'DELETE FROM gtfs_stops_info';
         EXECUTE 'DELETE FROM gtfs_stops_routes_join';
         EXECUTE 'DELETE FROM gtfs_transfer_types';

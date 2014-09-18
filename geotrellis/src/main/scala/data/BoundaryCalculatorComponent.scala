@@ -7,27 +7,23 @@ import geotrellis.slick._
 import opentransitgt.IndicatorCalculator
 
 /**
+ * A boundary, of either a city or a region.
+ */
+case class Boundary(
+  id: Int,
+  geom: Projected[MultiPolygon] // Location-dependent SRID (UTM zone)
+)
+
+/**
  * A trait providing Boundaries to an IndicatorCalculator
  */
 trait BoundaryCalculatorComponent {this: IndicatorCalculator =>
 
   // Wrap Slick persistence items to prevent potential naming conflicts.
-  object bufSlick {
-    val profile = PostgresDriver
-    val gis = new PostGisProjectionSupport(profile)
-  }
-  import bufSlick.profile.simple._
-  import bufSlick.gis._
+  import PostgresDriver.simple._
+  private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
+  import gisSupport._
 
-
-  /**
-   * A boundary, of either a city or a region.
-   */
-  case class Boundary(
-    id: Int,
-    geom: Projected[MultiPolygon] // Location-dependent SRID (UTM zone)
-  )
- 
   /**
    * Table class supporting Slick persistence
    */
@@ -42,9 +38,9 @@ trait BoundaryCalculatorComponent {this: IndicatorCalculator =>
   /**
    * Returns a Boundary (geometry denoting a city or region boundary)
    */
-  def boundaryWithId(boundaryId: Int): Option[Boundary] = {
+  def boundary(boundaryId: Int): Boundary = {
     db withSession { implicit session: Session =>
-      boundaryTable.filter(_.id === boundaryId).firstOption
+      boundaryTable.filter(_.id === boundaryId).first
     }
   }
 }

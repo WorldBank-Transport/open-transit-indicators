@@ -11,8 +11,9 @@ import scala.slick.jdbc.JdbcBackend.DatabaseDef
 // Number of stops
 class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator with BoundaryCalculatorComponent {
   val name = "ratio_suburban_lines"
+
   val cityBounds: Boundary = boundary(calcParams.city_boundary_id)
-  val regionBounds: Boundary = boundary(calcParams.region_boundary_id)
+
   def getTripShape(trip: ScheduledTrip): Option[Line] = {
     trip.rec.shape_id match {
       case Some(shapeID) => gtfsData.shapesById.get(shapeID) map (_.line)
@@ -28,7 +29,7 @@ class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val d
     }
   }
 
-  def calcByRoute(period: SamplePeriod): Map[String, Double] = ???
+  def calcByRoute(period: SamplePeriod): Map[String, Double] = { Map() }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
     // find number of routes (for some mode) with stops outside the city; divide that number

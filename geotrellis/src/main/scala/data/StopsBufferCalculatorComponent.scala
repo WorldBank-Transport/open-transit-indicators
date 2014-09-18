@@ -39,33 +39,28 @@ trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
   def stopsBufferTable = TableQuery[StopsBuffers]
   /**
    * Returns a StopsBuffer (union of buffered Stops)
-   * Attempts to get the StopsBuffer from the database; if that fails, constructs a new one
-   * and immediately save it in the database. There should only be one StopsBuffer per GTFS
-   * system, although if there are multiple rows in the table, it's not a problem since they
-   * should all get constructed the same way. The gtfs_stops_buffers table should be deleted
-   * along with the other GTFS tables on deletion.
-   */
-  def stopsBuffer(): StopsBuffer = {
+   * Constructs a stops buffer from the passed Seq[Stops] and then saves it to the database
+   * so that it can later be displayed on the map (and deletes any existing stops buffers from
+   * the database).
+   * */
+  def stopsBuffer(stops: Seq[Stop]): StopsBuffer = {
     // TODO: The indicator spec specifies that if stops data is unavailable, the route lines
     // will be buffered instead. This doesn't appear to be supported by the GTFS parser yet.
     db withSession { implicit session: Session =>
       val srid = gtfsData.stops(0).geom.srid
-      stopsBufferTable.firstOption match {
-        case Some(sb) => sb
-        case None => 
-          val bufferMp = gtfsData.stops.map(stop => stop.geom.buffer(bufferRadiusMeters))
-            .foldLeft(MultiPolygon.EMPTY) {
-              (union, geom) => union.union(geom) match { 
-                case MultiPolygonResult(mp) => mp
-                case PolygonResult(p) => MultiPolygon(p)
-              }
-            }
-          val newBuffer = StopsBuffer(bufferRadiusMeters,
-            bufferMp.withSRID(srid),
-            bufferMp.withSRID(4326))
-          stopsBufferTable.insert(newBuffer)
-          newBuffer
-      }
+      val bufferMp = stops.map(stop => stop.geom.buffer(bufferRadiusMeters))
+        .foldLeft(MultiPolygon.EMPTY) {
+          (union, geom) => union.union(geom) match {
+            case MultiPolygonResult(mp) => mp
+            case PolygonResult(p) => MultiPolygon(p)
+          }
+        }
+      val newBuffer = StopsBuffer(bufferRadiusMeters, bufferMp.withSRID(srid),
+        bufferMp.withSRID(4326))
+      // Clear out any existing buffers before inserting the new one.
+      stopsBufferTable.delete
+      stopsBufferTable.insert(newBuffer)
+      newBuffer
     }
   }
 }

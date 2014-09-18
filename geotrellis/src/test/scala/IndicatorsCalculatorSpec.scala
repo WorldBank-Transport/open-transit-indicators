@@ -404,8 +404,8 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
   }
 
   it should "calculate a buffered stops coverage ratio by system for SEPTA" in {
-    val coverage500BySystem = septaRailCalc.calculatorsByName("coverage_ratio_500m").calcBySystem(period)
-    coverage500BySystem should be (0.5 plusOrMinus 1e-5)
+    val coverageBufferBySystem = septaRailCalc.calculatorsByName("coverage_ratio_stops_buffer").calcBySystem(period)
+    coverageBufferBySystem should be (0.09364127449154404 plusOrMinus 1e-5)
   }
 
   // this doesn't test an indicator, but is an example for how to read data from the db
