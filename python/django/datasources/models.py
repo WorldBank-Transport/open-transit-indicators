@@ -84,7 +84,7 @@ class RealTime(FileDataSource):
     """ Represents a stop_times.txt_new upload
 
     File must be generated via Mike Smith's Stop Times software
-    Calls a /gt endpoint to load the data via scala
+    Loads data to gtfs_realtime.RealStopTime via celery
 
     """
 

@@ -19,8 +19,8 @@ logger = get_task_logger(__name__)
 
 
 def run_realtime_import(realtime_id):
-    """ Wrapper job to asynchronously post the realtime data to geotrellis """
-    logger.debug("Starting RealTime import")
+    """ Run the RealStopTime import job """
+    logger.debug("Starting RealTime import: %d", realtime_id)
 
     real_time = RealTime.objects.get(pk=realtime_id)
     error_factory = ErrorFactory(RealTimeProblem, real_time, 'realtime')
@@ -41,7 +41,11 @@ def run_realtime_import(realtime_id):
         real_time.save()
 
 def load_stop_times(real_time, error_factory):
-    """ Load stop times into RealStopTime model """
+    """ Load stop times into RealStopTime model
+
+    The file to import should match the GTFS spec for stop_times.txt
+
+    """
 
     BATCH_SIZE = 1000
 
@@ -71,18 +75,18 @@ def load_stop_times(real_time, error_factory):
                 real_stop_time.save()
                 imported += 1
             except Exception as e:
-                print e.message
+                logger.debug('Row %d error: %s', line, e.message)
                 key = 'Row %i' % line
                 error_factory.warn(key, e.message)
 
             line += 1
 
             if line % BATCH_SIZE == 0:
-                print 'Imported objects %i of %i' % (imported, line)
+                logger.debug('Imported objects %i of %i', imported, line)
 
     if imported > 0:
         # Delete all other stop times not of this import
-        print 'Cleaning old stop time entries...'
+        logger.debug('Cleaning old stop time entries...')
         other_stop_times = RealStopTime.objects.exclude(datasource=real_time)
         other_stop_times.delete()
 
