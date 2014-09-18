@@ -29,6 +29,24 @@ trait IndicatorCalculator {
   def simpleSumBySystem(period: SamplePeriod): Double = {
     calcByMode(period).toList.foldLeft(0.0){ case(sum, (_, value)) => sum + value }
   }
+  
+  // Helper function for getting the maximum value obtained in calcByMode.
+  def simpleMaxBySystem(period: SamplePeriod): Double = {
+    calcByMode(period).toList.foldLeft(0.0){ case(max, (_, value)) =>
+                                             if (value > max) value else max }
+  }
+  
+  // scala does not offer a math method to find the maximum value in a collection
+  def listMax(list: List[Double]): Double = {
+    def findMax(list: List[Double], lastMax: Double): Double = {
+      if (list.isEmpty) lastMax
+      else {
+        val nextVal = list.head
+        findMax(list.tail, if (nextVal > lastMax) nextVal else lastMax)
+      }
+    }
+    findMax(list, 0)
+  }
 
   // Overall aggregation by route, taking into account all periods
   def calcOverallByRoute: Map[String, Double] = {

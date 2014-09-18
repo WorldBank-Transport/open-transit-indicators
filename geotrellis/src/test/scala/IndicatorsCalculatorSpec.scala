@@ -399,6 +399,33 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     val dbsBySystem = septaRailCalc.calculatorsByName("distance_stops").calcOverallBySystem
     dbsBySystem should be (2.35755 plusOrMinus 1e-5)
   }
+  
+  it should "calcuate overall hours_service by route for SEPTA" in {
+    val hrsServByMode = septaRailCalc.calculatorsByName("hours_service").calcOverallByMode
+    hrsServByMode(2) should be (146.48164 plusOrMinus 1e-5)
+  }
+  
+  it should "calcuate overall hours_service by system for SEPTA" in {
+    val dbsBySystem = septaRailCalc.calculatorsByName("hours_service").calcOverallBySystem
+    dbsBySystem should be (146.48164 plusOrMinus 1e-5)
+  }
+  
+  it should "calculate hours_service by route for SEPTA" in {
+    val hrsServByRoute = septaRailCalc.calculatorsByName("hours_service").calcOverallByRoute
+    hrsServByRoute("PAO") should be (141.84836 plusOrMinus 1e-5)
+    hrsServByRoute("MED") should be (129.44850 plusOrMinus 1e-5)
+    hrsServByRoute("WAR") should be (146.48164 plusOrMinus 1e-5)
+    hrsServByRoute("NOR") should be (137.08175 plusOrMinus 1e-5)
+    hrsServByRoute("LAN") should be (136.28176 plusOrMinus 1e-5)
+    hrsServByRoute("CYN") should be (27.79353 plusOrMinus 1e-5)
+    hrsServByRoute("WIL") should be (135.88176 plusOrMinus 1e-5)
+    hrsServByRoute("AIR") should be (141.04837 plusOrMinus 1e-5)
+    hrsServByRoute("CHW") should be (125.31522 plusOrMinus 1e-5)
+    hrsServByRoute("WTR") should be (136.28176 plusOrMinus 1e-5)
+    hrsServByRoute("FOX") should be (120.91527 plusOrMinus 1e-5)
+    hrsServByRoute("CHE") should be (135.28177 plusOrMinus 1e-5)
+    hrsServByRoute("TRE") should be (144.97888 plusOrMinus 1e-5)
+  }
 
   // this doesn't test an indicator, but is an example for how to read data from the db
   it should "be able to read trips from the database" in {

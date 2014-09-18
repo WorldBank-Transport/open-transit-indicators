@@ -70,6 +70,5 @@ def run_indicator_calculation(indicator_job):
                     indicator_job.version)
         # invalidate previous indicator calculations for city
         IndicatorJob.objects.filter(city_name=indicator_job.city_name).update(is_latest_version=False)
-
         indicator_job.is_latest_version = True
         indicator_job.save()
