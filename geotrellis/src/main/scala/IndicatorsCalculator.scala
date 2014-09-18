@@ -22,8 +22,9 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams, db: Datab
     new TimeTraveledStops(data, params, db),
     new AvgServiceFreq(data, params, db),
     new DistanceStops(data, params, db),
-    new CoverageRatioStopsBuffer(data, params, db),
-    new RatioSuburbLines(data, params, db)
+    new RatioSuburbLines(data, params, db),
+    new RatioTransToRoads(data, params, db),
+    new CoverageRatioStopsBuffer(data, params, db)
     // WARNING: After adding a new indicator, make sure the name attribute matches
     // the name in /python/django/transit_indicators/models.py, otherwise your indicator
     // won't be launched properly.
