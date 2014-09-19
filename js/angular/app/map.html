@@ -17,6 +17,10 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+
+    <!-- Adding leaflet draw for prototyping purposes. These will not be used in production. -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css">
+
   </head>
   <body style="height: 100%;" ng-app="transitIndicators">
     <!--[if lt IE 7]>
@@ -27,7 +31,7 @@
 
     <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
 
-    <div class="map" id="map" style="width: 100%; height: 100%; position: fixed;"></div>
+    <div class="map angular-leaflet-map" id="map" style="top: 5.5rem"></div>
 
     <header>
         <div class="navigation-buttongroup">
@@ -56,11 +60,328 @@
     -->
 
     <div class="scenario">
-        <div class="scenario-heading">
-            Scenario New Bus 12 > Route 119 > Trip 1
+        <div class="scenario-headings">
+            <a class="scenario-heading" href="#my-scenario" id="heading-scenario">
+                <div class="scenario-heading-title">
+                    Scenario
+                </div>
+                <span class="prototype-scenario-text">
+                    New Scenario
+                </span>
+            </a>
+            <a class="scenario-heading" href="#scenario-20" id="heading-route">
+                <div class="scenario-heading-title">
+                    Route
+                </div>
+                <span class="prototype-route-text">
+                    New Route
+                </span>
+            </a>
+            <a class="scenario-heading" id="heading-trip">
+                <div class="scenario-heading-title">
+                    Route
+                </div>
+                <span class="prototype-trip-text">
+                    Trip 1
+                </span>
+            </a>
+            <div class="scenario-heading" id="heading-scroll">
+
+            </div>
         </div>
         <div class="scenario-pages">
-            <div class="scenario-page active" id="scenario-1">
+            <div class="scenario-page active" id="new-scenario">
+                <div class="scenario-page-content">
+                    <h3>New Scenario</h3>
+                    <p>Get started building your new scenario.</p>
+                    <div class="block">
+                        <label>Name</label>
+                        <input type="text" placeholder="Scenario 1" id="prototype-scenario-field">
+                    </div>
+                    <div class="block">
+                        <label>Description</label>
+                        <textarea></textarea>
+                    </div>
+                    <div class="block">
+                        <label>Date and Time Range</label>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <select>
+                                    <option id="prototype-new-date"></option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1 nopadding">
+                                from
+                            </div>
+                            <div class="col-xs-3">
+                                <select>
+                                    <option>00:00</option>
+                                    <option>01:00</option>
+                                    <option>02:00</option>
+                                    <option>03:00</option>
+                                    <option>04:00</option>
+                                    <option>05:00</option>
+                                    <option>06:00</option>
+                                    <option>07:00</option>
+                                    <option>08:00</option>
+                                    <option>09:00</option>
+                                    <option>10:00</option>
+                                    <option>11:00</option>
+                                    <option>12:00</option>
+                                    <option>13:00</option>
+                                    <option>14:00</option>
+                                    <option selected>15:00</option>
+                                    <option>16:00</option>
+                                    <option>17:00</option>
+                                    <option>18:00</option>
+                                    <option>19:00</option>
+                                    <option>20:00</option>
+                                    <option>21:00</option>
+                                    <option>22:00</option>
+                                    <option>23:00</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1 nopadding">
+                                to
+                            </div>
+                            <div class="col-xs-3">
+                                <select>
+                                    <option>00:00</option>
+                                    <option>01:00</option>
+                                    <option>02:00</option>
+                                    <option>03:00</option>
+                                    <option>04:00</option>
+                                    <option>05:00</option>
+                                    <option>06:00</option>
+                                    <option>07:00</option>
+                                    <option>08:00</option>
+                                    <option>09:00</option>
+                                    <option>10:00</option>
+                                    <option>11:00</option>
+                                    <option>12:00</option>
+                                    <option>13:00</option>
+                                    <option>14:00</option>
+                                    <option>15:00</option>
+                                    <option>16:00</option>
+                                    <option>17:00</option>
+                                    <option>18:00</option>
+                                    <option selected>19:00</option>
+                                    <option>20:00</option>
+                                    <option>21:00</option>
+                                    <option>22:00</option>
+                                    <option>23:00</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#my-scenario">Finish</a> /
+                    <a class="button--small" href="#new-scenario">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="my-scenario">
+                <div class="scenario-page-content">
+                    <h3 class="prototype-scenario-text">New Scenario</h3>
+                    <p>
+                        You have successfully created a new scenario: <span
+                        class="prototype-scenario-text">New Scenario</span>.
+                        You can add or edit the routes, modes of transit, and
+                        fares within this system.
+                    </p>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small" href="#routes">Routes</a> /
+                    <a class="button--small" href="#">Modes</a> /
+                    <a class="button--small" href="#">Fares</a> /
+                    <a class="button--small" href="#new-scenario">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="routes">
+                <div class="scenario-page-content">
+                    <h3>Routes</h3>
+                    <p>
+                        You can edit a route by selecting it from the list below
+                        or by clicking on an intersecting stop on the map. Also,
+                        you can add a new route.
+                    </p>
+                    <div class="block">
+                        <div class="filter">
+                            <a class="button--small active" href="#scenario">Trolley</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">Intercity Rail</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">Bus</a> <!-- Add Icon -->
+                        </div>
+                    </div>
+                    <div class="block">
+                        <div class="row">
+                            <div class="col-xs-9">
+                                <select>
+                                    <option>Route 4</option>
+                                    <option>Route 12</option>
+                                    <option>Route 13</option>
+                                    <option>Route 18</option>
+                                    <option>Route 20</option>
+                                    <option>Route 24</option>
+                                    <option>Route 32</option>
+                                    <option>Route 33</option>
+                                    <option>Route 34</option>
+                                    <option>Route 38</option>
+                                    <option>Route 40</option>
+                                    <option>Route 64</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-3">
+                                <a class="button--small" href="#my-scenario">Edit Route</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#new-route">New Route</a> /
+                    <a class="button--small" href="#my-scenario">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="new-route">
+                <div class="scenario-page-content">
+                    <h3>New Route</h3>
+                    <p>Add a new route to your scenario.</p>
+                    <div class="block">
+                        <label>Name</label>
+                        <input type="text" id="prototype-route-field" placeholder="Route 1">
+                    </div>
+                    <div class="block">
+                        <div class="filter">
+                            <a class="button--small active" href="#scenario">Trolley</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">Intercity Rail</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">Bus</a> <!-- Add Icon -->
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#add-stops">Continue</a> /
+                    <a class="button--small" href="#routes">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="scenario-20">
+                <div class="scenario-page-content">
+                    <h3 class="prototype-route-text">New Scenario</h3>
+                    <p>
+                        This is your route. You can add stops, change the shape, or change times.
+                    </p>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small" href="#add-stops">Stops</a> /
+                    <a class="button--small" href="#add-shape">Shape</a> /
+                    <a class="button--small" href="#confirm-times">Time Table</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="add-stops">
+                <div class="scenario-page-content">
+                    <h3>Add Stops</h3>
+                    <p>
+                        Click on a stop to add it to this route or use the stop
+                        tool to place new stops on the map.
+                    </p>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#add-shape">Continue</a> /
+                    <a class="button--small" href="#new-route">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="add-shape">
+                <div class="scenario-page-content">
+                    <h3>Add Shape</h3>
+                    <p>
+                        Use the draw tool to add a shape to your route.
+                    </p>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#confirm-times">Continue</a> /
+                    <a class="button--small" href="#add-stops">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="confirm-times">
+                <div class="scenario-page-content">
+                    <h3>Confirm Times</h3>
+                    <p>
+                        We've estimated the arrival times for each stops. You can
+                        adjust them as necessary.
+                    </p>
+                    <table id="prototype-time-table">
+                    </table>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#prototype-finished">Finish</a> /
+                    <a class="button--small" href="#add-shape">Back</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="prototype-finished">
+                <div class="scenario-page-content">
+                    <h3>Prototype Finished</h3>
+                    <p>
+                        You just did all of the following:
+                    </p>
+                    <ol>
+                        <li>Create a new scenario</li>
+                        <li>Add a new route to that scenario</li>
+                        <li>Built the stops and shape of the route</li>
+                        <li>Set the times</li>
+                    </ol>
+                    <table id="prototype-time-table">
+                    </table>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#new-scenario">Start Over</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="scenario-10">
+                <div class="scenario-page-content">
+                    <h3>Confirm Times</h3>
+                    <p>How do the below times look?</p>
+                    <div class="block">
+                        <div class="filter">
+                            <a class="button--small active" href="#scenario">Original</a>
+                            <a class="button--small inactive" href="#scenario">New Bus 1</a>
+                            <a class="button--small inactive" href="#scenario">Difference</a>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label>Currency Type</label>
+                                <input type="text" value="20">
+                            </div>
+                            <div class="col-xs-6">
+                                <label>Payment Method</label>
+                                <input type="text" value="2.40">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label>Transfers</label>
+                                <input type="text" value="20">
+                            </div>
+                            <div class="col-xs-6">
+                                <label>Transfer Duration (sec.)</label>
+                                <input type="text" value="2.40">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-8">
+                            <select></select>
+                        </div>
+                        <div class="col-xs-4">
+                            <a class="button--small">Edit Route</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-page-buttons">
+                    <a class="button--small default" href="#routes">Next</a> /
+                    <a class="button--small" href="#scenario">Modify manually</a>
+                </div>
+            </div>
+            <div class="scenario-page" id="scenario-11">
                 <div class="scenario-page-content">
                     <h3>Confirm Times</h3>
                     <p>How do the below times look?</p>
@@ -105,173 +426,46 @@
                         <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Fare ID</label>
                             <input type="text" value="20">
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Price</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Currency Type</label>
                             <input type="text" value="20">
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Payment Method</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Transfers</label>
                             <input type="text" value="20">
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-xs-6">
                             <label>Transfer Duration (sec.)</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-8">
+                        <div class="col-xs-8">
                             <select></select>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-xs-4">
                             <a class="button--small">Edit Route</a>
                         </div>
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
-                </div>
-            </div>
-            <div class="scenario-page" id="scenario-2">
-                <div class="scenario-page-content">
-                    <h3>Confirm Times</h3>
-                    <p>How do the below times look?</p>
-                    <div class="filter">
-                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>Currency Type</label>
-                            <input type="text" value="20">
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Payment Method</label>
-                            <input type="text" value="2.40">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>Transfers</label>
-                            <input type="text" value="20">
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Transfer Duration (sec.)</label>
-                            <input type="text" value="2.40">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-8">
-                            <select></select>
-                        </div>
-                        <div class="col-sm-4">
-                            <a class="button--small">Edit Route</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
-                </div>
-            </div>
-            <div class="scenario-page" id="scenario-3">
-                <div class="scenario-page-content">
-                    <h3>Confirm Times</h3>
-                    <p>How do the below times look?</p>
-                    <table>
-                        <tr>
-                            <td><span class="badge">1</span></td>
-                            <td>17th St & Lehigh Av</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">2</span></td>
-                            <td>Frankford Av & Magee St</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">3</span></td>
-                            <td>60th St & Race St</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">4</span></td>
-                            <td>Cheltenham Av & Hillcrest Rd</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">5</span></td>
-                            <td>Shadeland Av & Bryn Mawr Av 2</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">6</span></td>
-                            <td>Peterson Av & Bryn Mawr Av</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">7</span></td>
-                            <td>Montgomery Street Station</td>
-                            <td><input type="text" class="time"></td>
-                        </tr>
-                    </table>
-                    <div class="filter">
-                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>Fare ID</label>
-                            <input type="text" value="20">
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Price</label>
-                            <input type="text" value="2.40">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>Currency Type</label>
-                            <input type="text" value="20">
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Payment Method</label>
-                            <input type="text" value="2.40">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>Transfers</label>
-                            <input type="text" value="20">
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Transfer Duration (sec.)</label>
-                            <input type="text" value="2.40">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-8">
-                            <select></select>
-                        </div>
-                        <div class="col-sm-4">
-                            <a class="button--small">Edit Route</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
+                    <a class="button--small default" href="#new-scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
                 </div>
             </div>
         </div>
@@ -279,16 +473,9 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="bower_components/leaflet-dist/leaflet.js"></script>
-
-        <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
-        <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.3"></script>
-        <script type="text/javascript">
-            var toner = new  L.StamenTileLayer("toner-lines");
-            var map = new L.Map('map', {
-                                layers:toner
-                                });
-            map.setView([39.95,-75.1947], 14);
-        </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
+    <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.3"></script>
+    <script src="scripts/prototype/prototype1.js"></script>
 
 </body>
 </html>
