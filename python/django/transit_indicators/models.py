@@ -265,7 +265,7 @@ class Indicator(models.Model):
         AFFORDABILITY = 'affordability'
         AVG_SERVICE_FREQ = 'avg_service_freq'
         COVERAGE = 'coverage'
-        COVERAGE_STOPS = 'coverage_stops'
+        COVERAGE_STOPS = 'coverage_ratio_stops_buffer'
         DISTANCE_STOPS = 'distance_stops'
         DWELL_TIME = 'dwell_time'
         HOURS_SERVICE = 'hours_service'

@@ -277,6 +277,7 @@ trait GeoTrellisService extends LoadedGtfsData { self: GtfsDatabase =>
       // for imported shapefile data (boundaries and demographics).
       geomTransform(srid, "utm_datasources_boundary", "MultiPolygon", "geom")
       geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
+      geomTransform(srid, "gtfs_stops_buffers", "MultiPolygon", "geom")
 
       println("Finished transforming to local UTM zone.")
       data

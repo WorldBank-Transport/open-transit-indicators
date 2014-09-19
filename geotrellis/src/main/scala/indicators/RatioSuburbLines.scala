@@ -5,7 +5,7 @@ import grizzled.slf4j.Logging
 
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.{ScheduledTrip, Route => GtfsRoute}
-import geotrellis.vector._
+import geotrellis.vector.{Line, MultiPolygon}
 
 import opentransitgt._
 import opentransitgt.data._
@@ -14,8 +14,9 @@ import opentransitgt.DjangoAdapter._
 // Number of stops
 class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator with BoundaryCalculatorComponent with Logging{
   val name = "ratio_suburban_lines"
+
   val cityBounds: Boundary = boundary(calcParams.city_boundary_id)
-  val regionBounds: Boundary = boundary(calcParams.region_boundary_id)
+
   def getTripShape(trip: ScheduledTrip): Option[Line] = {
     trip.rec.shape_id match {
       case Some(shapeID) => gtfsData.shapesById.get(shapeID) map (_.line)
