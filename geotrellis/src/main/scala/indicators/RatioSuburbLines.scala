@@ -1,15 +1,18 @@
 package opentransitgt.indicators
 
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
+import grizzled.slf4j.Logging
+
 import com.azavea.gtfs.data._
 import com.azavea.gtfs.{ScheduledTrip, Route => GtfsRoute}
-import geotrellis.vector.{Line, MultiPolygon}
+import geotrellis.vector._
+
 import opentransitgt._
 import opentransitgt.data._
 import opentransitgt.DjangoAdapter._
-import scala.slick.jdbc.JdbcBackend.DatabaseDef
 
 // Number of stops
-class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator with BoundaryCalculatorComponent {
+class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator with BoundaryCalculatorComponent with Logging{
   val name = "ratio_suburban_lines"
   val cityBounds: Boundary = boundary(calcParams.city_boundary_id)
   val regionBounds: Boundary = boundary(calcParams.region_boundary_id)
@@ -28,9 +31,20 @@ class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val d
     }
   }
 
-  def calcByRoute(period: SamplePeriod): Map[String, Double] = ???
+  def calcByRoute(period: SamplePeriod): Map[String, Double] = {
+    debug(s"calculating per route for $this")
+    val routesThisPeriod: Array[GtfsRoute] = routesInPeriod(period)
+
+    routesThisPeriod.map {(r: GtfsRoute) =>
+      (r.id.toString -> (isSuburban(r, period) match {
+        case true => 1.0
+        case false => 0.0
+      }))
+    }.toMap
+  }
 
   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
+    debug(s"calculating per mode for $this")
     // find number of routes (for some mode) with stops outside the city; divide that number
     // by the total number of routes for said mode
     val routesThisPeriod: Array[GtfsRoute] = routesInPeriod(period)
@@ -54,6 +68,7 @@ class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val d
   }
 
   def calcBySystem(period: SamplePeriod): Double = {
+    debug(s"calculating by system for $this")
     val routesThisPeriod: Array[GtfsRoute] = routesInPeriod(period)
     val suburbanRouteCount: Double = (routesThisPeriod filter (x => isSuburban(x, period))).size.toDouble
     val urbanRouteCount: Double = (routesThisPeriod filter (x => !isSuburban(x, period))).size.toDouble
