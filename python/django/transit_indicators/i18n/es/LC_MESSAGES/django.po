@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-17 16:41+0000\n"
+"POT-Creation-Date: 2014-09-22 18:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -642,106 +642,106 @@ msgstr ""
 msgid "stops/route length, in km"
 msgstr ""
 
-#: transit_indicators/models.py:327
+#: transit_indicators/models.py:341
 msgid "Access index"
 msgstr ""
 
-#: transit_indicators/models.py:328
+#: transit_indicators/models.py:342
 msgid "Affordability"
 msgstr ""
 
-#: transit_indicators/models.py:329
+#: transit_indicators/models.py:343
 msgid "Average Service Frequency"
 msgstr ""
 
-#: transit_indicators/models.py:330
+#: transit_indicators/models.py:344
 msgid "System coverage"
 msgstr ""
 
-#: transit_indicators/models.py:331
+#: transit_indicators/models.py:345
 msgid "Coverage of transit stops"
 msgstr ""
 
-#: transit_indicators/models.py:332
+#: transit_indicators/models.py:346
 msgid "Distance between stops"
 msgstr ""
 
-#: transit_indicators/models.py:333
+#: transit_indicators/models.py:347
 msgid "Dwell Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:334
+#: transit_indicators/models.py:348
 msgid "Weekly number of hours of service"
 msgstr ""
 
-#: transit_indicators/models.py:335
+#: transit_indicators/models.py:349
 msgid "Job accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:336
+#: transit_indicators/models.py:350
 msgid "Transit system length"
 msgstr ""
 
-#: transit_indicators/models.py:337
+#: transit_indicators/models.py:351
 msgid "Ratio of transit lines length over road length"
 msgstr ""
 
-#: transit_indicators/models.py:338
+#: transit_indicators/models.py:352
 msgid "Transit line network density"
 msgstr ""
 
-#: transit_indicators/models.py:339
+#: transit_indicators/models.py:353
 msgid "Number of modes"
 msgstr ""
 
-#: transit_indicators/models.py:340
+#: transit_indicators/models.py:354
 msgid "Number of routes"
 msgstr ""
 
-#: transit_indicators/models.py:341
+#: transit_indicators/models.py:355
 msgid "Number of stops"
 msgstr ""
 
-#: transit_indicators/models.py:342
+#: transit_indicators/models.py:356
 msgid "Number of route types"
 msgstr ""
 
-#: transit_indicators/models.py:343
+#: transit_indicators/models.py:357
 msgid "On-Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:344
+#: transit_indicators/models.py:358
 msgid "Regularity of Headways"
 msgstr ""
 
-#: transit_indicators/models.py:345
+#: transit_indicators/models.py:359
 msgid "Service frequency weighted by served population"
 msgstr ""
 
-#: transit_indicators/models.py:346
+#: transit_indicators/models.py:360
 msgid "Ratio of number of stops to route-length"
 msgstr ""
 
-#: transit_indicators/models.py:347
+#: transit_indicators/models.py:361
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
 msgstr ""
 
-#: transit_indicators/models.py:348
+#: transit_indicators/models.py:362
 msgid "System accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:349
+#: transit_indicators/models.py:363
 msgid "System accessibility - low-income"
 msgstr ""
 
-#: transit_indicators/models.py:350
+#: transit_indicators/models.py:364
 msgid "Time traveled between stops"
 msgstr ""
 
-#: transit_indicators/models.py:351
+#: transit_indicators/models.py:365
 msgid "Travel Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:352
+#: transit_indicators/models.py:366
 msgid "Weekday / weekend frequency"
 msgstr ""
