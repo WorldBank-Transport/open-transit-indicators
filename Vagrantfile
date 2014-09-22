@@ -7,7 +7,7 @@ VAGRANTFILE_API_VERSION = "2"
 if ENV['OTI_VAGRANT_MEMORY'].nil?
     MEMORY_MB = "10240"
 else
-    MEMORY_MB = ENV['VAGRANT_MEMORY']
+    MEMORY_MB = ENV['OTI_VAGRANT_MEMORY']
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -68,7 +68,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   vb.gui = true
   #
      # Use VBoxManage to customize the VM. For example to change memory:
-     vb.customize ["modifyvm", :id, "--memory", MEMORY_MB, "--cpus", "3", "--pae", "on"]
+     vb.customize ["modifyvm", :id, "--memory", MEMORY_MB, "--cpus", "2", "--pae", "on"]
   end
   #
   # View the documentation for the provider you're using for more

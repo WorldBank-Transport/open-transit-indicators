@@ -16,6 +16,7 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams, db: Datab
   //   by making use of the reflection API, but the solution was not obvious after
   //   a fair amount of research.
   val calculators: List[IndicatorCalculator] = List(
+    new WeeklyServiceHours(data, params, db),
     new NumStops(data, params, db),
     new NumRoutes(data, params, db),
     new Length(data, params, db),
