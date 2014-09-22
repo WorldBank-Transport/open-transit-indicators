@@ -2,6 +2,8 @@ import os
 import tempfile
 import zipfile
 
+import shutil
+
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
@@ -158,6 +160,8 @@ def run_shapefile_to_boundary(boundary_id):
         boundary.save()
     except Exception as e:
         handle_error('Unexpected error processing shapefile.', str(e))
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
         return
 
 
@@ -223,6 +227,8 @@ def run_get_shapefile_fields(demographicdata_id):
 
     except Exception as e:
         handle_error('Unexpected error processing shapefile.', str(e))
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
         return
 
 
@@ -289,4 +295,8 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
         demog_data.is_loaded = True
         demog_data.is_valid = False
         demog_data.save()
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
         return
+
+
