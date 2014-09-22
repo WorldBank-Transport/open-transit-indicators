@@ -1,12 +1,26 @@
 <div ng-init="init()">
     <h1>{{'VIEW.realtime' | translate}}</h1>
     <p>{{'SETTINGS.REALTIME_DESCRIPTION' | translate}}</p>
-    <div class="dropzone">
-        <div class="h4">{{'TERM.DROP_FILE_HERE_OR' | translate}}<span class="btn btn-primary">{{'UI.BUTTON.SELECT_FILE' | translate}}</span></div>
-    </div>
-    <div class="dropzone inprogress">
-        <div class="h4">{{'STATUS.PROCESSING_FILE' | translate}} <span class="h5"><a href="#">{{'STATUS.CANCEL' | translate}}</a></span></div>
+
+    <polling-upload url="/api/real-time/" upload="uploadRealtime" resource="RealTimeUpload" options="realtimeOptions">
+    </polling-upload>
+
+    <div class="dropzone notices" ng-if="uploadProblems.warnings.length > 0 || uploadProblems.errors.length > 0">
+        <div class="settingsmodal-notices" ng-if="uploadProblems.errors.length > 0">
+            <div class="settingsmodal-notices-errors">
+                <h4>{{'SETTINGS.REALTIME_ERRORS' | translate}}</h4>
+                <ul>
+                    <li ng-repeat="problem in uploadProblems.errors">{{ problem.title }} : {{ problem.description }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="settingsmodal-notices-warnings" ng-if="uploadProblems.warnings.length > 0">
+            <h4>{{'SETTINGS.REALTIME_WARNINGS' | translate}}</h4>
+            <ul>
+                <li ng-repeat="problem in uploadProblems.warnings">{{ problem.title }} : {{ problem.description }}</li>
+            </ul>
+        </div>
     </div>
 
-    <button class="btn btn-primary">{{'STATUS.CANCEL' | translate}}</button>
+
 </div>

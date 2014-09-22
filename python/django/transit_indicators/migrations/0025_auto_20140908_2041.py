@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name='indicator',
+            unique_together=None
+        ),
         migrations.AlterField(
             model_name='indicatorjob',
             name='version',
@@ -36,5 +40,9 @@ class Migration(migrations.Migration):
             name='version',
             field=models.ForeignKey(to='transit_indicators.IndicatorJob', to_field=b'version'),
             preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='indicator',
+            unique_together=set([('sample_period', 'type', 'aggregation', 'route_id', 'route_type', 'city_name', 'version')]),
         ),
     ]

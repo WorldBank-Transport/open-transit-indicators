@@ -37,4 +37,13 @@ class NumStops(val gtfsData: GtfsData, val calcParams: CalcParams, val db: Datab
         ).flatten.distinct.length.toDouble
       }
   }
+
+  def calcBySystem(period: SamplePeriod): Double = {
+    println("in calcBySystem for NumStops")
+    routesInPeriod(period)
+      .map(route =>
+        tripsInPeriod(period, routeByID(route.id.toString))
+          .flatMap(stopsInPeriod(period, _).map(_.stop_id))
+    ).flatten.distinct.length
+  }
 }

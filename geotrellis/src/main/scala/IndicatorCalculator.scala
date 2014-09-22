@@ -4,8 +4,7 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.data._
 import com.github.nscala_time.time.Imports._
 import geotrellis.proj4._
-import geotrellis.vector.Line
-import geotrellis.vector.MultiLine
+import geotrellis.vector.{Line, MultiLine}
 import org.joda.time.PeriodType
 import opentransitgt.DjangoAdapter._
 import opentransitgt.indicators._
@@ -23,6 +22,15 @@ trait IndicatorCalculator {
   // TODO: calculator results should be cached to prevent recalculating them during aggregations
   def calcByRoute(period: SamplePeriod): Map[String, Double]
   def calcByMode(period: SamplePeriod): Map[Int, Double]
+  def calcBySystem(period: SamplePeriod): Double
+
+  // Helper function for summing the values obtained in calcByMode.
+  def simpleSumBySystem(period: SamplePeriod): Double = {
+    calcByMode(period).toList.foldLeft(0.0){ case(sum, (_, value)) => sum + value }
+  }
+  
+  // Helper function for getting the maximum value obtained in calcByMode.
+  def simpleMaxBySystem(period: SamplePeriod): Double = calcByMode(period).max._2
 
   // Overall aggregation by route, taking into account all periods
   def calcOverallByRoute: Map[String, Double] = {
@@ -56,15 +64,12 @@ trait IndicatorCalculator {
     sumsByMode.map{ case (routeType, sum) => routeType -> sum / (24 * 7) }.toMap
   }
 
-  // This can be uncommented only when the proper methods are added to each indicator
-  // until then, uncommenting this bit of code will prevent compilation
-  //def calcBySystem(period: SamplePeriod): Double
-  /*def calcOverallBySystem: Double = {
-    // Double of systemic value
+  // Overall aggregation by system, taking into account all periods
+  def calcOverallBySystem: Double = {
     calcParams.sample_periods.map(period => {
       calcBySystem(period) * getPeriodMultiplier(period)
-    }).foldLeft(0.0){ (a, b) => a + b }
-  }*/
+    }).foldLeft(0.0){ (a, b) => a + b } / (24 * 7)
+  }
 
   // Gets the multiplier for weighting a period in an aggregation
   def getPeriodMultiplier(period: SamplePeriod): Double = {
@@ -108,8 +113,8 @@ trait IndicatorCalculator {
     )
   }
 
-  // See note above regarding uncommenting
-  /*lazy val systemIndicators = for {
+  // Store all system indicators for all periods
+  lazy val systemIndicators = for {
     period <- calcParams.sample_periods
     value = calcBySystem(period)
   } yield {
@@ -121,7 +126,7 @@ trait IndicatorCalculator {
       value=value,
       the_geom=stringGeomForSystem(period)
     )
-  }*/
+  }
 
   // Store aggregate route indicators
   lazy val aggRouteIndicators = for {
@@ -151,10 +156,22 @@ trait IndicatorCalculator {
     )
   }
 
+  // Store aggregate system indicators
+  lazy val aggSystemIndicators = List(Indicator(
+    `type`=name,
+    sample_period="alltime",
+    aggregation="system",
+    version=calcParams.version,
+    value=calcOverallBySystem
+  ))
+
   // Post all indicators at once
   def storeIndicators = {
-    djangoClient.postIndicators(calcParams.token, routeIndicators ++ modeIndicators ++
-      aggRouteIndicators ++ aggModeIndicators)
+    djangoClient.postIndicators(calcParams.token,
+      routeIndicators ++ aggRouteIndicators ++
+      modeIndicators ++ aggModeIndicators ++
+      systemIndicators ++ aggSystemIndicators
+    )
   }
 
   // Return a text geometry with SRID 4326 for a given routeID
@@ -181,25 +198,17 @@ trait IndicatorCalculator {
     }
   }
 
+  // Finds the Line in Lat/Lng associated with the route
   def routeToLine(period: SamplePeriod, route: Route): Option[Line] = {
-    db withSession { implicit session: Session =>
-      // Find the SRID of the UTM column and construct a CRS.
-      //
-      // Note: this is only needed because there is currently a bug
-      //   in the GTFS parser that causes the SRID on the geometry object
-      //   to be set to -1. If this is fixed, it can be obtained from
-      //   the object directly.
-      val sridQ = Q.queryNA[Int]("""SELECT Find_SRID('public', 'gtfs_shape_geoms', 'geom');""")
-      val utmCrs = CRS.fromName(s"EPSG:${sridQ.list.head}")
-
-      val shape_id : Option[String] = tripsInPeriod(period, route).head.rec.shape_id
-      val shapeTrip : Option[TripShape] = shape_id.flatMap {
-        shapeID => gtfsData.shapesById.get(shapeID)
+    val shape_id : Option[String] = tripsInPeriod(period, route).head.rec.shape_id
+    val shapeTrip : Option[TripShape] = shape_id.flatMap {
+      shapeID => gtfsData.shapesById.get(shapeID)
+    }
+    shapeTrip map {
+      tripShape => {
+        val utmCrs = CRS.fromName(s"EPSG:${tripShape.line.srid}")
+        tripShape.line.reproject(utmCrs, LatLng)(4326)
       }
-      val maybeShapeLine : Option[Line] = shapeTrip map {
-        tripShape => tripShape.line.reproject(utmCrs, LatLng)(4326)
-      }
-      maybeShapeLine
     }
   }
 

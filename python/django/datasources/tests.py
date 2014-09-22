@@ -3,6 +3,7 @@ from shutil import rmtree
 import tempfile
 from time import sleep
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -10,7 +11,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from transit_indicators.tests import OTIAPIClient
-from datasources.models import GTFSFeedProblem
+from datasources.models import GTFSFeedProblem, RealTimeProblem
 
 @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
                    CELERY_ALWAYS_EAGER=True,
@@ -77,3 +78,41 @@ class GTFSFeedTestCase(TestCase):
         self.client.authenticate(admin=False)
         response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class RealTimeTestCase(TestCase):
+
+    def setUp(self):
+        self.client = OTIAPIClient()
+        self.url = reverse('real-time-list', {})
+        self.file_directory = os.path.dirname(os.path.abspath(__file__))
+        self.test_realtime_fh = open(self.file_directory + '/tests/stop_times_test.txt_new')
+
+    def tearDown(self):
+        self.test_realtime_fh.close()
+
+    def test_txt_new_validation(self):
+        self.client.authenticate(admin=True)
+
+        temp_dir = tempfile.mkdtemp()
+        badfile_path = temp_dir + '/badfile.txt'
+        goodfile_path = temp_dir + '/goodfile.txt_new'
+
+        with open(badfile_path, 'w') as badfile:
+            badfile.write("No useful data here.")
+
+        with open(goodfile_path, 'w') as goodfile:
+            goodfile.write("Useful data here.")
+
+        with open(badfile_path, 'r') as badfile:
+            # Test that uploading a file with an extension other than .txt_new
+            # fails
+            response = self.client.post(self.url, {'source_file': badfile})
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                             response.content)
+
+        rmtree(temp_dir)
+
+    def test_realtime_upload(self):
+        response = self.client.post(self.url, {'source_file': self.test_realtime_fh,
+                                               'city_name': settings.OTI_CITY_NAME})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

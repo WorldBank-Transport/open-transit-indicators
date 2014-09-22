@@ -15,6 +15,7 @@ trait PostgresSpec extends Suite with TestDatabase with BeforeAndAfterAll {
 
     // initialize the test database via the setup_db script
     s"sudo -u postgres ../deployment/setup_db.sh $dbName $dbUser $dbPassword ..".!!
+    s"sudo -u postgres ../geotrellis/src/test/resources/populate_db.sh $dbName $dbUser $dbPassword ..".!!
   }
 
   // after all tests have been run in the spec, drop the test database

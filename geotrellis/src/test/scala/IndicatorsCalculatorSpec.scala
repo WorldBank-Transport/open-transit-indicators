@@ -7,34 +7,47 @@ import com.github.nscala_time.time.Imports._
 import com.typesafe.config.{ConfigFactory,Config}
 import opentransitgt.DjangoAdapter._
 import org.scalatest._
-import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import geotrellis.vector.MultiPolygon
+import geotrellis.vector.io._
 
 class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers {
   val config = ConfigFactory.load
   val geomColumnName = config.getString("database.geom-name-utm")
 
   // initialize sample periods
-  val calcParams = CalcParams("Token", "cbe1f916-42d3-4630-8466-68b753024767", List[SamplePeriod](
-    SamplePeriod(1, "night",
-      new DateTime("2010-01-01T00:00:00.000-05:00"),
-      new DateTime("2010-01-01T08:00:00.000-05:00")),
+  val calcParams = CalcParams("Token", "cbe1f916-42d3-4630-8466-68b753024767",
+    20000,  // poverty line ($)
+    500,    // nearby buffer distance (m)
+    3600,   // max commute time (s)
+    1800,   // max walk time (s)
+    1,      // city boundary id
+    2,      // region boundary id
+    2,      // average fare ($)
+    List[SamplePeriod](
+      SamplePeriod(1, "night",
+        new DateTime("2010-01-01T00:00:00.000-05:00"),
+        new DateTime("2010-01-01T08:00:00.000-05:00")),
 
-    SamplePeriod(1, "morning",
-      new DateTime("2010-01-01T08:00:00.000-05:00"),
-      new DateTime("2010-01-01T11:00:00.000-05:00")),
+      SamplePeriod(1, "morning",
+        new DateTime("2010-01-01T08:00:00.000-05:00"),
+        new DateTime("2010-01-01T11:00:00.000-05:00")),
 
-    SamplePeriod(1, "midday",
-      new DateTime("2010-01-01T11:00:00.000-05:00"),
-      new DateTime("2010-01-01T16:30:00.000-05:00")),
+      SamplePeriod(1, "midday",
+        new DateTime("2010-01-01T11:00:00.000-05:00"),
+        new DateTime("2010-01-01T16:30:00.000-05:00")),
 
-    SamplePeriod(1, "evening",
-      new DateTime("2010-01-01T16:30:00.000-05:00"),
-      new DateTime("2010-01-01T23:59:59.999-05:00")),
+      SamplePeriod(1, "evening",
+        new DateTime("2010-01-01T16:30:00.000-05:00"),
+        new DateTime("2010-01-01T23:59:59.999-05:00")),
 
-    SamplePeriod(1, "weekend",
-      new DateTime("2010-01-02T00:00:00.000-05:00"),
-      new DateTime("2010-01-02T23:59:59.999-05:00"))
-  ))
+      SamplePeriod(1, "weekend",
+        new DateTime("2010-01-02T00:00:00.000-05:00"),
+        new DateTime("2010-01-02T23:59:59.999-05:00"))
+    )
+  )
+
   val period = calcParams.sample_periods.head
   val dao = new DAO
 
@@ -104,6 +117,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     numStopsByRoute("WTR") should be (22.38963 plusOrMinus 1e-5)
   }
 
+  it should "calculate num_stops by system for SEPTA" in {
+    val numStopsBySystem = septaRailCalc.calculatorsByName("num_stops").calcBySystem(period)
+    numStopsBySystem should be (154)
+  }
+
+  it should "calculate overall num_stops by system for SEPTA" in {
+    val numStopsBySystem = septaRailCalc.calculatorsByName("num_stops").calcOverallBySystem
+    numStopsBySystem should be (150.72149 plusOrMinus 1e-5)
+  }
+
   it should "calculate num_routes by mode for SEPTA" in {
     val numRoutesByMode = septaRailCalc.calculatorsByName("num_routes").calcByMode(period)
     numRoutesByMode(2) should be (13)
@@ -147,6 +170,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     numRoutesByRoute("WAR") should be (1.0000 plusOrMinus 1e-4)
     numRoutesByRoute("WIL") should be (1.0000 plusOrMinus 1e-4)
     numRoutesByRoute("WTR") should be (1.0000 plusOrMinus 1e-4)
+  }
+
+  it should "calculate num_routes by system for SEPTA" in {
+    val numRoutesBySystem = septaRailCalc.calculatorsByName("num_routes").calcBySystem(period)
+    numRoutesBySystem should be (13)
+  }
+
+  it should "calculate overall num_routes by system for SEPTA" in {
+    val numRoutesBySystem = septaRailCalc.calculatorsByName("num_routes").calcOverallBySystem
+    numRoutesBySystem should be (12.40164 plusOrMinus 1e-5)
   }
 
   it should "calculate length by mode for SEPTA" in {
@@ -194,6 +227,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     lengthByRoute("WTR") should be ( 53.44757 plusOrMinus 1e-5)
   }
 
+  it should "calculate length by system for SEPTA" in {
+    val lengthBySystem = septaRailCalc.calculatorsByName("length").calcBySystem(period)
+    lengthBySystem should be (656.38489 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall length by system for SEPTA" in {
+    val lengthBySystem = septaRailCalc.calculatorsByName("length").calcOverallBySystem
+    lengthBySystem should be (589.67491 plusOrMinus 1e-5)
+  }
+
   it should "calculate time_traveled_stops by mode for SEPTA" in {
     val ttsByMode = septaRailCalc.calculatorsByName("time_traveled_stops").calcByMode(period)
     ttsByMode(2) should be (3.65945 plusOrMinus 1e-5)
@@ -239,6 +282,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     ttsByRoute("WTR") should be (3.43258 plusOrMinus 1e-5)
   }
 
+  it should "calculate time_traveled_stops by system for SEPTA" in {
+    val ttsBySystem = septaRailCalc.calculatorsByName("time_traveled_stops").calcBySystem(period)
+    ttsBySystem should be (3.65945 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall time_traveled_stops by system for SEPTA" in {
+    val ttsBySystem = septaRailCalc.calculatorsByName("time_traveled_stops").calcOverallBySystem
+    ttsBySystem should be (3.46391 plusOrMinus 1e-5)
+  }
+
   it should "calculate avg_service_freq by mode for SEPTA" in {
     val asfByMode = septaRailCalc.calculatorsByName("avg_service_freq").calcByMode(period)
     asfByMode(2) should be (0.25888 plusOrMinus 1e-5)
@@ -282,6 +335,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     asfByRoute("WAR") should be (0.61901 plusOrMinus 1e-5)
     asfByRoute("WIL") should be (0.51010 plusOrMinus 1e-5)
     asfByRoute("WTR") should be (0.48118 plusOrMinus 1e-5)
+  }
+
+  it should "calculate avg_service_freq by system for SEPTA" in {
+    val asfBySystem = septaRailCalc.calculatorsByName("avg_service_freq").calcBySystem(period)
+    asfBySystem should be (0.36349 plusOrMinus 1e-5)
+  }
+
+  it should "calculate overall avg_service_freq by system for SEPTA" in {
+    val asfBySystem = septaRailCalc.calculatorsByName("avg_service_freq").calcOverallBySystem
+    asfBySystem should be (0.47632 plusOrMinus 1e-5)
   }
 
   it should "return map of Route ID's and their geometries" in {
@@ -335,10 +398,68 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     dbsByRoute("TRE") should be (5.58536 plusOrMinus 1e-5)
   }
 
+  it should "calcuate overall distance_between_stops by system for SEPTA" in {
+    val dbsBySystem = septaRailCalc.calculatorsByName("distance_stops").calcOverallBySystem
+    dbsBySystem should be (2.35755 plusOrMinus 1e-5)
+  }
+  
+  it should "calcuate overall hours_service by route for SEPTA" in {
+    val hrsServByMode = septaRailCalc.calculatorsByName("hours_service").calcOverallByMode
+    hrsServByMode(2) should be (146.48164 plusOrMinus 1e-5)
+  }
+  
+  it should "calcuate overall hours_service by system for SEPTA" in {
+    val dbsBySystem = septaRailCalc.calculatorsByName("hours_service").calcOverallBySystem
+    dbsBySystem should be (146.48164 plusOrMinus 1e-5)
+  }
+  
+  it should "calculate hours_service by route for SEPTA" in {
+    val hrsServByRoute = septaRailCalc.calculatorsByName("hours_service").calcOverallByRoute
+    hrsServByRoute("PAO") should be (141.84836 plusOrMinus 1e-5)
+    hrsServByRoute("MED") should be (129.44850 plusOrMinus 1e-5)
+    hrsServByRoute("WAR") should be (146.48164 plusOrMinus 1e-5)
+    hrsServByRoute("NOR") should be (137.08175 plusOrMinus 1e-5)
+    hrsServByRoute("LAN") should be (136.28176 plusOrMinus 1e-5)
+    hrsServByRoute("CYN") should be (27.79353 plusOrMinus 1e-5)
+    hrsServByRoute("WIL") should be (135.88176 plusOrMinus 1e-5)
+    hrsServByRoute("AIR") should be (141.04837 plusOrMinus 1e-5)
+    hrsServByRoute("CHW") should be (125.31522 plusOrMinus 1e-5)
+    hrsServByRoute("WTR") should be (136.28176 plusOrMinus 1e-5)
+    hrsServByRoute("FOX") should be (120.91527 plusOrMinus 1e-5)
+    hrsServByRoute("CHE") should be (135.28177 plusOrMinus 1e-5)
+    hrsServByRoute("TRE") should be (144.97888 plusOrMinus 1e-5)
+  }
+
+  it should "calculate a buffered stops coverage ratio by system for SEPTA" in {
+    val coverageBufferBySystem = septaRailCalc.calculatorsByName("coverage_ratio_stops_buffer").calcBySystem(period)
+    coverageBufferBySystem should be (0.09364127449154404 plusOrMinus 1e-5)
+  }
+
   // this doesn't test an indicator, but is an example for how to read data from the db
-  it should "be able to read trips from the database" in {
+  it should "read trips from the database" in {
     db withSession { implicit session: Session =>
       dao.toGtfsData.trips.size should be (1662)
     }
   }
+
+  it should "calculate the ratio of suburban rail lines" in {
+    val suburbRateByMode = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcByMode(period)
+    suburbRateByMode(2) should be (0.846 plusOrMinus 1e-3)
+  }
+
+  it should "calculate the ratio of suburban lines" in {
+    val suburbRateBySystem = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcBySystem(period)
+    suburbRateBySystem should be (0.846 plusOrMinus 1e-3)
+  }
+
+  import geotrellis.vector.io._
+  import geotrellis.vector._
+  it should "read OSM data from the test database" in {
+    db withSession { implicit session: Session =>
+      val osmRoads = Q.queryNA[String]("SELECT way FROM planet_osm_roads LIMIT 10").list
+      val a = osmRoads map (WKB.read[Line](_))
+      a.head.length should be (181.19214 plusOrMinus 1e-5)
+    }
+  }
+
 }

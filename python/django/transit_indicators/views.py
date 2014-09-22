@@ -1,5 +1,7 @@
 import django_filters
 
+from django.conf import settings
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -39,18 +41,36 @@ class SamplePeriodViewSet(OTIAdminViewSet):
     serializer_class = SamplePeriodSerializer
 
 
+def aggregation_filter(queryset, values):
+    """Action/filter used to allow choosing multiple aggregation types
+
+    The multiple choice filter field does not quite work and some pre-processing
+    is necessary to allow comma-separated-values in query parameters
+    """
+    if not values:
+        return queryset
+    split_values = values.split(',')
+    return queryset.filter(aggregation__in=split_values)
+
+
 class IndicatorFilter(django_filters.FilterSet):
     """Custom filter for indicator
+
+    For is_latest_version must pass pythons boolean, True|False as the value:
+    e.g. indicators?is_latest_version=True
 
     TODO: Filter all but the most recent version for each city in the sent response
 
     """
     sample_period = django_filters.CharFilter(name="sample_period__type")
+    aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
+    is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
+    city_name = django_filters.CharFilter(name="version__city_name")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name']
+                  'route_type', 'city_bounded', 'version', 'city_name', 'is_latest_version']
 
 
 class IndicatorJobViewSet(OTIAdminViewSet):
@@ -93,7 +113,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Handle as csv upload if form data present
         source_file = request.FILES.get('source_file', None)
         if source_file:
-            city_name = request.DATA.get('city_name', None)
+            city_name = request.DATA.pop('city_name', None)
             load_status = Indicator.load(source_file, city_name, request.user)
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)
@@ -127,7 +147,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         endpoint with no params
 
         """
-        delete_filter_fields = ('city_name')
+        delete_filter_fields = {'city_name': 'version__city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
@@ -136,7 +156,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         if filters:
             indicators = Indicator.objects.all();
             for field in filters:
-                indicators = indicators.filter(**{field: request.QUERY_PARAMS[field]})
+                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -146,32 +166,36 @@ class IndicatorViewSet(OTIAdminViewSet):
 class IndicatorVersion(APIView):
     """ Indicator versioning endpoint
 
-    Returns most recent indicator version.
+    Returns currently valid indicator versions and associated city_name. Valid defined as:
+        - IndicatorJob.version has at least one indicator in the Indicator table
+        - IndicatorJob.is_latest_version = True
 
     """
-
     def get(self, request, *args, **kwargs):
-        """ Return the current version of the indicators """
-        try:
-            job = IndicatorJob.objects.get(is_latest_version=True)
-            version = job.version
-            return Response({'current_version': version}, status=status.HTTP_200_OK)
-        except IndicatorJob.DoesNotExist:
-            return Response({'current_version': None}, status=status.HTTP_200_OK)
-        except IndicatorJob.MultipleObjectsReturned:
-            return Response({'error':'Multiple versions found'},
-                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        """ Return the current versions of the indicators """
+        versions = Indicator.objects.filter(version__is_latest_version=True).values('version',
+                                            'version__city_name').annotate()
+        return Response({'current_versions': versions}, status=status.HTTP_200_OK)
+
 
 class IndicatorTypes(APIView):
     """ Indicator Types GET endpoint
 
-    Returns a dict where key is the db indicator type key and value is
-    the human readable, translated string description
+    Returns a dict where key is the db indicator type key,
+    display_name is the human readable, translated string description, and
+    display_on_map is boolean indicating whether indicator should be shown on map or not
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in Indicator.IndicatorTypes.CHOICES }
+        response = {}
+        for key, value in Indicator.IndicatorTypes.CHOICES:
+            if Indicator.IndicatorTypes.INDICATORS_TO_MAP.intersection([key]):
+                show = True
+            else:
+                show = False
+            response[key] = { 'display_name': value, 'display_on_map': show }
         return Response(response, status=status.HTTP_200_OK)
+
 
 class IndicatorAggregationTypes(APIView):
     """ Indicator Aggregation Types GET endpoint
@@ -192,7 +216,7 @@ class IndicatorCities(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = Indicator.objects.values_list('city_name', flat=True).filter(
+        response = IndicatorJob.objects.values_list('city_name', flat=True).filter(
                                                  city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
 

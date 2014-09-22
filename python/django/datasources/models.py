@@ -10,6 +10,8 @@ class DataSource(models.Model):
 
     create_date = models.DateTimeField(auto_now_add=True)
     last_modify_date = models.DateTimeField(auto_now=True)
+    # make user-configurable with upload
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
 
     class Meta(object):
         abstract = True
@@ -76,6 +78,20 @@ class OSMData(DataSource):
 class OSMDataProblem(DataSourceProblem):
     """Problem (warning or error) with an OSM import"""
     osmdata = models.ForeignKey(OSMData)
+
+
+class RealTime(FileDataSource):
+    """ Represents a stop_times.txt_new upload
+
+    File must be generated via Mike Smith's Stop Times software
+    Loads data to gtfs_realtime.RealStopTime via celery
+
+    """
+
+
+class RealTimeProblem(DataSourceProblem):
+    """ Problem with a RealTime import """
+    realtime = models.ForeignKey(RealTime)
 
 
 class BoundaryProblem(DataSourceProblem):

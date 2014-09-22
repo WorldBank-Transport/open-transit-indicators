@@ -156,6 +156,8 @@
         "UPLOAD_GTFS_DESCRIPTION": "!Upload GTFS data to get started. The data should be zipped for uploading. For best results, include the shapes.txt file if it is available.",
         "UPLOAD_ADDITIONAL_DATA": "!Upload Additional Data",
         "REALTIME_DESCRIPTION": "!Upload the processed stop_times.txt_new file that was output from Mike Smith's Stop Times software. For more information on this software, visit [insert link]",
+        "REALTIME_ERRORS": "!Real-Time Errors",
+        "REALTIME_WARNINGS": "!Real-Time Warnings",
         "UPLOAD_DESCRIPTION": "!To begin, upload a zipped GTFS file. This application will first verify the validity of the data files. If valid, it will then process the data. Once the application configuration is complete, you may click the \"Finish and Calculate Indicators\" button. This process may take several minutes to complete, and will take place in the background. Do not restart the server until the indicator calculations are complete. You may continue using the application or leave the page and check back later.",
         "OSM_IMPORT_ERROR": "!Error importing OpenStreetMap data",
         "IMPORTING_OSM": "!Importing OpenStreetMap data ...",

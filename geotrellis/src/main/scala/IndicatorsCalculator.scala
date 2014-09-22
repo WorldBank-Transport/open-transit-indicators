@@ -16,12 +16,18 @@ class IndicatorsCalculator(val data: GtfsData, val params: CalcParams, db: Datab
   //   by making use of the reflection API, but the solution was not obvious after
   //   a fair amount of research.
   val calculators: List[IndicatorCalculator] = List(
+    new WeeklyServiceHours(data, params, db),
     new NumStops(data, params, db),
     new NumRoutes(data, params, db),
     new Length(data, params, db),
     new TimeTraveledStops(data, params, db),
     new AvgServiceFreq(data, params, db),
-    new DistanceStops(data, params, db)
+    new DistanceStops(data, params, db),
+    new CoverageRatioStopsBuffer(data, params, db),
+    new RatioSuburbLines(data, params, db)
+    // WARNING: After adding a new indicator, make sure the name attribute matches
+    // the name in /python/django/transit_indicators/models.py, otherwise your indicator
+    // won't be launched properly.
   )
 
   // Map of IndicatorCalculators by name
