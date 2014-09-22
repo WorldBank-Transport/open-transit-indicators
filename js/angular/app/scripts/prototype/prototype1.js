@@ -79,8 +79,10 @@ $(document).ready(function() {
             setScenarioName();
             $('#heading-scenario').addClass(
                 'active');
+            $('#heading-route').removeClass(
+                'active');
             $('.scenario').addClass(
-                'focus--scenario');
+                'focus--scenario').removeClass('focus--route');
         }
         if (target == '#new-route') {
             $('#heading-route').removeClass(

@@ -80,7 +80,7 @@ $(document).ready(function() {
                 'active');
             $('.scenario').addClass(
                 'focus--scenario');
-            $('#heading-scroll').prepend('<a href="' + target + '">' + name + '</a>');
+            $('#heading-scroll').html('<a href="' + target + '">' + name + '</a>');
             console.log(2);
         }
         if (target != '#my-scenario') {

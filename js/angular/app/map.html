@@ -51,11 +51,19 @@
     it should have neither the ".active" nor the ".previous" class.
 
     Once the ".active" and ".previous" elements are set, the height of the ".scenario" element should be set
-    to the sum of the outerHeight of the ".scenario.active" element and the outerHeight of the ".scenario-heading"
-    elements. Example:
+    to the sum of the outerHeight of the ".scenario.active" element and the outerHeight of the ".scenario-headings"
+    wrapper. Example:
 
     var height = $('.scenario-page.active').outerHeight() + $('.scenario-heading').outerHeight();
     $('.scenario').height(height);
+
+    When the user creates a new scenario, "#heading-scenario" should get ".active". Also, ".scenario" should get
+    ".focus--scenario". When the user creates a new route, "#heading-route" should get ".active". Also, ".scenario" should get
+    ".focus--route".
+
+    The url should contain some hash value based on what scenario-page is open. For example:
+    opentransit.com/scenario/#add-routes. Clicking the back button in the browser should take you back to the previous
+    scenario-page.
 
     -->
 
@@ -192,8 +200,8 @@
                 </div>
                 <div class="scenario-page-buttons">
                     <a class="button--small" href="#routes">Routes</a> /
-                    <a class="button--small" href="#">Modes</a> /
-                    <a class="button--small" href="#">Fares</a> /
+                    <a class="button--small" href="#routes">Modes</a> /
+                    <a class="button--small" href="#routes">Fares</a> /
                     <a class="button--small" href="#new-scenario">Back</a>
                 </div>
             </div>
