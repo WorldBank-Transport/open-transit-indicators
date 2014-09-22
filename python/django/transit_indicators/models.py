@@ -322,6 +322,20 @@ class Indicator(models.Model):
                             TIME_TRAVELED_STOPS: Units.MINUTES,
                             WEEKDAY_END_FREQ: Units.HOURS
         }
+        
+        # indicators to display on the map
+        INDICATORS_TO_MAP = frozenset([
+                              LENGTH,
+                              NUM_STOPS,
+                              HOURS_SERVICE,
+                              STOPS_ROUTE_LENGTH,
+                              DISTANCE_STOPS,
+                              SERVICE_FREQ_WEIGHTED, # TODO: is this headway between stops?
+                              WEEKDAY_END_FREQ,
+                              ON_TIME_PERF,
+                              REGULARITY_HEADWAYS,
+                              COVERAGE
+        ])
 
         CHOICES = (
             (ACCESS_INDEX, _(u'Access index')),

@@ -181,12 +181,19 @@ class IndicatorVersion(APIView):
 class IndicatorTypes(APIView):
     """ Indicator Types GET endpoint
 
-    Returns a dict where key is the db indicator type key and value is
-    the human readable, translated string description
+    Returns a dict where key is the db indicator type key,
+    display_name is the human readable, translated string description, and
+    display_on_map is boolean indicating whether indicator should be shown on map or not
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in Indicator.IndicatorTypes.CHOICES }
+        response = {}
+        for key, value in Indicator.IndicatorTypes.CHOICES:
+            if Indicator.IndicatorTypes.INDICATORS_TO_MAP.intersection([key]):
+                show = True
+            else:
+                show = False
+            response[key] = { 'display_name': value, 'display_on_map': show }
         return Response(response, status=status.HTTP_200_OK)
 
 

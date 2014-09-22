@@ -21,7 +21,13 @@ angular.module('transitIndicators')
     };
 
     OTIIndicatorsService.getIndicatorTypes().then(function (data) {
-        $scope.types = data;
+        // filter indicator types to only show those for map display
+        $scope.types = {};
+        _.each(data, function(obj, key) {
+            if (obj.display_on_map == true) {
+                $scope.types[key] = obj.display_name;
+            }
+        });
     });
     OTIIndicatorsService.getIndicatorAggregationTypes().then(function (data) {
         $scope.aggregations = data;
