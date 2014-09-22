@@ -14,7 +14,6 @@ import opentransitgt.DjangoAdapter._
 // Number of stops
 class RatioSuburbLines(val gtfsData: GtfsData, val calcParams: CalcParams, val db: DatabaseDef) extends IndicatorCalculator with BoundaryCalculatorComponent with Logging{
   val name = "ratio_suburban_lines"
-
   val cityBounds: Boundary = boundary(calcParams.city_boundary_id)
 
   def getTripShape(trip: ScheduledTrip): Option[Line] = {

@@ -328,6 +328,7 @@ CREATE TABLE planet_osm_roads (
     way geometry(LineString,32618)
 );
 
+ALTER TABLE public.planet_osm_roads ADD COLUMN len_meters NUMERIC;
 
 ALTER TABLE public.planet_osm_roads OWNER TO transit_indicators;
 
@@ -2286,6 +2287,7 @@ COPY planet_osm_roads (osm_id, access, "addr:housename", "addr:housenumber", "ad
 \.
 
 
+UPDATE public.planet_osm_roads set len_meters = ST_Length(way);
 --
 -- PostgreSQL database dump complete
 --

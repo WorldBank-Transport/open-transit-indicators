@@ -9,8 +9,9 @@ import opentransitgt.DjangoAdapter._
 import org.scalatest._
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
-import geotrellis.vector.MultiPolygon
 import geotrellis.vector.io._
+import geotrellis.vector._
+
 
 class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers {
   val config = ConfigFactory.load
@@ -452,8 +453,6 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     suburbRateBySystem should be (0.846 plusOrMinus 1e-3)
   }
 
-  import geotrellis.vector.io._
-  import geotrellis.vector._
   it should "read OSM data from the test database" in {
     db withSession { implicit session: Session =>
       val osmRoads = Q.queryNA[String]("SELECT way FROM planet_osm_roads LIMIT 10").list
@@ -462,4 +461,16 @@ class IndicatorsCalculatorSpec extends FlatSpec with PostgresSpec with Matchers 
     }
   }
 
+  it should "calculate the ratio of transit lines to roads - system should be equal to mode" in {
+    val transToRoadsRateBySystem = septaRailCalc.calculatorsByName("lines_roads").calcBySystem(period)
+    val transToRoadsRateByMode = septaRailCalc.calculatorsByName("lines_roads").calcByMode(period)
+    transToRoadsRateBySystem should be (transToRoadsRateByMode(2))
+  }
+
+  it should "calculate the ratio of transit lines to roads - and get the right answer" in {
+    db withSession { implicit session: Session =>
+      val transToRoadsRateBySystem = septaRailCalc.calculatorsByName("lines_roads").calcBySystem(period)
+      transToRoadsRateBySystem should be (0.54791 plusOrMinus 1e-5)
+    }
+  }
 }
