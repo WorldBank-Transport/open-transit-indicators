@@ -1,34 +1,49 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
-            ['$scope', 'OTIEvents', 'OTIIndicatorsService',
-            function ($scope, OTIEvents, OTIIndicatorsService) {
+            ['$scope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+            function ($scope, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
     var cache = {};
     $scope.updating = false;
 
-    $scope.routeXFunction = function () {
-        return function (data) {
-            return data.route_id;
-        };
-    };
-
-    $scope.modeXFunction = function () {
-        return function (data) {
-            return data.route_type;
-        };
-    };
-
-    $scope.yFunction = function () {
-        return function (data) {
-            return data.value;
-        };
-    };
-
-    $scope.tooltipFunction = function () {
+    var defaultTooltipFunction = function () {
         return function (key, x, y) {
             return '<h3>' + key + '</h3><p>' + y.formatted_value + '</p>';
         };
+    };
+
+    $scope.charts = {
+        pie: {
+            xFunctionMode: function () {
+                return function (data) {
+                    return data.route_type;
+                };
+            },
+            xFunctionRoute: function () {
+                return function (data) {
+                    return data.route_id;
+                };
+            },
+            yFunction: function () {
+                return function (data) {
+                    return data.value;
+                };
+            },
+            tooltipFunction: defaultTooltipFunction
+        },
+        bar: {
+            xFunctionMode: function () {
+                return function (data) {
+                    return data.route_type;
+                };
+            },
+            yFunction: function () {
+                return function (data) {
+                    return data.value;
+                };
+            }
+        }
     };
 
     /**
@@ -42,7 +57,10 @@ angular.module('transitIndicators')
 {
     "<type>": {
         "<city_name>": {
-            "<aggregation>": [OTIIndicatorService.Indicator]
+            "<aggregation>": [{
+                key: '<aggregation>',
+                values: [OTIIndicatorService.Indicator]
+            }]
         }
     }
 }
@@ -68,9 +86,12 @@ angular.module('transitIndicators')
                 transformed[indicator.type] = indicatorCities;
             }
             if (!transformed[indicator.type][indicator.city_name][indicator.aggregation]) {
-                transformed[indicator.type][indicator.city_name][indicator.aggregation] = [];
+                transformed[indicator.type][indicator.city_name][indicator.aggregation] = [{
+                    key: indicator.aggregation,
+                    values: []
+                }];
             }
-            transformed[indicator.type][indicator.city_name][indicator.aggregation].push(indicator);
+            transformed[indicator.type][indicator.city_name][indicator.aggregation][0].values.push(indicator);
         });
         return transformed;
     };
@@ -100,6 +121,15 @@ angular.module('transitIndicators')
             }
         }
     };
+
+    $scope.getModePartialForIndicator = function (type) {
+        var config = $scope.indicatorConfig;
+        var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
+        var url = '/scripts/modules/indicators/charts/:charttype-mode-partial.html';
+        return url.replace(':charttype', chartType);
+    };
+
+    $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
 
     $scope.getIndicatorDescriptionTranslationKey = function(key) {
         return 'INDICATOR_DESCRIPTION.' + key;

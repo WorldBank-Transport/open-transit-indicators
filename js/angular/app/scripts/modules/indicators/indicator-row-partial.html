@@ -1,0 +1,21 @@
+
+    <div class="indicators-row">
+        <div class="indicators-cell indicators-label">
+            <h3>{{ types[indicator] }}</h3>
+            <p>{{ getIndicatorDescriptionTranslationKey(indicator) | translate }}</p>
+        </div>
+        <div ng-repeat="(cityname, citydata) in data" class="indicators-cell">
+            <div ng-if="citydata.mode && citydata.mode.length > 0">
+                <span class="h4">By Mode:</span>
+                <nvd3-pie-chart
+                    data="citydata.mode" id="{{ type }}-{{ cityname }}-mode-pie-chart" height="170"
+                    margin="{left:0,top:10,bottom:0,right:0}"
+                    x="modeXFunction()" y="yFunction()"
+                    tooltips="true" showLabels="true" labelType="percent">
+                    <svg></svg>
+                </nvd3-pie-chart>
+            </div>
+            <span ng-if="citydata.system && citydata.system.length > 0">{{ citydata.system[0].formatted_value }}</span>
+            <span ng-if="!(citydata.system && citydata.system.length > 0)">No System-wide Data</span>
+        </div>
+    </div>
