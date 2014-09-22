@@ -330,7 +330,7 @@ class Indicator(models.Model):
                               HOURS_SERVICE,
                               STOPS_ROUTE_LENGTH,
                               DISTANCE_STOPS,
-                              SERVICE_FREQ_WEIGHTED, # TODO: is this headway between stops?
+                              TIME_TRAVELED_STOPS,
                               WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
