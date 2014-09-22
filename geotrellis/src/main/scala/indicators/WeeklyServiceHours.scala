@@ -82,7 +82,7 @@ class WeeklyServiceHours(val gtfsData: GtfsData, val calcParams: CalcParams,
     println("in calcByMode for WeeklyServiceHours")
     calcByRoute(period).toList
       .groupBy(kv => routeByID(kv._1).route_type.id)
-      .map { case (key, value) => key -> listMax(value.map(_._2).toList) }
+      .map { case (key, value) => key -> value.map(_._2).toList.max }
   }
   
   def calcBySystem(period: SamplePeriod): Double = {
