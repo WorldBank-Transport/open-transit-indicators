@@ -122,6 +122,12 @@ angular.module('transitIndicators')
         }
     };
 
+    $scope.displayIndicator = function (type, aggregation) {
+        var config = $scope.indicatorConfig;
+        var display = !!(config && config[type] && config[type][aggregation]);
+        return display;
+    };
+
     $scope.getModePartialForIndicator = function (type) {
         var config = $scope.indicatorConfig;
         var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
