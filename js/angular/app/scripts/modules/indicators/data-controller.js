@@ -42,6 +42,9 @@ angular.module('transitIndicators')
                 return function (data) {
                     return data.value;
                 };
+            },
+            forceYFunction: function (type, aggregation) {
+                return Math.ceil($scope.indicatorData[type][aggregation].max);
             }
         }
     };
@@ -56,11 +59,17 @@ angular.module('transitIndicators')
 
 {
     "<type>": {
-        "<city_name>": {
-            "<aggregation>": [{
-                key: '<aggregation>',
-                values: [OTIIndicatorService.Indicator]
-            }]
+        "<aggregation>": {
+            max: <number>,
+            min: <number>
+        },
+        "cities": {
+            "<city_name>": {
+                "<aggregation>": [{
+                    key: '<aggregation>',
+                    values: [OTIIndicatorService.Indicator]
+                }]
+            }
         }
     }
 }
@@ -72,9 +81,13 @@ angular.module('transitIndicators')
         var transformed = {};
         _.each(data, function (indicator) {
             if (!transformed[indicator.type]) {
-                transformed[indicator.type] = {};
+                transformed[indicator.type] = {
+                    cities: {}
+                };
             }
-            if (!transformed[indicator.type][indicator.city_name]) {
+
+            // Calculate max/min for each indicator type
+            if (!transformed[indicator.type].cities[indicator.city_name]) {
                 var indicatorCities = {};
                 // The cities must be set in this object, even if there is no data for that indicator,
                 //  so that we can loop them in the template. If we loop in the template via
@@ -83,15 +96,33 @@ angular.module('transitIndicators')
                 _.each(cities, function (city) {
                     indicatorCities[city] = {};
                 });
-                transformed[indicator.type] = indicatorCities;
+                transformed[indicator.type].cities = indicatorCities;
             }
-            if (!transformed[indicator.type][indicator.city_name][indicator.aggregation]) {
-                transformed[indicator.type][indicator.city_name][indicator.aggregation] = [{
+
+            // Set the indicator into it's proper location
+            if (!transformed[indicator.type].cities[indicator.city_name][indicator.aggregation]) {
+                transformed[indicator.type].cities[indicator.city_name][indicator.aggregation] = [{
                     key: indicator.aggregation,
                     values: []
                 }];
             }
-            transformed[indicator.type][indicator.city_name][indicator.aggregation][0].values.push(indicator);
+            transformed[indicator.type].cities[indicator.city_name][indicator.aggregation][0].values.push(indicator);
+
+            // Calculate min/max values of indicator type/aggregation so that
+            //  we can properly scale the graphs
+            if (!transformed[indicator.type][indicator.aggregation]) {
+                transformed[indicator.type][indicator.aggregation] = {
+                    max: Number.NEGATIVE_INFINITY,
+                    min: Number.POSITIVE_INFINITY
+                };
+            }
+            var minmax = transformed[indicator.type][indicator.aggregation];
+            if (indicator.value > minmax.max) {
+                minmax.max = indicator.value;
+            }
+            if (indicator.value < minmax.min) {
+                minmax.min = indicator.value;
+            }
         });
         return transformed;
     };

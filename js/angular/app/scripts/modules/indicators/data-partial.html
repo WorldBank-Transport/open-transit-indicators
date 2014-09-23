@@ -17,7 +17,7 @@
             <h3>{{ types[type] }}</h3>
             <p>{{ getIndicatorDescriptionTranslationKey(type) | translate }}</p>
         </div>
-        <div ng-repeat="(cityname, citydata) in indicator"
+        <div ng-repeat="(cityname, citydata) in indicator.cities"
              ng-init="systemData = citydata.system[0].values"
              class="indicators-cell">
             <div ng-if="displayIndicator(type, 'mode')">
