@@ -3,7 +3,10 @@
     "NAV": {
         "APP": "!Open Transit Tools",
         "LOGOUT": "!Logout",
-        "SETTINGS": "!Settings"
+        "SETTINGS": "!Settings",
+        "TRANSITMAP": "!Transit Map",
+        "SCENARIO": "!Scenario",
+        "INDICATORS": "!Indicators"
     },
     "STATUS": {
         "CANCELLED": "!Cancelled",
@@ -23,6 +26,7 @@
         "RETRY": "!Retry"
     },
     "TERM": {
+        "LANGUAGE": "!Language",
         "INDICATOR": "!Indicator",
         "LOGIN": "!Login",
         "USERNAME": "!Username",
