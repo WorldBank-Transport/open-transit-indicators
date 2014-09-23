@@ -146,10 +146,6 @@ angular.module('transitIndicators').constant('config', {
 
     gtfsRouteTypeColors: gtfsRouteTypeColors,
 
-    windshaft: {
-        port: 8067
-    },
-
     settingsViews: [
         {
             id: 'overview'

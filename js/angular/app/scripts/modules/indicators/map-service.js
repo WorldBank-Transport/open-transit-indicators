@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsMapService',
-        ['$q', '$http', '$resource', '$location', 'config',
-        function ($q, $http, $resource, $location, config) {
+        ['$q', '$http', '$resource', '$location', 'windshaftConfig',
+        function ($q, $http, $resource, $location, windshaftConfig) {
 
     var otiMapService = {};
 
@@ -68,13 +68,13 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Return windshaft hostname, including port, if configured in config.windshaft.port
+     * Return windshaft hostname, including port, if configured in windshaftConfig.port
      * @return String hostname
      */
     otiMapService.getWindshaftHost = function () {
         var windshaftHost = $location.protocol() + '://' + $location.host();
-        if (config.windshaft && config.windshaft.port) {
-            windshaftHost += ':' + config.windshaft.port;
+        if (windshaftConfig && windshaftConfig.port) {
+            windshaftHost += ':' + windshaftConfig.port;
         }
         return windshaftHost;
     };
