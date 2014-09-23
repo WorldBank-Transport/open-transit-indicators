@@ -25,6 +25,17 @@ module.exports = function (grunt) {
       dist: 'dist'
     },
 
+    translate_sync: {
+        options: {
+            keepKeyOrder: true,
+            indent: 4
+        },
+        data: {
+            source: 'app/i18n/en.json',
+            targets: ['app/i18n/es.json', 'app/i18n/vi.json', 'app/i18n/zh.json']
+        }
+    },
+
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       bower: {
