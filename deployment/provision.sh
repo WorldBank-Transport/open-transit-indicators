@@ -62,6 +62,7 @@ ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 LOG_ROOT="$PROJECT_ROOT/logs"
 WEB_USER='vagrant' # User under which web service runs.
+WEB_PORT='8067'
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
@@ -106,7 +107,6 @@ case "$INSTALL_TYPE" in
         WEB_USER='vagrant' # User under which web service runs.
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
-        WEB_PORT='8067'
         ;;
     "production")
         echo "Selecting production installation"
