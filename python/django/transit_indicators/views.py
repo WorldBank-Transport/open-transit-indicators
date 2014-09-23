@@ -115,7 +115,8 @@ class IndicatorViewSet(OTIAdminViewSet):
         if source_file:
             city_name = request.DATA.pop('city_name', None)
             ## Moving city_name to IndicatorJob causes this to serialize to a list
-            city_name = city_name.pop(0)
+            if city_name and type(city_name) is list:
+                city_name = city_name.pop(0)
             load_status = Indicator.load(source_file, city_name, request.user)
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)

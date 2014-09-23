@@ -17,15 +17,13 @@
             <h3>{{ types[type] }}</h3>
             <p>{{ getIndicatorDescriptionTranslationKey(type) | translate }}</p>
         </div>
-        <div ng-repeat="(cityname, citydata) in indicator"
+        <div ng-repeat="(cityname, citydata) in indicator.cities"
              ng-init="systemData = citydata.system[0].values"
              class="indicators-cell">
-            <div ng-if="citydata.mode && citydata.mode.length > 0">
-                <span class="h4">By Mode:</span>
+            <div ng-if="displayIndicator(type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="systemData && systemData.length > 0">{{ systemData[0].formatted_value }}</span>
-            <span ng-if="!(citydata.system && citydata.system.length > 0)">No System-wide Data</span>
+            <span ng-if="displayIndicator(type, 'system')">{{ systemData[0].formatted_value || "No Data Available" }}</span>
         </div>
     </div>
 </div>
