@@ -92,3 +92,4 @@ tags
 .tags
 
 /deployment/packer/open-transit-vars.json
+/js/angular/app/scripts/windshaft-config.js

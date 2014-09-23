@@ -62,6 +62,7 @@ ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 LOG_ROOT="$PROJECT_ROOT/logs"
 WEB_USER='vagrant' # User under which web service runs.
+WEB_PORT='8067'
 
 DB_NAME="transit_indicators"
 DB_PASS=$DB_NAME
@@ -114,6 +115,7 @@ case "$INSTALL_TYPE" in
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS=""
         WEB_USER='ubuntu'
+        WEB_PORT='80'
         ;;
     "travis")
         echo "Selecting CI installation"
@@ -431,6 +433,16 @@ echo "Finished setting up celery and background processes started"
 # Angular setup         #
 #########################
 echo 'Setting up angular'
+
+angular_windshaft_conf_path="$ANGULAR_STATIC/scripts/windshaft-config.js"
+angular_windshaft_conf="
+// This file created by provision.sh, and will be overwritten if reprovisioned.
+angular.module('transitIndicators').constant('windshaftConfig', {
+    port: $WEB_PORT
+});
+"
+echo "$angular_windshaft_conf" > "$angular_windshaft_conf_path"
+
 if [ "$INSTALL_TYPE" != "travis" ]; then
     mkdir -p /home/$WEB_USER/.npm
     pushd "$ANGULAR_ROOT"
