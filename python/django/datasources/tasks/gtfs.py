@@ -159,6 +159,8 @@ def send_to_geotrellis(gtfs_file):
 
     zip_file = zipfile.ZipFile(gtfs_file)
     for name in zip_file.namelist():
+        if '/' in name: # the __MACOSX directory breaks the import
+            continue    # but there shouldn't be any directories anyway.
         outfile = open(os.path.join(zip_dir, name), 'wb')
         outfile.write(zip_file.read(name))
         outfile.close()
