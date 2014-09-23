@@ -394,7 +394,7 @@ echo ''
 echo "Setting up celery upstart services"
 
 celery_datasources_conf="
-start on runlevel [2345]
+start on (filesystem or (vagrant-mounted or cloud-final))
 stop on runlevel [!2345]
 
 kill timeout 30
@@ -409,7 +409,7 @@ echo "$celery_datasources_conf" > "$celery_datasources_conf_file"
 
 # indicators
 celery_indicators_conf="
-start on runlevel [2345]
+start on (filesystem or (vagrant-mounted or cloud-final))
 stop on runlevel [!2345]
 
 kill timeout 30
@@ -472,7 +472,7 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     windshaft_upstart="
     description 'Start the Windshaft server'
 
-    start on runlevel [2345]
+    start on (filesystem or (vagrant-mounted or cloud-final))
     stop on runlevel [!2345]
 
     script
@@ -544,7 +544,7 @@ pushd $GEOTRELLIS_ROOT/src/main/resources/
     echo "$gt_application_conf" > application.conf
 popd
 
-geotrellis_conf="start on runlevel [2345]
+geotrellis_conf="start on (filesystem or (vagrant-mounted or cloud-final))
 stop on runlevel [!2345]
 
 kill timeout 30
@@ -569,7 +569,7 @@ echo "Geotrellis service now running"
 #########################
 echo ''
 echo 'Copying gunicorn upstart script'
-gunicorn_conf="start on runlevel [2345]
+gunicorn_conf="start on (filesystem or (vagrant-mounted or cloud-final))
 stop on runlevel [!2345]
 
 kill timeout 30
