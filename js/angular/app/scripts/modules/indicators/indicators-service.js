@@ -70,7 +70,7 @@ angular.module('transitIndicators')
     otiIndicatorsService.getCities = function () {
         var dfd = $q.defer();
         $http.get('/api/indicator-cities/').success(function (data) {
-            dfd.resolve(data);
+            dfd.resolve(data.sort());
         }).error(function(error) {
             console.error('OTIIndicatorsService.getCities:', error);
             dfd.resolve([]);
