@@ -10,38 +10,21 @@
         <div ng-repeat="cityname in cities" class="indicators-cell">{{ cityname }}</div>
     </div>
 </div>
-<div ng-repeat="(type, indicator) in indicatorData" class="indicators-table">
+<div ng-repeat="(type, indicator) in indicatorData"
+     class="indicators-table">
     <div class="indicators-row">
         <div class="indicators-cell indicators-label">
             <h3>{{ types[type] }}</h3>
             <p>{{ getIndicatorDescriptionTranslationKey(type) | translate }}</p>
         </div>
-        <div ng-repeat="(cityname, citydata) in indicator" class="indicators-cell">
-            <!-- TODO: Remove route aggregation after demo, we don't need it for this page -->
-            <div ng-if="citydata.route && citydata.route.length > 0">
-                <span class="h4">By Route:</span>
-                <nvd3-pie-chart
-                    data="citydata.route" id="{{ type }}-{{ $index }}-route-pie-chart" height="170"
-                    margin="{left:0,top:10,bottom:0,right:0}"
-                    x="routeXFunction()" y="yFunction()"
-                    tooltips="true" showLabels="true" labelType="percent">
-                    <svg></svg>
-                </nvd3-pie-chart>
-            </div>
-            <div ng-if="citydata.mode && citydata.mode.length > 1">
+        <div ng-repeat="(cityname, citydata) in indicator"
+             ng-init="systemData = citydata.system[0].values"
+             class="indicators-cell">
+            <div ng-if="citydata.mode && citydata.mode.length > 0">
                 <span class="h4">By Mode:</span>
-                <nvd3-pie-chart
-                    data="citydata.mode" id="{{ type }}-{{ cityname }}-mode-pie-chart" height="170"
-                    margin="{left:0,top:10,bottom:0,right:0}"
-                    x="modeXFunction()" y="yFunction()"
-                    tooltips="true" showLabels="true" labelType="percent">
-                    <svg></svg>
-                </nvd3-pie-chart>
+                <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <div ng-if="citydata.mode && citydata.mode.length === 1">
-                <span class="h4">By Mode: {{ citydata.mode[0].route_type }} - {{ citydata.mode[0].formatted_value }}</span>
-            </div>
-            <span ng-if="citydata.system && citydata.system.length > 0">{{ citydata.system[0].formatted_value }}</span>
+            <span ng-if="systemData && systemData.length > 0">{{ systemData[0].formatted_value }}</span>
             <span ng-if="!(citydata.system && citydata.system.length > 0)">No System-wide Data</span>
         </div>
     </div>

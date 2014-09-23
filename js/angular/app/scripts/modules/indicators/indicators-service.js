@@ -86,7 +86,7 @@ angular.module('transitIndicators')
     otiIndicatorsService.getIndicatorVersion = function (callback) {
         $http.get('/api/indicator-version/').success(function (data) {
             var version = nullVersion;
-            if (data && data.current_versions) {
+            if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
                 console.log(data);
                 console.log(selfCityName);
                 version = _.findWhere(data.current_versions, {version__city_name: selfCityName}).version || nullVersion;
