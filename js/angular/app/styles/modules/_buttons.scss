@@ -31,7 +31,8 @@
     }
 
     &.active {
-      color: $primary-color;
+      color: #000;
+      font-weight: bold;
     }
 
     &.inactive {
