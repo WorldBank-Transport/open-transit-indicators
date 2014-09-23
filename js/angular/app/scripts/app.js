@@ -101,7 +101,7 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
-}]).config(['$translateProvider', function($translateProvider) {
+}]).config(['$translateProvider', 'config', function($translateProvider, config) {
     $translateProvider.useStaticFilesLoader({
        prefix: 'i18n/',
        suffix: '.json'
@@ -118,7 +118,7 @@ angular.module('transitIndicators', [
     * lha -> Laha (Viet Nam)
     * nut -> Nung (Viet Nam)
     */
-    var languageUsing = (_.contains(['en', 'zh', 'vi', 'es', 'zu'], languageActual) ? languageActual : 'en');
+    var languageUsing = (_.contains(_.values(config.languages), languageActual) ? languageActual : config.defaultLanguage);
     $translateProvider.preferredLanguage(languageUsing);
     $translateProvider.fallbackLanguage('en');
 }]).config(['$logProvider', function($logProvider) {
@@ -167,4 +167,3 @@ angular.module('transitIndicators', [
             $rootScope.$broadcast(OTIEvents.Auth.LoggedIn);
         }
 }]);
-
