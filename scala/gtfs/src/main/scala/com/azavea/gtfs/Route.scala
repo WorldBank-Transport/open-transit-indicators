@@ -12,7 +12,7 @@ trait Route {
   def textColor: Option[String]
 
   def routeType: RouteType
-  def agency: Option[Agency]
+  def agency: Agency
 
   def trips: Seq[Trip]
 }
@@ -30,7 +30,7 @@ object Route {
       def textColor = record.textColor
 
       def routeType = record.routeType
-      def agency = record.agencyId.map(agencies(_))
+      val agency = agencies(record.agencyId)
 
       def trips = t
     }

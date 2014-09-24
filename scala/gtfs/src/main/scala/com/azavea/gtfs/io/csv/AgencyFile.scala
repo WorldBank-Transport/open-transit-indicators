@@ -15,7 +15,7 @@ object AgencyFile extends GtfsFile[Agency] {
     for (s <- CsvParser.fromPath(path)) {
       agencies +=
       Agency(
-        id = s("agency_id").get.intern,
+        id = s("agency_id").getOrElse("").intern,
         name = s("agency_name").get,
         url = s("agency_url").get,
         timezone = s("agency_timezone").get,
