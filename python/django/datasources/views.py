@@ -22,6 +22,7 @@ class GTFSFeedViewSet(OTIAdminViewSet):
     """View set for dealing with GTFS Feeds."""
     model = GTFSFeed
     serializer_class = GTFSFeedSerializer
+    filter_fields = ('status', 'city_name',)
 
     def create(self, request):
         """Override create method to call validation task with celery"""
@@ -35,9 +36,10 @@ class GTFSFeedViewSet(OTIAdminViewSet):
         response = super(GTFSFeedViewSet, self).update(request, pk)
 
         # Reset processing status since GTFS needs revalidation
-        self.object.is_processed = False
+        pending = GTFSFeed.Statuses.PENDING
+        self.object.status = pending
         self.object.save()
-        response.data['is_processed'] = False
+        response.data['status'] = pending
 
         # Delete existing problems since it will be revalidated
         self.obj.gtfsfeedproblem_set.all().delete()
@@ -63,8 +65,6 @@ class RealTimeViewSet(OTIAdminViewSet):
         """ Override create to load realtime data via geotrellis """
         response = super(RealTimeViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            self.object.is_valid = True
-            self.object.save()
             import_real_time_data.apply_async(args=[self.object.id], queue='datasources')
         return response
 
@@ -92,9 +92,10 @@ class OSMDataViewSet(OTIAdminViewSet):
         response = super(OSMDataViewSet, self).update(request, pk)
 
         # Reset processing status since osm needs reimportation
-        self.object.is_processed = False
+        status = OSMData.Statuses.PENDING
+        self.object.status = status
         self.object.save()
-        response.data['is_processed'] = False
+        response.data['status'] = status
 
         # Delete existing problems since it will be revalidated
         self.obj.osmdataproblem_set.all().delete()
@@ -133,7 +134,7 @@ class DemographicDataSourceViewSet(OTIAdminViewSet):
     A POST to this view with a Shapefile will kick off a Celery job to grab the
     data fields from the Shapefile, and validates the Shapefile in the process.
 
-    Once the associated DataSource has is_processed == True and is_valid == True,
+    Once the associated DataSource has status == WAITING_USER_INPUT
     the DataSource's 'fields' field will contain a list of strings representing the
     data fields available in the shapefile.
 
@@ -169,7 +170,7 @@ class DemographicDataSourceViewSet(OTIAdminViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.object.save()
-            demog_data.is_loaded = False
+            demog_data.status = DemographicDataSource.Statuses.PENDING
             demog_data.save()
             load_shapefile_data.apply_async(args=[demog_data.id,
                                                   serializer.data.get('pop_metric_1_field', None),

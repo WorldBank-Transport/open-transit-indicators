@@ -19,9 +19,35 @@ class DataSource(models.Model):
 
 class FileDataSource(DataSource):
     """DataSource with a source_file field and processing statuses."""
+
+    class Statuses(object):
+        PENDING = 'pending'
+        UPLOADING = 'uploading'
+        UPLOADED = 'uploaded'
+        PROCESSING = 'processing'
+        DOWNLOADING = 'downloading'
+        WAITING_USER_INPUT = 'waiting_input'
+        VALIDATING = 'validating'
+        IMPORTING = 'importing'
+        COMPLETE = 'complete'
+        WARNING = 'warning'
+        ERROR = 'error'
+        CHOICES = (
+            (PENDING, _(u'Pending')),
+            (UPLOADING, _(u'Uploading')),
+            (UPLOADED, _(u'Uploaded')),
+            (PROCESSING, _(u'Processing')),
+            (DOWNLOADING, _(u'Downloading')),
+            (WAITING_USER_INPUT, _(u'Waiting for User Input')),
+            (VALIDATING, _(u'Validating')),
+            (COMPLETE, _(u'Complete')),
+            (WARNING, _(u'Warning')),
+            (ERROR, _(u'Error')),
+        )
+
     source_file = models.FileField()
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
+    status = models.CharField(max_length=16, default=Statuses.PENDING,
+                              choices=Statuses.CHOICES)
 
     class Meta(object):
         abstract = True
@@ -49,7 +75,16 @@ class DataSourceProblem(models.Model):
 
 
 class GTFSFeed(FileDataSource):
-    """Represents a GTFS Feed (a zip file)."""
+    """Represents a GTFS Feed (a zip file).
+
+    Uses the statuses:
+        PENDING: Waiting for job to be taken
+        VALIDATING: Validating gtfs feed zip file via the python gtfs validator
+        PROCESSING: Loading the gtfs data (if valid) into the local database
+        COMPLETE: GTFS data successfully validated and loaded into the local database
+        ERROR: An error occurred during processing. Check related instances
+               of the GTFSFeedProblem endpoint
+    """
 
 
 class GTFSFeedProblem(DataSourceProblem):
@@ -58,21 +93,33 @@ class GTFSFeedProblem(DataSourceProblem):
 
 
 class Boundary(FileDataSource):
-    """A boundary, used for denoting cities and regions. Created from a Shapefile."""
+    """A boundary, used for denoting cities and regions. Created from a Shapefile.
+
+    Uses the statuses:
+        PENDING: Waiting for job to be taken
+        IMPORTING: Processing and loading the shapefile into the database
+        COMPLETE: Boundary shapefile successfully loaded
+        ERROR: Error during processing. Check related instances of BoundaryProblem
+
+    """
     # Since we can't determine the SRID at runtime, Django will store
     # everything in WebMercator; indicator calculations will need to
     # use a transformed version or their calculations will be inaccurate.
     geom = models.MultiPolygonField(srid=settings.DJANGO_SRID, blank=True, null=True)
 
 
-class OSMData(DataSource):
-    """Represents OSM Import"""
-    source_file = models.FileField(null=True, blank=True)
+class OSMData(FileDataSource):
+    """Represents OSM Import
+
+    Uses the statuses:
+        PENDING: Waiting for the job to be taken
+        PROCESSING: Calculating the bbox to download data for
+        DOWNLOADING: Downloading applicable open street map data
+        IMPORTING: Importing downloaded data into the local db
+        COMPLETE: Import done
+        ERROR: An error occurred during processing. Check related OSMDataProblem endpoint
+    """
     gtfsfeed = models.ForeignKey(GTFSFeed)
-    is_downloaded = models.BooleanField(default=False)
-    source_file = models.FileField()
-    is_valid = models.NullBooleanField()
-    is_processed = models.BooleanField(default=False)
 
 
 class OSMDataProblem(DataSourceProblem):
@@ -85,6 +132,12 @@ class RealTime(FileDataSource):
 
     File must be generated via Mike Smith's Stop Times software
     Loads data to gtfs_realtime.RealStopTime via celery
+
+    Uses the statuses:
+        PENDING: Waiting for job to be taken
+        IMPORTING: Importing the stop times into the local database
+        COMPLETE: Stop times successfully loaded
+        ERROR: Error during processing. Check related instances of RealTimeProblem
 
     """
 
@@ -100,15 +153,26 @@ class BoundaryProblem(DataSourceProblem):
 
 
 class DemographicDataSource(FileDataSource):
-    """Stores a shapefile containing demographic data; actual data is in DemographicDataFeature."""
+    """Stores a shapefile containing demographic data; actual data is in DemographicDataFeature.
+
+    Uses the statuses:
+        PENDING: Waiting for a job to be taken, either the initial user selections or
+                 the data load after the user selects appropriate fields
+        PROCESSING: Extracting the valid fields from the uploaded demographic shapefile
+        WAITING_USER_INPUT: Fields extracted, waiting for user to select fields
+                            The DemographicDataSource object also reverts to this status
+                            if there was an error processing the user's field selections.
+                            Check the related DemographicDataSourceProblem objects
+        IMPORTING: Importing data from the user-selected demographic fields in the uploaded
+                   shapefile
+        COMPLETE: Demographic data from the shapefile loaded into local database
+        ERROR: Error during PROCESING step
+
+    """
     # Number of features detected in the shapefile associated with this model.
     # Lets us know if we were able to create all the DemographicDataFeatures
     # correctly.
     num_features = models.PositiveIntegerField(blank=True, null=True)
-
-    # Whether the task to finish loading the datasource into
-    # DemographicDataFeatures has finished.
-    is_loaded = models.BooleanField(default=False)
 
 
 class DemographicDataSourceProblem(DataSourceProblem):

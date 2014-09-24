@@ -77,8 +77,8 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
     class Meta:
         model = GTFSFeed
         problem_model = GTFSFeedProblem
-        read_only_fields = ('is_valid', 'is_processed')
-        ordering = ('-id',)
+        read_only_fields = ('status',)
+        ordering = ('-last_modify_date',)
 
 
 class RealTimeSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
