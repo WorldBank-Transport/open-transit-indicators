@@ -2,7 +2,7 @@ package geotrellis.transit
 
 import geotrellis.transit._
 import geotrellis.transit.loader.GraphFileSet
-import geotrellis.transit.loader.gtfs.GtfsFiles
+import geotrellis.transit.loader.gtfs.{GtfsDateFiles}
 import geotrellis.transit.loader.osm.OsmFileSet
 
 import geotrellis.network._
@@ -11,6 +11,7 @@ import geotrellis.network.graph._
 import com.typesafe.config.{ConfigFactory, 
                             Config,
                             ConfigException}
+import org.joda.time.LocalDate
 
 import scala.collection.mutable
 import scala.collection.JavaConversions._
@@ -90,7 +91,7 @@ object LoaderConfiguration {
               gtfsJson.getString("path")
             } else { sys.error("Configuration error: Gtfs file loader entry needs a 'path' field.") }
 
-          fileSets += GtfsFiles(name,dataPath)
+          fileSets += GtfsDateFiles(name,dataPath, new LocalDate(2013, 02 , 17))
         }
       }
     } catch {

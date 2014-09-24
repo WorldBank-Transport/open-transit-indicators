@@ -4,7 +4,7 @@ import geotrellis.transit._
 import geotrellis.network._
 import geotrellis.network.graph._
 
-import geotrellis.transit.loader.gtfs.GtfsFiles
+import geotrellis.transit.loader.gtfs.{GtfsDateFiles}
 import geotrellis.transit.loader.osm.OsmFileSet
 
 import scala.collection.mutable
@@ -132,7 +132,7 @@ object Loader {
     val transitGraphs = 
       (for(fs <- fileSets) yield {
         fs match {
-          case GtfsFiles(name, dataPath) => 
+          case GtfsDateFiles(name, dataPath, date) =>
             Some((name, List(
               graph.edgeCount(ScheduledTransit(name, WeekDaySchedule)),
               graph.edgeCount(ScheduledTransit(name, DaySchedule(Saturday))),
