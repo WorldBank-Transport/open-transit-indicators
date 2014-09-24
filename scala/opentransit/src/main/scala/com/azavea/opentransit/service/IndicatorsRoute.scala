@@ -1,8 +1,8 @@
 package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.indicators.{ CalculateIndicators, IndicatorCalculationRequest }
-import com.azavea.opentransit.DjangoAdapter._
+import com.azavea.opentransit.json._
+import com.azavea.opentransit.indicators.{ CalculateIndicators, SamplePeriod }
 
 import com.azavea.gtfs._
 
@@ -29,25 +29,28 @@ import spray.httpx.SprayJsonSupport
 import SprayJsonSupport._
 import DefaultJsonProtocol._
 
-import org.joda.time.format.ISODateTimeFormat
 import com.typesafe.config.{ConfigFactory, Config}
 
-trait GtfsDatabase {
-  val db: DatabaseDef
-}
+// Calculation request parameters
+case class IndicatorCalculationRequest(
+  token: String,
+  version: String,
+  povertyLine: Double,
+  nearbyBufferDistance: Double,
+  maxCommuteTime: Int,
+  maxWalkTime: Int,
+  cityBoundaryId: Int,
+  regionBoundaryId: Int,
+  averageFare: Double,
+  samplePeriods: List[SamplePeriod]
+)
 
-trait ProductionGtfsDatabase extends GtfsDatabase {
-  val db = {
-    val config = ConfigFactory.load
-    val dbName = config.getString("database.name")
-    val dbUser = config.getString("database.user")
-    val dbPassword = config.getString("database.password")
-    Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
-      user = dbUser, password = dbPassword)
-  }
-}
+case class IndicatorJob(
+  version: String = "",
+  status: String = "processing"
+)
 
-trait IndicatorsRoute extends Route { self: GtfsDatabase =>
+trait IndicatorsRoute extends Route { self: DatabaseInstance =>
   val config = ConfigFactory.load
   val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
@@ -57,52 +60,26 @@ trait IndicatorsRoute extends Route { self: GtfsDatabase =>
   //   in a table, and calculations will be run one (or more) at a time
   //   in the background via an Actor.
   def indicatorsRoute = {
-    // need the implicits we defined for custom JSON parsing
-    import JsonImplicits._
-
     pathPrefix("gt") {
       path("indicators") {
         post {
           entity(as[IndicatorCalculationRequest]) { request =>
             complete {
               try {
-
-                // def gtfsData(): GtfsData = {
-                //   val config = ConfigFactory.load
-                //   val dbGeomNameUtm = config.getString("database.geom-name-utm")
-
-                //   db withSession { implicit session =>
-                //     val dao = new DAO()
-                //     // data is read from the db as the reprojected UTM projection
-                //     dao.geomColumnName = dbGeomNameUtm
-                //     dao.toGtfsData
-                //   }
-                // }
-
                 TaskQueue.execute {
-//                  println("Going to start calculating things now...")
-//                  println("Loading GTFS data...")
-//                  val data = gtfsData()
-//                  println("Calculating indicators...")
-
                   // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
                   val gtfsRecords =
                     db withSession { implicit session =>
                       GtfsRecords.fromDatabase(dbGeomNameUtm)
                     }
 
-                  CalculateIndicators(request.sample_periods, gtfsRecords) { containerGenerators =>
+                  CalculateIndicators(request.samplePeriods, gtfsRecords) { containerGenerators =>
                     val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                    djangoClient.postIndicators(request.token, indicatorResultContainers)
+                    DjangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
-//                  println("Indicators calcuated; going to call storeIndicators...")
-//                  calc.storeIndicators
-                  // Update indicator-job status
 
-                  djangoClient.updateIndicatorJob(request.token, IndicatorJob(version=request.version, job_status="complete"))
+                  DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
                 }
-
-                println("Have started calculating things!")
 
                 // return a 201 created
                 Created -> JsObject(

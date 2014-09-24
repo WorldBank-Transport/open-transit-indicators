@@ -66,6 +66,15 @@ object Build extends Build {
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
         scalaVersion := "2.10.3",
+        scalacOptions ++=
+          Seq("-deprecation",
+            "-unchecked",
+            "-Yinline-warnings",
+            "-language:implicitConversions",
+            "-language:reflectiveCalls",
+            "-language:postfixOps",
+            "-language:existentials",
+            "-feature"),
         libraryDependencies ++= Seq(
           "io.spray" % "spray-routing" % "1.2.0",
           "io.spray" % "spray-can" % "1.2.0",

@@ -11,7 +11,7 @@ import DefaultJsonProtocol._
 
 import scala.concurrent._
 
-trait IngestRoute extends Route { self: GtfsDatabase =>
+trait IngestRoute extends Route { self: DatabaseInstance =>
   implicit val dispatcher: ExecutionContext
 
   // Endpoint for uploading a GTFS file

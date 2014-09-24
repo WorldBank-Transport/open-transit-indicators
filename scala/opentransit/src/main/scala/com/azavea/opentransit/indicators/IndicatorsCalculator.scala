@@ -1,9 +1,6 @@
 package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
-import com.azavea.opentransit.DjangoAdapter._
-
-import scala.slick.jdbc.JdbcBackend.{DatabaseDef}
 
 // Handles creating all indicator calculators and storing results
 // class IndicatorsCalculator(val data: GtfsData, val request: IndicatorCalculationRequest, db: DatabaseDef) {

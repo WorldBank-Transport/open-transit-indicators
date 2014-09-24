@@ -16,103 +16,113 @@ object IndicatorResultContainer {
     ship the indicator result to the Django service
     that saves off indicators. */
 case class IndicatorResultContainer(
-  `type`: String,
-  sample_period: String,
-  aggregation: String = "",
-  route_id: String = "",
-  route_type: Int = 0,
-  city_bounded: Boolean = false,
-  version: String = "",
-  value: Double = 0,
-  the_geom: String = ""
+  indicatorId: String,
+  samplePeriodType: String,
+  aggregation: Aggregate,
+  value: Double,
+  geom: Geometry,
+  version: String,
+  routeId: String = "",
+  routeType: Option[RouteType] = None,
+  cityBounded: Boolean = false
 )
 
-trait IndicatorContainerGenerator {
+trait ContainerGenerator {
   def toContainer(version: String): IndicatorResultContainer 
 }
 
+object PeriodIndicatorResult { 
+  def apply(indicatorId: String, period: SamplePeriod, value: Double): PeriodIndicatorResult =
+    new PeriodIndicatorResult(indicatorId, period, value)
+}
+
 class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Double) {
-  def forRoute(route: Route, line: Line) =
-    new IndicatorContainerGenerator {
+  def forRoute(route: Route, ml: MultiLine) =
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type`= indicatorId,
-          sample_period = period.`type`,
-          aggregation=IndicatorResultContainer.ROUTE_KEY,
-          route_id = route.id,
-          value = value,
-          version = version,
-          the_geom = line.toGeoJson
+          indicatorId,
+          period.periodType,
+          RouteAggregate,
+          value,
+          ml,
+          version,
+          routeId = route.id
         )
     }
 
   def forRouteType(routeType: RouteType, ml: MultiLine) =
-    new IndicatorContainerGenerator {
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type`= indicatorId,
-          sample_period = period.`type`,
-          aggregation=IndicatorResultContainer.ROUTE_KEY,
-          route_type = routeType.id,
-          value = value,
-          version = version,
-          the_geom = ml.toGeoJson
+          indicatorId,
+          period.periodType,
+          RouteTypeAggregate,
+          value,
+          ml,
+          version,
+          routeType = Some(routeType)
         )
     }
 
   def forSystem(ml: MultiLine) = 
-    new IndicatorContainerGenerator {
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type` = indicatorId,
-          sample_period = period.`type`,
-          aggregation = IndicatorResultContainer.SYSTEM_KEY,
-          version = version,
-          value = value,
-          the_geom = ml.toGeoJson
+          indicatorId,
+          period.periodType,
+          SystemAggregate,
+          value,
+          ml,
+          version = version
         )
     }
 }
 
+object OverallIndicatorResult { 
+  def apply(indicatorId: String, value: Double): OverallIndicatorResult =
+    new OverallIndicatorResult(indicatorId, value)
+}
+
 class OverallIndicatorResult(indicatorId: String, value: Double) {
-  def forRoute(route: Route, line: Line) =
-    new IndicatorContainerGenerator {
+  def forRoute(route: Route, ml: MultiLine) =
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type`= indicatorId,
-          sample_period = IndicatorResultContainer.OVERALL_KEY,
-          aggregation=IndicatorResultContainer.ROUTE_KEY,
-          route_id = route.id,
-          value = value,
-          version = version,
-          the_geom = line.toGeoJson
+          indicatorId,
+          IndicatorResultContainer.OVERALL_KEY,
+          RouteAggregate,
+          value,
+          ml,
+          version,
+          routeId = route.id
         )
     }
 
   def forRouteType(routeType: RouteType, ml: MultiLine) =
-    new IndicatorContainerGenerator {
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type`= indicatorId,
-          sample_period = IndicatorResultContainer.OVERALL_KEY,
-          aggregation=IndicatorResultContainer.ROUTE_KEY,
-          route_type = routeType.id,
-          value = value,
-          version = version,
-          the_geom = ml.toGeoJson
+          indicatorId,
+          IndicatorResultContainer.OVERALL_KEY,
+          RouteTypeAggregate,
+          value,
+          ml,
+          version,
+          routeType = Some(routeType)
         )
     }
 
   def forSystem(ml: MultiLine) = 
-    new IndicatorContainerGenerator {
+    new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
-          `type` = indicatorId,
-          sample_period = IndicatorResultContainer.OVERALL_KEY,
-          aggregation = IndicatorResultContainer.SYSTEM_KEY,
-          version = version,
-          value = value,
-          the_geom = ml.toGeoJson
+          indicatorId,
+          IndicatorResultContainer.OVERALL_KEY,
+          SystemAggregate,
+          value,
+          ml,
+          version
         )
     }
 }

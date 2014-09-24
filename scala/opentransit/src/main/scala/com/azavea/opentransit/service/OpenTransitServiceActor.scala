@@ -1,5 +1,7 @@
 package com.azavea.opentransit.service
 
+import com.azavea.opentransit._
+
 import akka.actor._
 import spray.util.LoggingContext
 import spray.routing.ExceptionHandler
@@ -15,7 +17,7 @@ class OpenTransitServiceActor extends Actor
                                  with IngestRoute 
                                  with IndicatorsRoute
                                  with MapInfoRoute
-                                 with ProductionGtfsDatabase {
+                                 with ProductionDatabaseInstance {
   // This is the execution context to use for this Actor
   implicit val dispatcher = context.dispatcher
 

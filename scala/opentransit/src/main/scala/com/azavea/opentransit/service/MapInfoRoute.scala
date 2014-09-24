@@ -1,5 +1,7 @@
 package com.azavea.opentransit.service
 
+import com.azavea.opentransit._
+
 import spray.routing.HttpService
 
 import spray.json._
@@ -11,7 +13,7 @@ import scala.slick.jdbc.JdbcBackend.Session
 
 import scala.concurrent._
 
-trait MapInfoRoute extends Route { self: GtfsDatabase =>
+trait MapInfoRoute extends Route { self: DatabaseInstance =>
   // For performing extent queries
   case class Extent(xmin: Double, xmax: Double, ymin: Double, ymax: Double)
   implicit val getExtentResult = GetResult(r => Extent(r.<<, r.<<, r.<<, r.<<))

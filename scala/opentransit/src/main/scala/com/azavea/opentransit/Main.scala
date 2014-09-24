@@ -7,10 +7,14 @@ import akka.io.IO
 import com.typesafe.config.{ConfigFactory,Config}
 import spray.can.Http
 
+
+
 object Main {
+  val actorSystem = ActorSystem("opentransit")
+
   def main(args: Array[String]) {
     // We need an ActorSystem to host our service
-    implicit val system = ActorSystem()
+    implicit val system = actorSystem
 
     // Create our service actor
     val service = system.actorOf(Props[OpenTransitServiceActor], "opentransit-service")
