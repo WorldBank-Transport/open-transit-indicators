@@ -70,7 +70,6 @@ angular.module('transitIndicators')
         };
         $scope.uploadProgress = -1;
         $scope.uploadError = null;
-        $scope.setSidebarCheckmark('demographic', false);
     };
 
     /*
@@ -131,10 +130,12 @@ angular.module('transitIndicators')
 
     $scope.$on('pollingUpload:uploadDelete', function () {
         clearUploadProblems();
+        $scope.setSidebarCheckmark('demographic', false);
     });
 
     $scope.$on('pollingUpload:uploadCancel', function () {
         clearUploadProblems();
+        $scope.setSidebarCheckmark('demographic', false);
     });
 
     $scope.$on('pollingUpload:processingError', function () {

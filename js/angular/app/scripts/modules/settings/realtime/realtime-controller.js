@@ -10,13 +10,14 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.setSidebarCheckmark('demographic', false);
     };
 
     var setUpload = function (upload) {
         $scope.uploadRealtime = upload;
         var valid = upload && !_.isEmpty(upload) ? true : false;
-        $scope.setSidebarCheckmark('realtime', valid);
+        if (upload !== null) {
+            $scope.setSidebarCheckmark('realtime', valid);
+        }
     };
 
     var viewProblems = function () {
@@ -33,7 +34,6 @@ angular.module('transitIndicators')
                 $scope.uploadProblems.errors = _.filter(data, function (problem) {
                     return problem.realtime === upload.id && problem.type === 'err';
                 });
-            }, function () {
             });
     };
 
@@ -56,6 +56,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('pollingUpload:uploadCancel', function () {
+        $scope.setSidebarCheckmark('realtime', false);
         clearUploadProblems();
     });
 
