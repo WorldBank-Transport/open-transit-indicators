@@ -90,8 +90,7 @@ object LoaderConfiguration {
             if(gtfsJson.hasPath("path")) {
               gtfsJson.getString("path")
             } else { sys.error("Configuration error: Gtfs file loader entry needs a 'path' field.") }
-
-          fileSets += GtfsDateFiles(name,dataPath, new LocalDate(2013, 02 , 17))
+          fileSets += GtfsDateFiles(name,dataPath, new LocalDate(2013, 5 , 17))
         }
       }
     } catch {
