@@ -45,7 +45,8 @@
         "REMOVE": "!Remove",
         "SELECTONE": "!Select One",
         "UPLOAD": "!Upload",
-        "RESET": "!Reset"
+        "RESET": "!Reset",
+        "CALCULATE_INDICATORS": "Calculate Indicators"
     },
     "INDICATOR": {
         "num_stops": "Số điểm dừng mỗi tuyến",
@@ -113,7 +114,8 @@
             "REMOVE": "@:TERM.REMOVE",
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
-            "RESET": "@:TERM.RESET"
+            "RESET": "@:TERM.RESET",
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
         },
         "TOOLTIP": {
             "CITY": "Phạm vi giới hạn khu vực cần phân tích sẽ được sử dụng để thể hiện một phân vùng trong hệ thống như khu thương mai, trung tâm thành phố",

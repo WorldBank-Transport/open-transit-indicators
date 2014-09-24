@@ -9,7 +9,7 @@ angular.module('transitIndicators')
     var nullVersion = 0;
     // TODO: Replace this with call to get user-defined city name once implemented
     // Should equal django.conf.settings.OTI_CITY_NAME
-    var selfCityName = 'My City';
+    otiIndicatorsService.selfCityName = 'My City';
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
@@ -17,6 +17,11 @@ angular.module('transitIndicators')
             url: '/api/indicators/:id/ '
         }
     });
+
+    /**
+     * Resource for indicator jobs
+     */
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {});
 
     /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
@@ -88,8 +93,7 @@ angular.module('transitIndicators')
             var version = nullVersion;
             if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
                 console.log(data);
-                console.log(selfCityName);
-                version = _.findWhere(data.current_versions, {version__city_name: selfCityName}).version || nullVersion;
+                version = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName}).version || nullVersion;
             }
             callback(version);
         }).error(function (error) {
@@ -104,22 +108,6 @@ angular.module('transitIndicators')
             dfd.resolve(data);
         }).error(function (error) {
             console.error('OTIIndicatorService.getIndicatorTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    /**
-     * Creates a new indicator job, which starts the indicator calculation process
-     */
-    otiIndicatorsService.calculateIndicators = function () {
-        var dfd = $q.defer();
-        var params = { cityName: selfCityName };
-
-        $http.post('/api/indicator-jobs/', params).success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.calculateIndicators', error);
             dfd.resolve({});
         });
         return dfd.promise;
