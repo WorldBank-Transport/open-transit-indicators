@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-22 18:40+0000\n"
+"POT-Creation-Date: 2014-09-24 16:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,728 +20,728 @@ msgstr ""
 
 #: datasources/models.py:39
 msgid "Error"
-msgstr ""
+msgstr "Lỗi"
 
 #: datasources/models.py:40
 msgid "Warning"
-msgstr ""
+msgstr "Cánh báo"
 
 #: transit_indicators/gtfs.py:13
 msgid "Tram, Light Rail, Streetcar"
-msgstr ""
+msgstr "Tàu điện, đường sắt, xe điện"
 
 #: transit_indicators/gtfs.py:14
 msgid "Subway, Metro"
-msgstr ""
+msgstr "Đường ngầm, tàu điện ngầm"
 
 #: transit_indicators/gtfs.py:15
 msgid "Rail"
-msgstr ""
+msgstr "Đường sắt"
 
 #: transit_indicators/gtfs.py:16
 msgid "Bus"
-msgstr ""
+msgstr "Xe buýt"
 
 #: transit_indicators/gtfs.py:17
 msgid "Ferry"
-msgstr ""
+msgstr "Phà"
 
 #: transit_indicators/gtfs.py:18
 msgid "Cable Car"
-msgstr ""
+msgstr "Xe cáp"
 
 #: transit_indicators/gtfs.py:19
 msgid "Gondola, Suspended cable car"
-msgstr ""
+msgstr "Xe cáp treo"
 
 #: transit_indicators/gtfs.py:20
 msgid "Funicular"
-msgstr ""
+msgstr "Đường sắt treo"
 
 #: transit_indicators/gtfs.py:21
 msgid "Railway Service"
-msgstr ""
+msgstr "Hệ thống đường sắt"
 
 #: transit_indicators/gtfs.py:22
 msgid "High Speed Rail Service"
-msgstr ""
+msgstr "Hệ thống đường sắt cao tốc"
 
 #: transit_indicators/gtfs.py:23
 msgid "Long Distance Trains"
-msgstr ""
+msgstr "Tàu chạy đường dài"
 
 #: transit_indicators/gtfs.py:24
 msgid "Inter Regional Rail Service"
-msgstr ""
+msgstr "Hệ thống đường sắt nội địa"
 
 #: transit_indicators/gtfs.py:25
 msgid "Car Transport Rail Service"
-msgstr ""
+msgstr "Hệ thống đường sắt vận chuyển xe hơi Car Transport Rail"
 
 #: transit_indicators/gtfs.py:26
 msgid "Sleeper Rail Service"
-msgstr ""
+msgstr "Xe lửa có giường nằm"
 
 #: transit_indicators/gtfs.py:27
 msgid "Regional Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt cấp vùng"
 
 #: transit_indicators/gtfs.py:28
 msgid "Tourist Railway Service"
-msgstr ""
+msgstr "Hệ đường sắt phục vụ du lịch"
 
 #: transit_indicators/gtfs.py:29
 msgid "Rail Shuttle (Within Complex)"
-msgstr ""
+msgstr "Hệ đường sắt tuyến đường ngắn"
 
 #: transit_indicators/gtfs.py:30
 msgid "Suburban Railway"
-msgstr ""
+msgstr "Hệ đường sắt ngoại ô"
 
 #: transit_indicators/gtfs.py:31
 msgid "Replacement Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt thay thế"
 
 #: transit_indicators/gtfs.py:32
 msgid "Special Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt đặc biệt"
 
 #: transit_indicators/gtfs.py:33
 msgid "Lorry Transport Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt chở hàng"
 
 #: transit_indicators/gtfs.py:34
 msgid "All Rail Services"
-msgstr ""
+msgstr "Toàn bộ hệ thống đường sắt"
 
 #: transit_indicators/gtfs.py:35
 msgid "Cross-Country Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt qua nhiều địa hình"
 
 #: transit_indicators/gtfs.py:36
 msgid "Vehicle Transport Rail Service"
-msgstr ""
+msgstr "Hệ đường sắt vận chuyển các phương tiện khác"
 
 #: transit_indicators/gtfs.py:37
 msgid "Rack and Pinion Railway"
-msgstr ""
+msgstr "Hệ đường sắt chạy bằng bánh răng"
 
 #: transit_indicators/gtfs.py:38
 msgid "Additional Rail Service"
-msgstr ""
+msgstr "Các hệ đường sắt khác"
 
 #: transit_indicators/gtfs.py:39
 msgid "Coach Service"
-msgstr ""
+msgstr "Hệ xe khách đường dài"
 
 #: transit_indicators/gtfs.py:40
 msgid "International Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách quốc tế"
 
 #: transit_indicators/gtfs.py:41
 msgid "National Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách quốc gia"
 
 #: transit_indicators/gtfs.py:42
 msgid "Shuttle Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách tuyến đường ngắn"
 
 #: transit_indicators/gtfs.py:43
 msgid "Regional Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách trong vùng"
 
 #: transit_indicators/gtfs.py:44
 msgid "Special Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách đặc biệt"
 
 #: transit_indicators/gtfs.py:45
 msgid "Sightseeing Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách du lịch"
 
 #: transit_indicators/gtfs.py:46
 msgid "Tourist Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách du lịc theo tour"
 
 #: transit_indicators/gtfs.py:47
 msgid "Commuter Coach Service"
-msgstr ""
+msgstr "Hệ thống xe khách trong thàn phố"
 
 #: transit_indicators/gtfs.py:48
 msgid "All Coach Services"
-msgstr ""
+msgstr "Tất cả các hệ thống xe khách"
 
 #: transit_indicators/gtfs.py:49
 msgid "Suburban Railway Service"
-msgstr ""
+msgstr "Hệ thống đường sắt ngoại ô"
 
 #: transit_indicators/gtfs.py:50 transit_indicators/gtfs.py:53
 msgid "Urban Railway Service"
-msgstr ""
+msgstr "Hệ thống  đường sắt trong thành phố"
 
 #: transit_indicators/gtfs.py:51 transit_indicators/gtfs.py:56
 msgid "Metro Service"
-msgstr ""
+msgstr "Hệ thống xe điện ngầm"
 
 #: transit_indicators/gtfs.py:52 transit_indicators/gtfs.py:57
 msgid "Underground Service"
-msgstr ""
+msgstr "Hệ thống giao thông ngầm"
 
 #: transit_indicators/gtfs.py:54
 msgid "All Urban Railway Services"
-msgstr ""
+msgstr "Toàn bộ hệ thống đường sắt nội đô"
 
 #: transit_indicators/gtfs.py:55
 msgid "Monorail"
-msgstr ""
+msgstr "Đường sắt một ray"
 
 #: transit_indicators/gtfs.py:58
 msgid "Bus Service"
-msgstr ""
+msgstr "Hệ thống xe buýt"
 
 #: transit_indicators/gtfs.py:59
 msgid "Regional Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt trong vùng"
 
 #: transit_indicators/gtfs.py:60
 msgid "Express Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt tốc hành"
 
 #: transit_indicators/gtfs.py:61
 msgid "Stopping Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe dù"
 
 #: transit_indicators/gtfs.py:62
 msgid "Local Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt nội bộ"
 
 #: transit_indicators/gtfs.py:63
 msgid "Night Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt chạy đêm"
 
 #: transit_indicators/gtfs.py:64
 msgid "Post Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt bưu vụ"
 
 #: transit_indicators/gtfs.py:65
 msgid "Special Needs Bus"
-msgstr ""
+msgstr "Xe buýt chuyên dụng"
 
 #: transit_indicators/gtfs.py:66
 msgid "Mobility Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt cho người khuyết tật"
 
 #: transit_indicators/gtfs.py:67
 msgid "Mobility Bus for Registered Disabled"
-msgstr ""
+msgstr "Xe cho người khuyết tật không đăng kí thường xuyên"
 
 #: transit_indicators/gtfs.py:68
 msgid "Sightseeing Bus"
-msgstr ""
+msgstr "Xe buýt tham quan"
 
 #: transit_indicators/gtfs.py:69
 msgid "Shuttle Bus"
-msgstr ""
+msgstr "Xe buýt tuyến ngắn"
 
 #: transit_indicators/gtfs.py:70
 msgid "School Bus"
-msgstr ""
+msgstr "Xe buýt đưa đón học sinh"
 
 #: transit_indicators/gtfs.py:71
 msgid "School and Public Service Bus"
-msgstr ""
+msgstr "Xe buýt trường học và dịch vụ công"
 
 #: transit_indicators/gtfs.py:72
 msgid "Rail Replacement Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt thay thế đường sắt"
 
 #: transit_indicators/gtfs.py:73
 msgid "Demand and Response Bus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt theo yêu cầu"
 
 #: transit_indicators/gtfs.py:74
 msgid "All Bus Services"
-msgstr ""
+msgstr "Tất cả các dịch vụ xe buýt"
 
 #: transit_indicators/gtfs.py:75
 msgid "Trolleybus Service"
-msgstr ""
+msgstr "Dịch vụ xe buýt điện"
 
 #: transit_indicators/gtfs.py:76
 msgid "Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện"
 
 #: transit_indicators/gtfs.py:77
 msgid "City Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện trong thành phố"
 
 #: transit_indicators/gtfs.py:78
 msgid "Local Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện nội bộ"
 
 #: transit_indicators/gtfs.py:79
 msgid "Regional Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện trong vùng"
 
 #: transit_indicators/gtfs.py:80
 msgid "Sightseeing Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện tham quan"
 
 #: transit_indicators/gtfs.py:81
 msgid "Shuttle Tram Service"
-msgstr ""
+msgstr "Dịch vụ xe điện tuyến ngắn"
 
 #: transit_indicators/gtfs.py:82
 msgid "All Tram Services"
-msgstr ""
+msgstr "Tất cả các dịch vụ xe điện"
 
 #: transit_indicators/gtfs.py:83
 msgid "Water Transport Service"
-msgstr ""
+msgstr "Dịch vụ vận tải thủy"
 
 #: transit_indicators/gtfs.py:84
 msgid "International Car Ferry Service"
-msgstr ""
+msgstr "Dịch vụ xe phà quốc tế"
 
 #: transit_indicators/gtfs.py:85
 msgid "National Car Ferry Service"
-msgstr ""
+msgstr "Dịch vụ xe phà quốc gia"
 
 #: transit_indicators/gtfs.py:86
 msgid "Regional Car Ferry Service"
-msgstr ""
+msgstr "Dịch vụ xe phà khu vực"
 
 #: transit_indicators/gtfs.py:87
 msgid "Local Car Ferry Service"
-msgstr ""
+msgstr "Dịch vụ xe phà địa phương"
 
 #: transit_indicators/gtfs.py:88
 msgid "International Passenger Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà khách quốc tế"
 
 #: transit_indicators/gtfs.py:89
 msgid "National Passenger Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà khách quốc gia"
 
 #: transit_indicators/gtfs.py:90
 msgid "Regional Passenger Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà khách khu vực"
 
 #: transit_indicators/gtfs.py:91
 msgid "Local Passenger Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà khách địa phương"
 
 #: transit_indicators/gtfs.py:92
 msgid "Post Boat Service"
-msgstr ""
+msgstr "Dịch vụ tàu bưu vụ"
 
 #: transit_indicators/gtfs.py:93
 msgid "Train Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà đường sắt"
 
 #: transit_indicators/gtfs.py:94
 msgid "Road-Link Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà liên kết với đường bộ"
 
 #: transit_indicators/gtfs.py:95
 msgid "Airport-Link Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà liên kết với đường không"
 
 #: transit_indicators/gtfs.py:96
 msgid "Car High-Speed Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà cao tốc chở xe hơi"
 
 #: transit_indicators/gtfs.py:97
 msgid "Passenger High-Speed Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà cao tốc chở khách"
 
 #: transit_indicators/gtfs.py:98
 msgid "Sightseeing Boat Service"
-msgstr ""
+msgstr "Dịch vụ thuyền du lịch"
 
 #: transit_indicators/gtfs.py:99
 msgid "School Boat"
-msgstr ""
+msgstr "Dịch vụ thuyền cho trường học"
 
 #: transit_indicators/gtfs.py:100
 msgid "Cable-Drawn Boat Service"
-msgstr ""
+msgstr "Dịch vụ đò lân dây"
 
 #: transit_indicators/gtfs.py:101
 msgid "River Bus Service"
-msgstr ""
+msgstr "Dịch vụ thuyền tham quan trên sông"
 
 #: transit_indicators/gtfs.py:102
 msgid "Scheduled Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà chạy theo lịch trình"
 
 #: transit_indicators/gtfs.py:103
 msgid "Shuttle Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà chạy tuyến ngắn"
 
 #: transit_indicators/gtfs.py:104
 msgid "All Water Transport Services"
-msgstr ""
+msgstr "Tất cả các dịch vụ vận tải thủy"
 
 #: transit_indicators/gtfs.py:105
 msgid "Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không"
 
 #: transit_indicators/gtfs.py:106
 msgid "International Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không quốc tế"
 
 #: transit_indicators/gtfs.py:107
 msgid "Domestic Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không nội địa"
 
 #: transit_indicators/gtfs.py:108
 msgid "Intercontinental Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không liên lục địa"
 
 #: transit_indicators/gtfs.py:109
 msgid "Domestic Scheduled Air Service"
-msgstr ""
+msgstr "Dịch vụ hàng không nội địa theo lịch trình"
 
 #: transit_indicators/gtfs.py:110
 msgid "Shuttle Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không tuyến ngắn"
 
 #: transit_indicators/gtfs.py:111
 msgid "Intercontinental Charter Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không cho thuê liên lục địa"
 
 #: transit_indicators/gtfs.py:112
 msgid "International Charter Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không cho thuê quốc tế"
 
 #: transit_indicators/gtfs.py:113
 msgid "Round-Trip Charter Air Service"
-msgstr ""
+msgstr "Dịch vụ vận tải đường không cho thuê khứ hồi"
 
 #: transit_indicators/gtfs.py:114
 msgid "Sightseeing Air Service"
-msgstr ""
+msgstr "Dịch vụ máy bay tham quan du lịch"
 
 #: transit_indicators/gtfs.py:115
 msgid "Helicopter Air Service"
-msgstr ""
+msgstr "Dịch vụ trực thăng tham quan du lịch"
 
 #: transit_indicators/gtfs.py:116
 msgid "Domestic Charter Air Service"
-msgstr ""
+msgstr "Dịch vụ hàng không cho thuê nội địa"
 
 #: transit_indicators/gtfs.py:117
 msgid "Schengen-Area Air Service"
-msgstr ""
+msgstr "Dịch vụ hàng không  khu vực Châu Âu"
 
 #: transit_indicators/gtfs.py:118
 msgid "Airship Service"
-msgstr ""
+msgstr "Dịch vụ khí cầu"
 
 #: transit_indicators/gtfs.py:119
 msgid "All Air Services"
-msgstr ""
+msgstr "Tất cả các dịch vụ vận tải hàng không"
 
 #: transit_indicators/gtfs.py:120
 msgid "Ferry Service"
-msgstr ""
+msgstr "Dịch vụ phà"
 
 #: transit_indicators/gtfs.py:121 transit_indicators/gtfs.py:122
 msgid "Telecabin Service"
-msgstr ""
+msgstr "Dịch vụ xe cáp treo"
 
 #: transit_indicators/gtfs.py:123
 msgid "Cable Car Service"
-msgstr ""
+msgstr "Dịch vụ xe cáp treo"
 
 #: transit_indicators/gtfs.py:124
 msgid "Elevator Service"
-msgstr ""
+msgstr "Dịch vụ xe nâng"
 
 #: transit_indicators/gtfs.py:125
 msgid "Chair Lift Service"
-msgstr ""
+msgstr "Dịch vụ ghế treo trên dây cáp"
 
 #: transit_indicators/gtfs.py:126
 msgid "Drag Lift Service"
-msgstr ""
+msgstr "Dịch vụ nâng kéo"
 
 #: transit_indicators/gtfs.py:127
 msgid "Small Telecabin Service"
-msgstr ""
+msgstr "Dịch vụ xe cáp treo loại nhỏ"
 
 #: transit_indicators/gtfs.py:128
 msgid "All Telecabin Services"
-msgstr ""
+msgstr "Tất cả các dịch vụ cáp treo"
 
 #: transit_indicators/gtfs.py:129 transit_indicators/gtfs.py:130
 msgid "Funicular Service"
-msgstr ""
+msgstr "Dịch vụ đường sắt leo núi"
 
 #: transit_indicators/gtfs.py:131
 msgid "All Funicular Service"
-msgstr ""
+msgstr "Tất cả các loại dịch vụ đường sắt leo núi"
 
 #: transit_indicators/gtfs.py:132
 msgid "Taxi Service"
-msgstr ""
+msgstr "Dịch vụ xe taxi"
 
 #: transit_indicators/gtfs.py:133
 msgid "Communal Taxi Service"
-msgstr ""
+msgstr "Dịch vụ xe taxi công cộng"
 
 #: transit_indicators/gtfs.py:134
 msgid "Water Taxi Service"
-msgstr ""
+msgstr "Dịch vụ tàu taxi"
 
 #: transit_indicators/gtfs.py:135
 msgid "Rail Taxi Service"
-msgstr ""
+msgstr "Dịch vụ taxi tàu điện"
 
 #: transit_indicators/gtfs.py:136
 msgid "Bike Taxi Service"
-msgstr ""
+msgstr "Dịch vụ taxi xe đạp"
 
 #: transit_indicators/gtfs.py:137
 msgid "Licensed Taxi Service"
-msgstr ""
+msgstr "Dịch vụ taxi có đăng ký"
 
 #: transit_indicators/gtfs.py:138
 msgid "Private Hire Service Vehicle"
-msgstr ""
+msgstr "Phương tiện dịch vụ cá nhân cho thuê"
 
 #: transit_indicators/gtfs.py:139
 msgid "All Taxi Services"
-msgstr ""
+msgstr "Các loại dịch vụ taxi"
 
 #: transit_indicators/gtfs.py:140
 msgid "Self Drive"
-msgstr ""
+msgstr "Xe cho thuê tự lái"
 
 #: transit_indicators/gtfs.py:141
 msgid "Hire Car"
-msgstr ""
+msgstr "Xe cho thuê"
 
 #: transit_indicators/gtfs.py:142
 msgid "Hire Van"
-msgstr ""
+msgstr "Xe tải cho thuê"
 
 #: transit_indicators/gtfs.py:143
 msgid "Hire Motorbike"
-msgstr ""
+msgstr "Xe máy cho thuê"
 
 #: transit_indicators/gtfs.py:144
 msgid "Hire Cycle"
-msgstr ""
+msgstr "Xe đạp cho thuê"
 
 #: transit_indicators/gtfs.py:145
 msgid "Miscellaneous Service"
-msgstr ""
+msgstr "Dịch vụ hỗn hợp"
 
 #: transit_indicators/gtfs.py:146
 msgid "Horse-drawn Carriage"
-msgstr ""
+msgstr "Xe ngựa"
 
 #: transit_indicators/models.py:120
 msgid "All Time"
-msgstr ""
+msgstr "Toàn thời gian"
 
 #: transit_indicators/models.py:121
 msgid "Morning Rush"
-msgstr ""
+msgstr "Giờ cao điểm buổi sáng"
 
 #: transit_indicators/models.py:122
 msgid "Mid Day"
-msgstr ""
+msgstr "Buổi trưa"
 
 #: transit_indicators/models.py:123
 msgid "Evening Rush"
-msgstr ""
+msgstr "Giờ cao điểm buổi chiều"
 
 #: transit_indicators/models.py:124
 msgid "Night"
-msgstr ""
+msgstr "Tối"
 
 #: transit_indicators/models.py:125
 msgid "Weekend"
-msgstr ""
+msgstr "Cuối tuần"
 
 #: transit_indicators/models.py:146
 msgid "Job queued for processing"
-msgstr ""
+msgstr "Công việc đợi xử lý"
 
 #: transit_indicators/models.py:147
 msgid "Indicators being processed and calculated"
-msgstr ""
+msgstr "Hệ thống chỉ dẫn đang xử lý và tính toán"
 
 #: transit_indicators/models.py:148
 msgid "Error calculating indicators"
-msgstr ""
+msgstr "Lỗi khi tính toán chỉ dẫn"
 
 #: transit_indicators/models.py:149
 msgid "Completed indicator calculation"
-msgstr ""
+msgstr "Hoàn thàn tính toán chỉ dẫn"
 
 #: transit_indicators/models.py:258
 msgid "Route"
-msgstr ""
+msgstr "Tuyến"
 
 #: transit_indicators/models.py:259
 msgid "Mode"
-msgstr ""
+msgstr "Chế độ"
 
 #: transit_indicators/models.py:260
 msgid "System"
-msgstr ""
+msgstr "Hệ thống"
 
 #: transit_indicators/models.py:292
 msgid "avg deviation from scheduled dwell time"
-msgstr ""
+msgstr "Độ lệch thời gian dừng trung bình so với lịch trình"
 
 #: transit_indicators/models.py:293
 msgid "avg deviation from scheduled frequency"
-msgstr ""
+msgstr "Độ lệch tần suất tuyến trung bình so với lịch trình "
 
 #: transit_indicators/models.py:294
 msgid "avg deviation from scheduled time"
-msgstr ""
+msgstr "Độ lệch thời gian trung bình so với lịch trình"
 
 #: transit_indicators/models.py:295
 msgid "stops per hr/pop within 500m"
-msgstr ""
+msgstr "Điểm dừng theo giờ trong phạm vi 500m"
 
 #: transit_indicators/models.py:296
 msgid "hrs"
-msgstr ""
+msgstr "giờ"
 
 #: transit_indicators/models.py:297
 msgid "km"
-msgstr ""
+msgstr "km"
 
 #: transit_indicators/models.py:298
 msgid "km/km²"
-msgstr ""
+msgstr "km/km²"
 
 #: transit_indicators/models.py:299
 msgid "low-income population within 500m of a stop"
-msgstr ""
+msgstr "dân cư thu nhập thấp trong phạm vi 500m từ điểm dừng"
 
 #: transit_indicators/models.py:300
 msgid "min"
-msgstr ""
+msgstr "Phút"
 
 #: transit_indicators/models.py:301
 msgid "population within 500m of a stop"
-msgstr ""
+msgstr "Mật độ dân cư trong pham vị 500m từ điểm dừng"
 
 #: transit_indicators/models.py:302
 msgid "stops/500m radius"
-msgstr ""
+msgstr "Số điểm dừng trong bán kính 500m"
 
 #: transit_indicators/models.py:303
 msgid "stops/route length, in km"
-msgstr ""
+msgstr "Chiều dài tuyến/điểm dừng tính bằng km"
 
 #: transit_indicators/models.py:341
 msgid "Access index"
-msgstr ""
+msgstr "Chỉ số khả năng ra vào"
 
 #: transit_indicators/models.py:342
 msgid "Affordability"
-msgstr ""
+msgstr "Khả năng chi trả"
 
 #: transit_indicators/models.py:343
 msgid "Average Service Frequency"
-msgstr ""
+msgstr "Tần suất dịch vụ trung bình"
 
 #: transit_indicators/models.py:344
 msgid "System coverage"
-msgstr ""
+msgstr "Phạm vi hoạt động của hệ thống"
 
 #: transit_indicators/models.py:345
 msgid "Coverage of transit stops"
-msgstr ""
+msgstr "Phạm vi phục vụ của các điểm dừng"
 
 #: transit_indicators/models.py:346
 msgid "Distance between stops"
-msgstr ""
+msgstr "Khoảng các giữa các điểm dừng"
 
 #: transit_indicators/models.py:347
 msgid "Dwell Time Performance"
-msgstr ""
+msgstr "Thời gian dừng thực hiện"
 
 #: transit_indicators/models.py:348
 msgid "Weekly number of hours of service"
-msgstr ""
+msgstr "Số giờ hoạt động trong tuần"
 
 #: transit_indicators/models.py:349
 msgid "Job accessibility"
-msgstr ""
+msgstr "Khả năng đi đến"
 
 #: transit_indicators/models.py:350
 msgid "Transit system length"
-msgstr ""
+msgstr "Chiều dài hệ thống giao thông"
 
 #: transit_indicators/models.py:351
 msgid "Ratio of transit lines length over road length"
-msgstr ""
+msgstr "Tỉ số chiều dài chặng trên độ dài đường phố"
 
 #: transit_indicators/models.py:352
 msgid "Transit line network density"
-msgstr ""
+msgstr "Mật độ mạng lưới đường giao thông"
 
 #: transit_indicators/models.py:353
 msgid "Number of modes"
-msgstr ""
+msgstr "Số lượng các chế độ"
 
 #: transit_indicators/models.py:354
 msgid "Number of routes"
-msgstr ""
+msgstr "Số lượng tuyến"
 
 #: transit_indicators/models.py:355
 msgid "Number of stops"
-msgstr ""
+msgstr "Số lượng điểm dừng"
 
 #: transit_indicators/models.py:356
 msgid "Number of route types"
-msgstr ""
+msgstr "Số lượng kiểu tuyến"
 
 #: transit_indicators/models.py:357
 msgid "On-Time Performance"
-msgstr ""
+msgstr "Thực hiện đúng giờ"
 
 #: transit_indicators/models.py:358
 msgid "Regularity of Headways"
-msgstr ""
+msgstr "Mức phổ biến của điểm đầu tuyến"
 
 #: transit_indicators/models.py:359
 msgid "Service frequency weighted by served population"
-msgstr ""
+msgstr "Tần số dịch vụ xác định theo dân số phục vụ"
 
 #: transit_indicators/models.py:360
 msgid "Ratio of number of stops to route-length"
-msgstr ""
+msgstr "Tỉ số số lượng điểm dừng trên chiều dài tuyến"
 
 #: transit_indicators/models.py:361
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
-msgstr ""
+msgstr "Tỉ lệ mạng lưới các đường ở khu vực ngoại ô"
 
 #: transit_indicators/models.py:362
 msgid "System accessibility"
-msgstr ""
+msgstr "Khả năng đi đến của hệ thống"
 
 #: transit_indicators/models.py:363
 msgid "System accessibility - low-income"
-msgstr ""
+msgstr "Khả năng đi đến của hệ thống – thu nhập thấp"
 
 #: transit_indicators/models.py:364
 msgid "Time traveled between stops"
-msgstr ""
+msgstr "Thời gian di chuyển giữa các điểm dừng"
 
 #: transit_indicators/models.py:365
 msgid "Travel Time Performance"
-msgstr ""
+msgstr "Thời gian di chuyển thực hiện"
 
 #: transit_indicators/models.py:366
 msgid "Weekday / weekend frequency"
-msgstr ""
+msgstr "Tần suất hoạt động ngày làm việc/ cuối tuần"
