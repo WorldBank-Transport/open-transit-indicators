@@ -109,6 +109,22 @@ angular.module('transitIndicators')
         return dfd.promise;
     };
 
+    /**
+     * Creates a new indicator job, which starts the indicator calculation process
+     */
+    otiIndicatorsService.calculateIndicators = function () {
+        var dfd = $q.defer();
+        var params = { cityName: selfCityName };
+
+        $http.post('/api/indicator-jobs/', params).success(function (data) {
+            dfd.resolve(data);
+        }).error(function (error) {
+            console.error('OTIIndicatorService.calculateIndicators', error);
+            dfd.resolve({});
+        });
+        return dfd.promise;
+    };
+
     otiIndicatorsService.getIndicatorAggregationTypes = function () {
         var dfd = $q.defer();
         $http.get('/api/indicator-aggregation-types/').success(function (data) {
