@@ -45,7 +45,8 @@
         "REMOVE": "Remove",
         "SELECTONE": "Select One",
         "UPLOAD": "Upload",
-        "RESET": "Reset"
+        "RESET": "Reset",
+        "CALCULATE_INDICATORS": "Calculate Indicators"
     },
     "INDICATOR": {
         "num_stops": "每条路线的公交站点数目",
@@ -113,7 +114,8 @@
             "REMOVE": "@:TERM.REMOVE",
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
-            "RESET": "@:TERM.RESET"
+            "RESET": "@:TERM.RESET",
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
         },
         "TOOLTIP": {
             "CITY": "关注区域的边界将被用于定义所服务公交系统区域的一个分区，如某个商业区或城市中心。",
