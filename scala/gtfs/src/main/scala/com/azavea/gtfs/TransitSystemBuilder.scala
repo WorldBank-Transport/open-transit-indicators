@@ -109,8 +109,10 @@ class TransitSystemBuilder(records: GtfsRecords) {
     val constructedRoutes =
       records.routeRecords
         .map { record =>
-          Route(record, routeIdToTrips(record.id), agencyIdToAgency)
-         }
+          routeIdToTrips.get(record.id).map { routeTrips => 
+            Route(record, routeTrips, agencyIdToAgency) 
+          }          
+        }.flatten //Unwrap the Option[Route], remove Routes with no trips
 
     val routesByType = 
       constructedRoutes.groupBy(_.routeType)
