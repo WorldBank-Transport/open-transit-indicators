@@ -20,35 +20,35 @@ msgstr ""
 
 #: datasources/models.py:39
 msgid "Error"
-msgstr ""
+msgstr "错误"
 
 #: datasources/models.py:40
 msgid "Warning"
-msgstr ""
+msgstr "警告"
 
 #: transit_indicators/gtfs.py:13
 msgid "Tram, Light Rail, Streetcar"
-msgstr ""
+msgstr "电车、轻轨、有轨电车"
 
 #: transit_indicators/gtfs.py:14
 msgid "Subway, Metro"
-msgstr ""
+msgstr "地铁、快速公交"
 
 #: transit_indicators/gtfs.py:15
 msgid "Rail"
-msgstr ""
+msgstr "轨道"
 
 #: transit_indicators/gtfs.py:16
 msgid "Bus"
-msgstr ""
+msgstr "公共汽车"
 
 #: transit_indicators/gtfs.py:17
 msgid "Ferry"
-msgstr ""
+msgstr "轮渡"
 
 #: transit_indicators/gtfs.py:18
 msgid "Cable Car"
-msgstr ""
+msgstr "缆车"
 
 #: transit_indicators/gtfs.py:19
 msgid "Gondola, Suspended cable car"
@@ -544,204 +544,204 @@ msgstr ""
 
 #: transit_indicators/models.py:120
 msgid "All Time"
-msgstr ""
+msgstr "所有时间"
 
 #: transit_indicators/models.py:121
 msgid "Morning Rush"
-msgstr ""
+msgstr "早高峰时段"
 
 #: transit_indicators/models.py:122
 msgid "Mid Day"
-msgstr ""
+msgstr "正午"
 
 #: transit_indicators/models.py:123
 msgid "Evening Rush"
-msgstr ""
+msgstr "晚高峰时段"
 
 #: transit_indicators/models.py:124
 msgid "Night"
-msgstr ""
+msgstr "夜晚"
 
 #: transit_indicators/models.py:125
 msgid "Weekend"
-msgstr ""
+msgstr "周末"
 
 #: transit_indicators/models.py:146
 msgid "Job queued for processing"
-msgstr ""
+msgstr "任务已排队等待处理"
 
 #: transit_indicators/models.py:147
 msgid "Indicators being processed and calculated"
-msgstr ""
+msgstr "指标正在被处理、计算"
 
 #: transit_indicators/models.py:148
 msgid "Error calculating indicators"
-msgstr ""
+msgstr "计算指标时出现错误"
 
 #: transit_indicators/models.py:149
 msgid "Completed indicator calculation"
-msgstr ""
+msgstr "指标计算已完成"
 
 #: transit_indicators/models.py:258
 msgid "Route"
-msgstr ""
+msgstr "路线"
 
 #: transit_indicators/models.py:259
 msgid "Mode"
-msgstr ""
+msgstr "模式"
 
 #: transit_indicators/models.py:260
 msgid "System"
-msgstr ""
+msgstr "系统"
 
 #: transit_indicators/models.py:292
 msgid "avg deviation from scheduled dwell time"
-msgstr ""
+msgstr "与计划逗留时间的平均偏差"
 
 #: transit_indicators/models.py:293
 msgid "avg deviation from scheduled frequency"
-msgstr ""
+msgstr "与计划频率的平均偏差"
 
 #: transit_indicators/models.py:294
 msgid "avg deviation from scheduled time"
-msgstr ""
+msgstr "与计划时间的平均偏差"
 
 #: transit_indicators/models.py:295
 msgid "stops per hr/pop within 500m"
-msgstr ""
+msgstr "每小时的公交站点数/500米内人数"
 
 #: transit_indicators/models.py:296
 msgid "hrs"
-msgstr ""
+msgstr "小时数"
 
 #: transit_indicators/models.py:297
 msgid "km"
-msgstr ""
+msgstr "公里"
 
 #: transit_indicators/models.py:298
 msgid "km/km²"
-msgstr ""
+msgstr "公里/平方公里"
 
 #: transit_indicators/models.py:299
 msgid "low-income population within 500m of a stop"
-msgstr ""
+msgstr "公交站点500米范围内的低收入人口总数"
 
 #: transit_indicators/models.py:300
 msgid "min"
-msgstr ""
+msgstr "分钟"
 
 #: transit_indicators/models.py:301
 msgid "population within 500m of a stop"
-msgstr ""
+msgstr "公交站点500米范围内的人口总数"
 
 #: transit_indicators/models.py:302
 msgid "stops/500m radius"
-msgstr ""
+msgstr "公交站点数/500米半径"
 
 #: transit_indicators/models.py:303
 msgid "stops/route length, in km"
-msgstr ""
+msgstr "公交站点数/路线长度（单位：公里）"
 
 #: transit_indicators/models.py:341
 msgid "Access index"
-msgstr ""
+msgstr "可达指数"
 
 #: transit_indicators/models.py:342
 msgid "Affordability"
-msgstr ""
+msgstr "可负担性"
 
 #: transit_indicators/models.py:343
 msgid "Average Service Frequency"
-msgstr ""
+msgstr "平均服务频率"
 
 #: transit_indicators/models.py:344
 msgid "System coverage"
-msgstr ""
+msgstr "系统覆盖率"
 
 #: transit_indicators/models.py:345
 msgid "Coverage of transit stops"
-msgstr ""
+msgstr "公交站点覆盖率"
 
 #: transit_indicators/models.py:346
 msgid "Distance between stops"
-msgstr ""
+msgstr "公交站点之间的距离"
 
 #: transit_indicators/models.py:347
 msgid "Dwell Time Performance"
-msgstr ""
+msgstr "停站时间性能"
 
 #: transit_indicators/models.py:348
 msgid "Weekly number of hours of service"
-msgstr ""
+msgstr "每周服务小时数"
 
 #: transit_indicators/models.py:349
 msgid "Job accessibility"
-msgstr ""
+msgstr "工作可达性"
 
 #: transit_indicators/models.py:350
 msgid "Transit system length"
-msgstr ""
+msgstr "公交系统长度"
 
 #: transit_indicators/models.py:351
 msgid "Ratio of transit lines length over road length"
-msgstr ""
+msgstr "公交路线长度与公路长度之比"
 
 #: transit_indicators/models.py:352
 msgid "Transit line network density"
-msgstr ""
+msgstr "公交线路网络密度"
 
 #: transit_indicators/models.py:353
 msgid "Number of modes"
-msgstr ""
+msgstr "模式数"
 
 #: transit_indicators/models.py:354
 msgid "Number of routes"
-msgstr ""
+msgstr "路线数"
 
 #: transit_indicators/models.py:355
 msgid "Number of stops"
-msgstr ""
+msgstr "公交站点数"
 
 #: transit_indicators/models.py:356
 msgid "Number of route types"
-msgstr ""
+msgstr "路线类型数"
 
 #: transit_indicators/models.py:357
 msgid "On-Time Performance"
-msgstr ""
+msgstr "准时性能"
 
 #: transit_indicators/models.py:358
 msgid "Regularity of Headways"
-msgstr ""
+msgstr "两车之间时间间隔的规律性"
 
 #: transit_indicators/models.py:359
 msgid "Service frequency weighted by served population"
-msgstr ""
+msgstr "按服务人口加权的服务频率"
 
 #: transit_indicators/models.py:360
 msgid "Ratio of number of stops to route-length"
-msgstr ""
+msgstr "公交站点数与路线长度之比"
 
 #: transit_indicators/models.py:361
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
-msgstr ""
+msgstr "以公交方式运营的郊区线路的比例"
 
 #: transit_indicators/models.py:362
 msgid "System accessibility"
-msgstr ""
+msgstr "系统可达性"
 
 #: transit_indicators/models.py:363
 msgid "System accessibility - low-income"
-msgstr ""
+msgstr "系统可达性--低收入"
 
 #: transit_indicators/models.py:364
 msgid "Time traveled between stops"
-msgstr ""
+msgstr "公交站点之间的交通时间"
 
 #: transit_indicators/models.py:365
 msgid "Travel Time Performance"
-msgstr ""
+msgstr "交通时间性能"
 
 #: transit_indicators/models.py:366
 msgid "Weekday / weekend frequency"
-msgstr ""
+msgstr "平常日/周末日频率"
