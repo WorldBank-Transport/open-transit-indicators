@@ -26,7 +26,7 @@ object GtfsDateParser {
       if(stopsToVertices.contains(stop)) {
         stopsToVertices(stop)
       } else {
-        val v = StationVertex(Location(stop.point.x, stop.point.y), stop.name)
+        val v = StationVertex(Location(stop.point.y, stop.point.x), stop.name)
         stopsToVertices(stop) = v
         graph += v
         v
@@ -34,8 +34,8 @@ object GtfsDateParser {
 
     def setEdges(trip: Trip, stopsToVertices: mutable.Map[Stop, Vertex], service: String, graph: MutableGraph): Int = {
       var count = 0
-      trip.schedule
-        .reduce { (departing, arriving) =>
+      trip.schedule.sliding(2).foreach { 
+        case Seq(departing, arriving) =>
           val departingVertex = getVertex(departing.stop, stopsToVertices, graph)
           val arrivingVertex = getVertex(arriving.stop, stopsToVertices, graph)
 
@@ -51,7 +51,10 @@ object GtfsDateParser {
             )
           count += 1
           arriving
-        }
+
+        case Seq(stop) =>
+          Logger.warn(s"Ignoring trip with a single stop: ${stop.stop}")
+      }
       count
     }
 
@@ -61,6 +64,7 @@ object GtfsDateParser {
 
     val (edges, namedLocations) =
       transitSystem.routes.foldLeft(0 -> NamedLocations.EMPTY) { (result, route) =>
+
         val stopsToVertices = mutable.Map[Stop, Vertex]()
 
         val edges = Logger.timedCreate("Creating edges for trips...", "Done creating edges.") { () =>
