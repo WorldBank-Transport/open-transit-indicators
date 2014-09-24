@@ -26,7 +26,7 @@ class CsvGtfsRecords(dir: String) extends GtfsRecords {
     if(! new File(path).exists) {
       if(gtfsFile.isRequired) {
         throw new GtfsFormatException(
-          s"$path is a required file that is not found."
+          s"${new File(path).getAbsolutePath} is a required file that is not found."
         )
       } else {
         Seq[T]()

@@ -1,0 +1,4 @@
+from_stop_id,to_stop_id,transfer_type
+90004,90004,0
+90005,90005,0
+90006,90006,0

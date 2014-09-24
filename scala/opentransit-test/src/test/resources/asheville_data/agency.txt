@@ -1,0 +1,2 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_phone,agency_fare_url,agency_lang
+190,"Asheville Redefines Transit","http://www.ashevillenc.gov/Departments/Transit.aspx","America/New_York","(828) 253-5691","","en"

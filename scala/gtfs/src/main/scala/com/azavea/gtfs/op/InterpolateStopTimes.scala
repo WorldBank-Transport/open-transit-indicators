@@ -28,13 +28,13 @@ object InterpolateStopTimes {
               }
 
             override def y(t1: StopTimeRecord): Double =
-              t1.arrival.getMillis.toDouble
+              t1.arrivalTime.getMillis.toDouble
 
             override def update(t: StopTimeRecord, x: Double): StopTimeRecord =
-              t.copy(arrival = x.toInt.seconds, departure = x.toInt.seconds)
+              t.copy(arrivalTime = x.toInt.seconds, departureTime = x.toInt.seconds)
 
             override def missing(t: StopTimeRecord): Boolean =
-              t.arrival == null //nulls are bad, must exterminate nulls
+              t.arrivalTime == null //nulls are bad, must exterminate nulls
           })
          }
         .flatten

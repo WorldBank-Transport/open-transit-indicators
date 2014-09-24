@@ -8,11 +8,16 @@ import org.joda.time.format.PeriodFormatterBuilder
 import com.azavea.gtfs.RouteType
 import geotrellis.slick.PostGisProjectionSupport
 
+object Profile {
+  val defaultGeomColumnName = "the_geom"
+}
+
 trait Profile {
   val profile = PostgresDriver
   val joda = new GenericJodaSupport(profile)
   val gis = new PostGisProjectionSupport(profile)
-  var geomColumnName = "the_geom"
+
+  val geomColumnName: String
 
   import profile.simple._
 
@@ -43,5 +48,8 @@ trait Profile {
       { rt => rt.id },
       { int => RouteType(int) }
     )
+}
 
+trait DefaultProfile extends Profile {
+  val geomColumnName = Profile.defaultGeomColumnName
 }

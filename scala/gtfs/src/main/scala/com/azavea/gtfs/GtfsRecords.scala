@@ -1,5 +1,8 @@
 package com.azavea.gtfs
 
+import io.csv.CsvGtfsRecords
+import io.database.{ DatabaseGtfsRecords, Profile, DefaultProfile }
+
 import scala.slick.jdbc.JdbcBackend.Session
 
 trait GtfsRecords {
@@ -35,8 +38,13 @@ object GtfsRecords {
     * that are based on the GTFS specification (Revised June 20, 2012)
     */
   def fromFiles(directory: String): GtfsRecords =
-    io.csv.CsvGtfsRecords(directory)
+    CsvGtfsRecords(directory)
 
   def fromDatabase(implicit session: Session): GtfsRecords =
-    new io.database.DatabaseGtfsRecords
+    new DatabaseGtfsRecords with DefaultProfile
+
+  def fromDatabase(geomColumnName: String)(implicit session: Session): GtfsRecords = {
+    val gcn = geomColumnName
+    new DatabaseGtfsRecords with Profile { val geomColumnName = gcn }
+  }
 }

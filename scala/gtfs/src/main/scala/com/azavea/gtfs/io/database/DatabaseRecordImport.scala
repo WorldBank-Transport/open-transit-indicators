@@ -5,12 +5,11 @@ import com.azavea.gtfs._
 import scala.slick.jdbc.JdbcBackend.Session
 
 object DatabaseRecordImport {
-  def apply(records: GtfsRecords, clobber: Boolean = true)(implicit session: Session): Unit =
-    new DatabaseRecordImport().load(records, clobber)
+  def apply(records: GtfsRecords, geomColumnName: String = Profile.defaultGeomColumnName, clobber: Boolean = true)(implicit session: Session): Unit =
+    new DatabaseRecordImport(geomColumnName).load(records, clobber)
 }
 
-class DatabaseRecordImport(implicit session: Session)
-    extends GtfsTables {
+class DatabaseRecordImport(val geomColumnName: String = Profile.defaultGeomColumnName)(implicit session: Session) extends GtfsTables with Profile {
   import profile.simple._
 
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {
@@ -35,8 +34,8 @@ class DatabaseRecordImport(implicit session: Session)
     if(clobber) deleteAll
 
     def ensureNoNullPeriods(stopTime: StopTimeRecord) = {
-      assert(stopTime.arrival != null)
-      assert(stopTime.departure != null)
+      assert(stopTime.arrivalTime != null)
+      assert(stopTime.departureTime != null)
       stopTime
     }
 

@@ -1,12 +1,10 @@
 package com.azavea.opentransit.service
 
-import com.azavea.opentransit.indicators.IndicatorsCalculator
-import com.azavea.opentransit.indicators.IndicatorCalculationRequest
+import com.azavea.opentransit._
+import com.azavea.opentransit.indicators.{ CalculateIndicators, IndicatorCalculationRequest }
 import com.azavea.opentransit.DjangoAdapter._
 
 import com.azavea.gtfs._
-import com.azavea.gtfs.data._
-import com.azavea.gtfs.slick._
 
 import com.github.nscala_time.time.Imports._
 import com.github.tototoshi.slick.PostgresJodaSupport
@@ -50,6 +48,8 @@ trait ProductionGtfsDatabase extends GtfsDatabase {
 }
 
 trait IndicatorsRoute extends Route { self: GtfsDatabase =>
+  val config = ConfigFactory.load
+  val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
   // Endpoint for triggering indicator calculations
   //
@@ -67,30 +67,41 @@ trait IndicatorsRoute extends Route { self: GtfsDatabase =>
             complete {
               try {
 
-                def gtfsData(): GtfsData = {
-                  val config = ConfigFactory.load
-                  val dbGeomNameUtm = config.getString("database.geom-name-utm")
+                // def gtfsData(): GtfsData = {
+                //   val config = ConfigFactory.load
+                //   val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
-                  db withSession { implicit session =>
-                    val dao = new DAO()
-                    // data is read from the db as the reprojected UTM projection
-                    dao.geomColumnName = dbGeomNameUtm
-                    dao.toGtfsData
+                //   db withSession { implicit session =>
+                //     val dao = new DAO()
+                //     // data is read from the db as the reprojected UTM projection
+                //     dao.geomColumnName = dbGeomNameUtm
+                //     dao.toGtfsData
+                //   }
+                // }
+
+                TaskQueue.execute {
+//                  println("Going to start calculating things now...")
+//                  println("Loading GTFS data...")
+//                  val data = gtfsData()
+//                  println("Calculating indicators...")
+
+                  // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
+                  val gtfsRecords =
+                    db withSession { implicit session =>
+                      GtfsRecords.fromDatabase(dbGeomNameUtm)
+                    }
+
+                  CalculateIndicators(request.sample_periods, gtfsRecords) { containerGenerators =>
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
+                    djangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
+//                  println("Indicators calcuated; going to call storeIndicators...")
+//                  calc.storeIndicators
+                  // Update indicator-job status
+
+                  djangoClient.updateIndicatorJob(request.token, IndicatorJob(version=request.version, job_status="complete"))
                 }
 
-                future {
-                  println("Going to start calculating things now...")
-                  println("Loading GTFS data...")
-                  val data = gtfsData()
-                  println("Calculating indicators...")
-                  val calc = new IndicatorsCalculator(data, request, db)
-                  println("Indicators calcuated; going to call storeIndicators...")
-                  calc.storeIndicators
-                  // Update indicator-job status
-                  djangoClient.updateIndicatorJob(request.token, IndicatorJob(version=request.version, job_status="complete")
-                  )
-                }
                 println("Have started calculating things!")
 
                 // return a 201 created

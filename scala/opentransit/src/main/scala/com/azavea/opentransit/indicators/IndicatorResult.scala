@@ -1,5 +1,10 @@
 package com.azavea.opentransit.indicators
 
+import com.azavea.gtfs._
+
+import geotrellis.vector._
+import geotrellis.vector.json._
+
 object IndicatorResultContainer {
   final val OVERALL_KEY = "alltime"
   final val SYSTEM_KEY = "system"
@@ -13,113 +18,101 @@ object IndicatorResultContainer {
 case class IndicatorResultContainer(
   `type`: String,
   sample_period: String,
-  aggregation: String = "system",
+  aggregation: String = "",
   route_id: String = "",
   route_type: Int = 0,
   city_bounded: Boolean = false,
   version: String = "",
   value: Double = 0,
   the_geom: String = ""
-) {
-  def withGeom(geom: String): IndicatorResultContainer =
-    IndicatorResultContainer(
-      `type`,
-      sample_period,
-      aggregation,
-      route_id,
-      route_type,
-      city_bounded,
-      version,
-      value,
-      geom
-    )
+)
 
+trait IndicatorContainerGenerator {
+  def toContainer(version: String): IndicatorResultContainer 
 }
 
-trait IndicatorResult { def toContainer(version: String): IndicatorResultContainer }
+class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Double) {
+  def forRoute(route: Route, line: Line) =
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type`= indicatorId,
+          sample_period = period.`type`,
+          aggregation=IndicatorResultContainer.ROUTE_KEY,
+          route_id = route.id,
+          value = value,
+          version = version,
+          the_geom = line.toGeoJson
+        )
+    }
 
-class PeriodRouteIndicatorResult(indicatorId: String, period: SamplePeriod, route: Route, value: Double) {
-  def toContainer(version: String) = 
-    IndicatorResultContainer(
-      `type`= indicatorId,
-      sample_period = period.`type`,
-      aggregation=IndicatorResultContainer.ROUTE_KEY,
-      route_id = route,
-      value = value,
-      version = request.version
-    )
+  def forRouteType(routeType: RouteType, ml: MultiLine) =
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type`= indicatorId,
+          sample_period = period.`type`,
+          aggregation=IndicatorResultContainer.ROUTE_KEY,
+          route_type = routeType.id,
+          value = value,
+          version = version,
+          the_geom = ml.toGeoJson
+        )
+    }
+
+  def forSystem(ml: MultiLine) = 
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type` = indicatorId,
+          sample_period = period.`type`,
+          aggregation = IndicatorResultContainer.SYSTEM_KEY,
+          version = version,
+          value = value,
+          the_geom = ml.toGeoJson
+        )
+    }
 }
 
-class PeriodModeIndicatorResult(indicatorId: String, period: SamplePeriod, modeId: Int, value: Double) {
-  def toContainer(version: String) = 
-    Indicator(
-      `type` = name,
-      sample_period = period.`type`,
-      aggregation = IndicatorCalculator.MODE_KEY,
-      route_type = mode,
-      version = request.version,
-      value = value
-    )
+class OverallIndicatorResult(indicatorId: String, value: Double) {
+  def forRoute(route: Route, line: Line) =
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type`= indicatorId,
+          sample_period = IndicatorResultContainer.OVERALL_KEY,
+          aggregation=IndicatorResultContainer.ROUTE_KEY,
+          route_id = route.id,
+          value = value,
+          version = version,
+          the_geom = line.toGeoJson
+        )
+    }
+
+  def forRouteType(routeType: RouteType, ml: MultiLine) =
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type`= indicatorId,
+          sample_period = IndicatorResultContainer.OVERALL_KEY,
+          aggregation=IndicatorResultContainer.ROUTE_KEY,
+          route_type = routeType.id,
+          value = value,
+          version = version,
+          the_geom = ml.toGeoJson
+        )
+    }
+
+  def forSystem(ml: MultiLine) = 
+    new IndicatorContainerGenerator {
+      def toContainer(version: String): IndicatorResultContainer =
+        IndicatorResultContainer(
+          `type` = indicatorId,
+          sample_period = IndicatorResultContainer.OVERALL_KEY,
+          aggregation = IndicatorResultContainer.SYSTEM_KEY,
+          version = version,
+          value = value,
+          the_geom = ml.toGeoJson
+        )
+    }
 }
-
-case class PeriodSystemIndicatorResult(indicatorId: String, period: SampelPeriod, value: Double) {
-  def toContainer(version: String) = 
-    Indicator(
-      `type` = name,
-      sample_period = period.`type`,
-      aggregation = IndicatorCalculator.SYSTEM_KEY,
-      version = request.version,
-      value = value
-    )
-}
-
-case class PeriodIndicatorResults(byRoute: Seq[PeriodRouteIndicatorResult], byMode: Seq[PeriodModeIndicatorResult], bySystem: PeriodSystemIndicatorResult) {
-  def toContainers(version: String): Seq[IndicatorContainer] =
-    byRoute.map(_.toContainer(version)) ++
-    byMode.map(_.toContainer(version)) +:
-    bySystem.toContainer
-
-}
-
-class OverallRouteIndicatorResult(indicatorId: String, route: Route, value: Double) {
-  def toContainer(version: String) = 
-    IndicatorResultContainer(
-      `type`= indicatorId,
-      sample_overall = overall.`type`,
-      aggregation=IndicatorResultContainer.ROUTE_KEY,
-      route_id = route,
-      value = value,
-      version = request.version
-    )
-}
-
-class OverallModeIndicatorResult(indicatorId: String, modeId: Int, value: Double) {
-  def toContainer(version: String) = 
-    Indicator(
-      `type` = name,
-      sample_overall = overall.`type`,
-      aggregation = IndicatorCalculator.MODE_KEY,
-      route_type = mode,
-      version = request.version,
-      value = value
-    )
-}
-
-case class OverallSystemIndicatorResult(indicator: Indicator, value: Double) {
-  def toContainer(version: String) = 
-    Indicator(
-      `type` = name,
-      sample_period = IndicatorCalculator.OVERALL_KEY,
-      aggregation = IndicatorCalculator.SYSTEM_KEY,
-      version = request.version,
-      value = value
-    )
-}
-
-case class OverallIndicatorResults(byRoute: Seq[OverallRouteIndicatorResult], byMode: Seq[OverallModeIndicatorResult], bySystem: OverallSystemIndicatorResult) {
-  def toContainers(version: String): Seq[IndicatorContainer] =
-    byRoute.map(_.toContainer(version)) ++
-    byMode.map(_.toContainer(version)) +:
-    bySystem.toContainer
-}
-

@@ -6,7 +6,7 @@ import scala.slick.jdbc.JdbcBackend.Session
 
 class DatabaseGtfsRecords(implicit session: Session) 
     extends GtfsRecords 
-       with GtfsTables {
+       with GtfsTables { self: Profile =>
   import profile.simple._
 
   def agencies: Seq[Agency] = agenciesTable.list

@@ -35,7 +35,29 @@ object Build extends Build {
           "org.joda" % "joda-convert" % "1.5",
           "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0"
         )
-    )
+       )
+
+  lazy val gtfsTest =
+    Project("gtfs-test", file("gtfs-test"))
+      .settings(
+        name := "gtfs-test",
+        organization := "com.azavea",
+        version := "0.1-SNAPSHOT",
+        scalaVersion := "2.10.3",
+        scalacOptions ++= 
+          Seq("-deprecation",
+            "-unchecked",
+            "-Yinline-warnings",
+            "-language:implicitConversions",
+            "-language:reflectiveCalls",
+            "-language:postfixOps",
+            "-language:existentials",
+            "-feature"),
+        libraryDependencies ++= Seq(
+          "org.scalatest" %% "scalatest" % "2.1.5"
+        )
+       )
+      .dependsOn(gtfs, testkit)
 
   lazy val opentransit =
     Project("opentransit", file("opentransit"))
@@ -58,5 +80,42 @@ object Build extends Build {
         )
        ) 
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)
+      .dependsOn(gtfs)
+
+  lazy val opentransitTest =
+    Project("opentransit-test", file("opentransit-test"))
+      .settings(
+        name := "opentransit-test",
+        organization := "com.azavea",
+        version := "0.1-SNAPSHOT",
+        scalaVersion := "2.10.3",
+        scalacOptions ++= 
+          Seq("-deprecation",
+            "-unchecked",
+            "-Yinline-warnings",
+            "-language:implicitConversions",
+            "-language:reflectiveCalls",
+            "-language:postfixOps",
+            "-language:existentials",
+            "-feature"),
+        libraryDependencies ++= Seq(
+          "org.scalatest" %% "scalatest" % "2.1.5"
+        )
+       )
+      .dependsOn(opentransit, testkit)
+
+  lazy val testkit =
+    Project("testkit", file("testkit"))
+      .settings(
+        name := "opentransit-testkit",
+        organization := "com.azavea",
+        version := "0.1-SNAPSHOT",
+        scalaVersion := "2.10.3",
+        libraryDependencies ++= Seq(
+          "com.typesafe" % "config" % "1.2.1",
+          "com.azavea.geotrellis" %% "geotrellis-slick" % "0.10.0-SNAPSHOT",
+          "org.scalatest" %% "scalatest" % "2.1.5"
+        )
+       )
       .dependsOn(gtfs)
 }

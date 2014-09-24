@@ -1,7 +1,7 @@
 package com.azavea.opentransit.io
 
-import com.azavea.gtfs.data.GtfsData
-import com.azavea.gtfs.slick.DAO
+import com.azavea.gtfs._
+import com.azavea.gtfs.io.database._
 
 import com.typesafe.config.ConfigFactory
 
@@ -17,19 +17,11 @@ object GtfsIngest {
 
   /** Ingest the GTFS data into the database this session is tied to */
   def apply(gtfsDir: String)(implicit session: Session): Int = {
-    val data = GtfsData.fromFile(gtfsDir)
+    val records = GtfsRecords.fromFiles(gtfsDir)
 
-    val dao = new DAO
     // data is read from the file and inserted into the db as lat/lng
-    dao.geomColumnName = dbGeomNameLatLng
+    DatabaseRecordImport(records, dbGeomNameLatLng)
 
-    // insert GTFS data into the database
-    data.routes.foreach { route => dao.routes.insert(route) }
-    data.service.foreach { service => dao.service.insert(service) }
-    data.agencies.foreach { agency => dao.agencies.insert(agency) }
-    data.trips.foreach { trip => dao.trips.insert(trip) }
-    data.shapes.foreach { shape => dao.shapes.insert(shape) }
-    data.stops.foreach { stop => dao.stops.insert(stop) }
     println("finished parsing GTFS data")
 
     println("Transforming GTFS to local UTM zone.")
@@ -61,7 +53,7 @@ object GtfsIngest {
     geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
 
     println("Finished transforming to local UTM zone.")
-    data.routes.size
+    records.routeRecords.size
   }
 
 
