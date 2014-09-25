@@ -284,6 +284,12 @@ popd
 # RabbitMQ setup        #
 #########################
 echo 'Setting up RabbitMQ'
+
+echo "Writing rabbitmq environment settings"
+service rabbitmq-server stop
+echo "NODENAME=\"rabbit@localhost\"" > /etc/rabbitmq/rabbitmq-env.conf
+service rabbitmq-server start
+
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
