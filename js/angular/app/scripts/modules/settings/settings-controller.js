@@ -2,8 +2,10 @@
 
 angular.module('transitIndicators')
 .controller('OTISettingsController',
-        ['$scope', 'OTISettingsService', 'config',
-        function ($scope, OTISettingsService, config) {
+        ['$scope', 'OTISettingsService', 'config', 'OTIUploadStatus',
+        function ($scope, OTISettingsService, config, OTIUploadStatus) {
+
+    $scope.Status = OTIUploadStatus;
 
     var setSidebarHighlight = function (viewId) {
         $scope.activeView = viewId;

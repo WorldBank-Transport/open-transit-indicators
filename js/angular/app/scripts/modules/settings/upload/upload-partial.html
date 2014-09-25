@@ -22,15 +22,15 @@
         </div>
     </div>
 
-    <div class="dropzone error" ng-if="osmImportProgress === STATUS.UPLOADERROR">
+    <div class="dropzone error" ng-if="Status.isError(osmImport.status)">
       <div class="h4">{{'SETTINGS.OSM_IMPORT_ERROR' | translate}} <span class="h5 pull-right"><button class="btn btn-danger" ng-click="retryOSMImport()">{{'STATUS.RETRY' | translate}}</button></span></div>
     </div>
 
-    <div class="dropzone inprogress" ng-show="osmImportProgress >= 0 && osmImportProgress <= 100">
+    <div class="dropzone inprogress" ng-show="Status.isPolling(osmImport.status)">
         <div class="h4">{{'SETTINGS.IMPORTING_OSM' | translate}}</div>
     </div>
 
-    <div class="dropzone" ng-if="osmImportProgress === STATUS.DONE">
+    <div class="dropzone" ng-if="Status.isComplete(osmImport.status)">
         <div class="h3">
             <span class="glyphicon glyphicon-ok"></span> {{'SETTINGS.OSM_LOADED' | translate}}
         </div>

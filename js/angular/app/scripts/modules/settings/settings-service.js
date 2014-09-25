@@ -5,7 +5,10 @@
  * for GTFS data
  */
 angular.module('transitIndicators')
-.factory('OTISettingsService', ['$resource', '$http', function($resource, $http) {
+.factory('OTISettingsService',
+         ['$http', '$q',
+         function($http, $q) {
+
     var settingsService = {};
 
     // Urls used throughout the 'settings' portion of OTI
