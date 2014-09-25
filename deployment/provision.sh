@@ -284,6 +284,12 @@ popd
 # RabbitMQ setup        #
 #########################
 echo 'Setting up RabbitMQ'
+
+echo "Writing rabbitmq environment settings"
+service rabbitmq-server stop
+echo "NODENAME=\"rabbit@localhost\"" > /etc/rabbitmq/rabbitmq-env.conf
+service rabbitmq-server start
+
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
@@ -365,6 +371,9 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     echo 'Running collectstatic (needs to run as root)'
     python manage.py collectstatic --noinput
+
+    echo 'Compiling translations'
+    sudo -Hu "$WEB_USER" python manage.py compilemessages
 popd
 
 # Add triggers which rely on Django migrations (and which therefore can't happen in the

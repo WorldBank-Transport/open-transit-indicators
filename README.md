@@ -54,4 +54,3 @@ Use the following instructions to do so:
 6.  Run the following command to generate a new AMI: `packer build -var-file=open-transit-vars.json open-transit-indicators.json` PLEASE NOTE: Running this command will cause resources to be created in AWS and will cost money
 7.  Once the process finishes installing (could take up to an hour), make note of the AMI ID
 8.  Launch the AMI using the AWS EC2 management console and browse to the public DNS hostname provided by Amazon
-9.  SSH into the machine and manually change the port for windshaft in js/app/scripts/config.js
