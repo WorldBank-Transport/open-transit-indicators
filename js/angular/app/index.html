@@ -23,6 +23,7 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+    <link rel="stylesheet" href="scripts/prototype/leaflet.draw.css" />
   </head>
   <body ng-app="transitIndicators">
     <!--[if lt IE 7]>
@@ -75,6 +76,7 @@
     <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
+    <script type="text/javascript" src="scripts/prototype/leaflet.draw.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/directives/polling-upload.js"></script>
@@ -113,5 +115,6 @@
         <script src="scripts/modules/settings/upload/upload-controller.js"></script>
         <script src="scripts/modules/settings/upload/upload-service.js"></script>
         <!-- endbuild -->
+        <script src="scripts/modules/scenarios/scenarios-prototype-directive.js"></script>
 </body>
 </html>

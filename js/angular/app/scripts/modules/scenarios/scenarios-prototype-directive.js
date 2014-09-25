@@ -1,4 +1,33 @@
-$(document).ready(function() {
+'use strict';
+/**
+
+A directive to allow jquery code to be run from the prototype html
+
+*/
+
+angular.module('transitIndicators')
+.directive('scenariosPrototype', ['leafletData', function (leafletData) {
+
+    return {
+        restrict: 'AE',
+        scope: {},
+        controller: ['$scope', function ($scope) {
+            $scope.pageno = 0;
+
+            $scope.next = function() {
+                $scope.pageno++;
+            };
+
+            $scope.prev = function() {
+                $scope.pageno--;
+            };
+
+        }],
+        templateUrl: 'scripts/modules/scenarios/scenarios-prototype-partial.html',
+        link: function (scope) { leafletData.getMap().then(function(map) {
+
+    var height;
+
     var date = new Date(),
         day = date.getDate(),
         month = date.getMonth(),
@@ -56,11 +85,10 @@ $(document).ready(function() {
         $('.leaflet-draw-draw-marker').hide();
         $('.leaflet-draw-draw-polyline').hide();
         var target = $(this).attr('href');
-        document.location.hash = target;
-        if (target == '#confirm-times') {
+        if (target === '#confirm-times') {
             getTimeTableHtml();
-        };
-        if (target == '#new-scenario') {
+        }
+        if (target === '#new-scenario') {
             $('#heading-scenario').removeClass(
                 'active');
             $('#heading-route').removeClass(
@@ -75,7 +103,7 @@ $(document).ready(function() {
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
         }
-        if (target == '#my-scenario') {
+        if (target === '#my-scenario') {
             setScenarioName();
             $('#heading-scenario').addClass(
                 'active');
@@ -84,14 +112,14 @@ $(document).ready(function() {
             $('.scenario').addClass(
                 'focus--scenario').removeClass('focus--route');
         }
-        if (target == '#new-route') {
+        if (target === '#new-route') {
             $('#heading-route').removeClass(
                 'active');
             $('.scenario').removeClass(
                 'focus--route').addClass(
                 'focus--scenario');
         }
-        if (target == '#add-stops') {
+        if (target === '#add-stops') {
             setRouteName();
             $('.leaflet-draw-draw-marker').show();
             $('#heading-route').addClass('active');
@@ -99,7 +127,7 @@ $(document).ready(function() {
                 'focus--scenario').addClass(
                 'focus--route');
         }
-        if (target == '#add-shape') {
+        if (target === '#add-shape') {
             setRouteName();
             $('.leaflet-draw-draw-polyline').show();
             $('#heading-route').addClass('active');
@@ -108,16 +136,7 @@ $(document).ready(function() {
                 'focus--route');
         }
         Pages.to(target);
-    });
-    var toner = new L.StamenTileLayer("toner-lines");
-    var map = new L.Map('map', {
-        layers: toner,
-        zoomControl: false
-    });
-    map.setView([39.95, -75.1947], 14);
-    map.addControl(L.control.zoom({
-        position: 'bottomleft'
-    }))
+    }); 
     var drawnItems = new L.FeatureGroup();
     var markerController = {
         markerCount: 1,
@@ -128,7 +147,7 @@ $(document).ready(function() {
             return this.markerCount;
         },
         resetCount: function() {
-            this.markerCount = 1
+            this.markerCount = 1;
         }
     };
     map.addLayer(drawnItems);
@@ -147,17 +166,17 @@ $(document).ready(function() {
             '<td><input type="text" value="15:' +
             minute + '" class="time"></td>' + '</tr>';
         return timeTemplate;
-    };
+    }
 
     function getTimeTableHtml() {
         var number = (markerController.getMarkerCount() >
                 1) ? markerController.getMarkerCount() :
             5,
-            timeTableRowHtml = "";
+            timeTableRowHtml = '';
         for (i = 1; i < number; i++) {
             timeTableRowHtml += getTimeTableRow(i);
         }
-        $("#prototype-time-table").html(
+        $('#prototype-time-table').html(
             timeTableRowHtml);
     }
 
@@ -177,10 +196,9 @@ $(document).ready(function() {
     }
 
     function htmlIconTemplate(value) {
-        return
-            '<div class="bount-icon" style="background-color: #41bcff">' +
-            value + '<div>'
-    };
+        return '<div class="bount-icon" style="background-color: #41bcff">' +
+            value + '<div>';
+    }
     var drawControl = new L.Control.Draw({
         position: 'topright',
         draw: {
@@ -211,7 +229,7 @@ $(document).ready(function() {
     map.on('draw:created', function(e) {
         var type = e.layerType,
             layer = e.layer;
-        if (type == 'marker') {
+        if (type === 'marker') {
             markerController.increaseMarkerCount();
         }
         drawnItems.addLayer(layer);
@@ -227,4 +245,9 @@ $(document).ready(function() {
     });
     $('.leaflet-draw-draw-marker').hide();
     $('.leaflet-draw-draw-polyline').hide();
-});
+
+
+ });       }
+    };
+}]);
+
