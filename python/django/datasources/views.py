@@ -3,9 +3,9 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.filters import OrderingFilter
 
 from transit_indicators.viewsets import OTIAdminViewSet
+from datasources.viewsets import FileDataSourceViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
                                 RealTime, RealTimeProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
@@ -18,11 +18,10 @@ from transit_indicators.models import OTIDemographicConfig
 from transit_indicators.serializers import OTIDemographicConfigSerializer
 
 
-class GTFSFeedViewSet(OTIAdminViewSet):
+class GTFSFeedViewSet(FileDataSourceViewSet):
     """View set for dealing with GTFS Feeds."""
     model = GTFSFeed
     serializer_class = GTFSFeedSerializer
-    filter_fields = ('status', 'city_name',)
 
     def create(self, request):
         """Override create method to call validation task with celery"""
@@ -54,12 +53,10 @@ class GTFSFeedProblemViewSet(OTIAdminViewSet):
     filter_fields = ('gtfsfeed',)
 
 
-class RealTimeViewSet(OTIAdminViewSet):
+class RealTimeViewSet(FileDataSourceViewSet):
     """ View set for dealing wth RealTime uploads """
     model = RealTime
     serializer_class = RealTimeSerializer
-    filter_backends = (OrderingFilter,)
-    ordering_fields = ('id', 'last_modify_date',)
 
     def create(self, request):
         """ Override create to load realtime data via geotrellis """
@@ -75,7 +72,7 @@ class RealTimeProblemViewSet(OTIAdminViewSet):
     filter_fields = ('realtime',)
 
 
-class OSMDataViewSet(OTIAdminViewSet):
+class OSMDataViewSet(FileDataSourceViewSet):
     """View set for dealing with OSM Feeds."""
     model = OSMData
     serializer_class = OSMDataSerializer
@@ -110,7 +107,7 @@ class OSMDataProblemsViewSet(OTIAdminViewSet):
     filter_fields = ('osmdata',)
 
 
-class BoundaryViewSet(OTIAdminViewSet):
+class BoundaryViewSet(FileDataSourceViewSet):
     """View set for handling boundaries (city, regional)."""
     model = Boundary
     serializer_class = BoundarySerializer
@@ -129,7 +126,7 @@ class BoundaryProblemViewSet(OTIAdminViewSet):
     filter_fields = ('boundary',)
 
 
-class DemographicDataSourceViewSet(OTIAdminViewSet):
+class DemographicDataSourceViewSet(FileDataSourceViewSet):
     """Display and create sets of demographic data by uploading shapefiles.
     A POST to this view with a Shapefile will kick off a Celery job to grab the
     data fields from the Shapefile, and validates the Shapefile in the process.
