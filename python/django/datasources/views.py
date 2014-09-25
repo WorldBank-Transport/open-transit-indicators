@@ -3,11 +3,12 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from transit_indicators.viewsets import OTIAdminViewSet
 from datasources.viewsets import FileDataSourceViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
-                                RealTime, RealTimeProblem,
+                                RealTime, RealTimeProblem, FileDataSource,
                                 DemographicDataSource, DemographicDataSourceProblem,
                                 DemographicDataFeature, OSMData, OSMDataProblem)
 from datasources.serializers import (GTFSFeedSerializer, BoundarySerializer, RealTimeSerializer,
@@ -187,3 +188,18 @@ class DemographicDataFeatureViewSet(OTIAdminViewSet):
     """Demographic data associated with geographic features."""
     model = DemographicDataFeature
     filter_fields = ('datasource',)
+
+
+class UploadStatusChoices(APIView):
+    """ Return an object of the available upload statuses
+
+    Each entry is a status, where the key is the database key
+    and the value is the human-readable, translated string
+
+    """
+    def get(self, request, *args, **kwargs):
+        response = { status[0]: status[1] for status in FileDataSource.Statuses.CHOICES }
+        return Response(response, status=status.HTTP_200_OK)
+
+
+upload_status_choices = UploadStatusChoices.as_view()
