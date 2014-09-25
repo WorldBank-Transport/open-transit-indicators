@@ -365,6 +365,9 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     echo 'Running collectstatic (needs to run as root)'
     python manage.py collectstatic --noinput
+
+    echo 'Compiling translations'
+    sudo -Hu "$WEB_USER" python manage.py compilemessages
 popd
 
 # Add triggers which rely on Django migrations (and which therefore can't happen in the
