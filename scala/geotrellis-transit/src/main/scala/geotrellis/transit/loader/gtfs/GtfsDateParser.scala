@@ -1,6 +1,6 @@
 package geotrellis.transit.loader.gtfs
 
-import geotrellis.network.{Location, NamedLocations, NamedLocation}
+import geotrellis.network.{WeekDaySchedule, Location, NamedLocations, NamedLocation}
 import geotrellis.transit.Logger
 import geotrellis.network.graph._
 import com.github.nscala_time.time.Imports._
@@ -26,7 +26,7 @@ object GtfsDateParser {
       if(stopsToVertices.contains(stop)) {
         stopsToVertices(stop)
       } else {
-        val v = StationVertex(Location(stop.point.geom.x, stop.point.geom.y), stop.name)
+        val v = StationVertex(Location(stop.point.geom.y, stop.point.geom.x), stop.name)
         stopsToVertices(stop) = v
         graph += v
         v
