@@ -9,7 +9,7 @@ angular.module('transitIndicators')
     var nullVersion = 0;
     // TODO: Replace this with call to get user-defined city name once implemented
     // Should equal django.conf.settings.OTI_CITY_NAME
-    var selfCityName = 'My City';
+    otiIndicatorsService.selfCityName = 'My City';
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
@@ -17,6 +17,11 @@ angular.module('transitIndicators')
             url: '/api/indicators/:id/ '
         }
     });
+
+    /**
+     * Resource for indicator jobs
+     */
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {});
 
     /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
@@ -70,7 +75,7 @@ angular.module('transitIndicators')
     otiIndicatorsService.getCities = function () {
         var dfd = $q.defer();
         $http.get('/api/indicator-cities/').success(function (data) {
-            dfd.resolve(data);
+            dfd.resolve(data.sort());
         }).error(function(error) {
             console.error('OTIIndicatorsService.getCities:', error);
             dfd.resolve([]);
@@ -86,8 +91,9 @@ angular.module('transitIndicators')
     otiIndicatorsService.getIndicatorVersion = function (callback) {
         $http.get('/api/indicator-version/').success(function (data) {
             var version = nullVersion;
-            if (data && data.current_versions) {
-                version = _.findWhere(data.current_versions, {city_name: selfCityName}).version || nullVersion;
+            if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
+                console.log(data);
+                version = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName}).version || nullVersion;
             }
             callback(version);
         }).error(function (error) {

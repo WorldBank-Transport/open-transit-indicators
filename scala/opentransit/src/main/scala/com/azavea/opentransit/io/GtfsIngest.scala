@@ -46,6 +46,7 @@ object GtfsIngest {
     geomCopy(srid, "gtfs_stops", "the_geom", "geom")
     geomTransform(srid, "gtfs_shape_geoms", "LineString", "geom")
     geomCopy(srid, "gtfs_shape_geoms", "the_geom", "geom")
+    geomTransform(srid, "gtfs_stops_buffers", "MultiPolygon", "geom")
 
     // Now that the SRID of the GTFS data is known, we also need to set the SRID
     // for imported shapefile data (boundaries and demographics).

@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$scope', '$state', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
-            function (config, $cookieStore, $scope, $state, OTIEvents, mapService, authService) {
+            ['config', '$cookieStore', '$scope', '$translate', '$state', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
+            function (config, $cookieStore, $scope, $translate, $state, OTIEvents, mapService, authService) {
 
     var mapStates = ['map', 'transit', 'scenarios'];
 
@@ -15,6 +15,12 @@ angular.module('transitIndicators')
     if (!$scope.activeState) {
         $state.go('transit');
     }
+
+    $scope.languages = config.languages;
+
+    $scope.selectLanguage = function(language) {
+        $translate.use(language);
+    };
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {

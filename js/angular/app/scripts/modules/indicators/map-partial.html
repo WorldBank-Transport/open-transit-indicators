@@ -7,7 +7,9 @@
                     {{ aggregations[indicator.aggregation] }} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat="(key, value) in aggregations"><a ng-click="selectAggregation(key)"> {{ value }}</a></li>
+                    <li ng-repeat="(key, value) in aggregations">
+                        <a ng-click="selectAggregation(key)"> {{ value }}</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -15,10 +17,12 @@
             <div>Indicator Type:</div>
             <div class="btn-group" dropdown is-open="dropdown_type_open">
                 <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
-                    {{ types[indicator.type] }} <span class="caret"></span>
+                    {{ mapTypes[indicator.type] }} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat="(key, value) in types"><a ng-click="selectType(key)"> {{ value }}</a></li>
+                    <li ng-repeat="(key, value) in mapTypes">
+                        <a ng-click="selectType(key)"> {{ value }}</a>
+                    </li>
                 </ul>
             </div>
         </div>

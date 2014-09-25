@@ -2,7 +2,7 @@ package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
 import com.azavea.opentransit.json._
-import com.azavea.opentransit.indicators.{ CalculateIndicators, SamplePeriod }
+import com.azavea.opentransit.indicators._
 
 import com.azavea.gtfs._
 
@@ -30,20 +30,6 @@ import SprayJsonSupport._
 import DefaultJsonProtocol._
 
 import com.typesafe.config.{ConfigFactory, Config}
-
-// Calculation request parameters
-case class IndicatorCalculationRequest(
-  token: String,
-  version: String,
-  povertyLine: Double,
-  nearbyBufferDistance: Double,
-  maxCommuteTime: Int,
-  maxWalkTime: Int,
-  cityBoundaryId: Int,
-  regionBoundaryId: Int,
-  averageFare: Double,
-  samplePeriods: List[SamplePeriod]
-)
 
 case class IndicatorJob(
   version: String = "",
@@ -73,7 +59,13 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                       GtfsRecords.fromDatabase(dbGeomNameUtm)
                     }
 
-                  CalculateIndicators(request.samplePeriods, gtfsRecords) { containerGenerators =>
+                  // Get parameters, hitting the database for any necessary info now.
+                  val params = 
+                    db withSession { implicit session =>
+                      request.toParams
+                    }
+
+                  CalculateIndicators(request.samplePeriods, params, gtfsRecords) { containerGenerators =>
                     val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
                     DjangoClient.postIndicators(request.token, indicatorResultContainers)
                   }

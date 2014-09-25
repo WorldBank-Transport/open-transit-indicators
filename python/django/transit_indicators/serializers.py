@@ -38,17 +38,29 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
         """Handle validation to set read-only fields"""
         if not attrs.get("sample_periods"):
             attrs["sample_periods"] = SamplePeriod.objects.exclude(type="alltime")
-        return super(IndicatorJobSerializer,self).validate(attrs)
+
+        if not attrs.get("job_status"):
+            attrs["job_status"] = IndicatorJob.StatusChoices.QUEUED
+
+        if not attrs.get("created_by"):
+            attrs["created_by"] = self.context["request"].user
+
+        return super(IndicatorJobSerializer, self).validate(attrs)
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'sample_periods', 'is_latest_version', 'version')
+        read_only_fields = ('id', 'sample_periods', 'is_latest_version', 'version',
+                            'job_status', 'created_by')
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
     version = serializers.SlugRelatedField(slug_field='version')
+    city_name = serializers.SerializerMethodField('get_city_name')
+
+    def get_city_name(self, obj):
+        return obj.version.city_name
 
     def validate(self, attrs):
         """Validate indicator fields"""
@@ -72,7 +84,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Indicator
-        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type', 
+        fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type',
                   'city_bounded', 'value', 'formatted_value', 'version', 'city_name', 'the_geom')
         read_only_fields = ('id', 'formatted_value')
         write_only_fields = ('the_geom',)

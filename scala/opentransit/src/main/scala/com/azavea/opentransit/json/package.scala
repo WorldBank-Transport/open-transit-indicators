@@ -14,7 +14,6 @@ import geotrellis.vector.json._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
 
-
 package object json {
   // TODO: Find if we need the DateTime part of the string for this.
   // DateTime gets printed\parsed in format like 2014-09-24T16:59:06-04:00

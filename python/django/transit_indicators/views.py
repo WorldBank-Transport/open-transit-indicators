@@ -65,6 +65,7 @@ class IndicatorFilter(django_filters.FilterSet):
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
     is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
+    city_name = django_filters.CharFilter(name="version__city_name")
 
     class Meta:
         model = Indicator
@@ -82,7 +83,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         """Override request to handle kicking off celery task"""
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            start_indicator_calculation.apply_async(args=[self.object.id, settings.OTI_CITY_NAME], queue='indicators')
+            start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
 
 
@@ -112,7 +113,10 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Handle as csv upload if form data present
         source_file = request.FILES.get('source_file', None)
         if source_file:
-            city_name = request.DATA.get('city_name', None)
+            city_name = request.DATA.pop('city_name', None)
+            ## Moving city_name to IndicatorJob causes this to serialize to a list
+            if city_name and type(city_name) is list:
+                city_name = city_name.pop(0)
             load_status = Indicator.load(source_file, city_name, request.user)
             response_status = status.HTTP_200_OK if load_status.success else status.HTTP_400_BAD_REQUEST
             return Response(load_status.__dict__, status=response_status)
@@ -146,7 +150,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         endpoint with no params
 
         """
-        delete_filter_fields = ('city_name')
+        delete_filter_fields = {'city_name': 'version__city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
@@ -155,7 +159,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         if filters:
             indicators = Indicator.objects.all();
             for field in filters:
-                indicators = indicators.filter(**{field: request.QUERY_PARAMS[field]})
+                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -172,19 +176,27 @@ class IndicatorVersion(APIView):
     """
     def get(self, request, *args, **kwargs):
         """ Return the current versions of the indicators """
-        versions = Indicator.objects.filter(version__is_latest_version=True).values('version', 'city_name').annotate()
+        versions = Indicator.objects.filter(version__is_latest_version=True).values('version',
+                                            'version__city_name').annotate()
         return Response({'current_versions': versions}, status=status.HTTP_200_OK)
 
 
 class IndicatorTypes(APIView):
     """ Indicator Types GET endpoint
 
-    Returns a dict where key is the db indicator type key and value is
-    the human readable, translated string description
+    Returns a dict where key is the db indicator type key,
+    display_name is the human readable, translated string description, and
+    display_on_map is boolean indicating whether indicator should be shown on map or not
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in Indicator.IndicatorTypes.CHOICES }
+        response = {}
+        for key, value in Indicator.IndicatorTypes.CHOICES:
+            if Indicator.IndicatorTypes.INDICATORS_TO_MAP.intersection([key]):
+                show = True
+            else:
+                show = False
+            response[key] = { 'display_name': value, 'display_on_map': show }
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -207,7 +219,7 @@ class IndicatorCities(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = Indicator.objects.values_list('city_name', flat=True).filter(
+        response = IndicatorJob.objects.values_list('city_name', flat=True).filter(
                                                  city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
 

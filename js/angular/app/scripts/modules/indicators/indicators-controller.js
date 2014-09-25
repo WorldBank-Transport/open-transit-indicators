@@ -21,7 +21,16 @@ angular.module('transitIndicators')
     };
 
     OTIIndicatorsService.getIndicatorTypes().then(function (data) {
-        $scope.types = data;
+        // filter indicator types to only show those for map display
+        $scope.types = {};
+        $scope.mapTypes = {};
+        _.each(data, function(obj, key) {
+            var name = obj.display_name;
+            $scope.types[key] = name;
+            if (obj.display_on_map) {
+                $scope.mapTypes[key] = name;
+            }
+        });
     });
     OTIIndicatorsService.getIndicatorAggregationTypes().then(function (data) {
         $scope.aggregations = data;
@@ -50,6 +59,20 @@ angular.module('transitIndicators')
                     return [];
                 }
             }
+        });
+    };
+
+    /**
+     * Submits a job for calculating indicators
+     */
+    $scope.calculateIndicators = function () {
+        var job = new OTIIndicatorsService.IndicatorJob({
+            city_name: OTIIndicatorsService.selfCityName
+        });
+        job.$save().then(function (data) {
+            // This alert is temporary. It will be switched to a
+            // progress grid once status updates are available.
+            alert('Calculation job started with id #' + data.id);
         });
     };
 

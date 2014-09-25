@@ -85,7 +85,9 @@ object Build extends Build {
           "com.github.nscala-time" %% "nscala-time" % "1.4.0",
           "org.scalatest" %% "scalatest" % "2.1.5" % "test",
           "org.slf4j" % "slf4j-nop" % "1.6.4",
-          "org.scala-lang" % "scala-compiler" % "2.10.3"
+          "org.scala-lang" % "scala-compiler" % "2.10.3",
+          "ch.qos.logback" % "logback-classic" % "1.1.1",
+          "org.clapper" %% "grizzled-slf4j" % "1.0.2"
         )
        ) 
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)

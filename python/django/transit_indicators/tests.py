@@ -221,6 +221,11 @@ class IndicatorsTestCase(TestCase):
         self.indicator_job = IndicatorJob.objects.create(job_status='complete',
                                                          version="cbe1f916-42d3-4630-8466-68b753024767",
                                                          created_by=self.user)
+        
+        self.rivendell_job = IndicatorJob.objects.create(job_status='complete',
+                                                         version="deadbeef-9999-9999-9999-012345678910",
+                                                         created_by=self.user,
+                                                         city_name='Rivendell')
         # initialize a sample_period
         start = datetime(2000, 1, 1, 0, 0, 0, tzinfo=utc)
         end = datetime(2000, 1, 1, 12, 0, 0, tzinfo=utc)
@@ -264,23 +269,21 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.indicator_job,
-                                             value=42,
-                                             city_name="Rivendell")
+                                             version=self.rivendell_job,
+                                             value=42)
         indicator2.save()
         indicator3 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.MODE,
                                              city_bounded=True,
-                                             version=self.indicator_job,
-                                             value=42,
-                                             city_name="Rivendell")
+                                             version=self.rivendell_job,
+                                             value=42)
         indicator3.save()
 
-        self.assertEqual(2, len(Indicator.objects.filter(city_name='Rivendell')))
+        self.assertEqual(2, len(Indicator.objects.filter(version__city_name='Rivendell')))
         response = self.client.delete(self.list_url + '?city_name=Rivendell')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(0, len(Indicator.objects.filter(city_name='Rivendell')))
+        self.assertEqual(0, len(Indicator.objects.filter(version__city_name='Rivendell')))
 
         # Test delete all indicators, should fail 400 BAD REQUEST
         response = self.client.delete(self.list_url)
@@ -301,15 +304,13 @@ class IndicatorsTestCase(TestCase):
                                              value=42)
         indicator.save()
 
-        city_name = indicator.city_name
-
+        city_name = indicator.version.city_name
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.indicator_job,
-                                             value=42,
-                                             city_name="Rivendell")
+                                             version=self.rivendell_job,
+                                             value=42)
         indicator2.save()
 
         response = self.client.get(self.list_url, data={ 'city_name': city_name })
@@ -319,8 +320,6 @@ class IndicatorsTestCase(TestCase):
 
     def test_csv(self):
         """Ensure that indicators can be dumped via csv"""
-
-
         indicator = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
@@ -328,7 +327,6 @@ class IndicatorsTestCase(TestCase):
                                              version=self.indicator_job,
                                              value=42)
         indicator.save()
-
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
@@ -336,7 +334,7 @@ class IndicatorsTestCase(TestCase):
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
-        """Ensure csv import endpoint requires city_name parameter
+        """Ensure csv import endpoint works and requires city_name parameter
 
         Test csv file must have sample_period == self.sample_period.type in order to succeed
 
@@ -350,6 +348,7 @@ class IndicatorsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(self.list_url, {'source_file': test_csv})
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 

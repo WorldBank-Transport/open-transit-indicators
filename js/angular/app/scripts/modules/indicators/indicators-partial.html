@@ -2,11 +2,14 @@
     <div bs-affix data-offset-top="0" class="navigationsecondary clearfix">
         <div class="navigationsecondary-left">
             <div class="navigationsecondary-menu filter">
-                <div ui-sref="data" class="button--small" ng-class="{inactive: showingMap}">Data</div>/
-                <div ui-sref="map" class="button--small" ng-class="{inactive: !showingMap}">Map</div>
+                <div ui-sref="data" class="button--small" ng-class="{active: !showingMap}">Data</div>/
+                <div ui-sref="map" class="button--small" ng-class="{active: showingMap}">Map</div>
             </div>
         </div>
         <div class="navigationsecondary-right">
+            <div ng-click="calculateIndicators()" class="button--calculate">
+                {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
+            </div>
             <div class="btn-group" dropdown is-open="dropdown_sample_period_open">
                   <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
                     <span class="glyphicon glyphicon-time"></span> {{ sample_periods[sample_period] }} <span class="caret"></span>

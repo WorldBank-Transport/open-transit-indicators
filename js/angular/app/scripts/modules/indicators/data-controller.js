@@ -1,34 +1,52 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
-            ['$scope', 'OTIEvents', 'OTIIndicatorsService',
-            function ($scope, OTIEvents, OTIIndicatorsService) {
+            ['$scope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+            function ($scope, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
     var cache = {};
     $scope.updating = false;
 
-    $scope.routeXFunction = function () {
-        return function (data) {
-            return data.route_id;
-        };
-    };
-
-    $scope.modeXFunction = function () {
-        return function (data) {
-            return data.route_type;
-        };
-    };
-
-    $scope.yFunction = function () {
-        return function (data) {
-            return data.value;
-        };
-    };
-
-    $scope.tooltipFunction = function () {
+    var defaultTooltipFunction = function () {
         return function (key, x, y) {
             return '<h3>' + key + '</h3><p>' + y.formatted_value + '</p>';
         };
+    };
+
+    $scope.charts = {
+        pie: {
+            xFunctionMode: function () {
+                return function (data) {
+                    return data.route_type;
+                };
+            },
+            xFunctionRoute: function () {
+                return function (data) {
+                    return data.route_id;
+                };
+            },
+            yFunction: function () {
+                return function (data) {
+                    return data.value;
+                };
+            },
+            tooltipFunction: defaultTooltipFunction
+        },
+        bar: {
+            xFunctionMode: function () {
+                return function (data) {
+                    return data.route_type;
+                };
+            },
+            yFunction: function () {
+                return function (data) {
+                    return data.value;
+                };
+            },
+            forceYFunction: function (type, aggregation) {
+                return Math.ceil($scope.indicatorData[type][aggregation].max);
+            }
+        }
     };
 
     /**
@@ -41,8 +59,17 @@ angular.module('transitIndicators')
 
 {
     "<type>": {
-        "<city_name>": {
-            "<aggregation>": [OTIIndicatorService.Indicator]
+        "<aggregation>": {
+            max: <number>,
+            min: <number>
+        },
+        "cities": {
+            "<city_name>": {
+                "<aggregation>": [{
+                    key: '<aggregation>',
+                    values: [OTIIndicatorService.Indicator]
+                }]
+            }
         }
     }
 }
@@ -54,9 +81,13 @@ angular.module('transitIndicators')
         var transformed = {};
         _.each(data, function (indicator) {
             if (!transformed[indicator.type]) {
-                transformed[indicator.type] = {};
+                transformed[indicator.type] = {
+                    cities: {}
+                };
             }
-            if (!transformed[indicator.type][indicator.city_name]) {
+
+            // Calculate max/min for each indicator type
+            if (!transformed[indicator.type].cities[indicator.city_name]) {
                 var indicatorCities = {};
                 // The cities must be set in this object, even if there is no data for that indicator,
                 //  so that we can loop them in the template. If we loop in the template via
@@ -65,12 +96,33 @@ angular.module('transitIndicators')
                 _.each(cities, function (city) {
                     indicatorCities[city] = {};
                 });
-                transformed[indicator.type] = indicatorCities;
+                transformed[indicator.type].cities = indicatorCities;
             }
-            if (!transformed[indicator.type][indicator.city_name][indicator.aggregation]) {
-                transformed[indicator.type][indicator.city_name][indicator.aggregation] = [];
+
+            // Set the indicator into it's proper location
+            if (!transformed[indicator.type].cities[indicator.city_name][indicator.aggregation]) {
+                transformed[indicator.type].cities[indicator.city_name][indicator.aggregation] = [{
+                    key: indicator.aggregation,
+                    values: []
+                }];
             }
-            transformed[indicator.type][indicator.city_name][indicator.aggregation].push(indicator);
+            transformed[indicator.type].cities[indicator.city_name][indicator.aggregation][0].values.push(indicator);
+
+            // Calculate min/max values of indicator type/aggregation so that
+            //  we can properly scale the graphs
+            if (!transformed[indicator.type][indicator.aggregation]) {
+                transformed[indicator.type][indicator.aggregation] = {
+                    max: Number.NEGATIVE_INFINITY,
+                    min: Number.POSITIVE_INFINITY
+                };
+            }
+            var minmax = transformed[indicator.type][indicator.aggregation];
+            if (indicator.value > minmax.max) {
+                minmax.max = indicator.value;
+            }
+            if (indicator.value < minmax.min) {
+                minmax.min = indicator.value;
+            }
         });
         return transformed;
     };
@@ -100,6 +152,21 @@ angular.module('transitIndicators')
             }
         }
     };
+
+    $scope.displayIndicator = function (type, aggregation) {
+        var config = $scope.indicatorConfig;
+        var display = !!(config && config[type] && config[type][aggregation]);
+        return display;
+    };
+
+    $scope.getModePartialForIndicator = function (type) {
+        var config = $scope.indicatorConfig;
+        var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
+        var url = '/scripts/modules/indicators/charts/:charttype-mode-partial.html';
+        return url.replace(':charttype', chartType);
+    };
+
+    $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
 
     $scope.getIndicatorDescriptionTranslationKey = function(key) {
         return 'INDICATOR_DESCRIPTION.' + key;

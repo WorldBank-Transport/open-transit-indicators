@@ -154,6 +154,9 @@ class IndicatorJob(models.Model):
     is_latest_version = models.BooleanField(default=False)
     sample_periods = models.ManyToManyField(SamplePeriod)
     created_by = models.ForeignKey(OTIUser)
+    # A city name used to differentiate indicator sets
+    # external imports must provide a city name as part of the upload
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
 
 
 class Indicator(models.Model):
@@ -185,7 +188,7 @@ class Indicator(models.Model):
         """ Load passed csv into Indicator table using city_name as a reference value
 
         :param data: File object holding csv data with headers in Indicator.field_names
-        :param city_name: Inserted into the Indicator.city_name field, is a human-readable
+        :param city_name: Inserted into the IndicatorJob.city_name field, is a human-readable
                           string which denotes which dataset the indicator is attached to
         :param user: User loading this csv
 
@@ -194,21 +197,28 @@ class Indicator(models.Model):
         """
         response = cls.LoadStatus()
         sample_period_cache = {}
-        # create new job for this import, so the version number may be set
-        # Always has is_latest_version true to indicate that these indicators are available
-        # for display
-        import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
-                                  created_by=user)
         if not city_name:
             response.errors.append('city_name parameter required')
+            response.success = False
             return response
         try:
+            # first, invalidate previous indicator calculations uploaded for this city
+            IndicatorJob.objects.filter(city_name=city_name).update(is_latest_version=False)
+            # create new job for this import, so the version number may be set
+            # Always has is_latest_version true to indicate that these indicators are available
+            # for display
+            import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+                                      created_by=user, city_name=city_name)
             num_saved = 0
             dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
             dict_reader.next()
             with transaction.atomic():
                 for row in dict_reader:
-                    row['city_name'] = city_name
+                    # check that the exported city name matches the one the user specified
+                    # (ignore any other cities in the uploaded CSV)
+                    this_city = row.pop('city_name')
+                    if this_city != city_name:
+                        continue
                     sp_type = row.pop('sample_period', None)
                     version = row.pop('version', None)
                     if not import_job.version:
@@ -255,7 +265,7 @@ class Indicator(models.Model):
         AFFORDABILITY = 'affordability'
         AVG_SERVICE_FREQ = 'avg_service_freq'
         COVERAGE = 'coverage'
-        COVERAGE_STOPS = 'coverage_stops'
+        COVERAGE_STOPS = 'coverage_ratio_stops_buffer'
         DISTANCE_STOPS = 'distance_stops'
         DWELL_TIME = 'dwell_time'
         HOURS_SERVICE = 'hours_service'
@@ -271,7 +281,7 @@ class Indicator(models.Model):
         REGULARITY_HEADWAYS = 'regularity_headways'
         SERVICE_FREQ_WEIGHTED = 'service_freq_weighted'
         STOPS_ROUTE_LENGTH = 'stops_route_length'
-        SUBURBAN_LINES = 'suburban_lines'
+        SUBURBAN_LINES = 'ratio_suburban_lines'
         SYSTEM_ACCESS = 'system_access'
         SYSTEM_ACCESS_LOW = 'system_access_low'
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
@@ -312,6 +322,20 @@ class Indicator(models.Model):
                             TIME_TRAVELED_STOPS: Units.MINUTES,
                             WEEKDAY_END_FREQ: Units.HOURS
         }
+        
+        # indicators to display on the map
+        INDICATORS_TO_MAP = frozenset([
+                              LENGTH,
+                              NUM_STOPS,
+                              HOURS_SERVICE,
+                              STOPS_ROUTE_LENGTH,
+                              DISTANCE_STOPS,
+                              TIME_TRAVELED_STOPS,
+                              WEEKDAY_END_FREQ,
+                              ON_TIME_PERF,
+                              REGULARITY_HEADWAYS,
+                              COVERAGE
+        ])
 
         CHOICES = (
             (ACCESS_INDEX, _(u'Access index')),
@@ -362,11 +386,6 @@ class Indicator(models.Model):
     # Whether or not this calculation is contained within the defined city boundaries
     city_bounded = models.BooleanField(default=False)
 
-    # A city name used to differentiate indicator sets
-    # The indicators calculated for this app's GTFSFeed will always have city_name=settings.OTI_CITY_NAME
-    # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
-
     # Version of data this indicator was calculated against. For the moment, this field
     # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
     # will need to be added to the the GTFS (and other data) rows.
@@ -385,8 +404,5 @@ class Indicator(models.Model):
 
     class Meta(object):
         # An indicators uniqueness is determined by all of these things together
-        # Note that route_id, route_type and city_name can be null.
-        # TODO: Figure out a way to enforce uniqueness via the other six keys when city_name
-        #       is null.
-        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type",
-                            "city_name", "version"),)
+        # Note that route_id and route_type can be null.
+        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type", "version"),)

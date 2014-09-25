@@ -28,6 +28,15 @@ angular.module('transitIndicators').constant('config', {
 
     debug: true,
 
+    languages: {
+        'English': 'en',
+        'Chinese': 'zh',
+        'Vietnamese': 'vi',
+        'Spanish': 'es'
+    },
+
+    defaultLanguage: 'en',
+
     worldExtent: {
         southWest: {
           lat: -57.0,
@@ -146,10 +155,6 @@ angular.module('transitIndicators').constant('config', {
 
     gtfsRouteTypeColors: gtfsRouteTypeColors,
 
-    windshaft: {
-        port: 8067
-    },
-
     settingsViews: [
         {
             id: 'overview'
@@ -163,12 +168,9 @@ angular.module('transitIndicators').constant('config', {
         {
             id: 'demographic'
         },
-        /*
-        // Temporarily removed until we decide to use it
         {
             id: 'realtime'
         },
-        */
         {
             id: 'configuration'
         },

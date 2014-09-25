@@ -77,7 +77,7 @@ $rootScope:                         (event args)
     '<div class="h4">Uploading your file ({{ uploadProgress }}%) <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>' +
     '<div class="h4" ng-show="uploadProgress === 100">Processing...</div>' +
 '</div>' +
-'<div class="dropzone" ng-show="upload.is_valid">' +
+'<div class="dropzone" ng-show="upload.is_valid && upload.is_processed">' +
     '<div class="h3">' +
         '<span class="glyphicon glyphicon-ok"></span> Data Loaded' +
         '<span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">Delete Data</button></span>' +
@@ -174,11 +174,16 @@ $rootScope:                         (event args)
                             $rootScope.$broadcast(events.processingError, scope.upload, { error: err });
                         } else {
                             scope.resource.get({id: scope.upload.id}, function (data) {
-                                scope.uploadProgress = progress.DONE;
                                 scope.upload = data;
-                                $rootScope.$broadcast(events.pollingFinished, data);
+                                if (data.is_processed && data.is_valid) {
+                                    scope.uploadProgress = progress.DONE;
+                                    $rootScope.$broadcast(events.pollingFinished, data);
+                                } else {
+                                    setUploadError('Error processing upload.');
+                                    $rootScope.$broadcast(events.pollingError, scope.upload, data, status);
+                                }
                             }, function (data, status) {
-                                setUploadError('Uable to verify upload.');
+                                setUploadError('Unable to verify upload.');
                                 $rootScope.$broadcast(events.pollingError, scope.upload, data, status);
                             });
                         }

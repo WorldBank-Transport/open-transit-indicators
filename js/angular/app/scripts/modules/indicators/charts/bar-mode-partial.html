@@ -1,0 +1,11 @@
+<nvd3-discrete-bar-chart
+    data="citydata.mode"
+    id="{{ type }}-{{ $index }}-mode-bar-chart"
+    height="170"
+    showXAxis="true"
+    showYAxis="false"
+    showValues="true"
+    x="charts.bar.xFunctionMode()"
+    y="charts.bar.yFunction()"
+    forcey="[0, {{ charts.bar.forceYFunction(type, 'mode') }}]">
+</nvd3-discrete-bar-chart>

@@ -8,9 +8,10 @@ import zipfile
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInterface
+from transit_indicators.models import IndicatorJob
 from urllib import urlencode
 
-from datasources.models import GTFSFeed, GTFSFeedProblem
+from datasources.models import Boundary, GTFSFeed, GTFSFeedProblem, OSMData, DemographicDataSource
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -111,7 +112,15 @@ def run_validate_gtfs(gtfsfeed_id):
                                                type=GTFSFeedProblem.ProblemTypes.WARNING)
 
     gtfsfeed.is_valid = True if errors_count == 0 else False
+
+    # delete any uploaded shapefiles that aren't for this GTFS' city
+    delete_other_city_uploads(gtfsfeed.city_name)
+
+    # invalidate last set of indicators calculated for this city (need to re-run them for this GTFS)
+    IndicatorJob.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
+
     # send to GeoTrellis
+    logger.debug('going to send gtfs to geotrellis')
     result = send_to_geotrellis(gtfsfeed.source_file) if gtfsfeed.is_valid else False
 
     # Update processing status
@@ -119,6 +128,18 @@ def run_validate_gtfs(gtfsfeed_id):
     gtfsfeed.is_processed = result
     gtfsfeed.save()
 
+
+def delete_other_city_uploads(cityname):
+    """Helper function to delete uploaded shapefiles for cities other than the given city name.
+
+    Arguments:
+    :param cityname: String that is the name of the current city (keep files for this city)
+    """
+    logger.debug('going to delete uploads for cities other than %s', cityname)
+    # deleting these data objects will cascade deletion of their related objects
+    Boundary.objects.exclude(city_name=cityname).delete()
+    OSMData.objects.exclude(city_name=cityname).delete()
+    DemographicDataSource.objects.exclude(city_name=cityname).delete()
 
 def send_to_geotrellis(gtfs_file):
     """Sends GTFS data to GeoTrellis for storage
@@ -138,6 +159,8 @@ def send_to_geotrellis(gtfs_file):
 
     zip_file = zipfile.ZipFile(gtfs_file)
     for name in zip_file.namelist():
+        if '/' in name: # the __MACOSX directory breaks the import
+            continue    # but there shouldn't be any directories anyway.
         outfile = open(os.path.join(zip_dir, name), 'wb')
         outfile.write(zip_file.read(name))
         outfile.close()

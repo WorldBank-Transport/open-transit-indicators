@@ -251,4 +251,75 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
 
     bySystem.get should be (2.35755 +- 1e-5)
   }
+  
+  // it should "calcuate overall hours_service by route for SEPTA" in {
+  //   val hrsServByMode = septaRailCalc.calculatorsByName("hours_service").calcOverallByMode
+  //   hrsServByMode(2) should be (146.48164 plusOrMinus 1e-5)
+  // }
+  
+  // it should "calcuate overall hours_service by system for SEPTA" in {
+  //   val dbsBySystem = septaRailCalc.calculatorsByName("hours_service").calcOverallBySystem
+  //   dbsBySystem should be (146.48164 plusOrMinus 1e-5)
+  // }
+  
+  // it should "calculate hours_service by route for SEPTA" in {
+  //   val hrsServByRoute = septaRailCalc.calculatorsByName("hours_service").calcOverallByRoute
+  //   hrsServByRoute("PAO") should be (141.84836 plusOrMinus 1e-5)
+  //   hrsServByRoute("MED") should be (129.44850 plusOrMinus 1e-5)
+  //   hrsServByRoute("WAR") should be (146.48164 plusOrMinus 1e-5)
+  //   hrsServByRoute("NOR") should be (137.08175 plusOrMinus 1e-5)
+  //   hrsServByRoute("LAN") should be (136.28176 plusOrMinus 1e-5)
+  //   hrsServByRoute("CYN") should be (27.79353 plusOrMinus 1e-5)
+  //   hrsServByRoute("WIL") should be (135.88176 plusOrMinus 1e-5)
+  //   hrsServByRoute("AIR") should be (141.04837 plusOrMinus 1e-5)
+  //   hrsServByRoute("CHW") should be (125.31522 plusOrMinus 1e-5)
+  //   hrsServByRoute("WTR") should be (136.28176 plusOrMinus 1e-5)
+  //   hrsServByRoute("FOX") should be (120.91527 plusOrMinus 1e-5)
+  //   hrsServByRoute("CHE") should be (135.28177 plusOrMinus 1e-5)
+  //   hrsServByRoute("TRE") should be (144.97888 plusOrMinus 1e-5)
+  // }
+
+  // it should "calculate a buffered stops coverage ratio by system for SEPTA" in {
+  //   val coverageBufferBySystem = septaRailCalc.calculatorsByName("coverage_ratio_stops_buffer").calcBySystem(period)
+  //   coverageBufferBySystem should be (0.09364127449154404 plusOrMinus 1e-5)
+  // }
+
+  // // this doesn't test an indicator, but is an example for how to read data from the db
+  // it should "read trips from the database" in {
+  //   db withSession { implicit session: Session =>
+  //     dao.toGtfsData.trips.size should be (1662)
+  //   }
+  // }
+
+  // it should "calculate the ratio of suburban rail lines" in {
+  //   val suburbRateByMode = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcByMode(period)
+  //   suburbRateByMode(2) should be (0.846 plusOrMinus 1e-3)
+  // }
+
+  // it should "calculate the ratio of suburban lines" in {
+  //   val suburbRateBySystem = septaRailCalc.calculatorsByName("ratio_suburban_lines").calcBySystem(period)
+  //   suburbRateBySystem should be (0.846 plusOrMinus 1e-3)
+  // }
+
+  // it should "read OSM data from the test database" in {
+  //   db withSession { implicit session: Session =>
+  //     val osmRoads = Q.queryNA[String]("SELECT way FROM planet_osm_roads LIMIT 10").list
+  //     val a = osmRoads map (WKB.read[Line](_))
+  //     a.head.length should be (181.19214 plusOrMinus 1e-5)
+  //   }
+  // }
+
+  // it should "calculate the ratio of transit lines to roads - system should be equal to mode" in {
+  //   val transToRoadsRateBySystem = septaRailCalc.calculatorsByName("lines_roads").calcBySystem(period)
+  //   val transToRoadsRateByMode = septaRailCalc.calculatorsByName("lines_roads").calcByMode(period)
+  //   transToRoadsRateBySystem should be (transToRoadsRateByMode(2))
+  // }
+
+  // it should "calculate the ratio of transit lines to roads - and get the right answer" in {
+  //   db withSession { implicit session: Session =>
+  //     val transToRoadsRateBySystem = septaRailCalc.calculatorsByName("lines_roads").calcBySystem(period)
+  //     transToRoadsRateBySystem should be (0.54791 plusOrMinus 1e-5)
+  //   }
+  // }
+
 }

@@ -10,14 +10,14 @@ object CalculateIndicators {
   /** Computes all indicators and shovels the IndicatorContainerGenerators to a function.
     * The sink funciton should be thread safe! 
     */
-  def apply(periods: Seq[SamplePeriod], gtfsRecords: GtfsRecords)(sink: Seq[ContainerGenerator] => Unit): Unit = {
+  def apply(periods: Seq[SamplePeriod], params: IndicatorCalculationParams, gtfsRecords: GtfsRecords)(sink: Seq[ContainerGenerator] => Unit): Unit = {
     val builder = TransitSystemBuilder(gtfsRecords)
     val systemsByPeriod = 
-      periods.map { period => 
+      periods.map { period =>
         (period, builder.systemBetween(period.start, period.end)) 
       }.toMap
 
-    for(indicator <- Indicators.list) {
+    for(indicator <- Indicators.list(params)) {
       val (periodResults, periodGeometries) = 
         periods
           .map { period =>
