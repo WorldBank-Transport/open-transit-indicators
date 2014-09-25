@@ -2,6 +2,8 @@ package com.azavea.gtfs.io.csv
 
 import com.azavea.gtfs._
 
+import com.azavea.opentransit.testkit._
+
 import org.scalatest._
 import java.io.File
 

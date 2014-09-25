@@ -20,7 +20,7 @@ trait DatabaseTestFixture extends TestDatabase with BeforeAndAfterAll { self: Su
   // after all tests have been run in the spec, drop the test database
   override def afterAll() {
     postgres withSession { implicit session: Session =>
-      Q.updateNA(s"DROP DATABASE $dbName").execute
+      Q.updateNA(s"""DROP DATABASE IF EXISTS "$dbName";""").execute
     }
   }
 }

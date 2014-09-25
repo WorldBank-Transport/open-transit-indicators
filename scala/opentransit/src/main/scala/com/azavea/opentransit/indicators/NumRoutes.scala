@@ -5,6 +5,8 @@ import com.azavea.gtfs._
 
 object NumRoutes extends Indicator 
                     with AggregatesByAll {
+  type Intermediate = Int
+
   val name = "num_routes"
 
   val calculation =

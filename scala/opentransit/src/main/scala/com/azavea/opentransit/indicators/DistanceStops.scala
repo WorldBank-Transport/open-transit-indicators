@@ -4,9 +4,12 @@ import com.azavea.gtfs._
 import com.azavea.opentransit._
 
 /** Indicator for average distance between stops */
-object DistnaceStops extends Indicator
-                        with AggregatesByAll {
+object DistanceStops extends Indicator
+                       with AggregatesByAll {
+  type Intermediate = Double
+
   val name = "distance_stops"
+
   val calculation =
     new PerRouteIndicatorCalculation[Double] {
      // for each route, get tuple of:

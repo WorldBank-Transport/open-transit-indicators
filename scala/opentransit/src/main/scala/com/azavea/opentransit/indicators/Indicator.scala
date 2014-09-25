@@ -3,32 +3,31 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs.TransitSystem
 import scala.collection.mutable
 
-trait IndicatorCalculator {
-  def apply(systemsByPeriod: Map[SamplePeriod, TransitSystem])(sink: Seq[ContainerGenerator] => Unit): Unit
+trait TransitSystemCalculation {
+  def apply(transitSystem: TransitSystem): AggregatedResults
 }
 
 object Indicators {
-  private val _calculations = mutable.ListBuffer[IndicatorCalculator]()
-  def calculations = _calculations.toList
-
   // Add new indicators here!
-  val list = List(
+  val list: List[Indicator] = List(
     AverageServiceFrequency,
-    NumStops
+    DistanceStops,
+    Length,
+    NumRoutes,
+    NumStops,
+    TimeTraveledStops
   )
-
-  for(indicator <- list) { 
-    indicator.calculation.register(this.registerCalculation, indicator.aggregatesBy _, indicator.name) 
-  }
-
-  def registerCalculation(calculation: IndicatorCalculator): Unit =
-    _calculations += calculation
 }
 
-trait Indicator { self: AggregatesBy =>
+trait Indicator extends TransitSystemCalculation { self: AggregatesBy =>
+  type Intermediate
+
   val name: String
-  val calculation: IndicatorRegister
+  val calculation: IndicatorCalculation[Intermediate]
 
   def aggregatesBy(aggregate: Aggregate) =
     self.aggregates.contains(aggregate)
+
+  def apply(transitSystem: TransitSystem): AggregatedResults =
+    calculation(transitSystem, aggregatesBy _)
 }

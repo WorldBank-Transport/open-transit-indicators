@@ -12,6 +12,8 @@ import org.joda.time._
   */
 object AverageServiceFrequency extends Indicator 
                                   with AggregatesByAll {
+  type Intermediate = Map[Stop, Seq[LocalDateTime]]
+
   val name = "avg_service_freq"
 
   val calculation = 

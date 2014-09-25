@@ -9,7 +9,6 @@ object AgencyFile extends GtfsFile[Agency] {
   val isRequired = true
 
   def parse(path: String): Seq[Agency] = {
-    println(new java.io.File(path).getAbsolutePath)
     val agencies = mutable.ListBuffer[Agency]()
 
     for (s <- CsvParser.fromPath(path)) {

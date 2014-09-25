@@ -37,13 +37,13 @@ object GtfsRecords {
   /** Reads GTFS records from a diretory containing GTFS records
     * that are based on the GTFS specification (Revised June 20, 2012)
     */
-  def fromFiles(directory: String): GtfsRecords =
+  def fromFiles(directory: String): CsvGtfsRecords =
     CsvGtfsRecords(directory)
 
-  def fromDatabase(implicit session: Session): GtfsRecords =
+  def fromDatabase(implicit session: Session): DatabaseGtfsRecords =
     new DatabaseGtfsRecords with DefaultProfile
 
-  def fromDatabase(geomColumnName: String)(implicit session: Session): GtfsRecords = {
+  def fromDatabase(geomColumnName: String)(implicit session: Session): DatabaseGtfsRecords = {
     val gcn = geomColumnName
     new DatabaseGtfsRecords with Profile { val geomColumnName = gcn }
   }

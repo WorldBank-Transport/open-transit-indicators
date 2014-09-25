@@ -8,6 +8,8 @@ import org.joda.time._
 
 object TimeTraveledStops extends Indicator
                             with AggregatesByAll {
+  type Intermediate = Seq[Int]
+
   val name = "time_traveled_stops"
 
   val calculation =

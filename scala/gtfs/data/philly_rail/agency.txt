@@ -1,2 +1,0 @@
-agency_id, agency_name, agency_url, agency_timezone, agency_lang
-SEPTA, SEPTA, http://www.septa.org, America/New_York, EN

@@ -6,7 +6,7 @@ import com.github.nscala_time.time.Imports._
 
 import org.scalatest._
 
-class TransitSystemFactorySpec extends FunSpec with Matchers {
+class TransitSystemBuilderSpec extends FunSpec with Matchers {
   describe("TransitSystemFactory") {
     it("should leave out stops in a trip if they are before or after the start and end date") {
       val builder = TransitSystemBuilder(TestGtfsRecords())
@@ -37,17 +37,23 @@ class TransitSystemFactorySpec extends FunSpec with Matchers {
       val scheduledStop = departureTimesWith.diff(departureTimesWithout).toList.head
       scheduledStop should be (new LocalDateTime(2014, 2, 3, 6, 0) + TestGtfsRecords.times.busWaitTime)
     }
-  }
 
-  it("asdf") {
-
-    def combineMaps(m: Seq[Map[Int, Int]]): Map[Int, Seq[Int]] = {
-      m.map(_.toSeq).flatten.groupBy(_._1).mapValues(_.map(_._2))
+    it("should not include a route with no trips, and include one with trips") {
+      val records = GtfsRecords.fromFiles(TestFiles.septaPath)
+      val builder = TransitSystemBuilder(records)
+      val start = new LocalDateTime("2014-06-01T00:00:00.000")
+      val end = new LocalDateTime("2014-06-01T08:00:00.000")
+      builder.systemBetween(start, end).routes.find(_.id == "GLN") should be (None)
+      builder.systemBetween(start, end).routes.find(_.id == "AIR") should not be (None)
     }
 
-    val in = Seq( Map( 1 -> 2, 2 -> 4), Map(2 -> 5) )
-    val m = combineMaps(in)
-
-    m should be (Map(1 -> Seq(2), 2 -> Seq(4, 5)))
+    it("should return an empty system on dates where no services are specified to be running") {
+      val records = GtfsRecords.fromFiles(TestFiles.septaPath)
+      val builder = TransitSystemBuilder(records)
+      val start = new LocalDateTime("1950-01-01T00:00:00.000")
+      val end = new LocalDateTime("1950-01-01T08:00:00.000")
+      val system = builder.systemBetween(start, end)
+      system.routes.size should be (0)
+    }
   }
 }
