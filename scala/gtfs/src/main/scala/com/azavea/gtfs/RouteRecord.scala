@@ -5,7 +5,7 @@ case class RouteRecord(
   shortName: String,
   longName: String,
   routeType: RouteType,
-  agencyId: Option[String] = None,
+  agencyId: String = "",
   description: Option[String] = None,
   url: Option[String] = None,
   color: Option[String] = None,

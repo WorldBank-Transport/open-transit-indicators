@@ -1,0 +1,6 @@
+
+.icon-train:before { content: '\e800'; } /* '' */
+.icon-bike:before { content: '\e801'; } /* '' */
+.icon-bus:before { content: '\e802'; } /* '' */
+.icon-walk:before { content: '\e803'; } /* '' */
+.icon-car:before { content: '\e804'; } /* '' */

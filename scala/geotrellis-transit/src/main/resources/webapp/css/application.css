@@ -1,0 +1,265 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:100,300,400,700);
+
+html,
+body {
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    height: 100%;
+}
+body {
+    position: relative;
+    padding-top: 70px;
+    background: url(../img/homepage-background.jpg) no-repeat bottom center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.btn .caret {
+    margin-left: 6px;
+}
+
+.navbar {
+    height: 70px;
+    }
+    .navbar-brand {
+        background: url(../img/logo_icon.png) no-repeat;
+        background-size: 42px;
+        background-position: 15px 12px;
+        padding: 25px 15px 25px 70px;
+        font-size: 24px;
+        font-weight: 100;
+        }
+        .navbar-brand > b {
+            font-weight: 700;
+        }
+    .navbar-form {
+        padding: 6px 15px;
+        }
+        .navbar-form .form-control {
+            padding: 10px 14px;
+            height: 42px;
+            width: 320px;
+        }
+        .navbar-form .btn {
+            padding: 10px 12px;
+        }
+        
+    .navbar-default .navbar-nav > li > a {
+        color: #AAA;
+        font-weight: 300;
+    }
+
+.content {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    top: 70px;
+    }
+    #sidebar {
+        width: 360px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        background: #AAA;
+        }
+        #sidebar .sidebar-top {
+            border-bottom: 1px solid #CCC;
+            background: #F1F2F2;
+        }
+        #sidebar .sidebar-inner {
+            padding: 20px;
+        }
+        #sidebar .sidebar-inner .progress {
+            margin: 10px 0 0;
+        }
+        #sidebar .sidebar-inner label {
+            font-size: 12px;
+            text-transform: uppercase;
+            margin: 10px 0 5px;
+            color: #AAA;
+            }
+            #sidebar .sidebar-inner #destinations label {
+                margin-top: 0;
+            }
+            #sidebar .sidebar-inner #destinations input[name="address"] {
+                border-right: none;
+            }
+            
+            #sidebar .sidebar-inner label.btn {
+                color: white;
+            }
+            #sidebar .sidebar-inner .transit-types-label {
+                position: relative;
+                top: 6px;
+                margin-right: 10px;
+            }
+    #sidebar .sidebar-advanced {
+        overflow: hidden;
+        }
+        #sidebar .sidebar-advanced input[type="checkbox"] {
+            margin-top: 2px;
+        }
+            
+    #toggle-sidebar-advanced {
+        padding: 10px 20px;
+        cursor: pointer;
+        color: #AAA;
+        font-size: 18px;
+        font-weight: 300;
+        }
+        #toggle-sidebar-advanced:hover,
+        #toggle-sidebar-advanced.active {
+            background: white;
+            border-bottom: 1px solid #CCC;
+            color: #212323;
+            box-shadow: 0 0 10px rgba(0,0,0,.5);
+        }
+    
+    #sidebar .sidebar-inner.sidebar-header {
+        padding: 10px 20px;
+        background: white;
+        border-bottom: 1px solid #CCC;
+        color: #212323;
+        font-size: 18px;
+        font-weight: 300;
+        box-shadow: 0 0 10px rgba(0,0,0,.5);
+    }
+    
+    #direction {
+        margin-top: 10px;
+        padding: 5px 12px;
+    }
+       
+    #destinationsBtn {
+        border-right: none;
+    }
+    
+    #schedule {
+        border-right: none;
+    }
+        
+    #map {
+        left: 360px;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        position: absolute;
+        background: #CCC;
+    }
+    
+.ui-slider-block {
+    position: absolute;
+    width: 14.28%;
+    height: 100%;
+    max-height: .8em;
+    }
+    .ui-slider-block.block-10m {
+        background: #f48380;
+        left: 0;
+    }
+    .ui-slider-block.block-15m {
+        background: #fab282;
+        left: 14.28%;
+    }
+    .ui-slider-block.block-20m {
+        background: #fddf84;
+        left: 28.57%;
+    }
+    .ui-slider-block.block-30m {
+        background: #DCF288;
+        left: 42.85%;
+    }
+    .ui-slider-block.block-40m {
+        background: #B6F2AE;
+        left: 57.13%;
+    }
+    .ui-slider-block.block-50m {
+        background: #98FEE6;
+        left: 71.41%;
+    }
+    .ui-slider-block.block-60m {
+        background: #83D9FD;
+        left: 85.69%;
+    }
+
+.ui-slider-wait-block {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    max-height: .8em;
+    }
+    .ui-slider-wait-block.block-10m {
+        background: #f48380;
+        left: 0;
+    }
+    .ui-slider-wait-block.block-15m {
+        background: #fab282;
+        left: 25%;
+    }
+    .ui-slider-wait-block.block-20m {
+        background: #fddf84;
+        left: 50%;
+    }
+    .ui-slider-wait-block.block-30m {
+        background: #DCF288;
+        left: 75%;
+    }
+    
+#duration-labels {
+    position: relative;
+    width: 100%;
+    margin-top: 3px;
+    height: 15px;
+    }
+    .ui-slider-label {
+        position: absolute;
+        width: 14.28%;
+        font-size: 10px;
+        font-weight: 300;
+    }
+
+.ui-slider-handle {
+    background: white;
+}
+
+#homepage {}
+    #homepage .container-inner {
+        background: white;
+        padding: 35px;
+        margin-top: 30px;
+        border: 1px solid #EEE;
+        margin-bottom: 50px;
+    }
+    #homepage h2 {
+        font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 300;
+        font-size: 2.5em;
+        text-align: center;
+    }
+    #homepage p {
+        font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 300;
+    }
+    #homepage .btn {
+        margin: 0 auto;
+        width: 320px;
+        display: block;
+        font-size: 21px;
+        font-weight: 300;
+    }
+    #homepage .list-inline {
+        text-align: center;
+    }
+
+#swagger-ui-container {
+    max-width: none;
+    }
+    #swagger-ui-container .container {
+        padding: 0;
+    }
+    #swagger-ui-container .content {
+        position: static;
+        top: 0;
+    }
+    

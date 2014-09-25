@@ -26,6 +26,13 @@ class TransitSystemBuilder(records: GtfsRecords) {
   private val agencyIdToAgency: Map[String, Agency] =
     records.agencies.map { agency => (agency.id, agency) }.toMap
 
+  /** Generates a TransitSystem for the specified period, inclusive */
+  def systemBetween(start: LocalDate, end: LocalDate): TransitSystem = 
+    systemBetween(
+      start.toLocalDateTime(LocalTime.Midnight), 
+      end.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
+
+
   /** Generates a TransitSystem for the specified period */
   def systemBetween(start: LocalDateTime, end: LocalDateTime): TransitSystem = {
     val dates = {
@@ -68,6 +75,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
                           .filter { scheduledStop =>
                             start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
                           }
+                          .sortBy(_.arrivalTime)
      
                       if(!scheduledStops.isEmpty)
                         Some(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
