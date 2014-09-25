@@ -41,7 +41,6 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.setSidebarCheckmark('upload', false);
     };
 
     /**

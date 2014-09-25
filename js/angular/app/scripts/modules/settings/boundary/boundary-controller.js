@@ -62,7 +62,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('pollingUpload:uploadDelete', function () {
-        setSidebarCheckmark();
+        $scope.setSidebarCheckmark('boundary', false);
     });
 
     /*
