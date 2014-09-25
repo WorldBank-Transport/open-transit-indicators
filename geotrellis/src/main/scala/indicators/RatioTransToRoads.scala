@@ -58,8 +58,10 @@ class RatioTransToRoads(val gtfsData: GtfsData, val calcParams: CalcParams, val 
     }
 
     def uniqueLines(ls: Seq[Line]): Array[Line] = {
-      val mlFull = MultiLine(MultiLine(ls).jtsGeom.union.asInstanceOf[com.vividsolutions.jts.geom.MultiLineString])
-      mlFull.lines
+      if (ls.size == 1)
+        ls.toArray
+      else
+        MultiLine(MultiLine(ls).jtsGeom.union.asInstanceOf[com.vividsolutions.jts.geom.MultiLineString]).lines
     }
 
     /**
