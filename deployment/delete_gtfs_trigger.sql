@@ -31,6 +31,11 @@ CREATE OR REPLACE FUNCTION empty_gtfs() RETURNS trigger AS $empty_gtfs$
         EXECUTE 'DELETE FROM gtfs_wheelchair_boardings';
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeed_id_seq RESTART WITH 1';
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeedproblem_id_seq RESTART WITH 1';
+
+        EXECUTE 'DELETE FROM planet_osm_line';
+        EXECUTE 'DELETE FROM planet_osm_point';
+        EXECUTE 'DELETE FROM planet_osm_polygon';
+        EXECUTE 'DELETE FROM planet_osm_roads';
         RETURN NULL;
     END;
 $empty_gtfs$ LANGUAGE plpgsql;
