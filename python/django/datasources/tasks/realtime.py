@@ -24,6 +24,7 @@ def run_realtime_import(realtime_id):
 
     real_time = RealTime.objects.get(pk=realtime_id)
     real_time.status = RealTime.Statuses.IMPORTING
+    real_time.save()
     error_factory = ErrorFactory(RealTimeProblem, real_time, 'realtime')
 
     def handle_error(title, description):

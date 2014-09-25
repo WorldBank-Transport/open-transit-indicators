@@ -65,17 +65,17 @@ $rootScope:                         (event args)
             '  <div class="h4" ng-file-drop="startUpload($files)" ng-file-drop-available="true">Drop file here or </div>',
             '  <input type="file" ng-file-select="startUpload($files)" />',
             '</div>',
-            '<div class="dropzone inprogress" ng-show="Status.isPolling(upload.status)">',
+            '<div class="dropzone inprogress" ng-show="options.checkContinue(upload)">',
             '  <div class="h4">Uploading your file... <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>',
             '  <progressbar value="uploadProgress" class="progress-striped active" max=100><i>{{ Status.STRINGS[upload.status] }}</i></progressbar>',
             '</div>',
-            '<div class="dropzone" ng-show="Status.isComplete(upload.status)">',
+            '<div class="dropzone" ng-show="options.checkComplete(upload)">',
             '  <div class="h3">',
             '    <span class="glyphicon glyphicon-ok"></span> Data Loaded',
             '    <span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">Delete Data</button></span>',
             '  </div>',
             '</div>',
-            '<div class="dropzone notices" ng-show="Status.isError(upload.status) || uploadError">',
+            '<div class="dropzone notices" ng-show="options.checkInvalid(upload) || uploadError">',
             '  <div class="h4">',
             '    <span class="glyphicon glyphicon-remove"></span> Upload Failed: {{ uploadError }}',
             '    <span class="h5"><a ng-click="cancel()">Try Again</a></span>',
@@ -97,6 +97,10 @@ $rootScope:                         (event args)
             return OTIUploadStatus.isPolling(upload.status);
         };
 
+        var defaultCheckComplete = function (upload) {
+            return OTIUploadStatus.isComplete(upload.status);
+        };
+
         return {
             restrict: 'E',
             scope: {
@@ -113,6 +117,7 @@ $rootScope:                         (event args)
                 ensureDefault(scope.options, 'uploadTimeoutMs', 60 * 1000);
                 ensureDefault(scope.options, 'checkInvalid', defaultCheckInvalid);
                 ensureDefault(scope.options, 'checkContinue', defaultCheckContinue);
+                ensureDefault(scope.options, 'checkComplete', defaultCheckComplete);
                 ensureDefault(scope.options, 'fileFormName', 'source_file');
 
                 scope.Status = OTIUploadStatus;
@@ -168,7 +173,7 @@ $rootScope:                         (event args)
                         } else {
                             scope.resource.get({id: scope.upload.id}, function (data) {
                                 scope.upload = data;
-                                if (OTIUploadStatus.isComplete(data.status)) {
+                                if (scope.options.checkComplete(data)) {
                                     $rootScope.$broadcast(events.pollingFinished, data);
                                 } else {
                                     setUploadError('Error processing upload.');
@@ -227,7 +232,10 @@ $rootScope:                         (event args)
                     $timeout.cancel(scope.timeoutId);
                     $rootScope.$broadcast(events.uploadCancel, scope.upload);
                     clearUploadProblems();
-                    scope.upload = null;
+                    if (scope.upload.id) {
+                        scope.resource.delete({id: scope.upload.id});
+                    }
+                    scope.upload = {};
                 };
 
                 /**
@@ -237,7 +245,7 @@ $rootScope:                         (event args)
                     scope.resource.delete({id: scope.upload.id}, function () {
                         clearUploadProblems();
                         $rootScope.$broadcast(events.uploadDelete);
-                        scope.upload = null;
+                        scope.upload = {};
                     });
                 };
 

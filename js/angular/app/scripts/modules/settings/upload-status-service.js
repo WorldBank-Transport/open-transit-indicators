@@ -34,6 +34,13 @@ angular.module('transitIndicators')
     var ERROR = 'error';
     var WAITING_INPUT = 'waiting_input';
 
+    otiUploadStatus.PENDING = PENDING;
+    otiUploadStatus.PROCESSING = PROCESSING;
+    otiUploadStatus.IMPORTING = IMPORTING;
+    otiUploadStatus.WAITING_INPUT = WAITING_INPUT;
+    otiUploadStatus.COMPLETE = COMPLETE;
+    otiUploadStatus.ERROR = ERROR;
+
     otiUploadStatus.isPolling = function (status) {
         return _.indexOf([UPLOADING, PENDING, PROCESSING, DOWNLOADING, VALIDATING, IMPORTING], status) >= 0;
     };

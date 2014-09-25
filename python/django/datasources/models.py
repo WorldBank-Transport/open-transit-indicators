@@ -38,6 +38,7 @@ class FileDataSource(DataSource):
             (UPLOADED, _(u'Uploaded')),
             (PROCESSING, _(u'Processing')),
             (DOWNLOADING, _(u'Downloading')),
+            (IMPORTING, _(u'Importing')),
             (WAITING_USER_INPUT, _(u'Waiting for User Input')),
             (VALIDATING, _(u'Validating')),
             (COMPLETE, _(u'Complete')),
