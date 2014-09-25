@@ -28,9 +28,12 @@ trait IndicatorCalculator {
   def simpleSumBySystem(period: SamplePeriod): Double = {
     calcByMode(period).toList.foldLeft(0.0){ case(sum, (_, value)) => sum + value }
   }
-  
+
   // Helper function for getting the maximum value obtained in calcByMode.
-  def simpleMaxBySystem(period: SamplePeriod): Double = calcByMode(period).max._2
+  def simpleMaxBySystem(period: SamplePeriod): Double = {
+    val modeResults = calcByMode(period)
+    if (modeResults.isEmpty) 0.0 else modeResults.maxBy(_._2)._2
+  }
 
   // Overall aggregation by route, taking into account all periods
   def calcOverallByRoute: Map[String, Double] = {
