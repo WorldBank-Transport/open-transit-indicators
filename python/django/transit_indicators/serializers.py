@@ -35,9 +35,11 @@ class SamplePeriodSerializer(serializers.ModelSerializer):
 class IndicatorJobSerializer(serializers.ModelSerializer):
     """Serializer for Indicator Jobs"""
 
-    # Field needs to not be required to allow setting default values
+    # Fields needs to not be required to allow setting default values
     job_status = serializers.ChoiceField(choices=IndicatorJob.StatusChoices.CHOICES,
                                          required=False)
+    is_latest_version = serializers.BooleanField(required=False)
+
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
@@ -54,7 +56,7 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'sample_periods', 'version', 'is_latest_version',
+        read_only_fields = ('id', 'sample_periods', 'version',
                             'created_by')
 
 class IndicatorSerializer(serializers.ModelSerializer):
