@@ -26,11 +26,7 @@ angular.module('transitIndicators')
         }
     };
 
-    var setLegend = function () {
-        if($rootScope.cache.transitLegend) {
-            $scope.leaflet.legend = $rootScope.cache.transitLegend;
-            return;
-        }
+    var updateLegend = function () {
         OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
             var legend = {
                 colors: config.gtfsRouteTypeColors,
@@ -39,6 +35,14 @@ angular.module('transitIndicators')
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });
+    };
+
+    var setLegend = function () {
+        if($rootScope.cache.transitLegend) {
+            $scope.leaflet.legend = $rootScope.cache.transitLegend;
+            return;
+        }
+        updateLegend();
     };
 
     $scope.updateLeafletOverlays(overlays);
@@ -65,4 +69,7 @@ angular.module('transitIndicators')
         }
     });
 
+    $rootScope.$on('$translateChangeSuccess', function() {
+        updateLegend();
+    });
 }]);
