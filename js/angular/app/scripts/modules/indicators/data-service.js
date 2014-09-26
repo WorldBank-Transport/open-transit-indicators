@@ -40,6 +40,18 @@ angular.module('transitIndicators')
         return Math.ceil(data[type][aggregation].max);
     };
 
+    var defaultColor = '#ffffbf';
+    otiDataService.Colors = {
+        0: '#f46d43',
+        1: '#d53e4f',
+        2: '#fdae61',
+        3: '#fee08b',
+        4: '#e6f598',
+        5: '#abdda4',
+        6: '#66c2a5',
+        7: '#3288bd'
+    };
+
     // Chart configuration
     otiDataService.Charts = {
         pie: {
@@ -52,6 +64,11 @@ angular.module('transitIndicators')
                     return citydata[aggregation][0].values;
                 }
                 return null;
+            },
+            colorFunction: function () {
+                return function (data) {
+                    return otiDataService.Colors[data.data.route_type] || defaultColor;
+                };
             }
         },
         bar: {
@@ -59,13 +76,23 @@ angular.module('transitIndicators')
             xFunctionRoute: defaultXFunctionRoute,
             yFunction: defaultYFunction,
             forceYFunction: defaultForceYFunction,
-            filterFunction: defaultFilterFunction
+            filterFunction: defaultFilterFunction,
+            colorFunction: function () {
+                return function (data) {
+                    return otiDataService.Colors[data.route_type] || defaultColor;
+                };
+            }
         },
         stacked: {
             xFunctionMode: xFunctionZero,
             xFunctionRoute: xFunctionZero,
             yFunction: defaultYFunction,
             forceYFunction: defaultForceYFunction,
+            colorFunction: function () {
+                return function (data) {
+                    return otiDataService.Colors[data.key] || defaultColor;
+                };
+            },
             filterFunction: function (citydata, aggregation) {
                 if (!(citydata && citydata[aggregation])) {
                     return null;

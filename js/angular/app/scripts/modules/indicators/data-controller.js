@@ -4,10 +4,10 @@ angular.module('transitIndicators')
             ['$scope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
             function ($scope, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
-    var cache = {};
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
     $scope.charts = OTIIndicatorsDataService.Charts;
+    var colors = OTIIndicatorsDataService.Colors;
 
     var getIndicatorData = function () {
         $scope.updating = true;
@@ -18,21 +18,15 @@ angular.module('transitIndicators')
                 aggregation: 'mode,system'
             };
 
-            if (cache && cache[period]) {
-                $scope.indicatorData = cache[period];
+            OTIIndicatorsService.query('GET', params).then(function (data) {
+                var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
+                $scope.indicatorData = null;
+                $scope.indicatorData = indicators;
                 $scope.updating = false;
-            } else {
-                OTIIndicatorsService.query('GET', params).then(function (data) {
-                    var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
-                    $scope.indicatorData = null;
-                    $scope.indicatorData = indicators;
-                    cache[period] = indicators;
-                    $scope.updating = false;
-                }, function (error) {
-                    console.error('Error getting indicator data:', error);
-                    $scope.updating = false;
-                });
-            }
+            }, function (error) {
+                console.error('Error getting indicator data:', error);
+                $scope.updating = false;
+            });
         }
     };
 
