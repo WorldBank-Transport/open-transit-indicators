@@ -104,7 +104,7 @@ angular.module('transitIndicators')
                             markerController.resetCount();
                             drawControl.options.draw.marker.icon.options
                                 .html = markerController.getMarkerCount();
-                            drawnItems.clearLayers()
+                            drawnItems.clearLayers();
                         }
                         if (target === '#my-scenario') {
                             setScenarioName();
@@ -173,11 +173,10 @@ angular.module('transitIndicators')
                     }
 
                     function getTimeTableHtml() {
-                        var number = (markerController.getMarkerCount() >
-                                1) ? markerController.getMarkerCount() :
-                            5,
-                            timeTableRowHtml = '';
-                        for (i = 1; i < number; i++) {
+                        var number = (markerController.getMarkerCount() > 1) ? 
+                                      markerController.getMarkerCount() : 5,
+                                      timeTableRowHtml = '';
+                        for (var i = 1; i < number; i++) {
                             timeTableRowHtml += getTimeTableRow(i);
                         }
                         $('#prototype-time-table').html(
@@ -214,7 +213,7 @@ angular.module('transitIndicators')
                                     weight: 5,
                                     opacity: 0.9,
                                     fill: false
-                                },
+                                }
                             },
                             polygon: false,
                             rectangle: false,
