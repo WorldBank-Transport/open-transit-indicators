@@ -7,6 +7,7 @@ angular.module('transitIndicators')
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
     $scope.charts = OTIIndicatorsDataService.Charts;
+    var colors = OTIIndicatorsDataService.Colors;
 
     var getIndicatorData = function () {
         $scope.updating = true;
