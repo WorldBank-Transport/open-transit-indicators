@@ -10,6 +10,7 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
+        $scope.setSidebarCheckmark('realtime', false);
     };
 
     var setUpload = function (upload) {
@@ -39,10 +40,7 @@ angular.module('transitIndicators')
 
     $scope.RealTimeUpload = OTIRealTimeService.realtimeUpload;
     $scope.realtimeOptions = {
-        uploadTimeoutMs: 10 * 60 * 1000,
-        checkContinue: function (upload) {
-            return !(upload.is_valid && upload.is_processed);
-        }
+        uploadTimeoutMs: 10 * 60 * 1000
     };
     $scope.uploadRealtime = {};
 
@@ -67,14 +65,11 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
 
-        setUpload(null);
         clearUploadProblems();
         OTIRealTimeService.realtimeUpload.query({}, function (uploads) {
-            var validUploads = _.filter(uploads, function (upload) {
-                return upload.is_valid === true && upload.is_processed === true;
-            });
-            if (validUploads.length > 0) {
-                setUpload(validUploads[0]);
+            if (uploads.length > 0) {
+                var upload = uploads.pop();
+                setUpload(upload);
                 viewProblems();
             }
         });
