@@ -104,9 +104,7 @@ angular.module('transitIndicators')
                             markerController.resetCount();
                             drawControl.options.draw.marker.icon.options
                                 .html = markerController.getMarkerCount();
-                            map.removeLayer(drawnItems);
-                            drawnItems = new L.FeatureGroup();
-                            map.addLayer(drawnItems);
+                            drawnItems.clearLayers()
                         }
                         if (target === '#my-scenario') {
                             setScenarioName();
@@ -143,6 +141,7 @@ angular.module('transitIndicators')
                         Pages.to(target);
                     });
                     var drawnItems = new L.FeatureGroup();
+                    drawnItems.isScenarioLayer = true;
                     var markerController = {
                         markerCount: 1,
                         increaseMarkerCount: function() {
@@ -231,7 +230,7 @@ angular.module('transitIndicators')
                         }
                     });
                     map.addControl(drawControl);
-                    (function(e) {
+                    map.on('draw:created', function(e) {
                         var type = e.layerType,
                             layer = e.layer;
                         if (type === 'marker') {
@@ -240,7 +239,7 @@ angular.module('transitIndicators')
                         drawnItems.addLayer(layer);
                         drawControl.options.draw.marker.icon.options
                             .html = markerController.getMarkerCount();
-                    })(map);
+                    });
                     map.on('draw:edited', function(e) {
                         var layers = e.layers;
                         var countOfEditedLayers = 0;

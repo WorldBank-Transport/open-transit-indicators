@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
-            function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
+            function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
 
     var mapStates = ['map', 'transit', 'scenarios'];
 
@@ -77,10 +77,22 @@ angular.module('transitIndicators')
         $scope.leaflet.bounds = config.worldExtent;
     });
 
-    $scope.$on('$stateChangeStart', function () {
+    $scope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState) {
         // Always clear the legend when going to a state, we will always need to redraw it with
         // the proper legend in the child state
+
         $scope.leaflet.legend = {};
+
+        if (fromState.name === "scenarios") {
+            leafletData.getMap().then(function(map) { // remove layers from the scenario 
+                map.eachLayer(function (layer) {      // prototype
+                    if(layer.isScenarioLayer) {
+                        map.removeLayer(layer);
+                    }
+                });
+            });
+        }
+
     });
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
