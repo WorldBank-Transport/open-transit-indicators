@@ -1,0 +1,95 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+node_modules
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+.noseids
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+.ropeproject/
+
+# vagrant
+.vagrant
+
+.ropeproject/
+
+# sass
+.sass-cache
+
+# ignore django collect static
+/static/django
+
+# ignore logs
+logs/
+
+# Editor
+*.swp
+*.swo
+*~
+~*
+\#*#
+.#*
+
+# OS X
+.DS_Store
+
+# Generated Static Files
+static/
+
+# Files created by provision script
+python/django/transit_indicators/settings/secret_key.py
+python/django/transit_indicators/settings/provision_settings.py
+python/django/transit_indicators/settings/__init__.py
+geotrellis/src/main/resources/application.conf
+
+# Scala build artifacts
+project/boot
+project/plugins/project
+project/plugins/target
+project/target
+resources/application.conf
+target
+.lib
+.tmp
+/js/angular/app/styles/main.css
+
+# Log files
+*.log
+
+# ctags
+tags
+.tags
+
+/deployment/packer/open-transit-vars.json
+/js/angular/app/scripts/windshaft-config.js

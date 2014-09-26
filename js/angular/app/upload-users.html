@@ -1,0 +1,140 @@
+<!doctype html style="height: 100%;">
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/leaflet-dist/leaflet.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+  </head>
+  <body style="height: 100%;" ng-app="transitIndicators">
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    
+    <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
+   
+    <div class="map" id="map" style="width: 100%; height: 100%; position: fixed;"></div>
+    <div class="settingsmodal-wrapper">
+        <div class="settingsmodal clearfix">
+            <div class="settingsmodal-sidebar clearfix">
+                <div class="settingsmodal-sidebar-tab active">Overview</div>
+                <div class="settingsmodal-sidebar-tab">GTFS</div>
+                <div class="settingsmodal-sidebar-tab">Boundary</div>
+                <div class="settingsmodal-sidebar-tab">Demographic</div>
+                <div class="settingsmodal-sidebar-tab">Real-time</div>
+                <div class="settingsmodal-sidebar-tab">Configuration</div>
+                <div class="settingsmodal-sidebar-tab">Users</div>
+                <div class="settingsmodal-sidebar-tab">View Map</div>
+            </div>
+            <div class="settingsmodal-body">
+                <h1>Users</h1>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <td>jmorgan-brine</td>
+                            <td>Administrator</td>
+                            <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
+                        </tr>
+                        <tr>
+                            <td>rdaly</td>
+                            <td>Administrator</td>
+                            <td><a href="#">Reset Password</a> / <a href="#">Delete</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <div class="btn btn-primary">
+                    Add New User
+                </div>
+                <div class="settingsmodal-newuser">
+                    <h3>Add New User</h3>
+                    <div class="settingsmodal-fieldgroup">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h4>Username</h4>
+                            </div>
+                            <div class="col-sm-6">
+                                <h4>Role</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settingsmodal-fieldgroup">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <input type="text">
+                            </div>
+                            <div class="col-sm-6">
+                                <select>
+                                  <option value="value1">17:00</option>
+                                  <option value="value2">23:00</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn btn-primary">
+                        Save
+                    </div>
+                    <div class="btn btn-link btn-link-danger">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
+    <![endif]-->
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
+    <script src="bower_components/leaflet-dist/leaflet.js"></script>
+    <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <script src="bower_components/angular-translate/angular-translate.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/modules/gtfs-upload/gtfs-upload-controller.js"></script>
+        <script src="scripts/modules/gtfs-upload/gtfs-upload-service.js"></script>
+        <!-- endbuild -->
+        <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
+        <script type="text/javascript">
+            var map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        </script>
+        <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+</body>
+</html>

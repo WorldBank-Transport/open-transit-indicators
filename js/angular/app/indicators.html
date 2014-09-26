@@ -1,0 +1,164 @@
+<!doctype html style="height: 100%;">
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/leaflet-dist/leaflet.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+  </head>
+  <body style="height: 100%;" ng-app="transitIndicators">
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+
+    <header>
+        <div class="navigation-buttongroup">
+            <div class="button--navigation active" id="navigation-transit">Transit Map</div>
+            <div class="button--navigation" id="navigation-scenario">Scenario</div>
+            <div class="button--navigation" id="navigation-indicators">Indicators</div>
+            <div class="button--navigation" id="navigation-settings">Settings</div>
+        </div>
+    </header>
+
+    <div class="indicators indicators-count-3">
+        <div class="navigationsecondary clearfix">
+            <div class="navigationsecondary-left">
+                <div class="navigationsecondary-menu filter">
+                    <div class="button--small active">Data</div><div class="button--small inactive">Map</div>
+                </div>
+            </div>
+            <div class="navigationsecondary-right">
+                <div class="btn-group" dropdown is-open="status.isopen">
+                      <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                        Overall <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                      </ul>
+                </div>
+                <div class="button--large">
+                    Add / Remove City +
+                </div>
+            </div>
+        </div>
+        <div class="indicators-heading">
+            <div class="indicators-description">
+                Viewing indicator results for Boston, Chicago, and Zhengzhou.
+            </div>
+            <div id="map" class="indicators-map">
+
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row indicators-row-heading">
+                <div class="indicators-cell indicators-label">City</div>
+                <div class="indicators-cell">Boston</div>
+                <div class="indicators-cell">Chicago</div>
+                <div class="indicators-cell">Zhengzhou</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Percent of sub-population within .5 km of a transit stop</div>
+                <div class="indicators-cell">25%</div>
+                <div class="indicators-cell">14%</div>
+                <div class="indicators-cell">38%</div>
+            </div>
+        </div>
+        <div class="indicators-table">
+            <div class="indicators-row">
+                <div class="indicators-cell indicators-label">Number of modes and types</div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="100" fill="#481924">
+                    </svg>
+                    415
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="70" fill="#481924">
+                    </svg>
+                    367
+                </div>
+                <div class="indicators-cell">
+                    <svg class="graph" height="200" width="100%" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="92" fill="#481924">
+                    </svg>
+                    401
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
+    <![endif]-->
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-jquery/dist/angular-jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-bootstrap-affix/dist/angular-bootstrap-affix.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
+    <script src="bower_components/leaflet-dist/leaflet.js"></script>
+    <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <script src="bower_components/angular-translate/angular-translate.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/modules/gtfs-upload/gtfs-upload-controller.js"></script>
+        <script src="scripts/modules/gtfs-upload/gtfs-upload-service.js"></script>
+        <!-- endbuild -->
+        <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
+        <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.3"></script>
+        <script type="text/javascript">
+            var toner = new  L.StamenTileLayer("toner-lines");
+            var map = new L.Map('map', {
+                                layers:toner
+                                });
+            map.setView([39.95,-75.1947], 14);
+        </script>
+
+        <script type="text/javascript">
+            var toner = new  L.StamenTileLayer("toner-lite");
+            var map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+.angular-leaflet-map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    &.navigationpadding-1 {
+        top: 5.5rem;
+    }
+    &.navigationpadding-2 {
+        top: 11rem;
+    }
+}
+
+.gtfs-map-controls {
+    position: absolute;
+    top: 1rem;
+    left: 5rem;
+}
+
+.indicator-map {
+    position: relative;
+}
+
+.indicator-controls {
+    position: absolute;
+    top: 6rem;
+    left: 1rem;
+    padding-top: 2rem;
+    padding-left: 2rem;
+    border: solid 1px $gray-light;
+    background-color: white;
+    width: 30rem;
+    z-index: 99;
+}
+
+.indicator-control {
+    padding-bottom: 2rem;
+    padding-right: 2rem;
+}
+
+.legend {
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255, 1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding: 6px 8px;
+    width: 240px;
+    line-height: 18px;
+    color: #555;
+    position: absolute;
+    bottom: 2rem;
+    right: 3rem;
+}
+
+.legend i {
+    width: 16px;
+    height: 16px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}

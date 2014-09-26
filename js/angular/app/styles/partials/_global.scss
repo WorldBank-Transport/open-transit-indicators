@@ -1,0 +1,12 @@
+.nopadding {
+  padding: 0;
+}
+
+.block {
+  padding-bottom: $block-spacing;
+  > .row {
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+}

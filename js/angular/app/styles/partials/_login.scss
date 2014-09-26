@@ -1,0 +1,36 @@
+.loginmodal-wrapper {
+  padding: 3rem 0;
+}
+
+.loginmodal-close-button {
+  top: 1rem;
+  right: 1rem;
+  position: absolute;
+}
+
+.loginmodal {
+  max-width: 30rem;
+  width: 30rem;
+  padding: 1rem;
+  background-color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 5;
+  border: 1px black solid;
+}
+
+.loginmodal-field {
+    padding-bottom: 1rem;
+    input {
+      padding-left: .5rem;
+      padding-right: .5rem;
+    }
+}
+
+.login-field-error {
+    color: $brand-danger;
+    input {
+        border: 1px solid $brand-danger;
+    }
+}

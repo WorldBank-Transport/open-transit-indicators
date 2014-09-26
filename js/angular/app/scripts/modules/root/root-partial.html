@@ -1,0 +1,28 @@
+<header>
+    <div class="navigation-buttongroup">
+        <div ui-sref="transit" class="button--navigation" ng-class="{active: activeState === 'transit'}" id="navigation-transit">{{ 'NAV.TRANSITMAP' | translate }}</div>
+        <div ui-sref="scenarios" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
+        <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">{{ 'NAV.INDICATORS' | translate }}</div>
+        <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
+        <div class="button--navigation pull-right" ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</div>
+        <div  class="button--navigation pull-right dropdown">
+          <div class="dropdown-toggle" ng-disabled="disabled">
+            {{ 'TERM.LANGUAGE' | translate}} <span class="caret"></span>
+          </div>
+          <ul class="dropdown-menu" role="menu">
+            <!-- TODO: Add translations for each language -->
+            <li ng-repeat="(key, value) in languages"><a ng-click="selectLanguage(value)"> {{ key }}</a></li>
+          </ul>
+        </div>
+    </div>
+</header>
+
+<div class="app-view">
+    <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive, 'navigationpadding-2': mapClassNav2 }"
+             class="navigationpadding-1"
+             defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
+             markers="leaflet.markers" layers="leaflet.layers">
+    </leaflet>
+    <oti-legend labels="leaflet.legend.labels" colors="leaflet.legend.colors"></oti-legend>
+    <div ui-view></div>
+</div>

@@ -1,0 +1,34 @@
+<leaflet defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds" layers="leaflet.layers" height="100%" width="100%"></leaflet>
+<div class="loginmodal-wrapper">
+  <div class="loginmodal clearfix">
+    <form ng-submit="authenticate()" autocomplete="off">
+      <div class="row">
+        <div class="col-md-12">
+          <h4>{{'NAV.APP' | translate}}</h4>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 loginmodal-field">
+          <div class="form-group" ng-class="{true: 'login-field-error', false: ''}[auth.failure]">
+            <label for="username">{{'TERM.USERNAME' | translate}}</label>
+            <input type="text" id="username" ng-model="auth.username" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 loginmodal-field">
+          <div class="form-group" ng-class="{true: 'login-field-error', false: ''}[auth.failure]">
+            <label for="password">{{'TERM.PASSWORD' | translate}}</label>
+            <input type="password" id="password" ng-model="auth.password" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 loginmodal-field">
+          <button type="submit" class="btn btn-primary btn-block">{{'UI.BUTTON.LOGIN' | translate}}</button>
+        </div>
+      </div>
+    </form>
+    <alert ng-repeat="alert in alerts" type="alert.type">{{alert.msg}}</alert>
+  </div>
+</div>

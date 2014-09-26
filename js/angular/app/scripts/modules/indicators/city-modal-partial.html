@@ -1,0 +1,90 @@
+<div class="container-fluid indicators-city-modal">
+    <div class="row">
+        <div class="col-xs-12">
+            <h3><b>{{ 'CITYMODAL.CURRENTCITIES' | translate }}</b></h3>
+        </div>
+    </div>
+    <div class="row" ng-repeat="city in cities">
+        <div class="col-xs-9">{{ city }}</div>
+        <div class="col-xs-3"><a class="pull-right" ng-click="remove(city)">{{ 'UI.BUTTON.REMOVE' | translate }}</a></div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12"><hr /></div>
+    </div>
+
+    <div  ng-if="userScenarios.length || otherScenarios.length">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h3><b>{{ 'CITYMODAL.ADDCITY' | translate }}</b></h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group full-width" dropdown is-open="addCityDropdownIsOpen">
+                <button type="button" class="full-width button--navigationsecondary dropdown-toggle">
+                    {{ 'UI.BUTTON.SELECTONE' | translate }} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu full-width" role="menu">
+                    <li ng-if="userScenarios.length"><span>{{ 'CITYMODAL.MYSCENARIOS' | translate }}</span></li>
+                    <li ng-repeat="scenario in userScenarios"><a ng-click="addScenario(scenario)">{{ scenario.name }}</a></li>
+                    <li class="divider" ng-if="userScenarios.length && otherScenarios.length">
+                    <li ng-if="otherScenarios.length"><span>{{ 'CITYMODAL.COLLEAGUESCENARIOS' | translate }}</span></li>
+                    <li ng-repeat="scenario in otherScenarios"><a ng-click="addScenario(scenario)">{{ scenario.name }}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12"><hr /></div>
+    </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h3><b>{{ 'CITYMODAL.IMPORTCITY' | translate }}</b></h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <p>{{ 'CITYMODAL.IMPORTINSTRUCTIONS' | translate }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-6">
+            <input type="text" ng-model="uploadCity.name" placeholder="Enter city name..." />
+        </div>
+        <div class="col-xs-6">
+            <input type="file" ng-show="!uploading" accept="text/csv" ng-file-select="onFileSelect($files)" />
+            <progressbar ng-show="uploading" animate="true" value="uploadProgress" type="info"><i>{{ uploadProgress }}%</i></progressbar>
+        </div>
+    </div>
+
+    <div class="row city-modal-row">
+        <div class="col-xs-12">
+            <button class="btn btn-primary" ng-click="upload()" ng-disabled="!(uploadCity.name && uploadFile) || uploading">
+                {{ 'UI.BUTTON.UPLOAD' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <div class="row city-modal-row" collapse="!alert">
+        <div class="col-xs-12">
+            <alert type="alert.type" close="closeAlert()">{{ alert.msg }}</alert>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12"><hr /></div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12"><a ng-click="ok()">{{ 'UI.BUTTON.FINISH' | translate }}</a></div>
+    </div>
+</div>

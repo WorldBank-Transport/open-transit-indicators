@@ -1,0 +1,122 @@
+.settingsmodal-wrapper {
+  padding: 3rem 0;
+}
+
+.settingsmodal-close-button {
+  top: 1rem;
+  right: 1rem;
+  position: absolute;
+}
+
+.settingsmodal {
+  max-width: 80rem;
+  background-color: #fff;
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 5;
+  border: 2px solid $gray-light;
+}
+.settingsmodal-body, .settingsmodal-sidebar {
+  display: table-cell;
+  vertical-align: top;
+}
+.settingsmodal-sidebar {
+  width: 20rem;
+  border-right: 1px solid $light-line-grey;
+  vertical-align: top;
+}
+.settingsmodal-sidebar-active {
+  border-right: 4px solid $brand-primary;
+}
+.settingsmodal-body {
+  padding: 3rem 4rem;
+  width: 60rem;
+}
+.settingsmodal-sidebar-tab {
+  font-size: $h4;
+  padding: 1.2rem;
+  border-bottom: 1px solid $light-line-grey;
+  cursor: pointer;
+  margin-right: -1px;
+  position: relative;
+  &.active {
+      border-right: 0;
+      background-color: #fff;
+  }
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+.settingsmodal-gettingstarted-item {
+  padding: 1rem 0 .6rem;
+}
+.settingsmodal-fieldgroup {
+  margin: $block-spacing 0;
+}
+.settingsmodal-gettingstarted-item-actions {
+  text-align: right;
+}
+.settingsmodal-gettingstarted-item-optional {
+  font-size: $h5;
+  margin-left: 1rem;
+  color: $light-line-grey;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+.dropzone {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  border: dashed 1px $light-line-grey;
+  &.inprogress {
+    border-style: solid;
+  }
+  &.notices {
+    border-style: solid;
+  }
+}
+.settingsmodal-notices-warnings {
+  color: $warning-orange;
+  h1, h2, h3, h4, h5 {
+    color: inherit;
+  }
+}
+.settingsmodal-newuser {
+  padding: 1rem;
+  background-color: $lighter-bg-grey;
+}
+.settingsmodal-notices-errors {
+  color: $error-red;
+  h1, h2, h3, h4, h5 {
+    color: inherit;
+  }
+}
+table {
+  width: 100%;
+  > tbody {
+    > tr:nth-child(2n) {
+      background-color: $lighter-bg-grey;
+    }
+  }
+}
+td, th {
+  text-align: left;
+  padding: 1rem;
+}
+
+.config-datepicker {
+    td, th {
+        padding: 0;
+    }
+}
+
+.settingsmodal input.ng-invalid,
+.settingsmodal select.ng-invalid {
+    border: solid 1px red;
+}
+
+.settingsmodal input.ng-valid,
+.settingsmodal select.ng-valid {
+    border: solid 1px green;
+}

@@ -1,0 +1,11 @@
+<div class="modal-header">
+  <h1>Delete User</h1>
+</div>
+<div class="modal-body">
+  <h2>Warning</h2>
+  <p>This action will delete <b>{{user.username}}</b>.</p>
+
+  <p>This action cannot be undone. All data for <b>{{user.username}}</b> will be lost.</p>
+  <div class="btn btn-warning" ng-click="deleteUser()">Delete User</div>
+  <div class="btn btn-primary" ng-click="close()">Cancel</div>
+</div>

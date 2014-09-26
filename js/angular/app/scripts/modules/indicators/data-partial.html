@@ -1,0 +1,38 @@
+<div class="indicators-heading">
+    <div class="indicators-description">
+        Viewing indicator results for {{ cities.join(', ') }}
+    </div>
+    <!--
+    TODO: Readd once endpoint for getting city center lat/lon is available
+    TODO: Reset css in _indicators.scss when this uncommented
+    <div class="indicators-map"></div>
+    -->
+</div>
+<div class="indicators-table">
+    <div class="indicators-row indicators-row-heading">
+        <div class="indicators-cell indicators-label">City <span ng-show="updating" class="label label-info">Updating Indicators...</span></div>
+        <div ng-repeat="cityname in cities" class="indicators-cell">{{ cityname }}</div>
+    </div>
+</div>
+<div ng-repeat="(type, indicator) in indicatorData"
+     class="indicators-table">
+    <div class="indicators-row">
+        <div class="indicators-cell indicators-label">
+            <h3>{{ types[type] }}</h3>
+            <p>{{ indicatorDetailKey(type) | translate }}</p>
+        </div>
+        <!-- store transformed data on local ng-repeat scope via ng-init
+             cannot directly call filterFunction in the nvd3 directive data attribute
+             because that attribute is watched, and calling a function there causes
+             inf watch cycles
+        -->
+        <div ng-repeat="(cityname, citydata) in indicator.cities"
+             ng-init="data = { system: citydata.system[0].values, mode: filterDataForChartType(citydata, type, 'mode') }"
+             class="indicators-cell">
+            <div ng-if="displayIndicator(type, 'mode')">
+                <ng-include src="getModePartialForIndicator(type)"></ng-include>
+            </div>
+            <span ng-if="displayIndicator(type, 'system')">{{ data.system[0].formatted_value || "No Data Available" }}</span>
+        </div>
+    </div>
+</div>

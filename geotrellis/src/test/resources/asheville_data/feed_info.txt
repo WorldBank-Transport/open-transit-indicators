@@ -1,0 +1,2 @@
+feed_id,feed_publisher_name,feed_publisher_url,feed_lang,feed_version,feed_license
+asheville-nc-us,"Trillium Solutions, Inc.",http://www.trilliumtransit.com,en,Data last updated 11-Apr-2014 10:40,""

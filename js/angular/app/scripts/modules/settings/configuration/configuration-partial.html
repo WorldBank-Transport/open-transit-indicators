@@ -1,0 +1,198 @@
+<div ng-init="init()">
+<h1>{{'VIEW.configuration' | translate}}</h1>
+<p>{{'SETTINGS.CONFIGURATION_DESCRIPTION' | translate}}</p>
+
+<div ng-if="samplePeriods === null" class="row">
+    <img class="center-block" src="/images/ajax-loader.gif" />
+</div>
+<div ng-if="samplePeriodsLoadError" class="row text-center">
+    <div class="col-med-12">
+        <h3 class="bg-danger">{{'SETTINGS.TIME_PERIOD_CONFIG_NETWORK_ERROR' | translate}}</h3>
+    </div>
+</div>
+<!-- Cannot use ng-if for this form, as it prevents ng-clicks and the samplePeriodsForm object
+     from binding -->
+<form ng-show="samplePeriods" ng-submit="saveSamplePeriods()" name="samplePeriodsForm" autocomplete="off">
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-6">
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKDAY' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKDAY' | translate}}</span>
+        </div>
+        <div class="col-sm-6 config-datepicker">
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
+                       ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
+                       datepicker-options="dateOptions" ng-required="true" close-text="Close"
+                       date-disabled="disableWeekend(date, mode)" name="weekdayDate" ng-change="validateWeekday()" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="openWeekdayPicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-6">
+            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.REPRESENTATIVE_WEEKEND' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REPRESENTATIVE_WEEKEND' | translate}}</span>
+        </div>
+        <div class="col-sm-6 config-datepicker">
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
+                       ng-model="weekendDate" is-open="weekendPickerOpen" show-weeks="false"
+                       datepicker-options="dateOptions" ng-required="true" close-text="Close"
+                       date-disabled="disableWeekday(date, mode)" name="weekendDate" ng-change="validateWeekend()" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default"
+                            ng-click="openWeekendPicker($event)">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </button>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-5">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MORNING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MORNING_PEAK' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="morningPeakStart" name="morningPeakStart" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <span>to</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="morningPeakEnd" name="morningPeakEnd" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-5">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.EVENING_PEAK' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.EVENING_PEAK' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="eveningPeakStart" name="eveningPeakStart" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <span>to</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="eveningPeakEnd" name="eveningPeakEnd" ng-required="true"
+                            ng-change="validateTimes()" ng-options="i+':00' for i in hours">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<button type="submit" ng-disabled="!savePeriodsButton.enabled || samplePeriodsForm.$invalid" class="btn" ng-class="{'btn-primary': savePeriodsButton.enabled}">{{savePeriodsButton.text | translate}}</button>
+<span ng-show="samplePeriodsError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+</form>
+
+<hr />
+
+<div ng-if="config === null" class="row">
+    <img class="center-block" src="/images/ajax-loader.gif" />
+</div>
+<div ng-if="configLoadError" class="row text-center">
+    <div class="col-med-12">
+        <h3 class="bg-danger">{{'SETTINGS.APP_CONFIG_NETWORK_ERROR' | translate}}</h3>
+    </div>
+</div>
+<form ng-submit="saveConfig()" name="configForm" ng-show="config" autocomplete="off">
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.POVERTY_LINE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.POVERTY_LINE' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" ng-model="config.poverty_line" min="0" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.DISTANCE_BUFFER' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.DISTANCE_BUFFER' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="nearby_buffer_distance_m"
+                           ng-model="config.nearby_buffer_distance_m" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_TRAVEL_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_TRAVEL_TIME' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="max_commute_time_min"
+                           ng-model="max_commute_time_min" min="0"
+                           ng-change="config.max_commute_time_s = max_commute_time_min * 60">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MAX_WALK_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="max_walk_time_min" ng-model="max_walk_time_min"
+                           min="0" ng-change="config.max_walk_time_s = max_walk_time_min * 60">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button ng-disabled="!saveConfigButton.enabled" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled}">{{saveConfigButton.text | translate}}</button>
+<span ng-show="configError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+</form>
+</div>

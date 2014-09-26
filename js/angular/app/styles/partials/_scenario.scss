@@ -1,0 +1,164 @@
+.scenario-heading {
+  padding: .8rem $gutter;
+  background-color: #fff;
+  border-bottom: #ccc 1px solid;
+  display: none;
+  transition: 100ms;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  color: inherit !important;
+  &:before {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    content: "";
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%,rgba(255,255,255,0) 80%,rgba(255,255,255,.8) 90%,rgba(255,255,255,1) 100%);
+  }
+  &.active {
+    display: block;
+  }
+}
+
+.focus--scenario {
+  > .scenario-headings {
+    > #heading-scenario {
+      background-color: #fff;
+    }
+  }
+  > .scenario-pages > .scenario-page {
+    min-height: 30rem;
+  }
+}
+.focus--route {
+  > .scenario-headings {
+    > #heading-scenario {
+      background-color: #eee;
+      &:before {
+        background: linear-gradient(to right, rgba(238,238,238,0) 0%,rgba(238,238,238,0) 80%,rgba(238,238,238,.8) 90%,rgba(238,238,238,1) 100%);
+      }
+    }
+    > #heading-route {
+      background-color: #fff;
+    }
+  }
+  > .scenario-pages > .scenario-page {
+    min-height: 26.4rem;
+  }
+}
+
+.scenario-page-content {
+  flex: 1;
+  > table {
+    font-size: $h5;
+    td {
+      padding: .5rem 1rem;
+      &:last-child {
+        text-align: right;
+      }
+    }
+    .time {
+      width: 5em;
+    }
+  }
+  select, input[type="text"], textarea {
+    width: 100%;
+  }
+  .row {
+    padding-bottom: $block-spacing;
+  }
+}
+
+.scenario-page-buttons {
+  border-top: #ccc 1px solid;
+  margin-top: $block-spacing;
+  padding-top: $block-spacing;
+}
+
+.scenario {
+  clip: rect(0, auto, auto, 0);
+  position: absolute;
+  transition: height 100ms;
+  -webkit-transition: height 100ms;
+  width: 100%;
+  width: 400px;
+  position: absolute;
+  top: 7rem;
+  left: 1.28em;
+  background-color: #fff;
+}
+
+.scenario-page {
+  background-color: #fff;
+  position: absolute;
+  width: 100%;
+  transition: -webkit-transform 100ms, transform 100ms, -ms-transform 100ms, opacity 100ms;
+  -webkit-transition: -webkit-transform 100ms, transform 100ms, opacity 100ms;
+  transform: translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0);
+  -ms-transform: translate3d(100%, 0, 0);
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: $gutter;
+  height: 0;
+
+  &.active {
+    opacity: 1.0 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    -ms-transform: translate3d(0, 0, 0) !important;
+    height: auto !important;
+  }
+
+  &.previous {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+    -webkit-transform: translate3d(-100%, 0, 0);
+    -ms-transform: translate3d(-100%, 0, 0);
+    height: 0;
+  }
+}
+
+.badge {
+  background-color: $brand-primary;
+  color: #fff;
+  border-radius: 1000px;
+  padding: 0 .4rem;
+}
+
+.count-icon {
+  background: #41bcff;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 50%;
+  line-height: 30px;
+}
+
+.scenario-heading-title {
+  float: left;
+  min-width: 8rem;
+  margin-right: 1rem;
+}
+
+// For prototype. Remove for production.
+.leaflet-bar a {
+  border-radius: 0 !important;
+}
+
+#heading-scroll {
+  a {
+    color: #999;
+    text-transform: capitalize;
+    cursor: pointer;
+    &:hover {
+      color: #333;
+    }
+  }
+}
