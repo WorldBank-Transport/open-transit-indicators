@@ -7,6 +7,7 @@ angular.module('transitIndicators', [
     'angularFileUpload',
     'pascalprecht.translate',
     'leaflet-directive',
+    'pollingUpload',
     'ui.bootstrap',
     'ui.utils',
     'nvd3ChartDirectives'

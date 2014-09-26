@@ -3,12 +3,11 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.filters import OrderingFilter
 
 from transit_indicators.viewsets import OTIAdminViewSet
-from datasources.viewsets import FileDataSourceViewSet
 from datasources.models import (GTFSFeed, GTFSFeedProblem, Boundary, BoundaryProblem,
-                                RealTime, RealTimeProblem, FileDataSource,
+                                RealTime, RealTimeProblem,
                                 DemographicDataSource, DemographicDataSourceProblem,
                                 DemographicDataFeature, OSMData, OSMDataProblem)
 from datasources.serializers import (GTFSFeedSerializer, BoundarySerializer, RealTimeSerializer,
@@ -19,7 +18,7 @@ from transit_indicators.models import OTIDemographicConfig
 from transit_indicators.serializers import OTIDemographicConfigSerializer
 
 
-class GTFSFeedViewSet(FileDataSourceViewSet):
+class GTFSFeedViewSet(OTIAdminViewSet):
     """View set for dealing with GTFS Feeds."""
     model = GTFSFeed
     serializer_class = GTFSFeedSerializer
@@ -36,10 +35,9 @@ class GTFSFeedViewSet(FileDataSourceViewSet):
         response = super(GTFSFeedViewSet, self).update(request, pk)
 
         # Reset processing status since GTFS needs revalidation
-        pending = GTFSFeed.Statuses.PENDING
-        self.object.status = pending
+        self.object.is_processed = False
         self.object.save()
-        response.data['status'] = pending
+        response.data['is_processed'] = False
 
         # Delete existing problems since it will be revalidated
         self.obj.gtfsfeedproblem_set.all().delete()
@@ -54,15 +52,19 @@ class GTFSFeedProblemViewSet(OTIAdminViewSet):
     filter_fields = ('gtfsfeed',)
 
 
-class RealTimeViewSet(FileDataSourceViewSet):
+class RealTimeViewSet(OTIAdminViewSet):
     """ View set for dealing wth RealTime uploads """
     model = RealTime
     serializer_class = RealTimeSerializer
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ('id', 'last_modify_date',)
 
     def create(self, request):
         """ Override create to load realtime data via geotrellis """
         response = super(RealTimeViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
+            self.object.is_valid = True
+            self.object.save()
             import_real_time_data.apply_async(args=[self.object.id], queue='datasources')
         return response
 
@@ -73,7 +75,7 @@ class RealTimeProblemViewSet(OTIAdminViewSet):
     filter_fields = ('realtime',)
 
 
-class OSMDataViewSet(FileDataSourceViewSet):
+class OSMDataViewSet(OTIAdminViewSet):
     """View set for dealing with OSM Feeds."""
     model = OSMData
     serializer_class = OSMDataSerializer
@@ -90,10 +92,9 @@ class OSMDataViewSet(FileDataSourceViewSet):
         response = super(OSMDataViewSet, self).update(request, pk)
 
         # Reset processing status since osm needs reimportation
-        status = OSMData.Statuses.PENDING
-        self.object.status = status
+        self.object.is_processed = False
         self.object.save()
-        response.data['status'] = status
+        response.data['is_processed'] = False
 
         # Delete existing problems since it will be revalidated
         self.obj.osmdataproblem_set.all().delete()
@@ -108,7 +109,7 @@ class OSMDataProblemsViewSet(OTIAdminViewSet):
     filter_fields = ('osmdata',)
 
 
-class BoundaryViewSet(FileDataSourceViewSet):
+class BoundaryViewSet(OTIAdminViewSet):
     """View set for handling boundaries (city, regional)."""
     model = Boundary
     serializer_class = BoundarySerializer
@@ -127,12 +128,12 @@ class BoundaryProblemViewSet(OTIAdminViewSet):
     filter_fields = ('boundary',)
 
 
-class DemographicDataSourceViewSet(FileDataSourceViewSet):
+class DemographicDataSourceViewSet(OTIAdminViewSet):
     """Display and create sets of demographic data by uploading shapefiles.
     A POST to this view with a Shapefile will kick off a Celery job to grab the
     data fields from the Shapefile, and validates the Shapefile in the process.
 
-    Once the associated DataSource has status == WAITING_USER_INPUT
+    Once the associated DataSource has is_processed == True and is_valid == True,
     the DataSource's 'fields' field will contain a list of strings representing the
     data fields available in the shapefile.
 
@@ -168,7 +169,7 @@ class DemographicDataSourceViewSet(FileDataSourceViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.object.save()
-            demog_data.status = DemographicDataSource.Statuses.PENDING
+            demog_data.is_loaded = False
             demog_data.save()
             load_shapefile_data.apply_async(args=[demog_data.id,
                                                   serializer.data.get('pop_metric_1_field', None),
@@ -188,18 +189,3 @@ class DemographicDataFeatureViewSet(OTIAdminViewSet):
     """Demographic data associated with geographic features."""
     model = DemographicDataFeature
     filter_fields = ('datasource',)
-
-
-class UploadStatusChoices(APIView):
-    """ Return an object of the available upload statuses
-
-    Each entry is a status, where the key is the database key
-    and the value is the human-readable, translated string
-
-    """
-    def get(self, request, *args, **kwargs):
-        response = { status[0]: status[1] for status in FileDataSource.Statuses.CHOICES }
-        return Response(response, status=status.HTTP_200_OK)
-
-
-upload_status_choices = UploadStatusChoices.as_view()

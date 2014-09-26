@@ -35,5 +35,4 @@ urlpatterns = patterns('',  # NOQA
     url(r'^api/indicator-cities/', 'transit_indicators.views.indicator_cities'),
     url(r'^api/sample-period-types/', 'transit_indicators.views.sample_period_types'),
     url(r'^api/gtfs-route-types/', 'transit_indicators.views.gtfs_route_types'),
-    url(r'^api/upload-statuses/', 'datasources.views.upload_status_choices'),
 )

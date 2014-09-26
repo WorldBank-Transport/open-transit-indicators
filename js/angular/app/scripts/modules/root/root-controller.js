@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
-            function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService) {
+            ['config', '$cookieStore', '$scope', '$translate', '$state', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
+            function (config, $cookieStore, $scope, $translate, $state, OTIEvents, mapService, authService) {
 
     var mapStates = ['map', 'transit', 'scenarios'];
 
@@ -20,18 +20,6 @@ angular.module('transitIndicators')
 
     $scope.selectLanguage = function(language) {
         $translate.use(language);
-
-        // Cannot use cookieStore because cookieStore
-        // serializes to json and django will not deserialize
-        // the cookie
-        $cookies.openTransitLanguage = language;
-
-        // $state.reload has a bug that does not actually force a refresh.
-        // See: https://github.com/angular-ui/ui-router/issues/582
-        // TODO: Use $state.reload() when ui-router is fixed
-        $state.transitionTo($state.current,
-                            $stateParams,
-                            { reload: true, inherit: true, notify: true });
     };
 
     // asks the server for the data extent and zooms to it
