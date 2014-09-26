@@ -33,6 +33,7 @@ sudo apt-get -y install git
 
 2. Clone the project into the directory you want the project
 ```
+cd <DIRECTORY TO DOWNLOAD/INSTALL PROJECT>
 git clone -b master https://github.com/WorldBank-Transport/open-transit-indicators.git
 ```
 
@@ -41,9 +42,14 @@ git clone -b master https://github.com/WorldBank-Transport/open-transit-indicato
 The text `/projects` should be replaced with the absolute path of
 the location where you've cloned the repository. For example, if your repository folder is
 located in `/home/myusername/open-transit-indicators`, the line should become
-`PROJECTS_DIR="/home/myusername"`
+`PROJECTS_DIR="/home/myusername"`. You can use `pwd` to determine this directory.
 
-4. From the repository folder (project directory), issue the command (you may need to enter your password):
+4. Move into the `open-transit-indicators` directory with the following command:
+```
+cd open-transit-indicators
+```
+
+5. From the repository folder (project directory), issue the command (you may need to enter your password):
   - For development: `sudo ./deployment/provision.sh development`
   - For production: `sudo ./deployment/provision.sh production`
 
