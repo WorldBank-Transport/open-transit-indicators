@@ -56,7 +56,6 @@ class GTFSFeedTestCase(TestCase):
         response = self.client.post(self.url, {'source_file': self.test_gtfs_fh})
         sleep(2) # give time for celery to do job
         problem_count = GTFSFeedProblem.objects.filter(gtfsfeed_id=response.data['id']).count()
-        import ipdb;ipdb.set_trace()
         self.assertEqual(problem_count, 2, 'There should have been two problems for uploaded data')
 
     def test_gtfs_validation_no_shapes(self):

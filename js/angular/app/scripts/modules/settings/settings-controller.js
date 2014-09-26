@@ -25,6 +25,16 @@ angular.module('transitIndicators')
 
 
     $scope.init = function() {
+        console.log('settingsController.init()');
+        /**
+         * FIXME: Use of these functions is not fully utilized.
+                  Due to time constraints, switched tasks before fixing.
+           TODO:
+                - Remove resource definitions in the child services
+                - Make all resources load as resolve of the settings controller
+                - Remove references to child resources in child controller init methods
+                - Actually call this function
+         */
         var gtfsData = OTISettingsService.gtfsUploads.query();
         var boundaryData = OTISettingsService.boundaryUploads.query();
         var demographicData = OTISettingsService.demographics.query();
@@ -66,7 +76,7 @@ angular.module('transitIndicators')
         });
 
         // BOUNDARY
-        $scope.configData = configData.$promise.then(function(response) {
+        $scope.configData = boundaryData.$promise.then(function(response) {
             var cityId = response[0].city_boundary;
             var regId = response[0].region_boundary;
             $scope.checkmarks['boundary'] = typeof(cityId) === "number" && typeof(regId) === "number";

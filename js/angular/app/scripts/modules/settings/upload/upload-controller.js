@@ -228,7 +228,5 @@ angular.module('transitIndicators')
                 }
             }
         });
-
     };
-
 }]);
