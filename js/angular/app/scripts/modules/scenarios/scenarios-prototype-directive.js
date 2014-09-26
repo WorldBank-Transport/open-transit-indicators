@@ -104,9 +104,7 @@ angular.module('transitIndicators')
                             markerController.resetCount();
                             drawControl.options.draw.marker.icon.options
                                 .html = markerController.getMarkerCount();
-                            map.removeLayer(drawnItems);
-                            drawnItems = new L.FeatureGroup();
-                            map.addLayer(drawnItems);
+                            drawnItems.clearLayers();
                         }
                         if (target === '#my-scenario') {
                             setScenarioName();
@@ -143,6 +141,7 @@ angular.module('transitIndicators')
                         Pages.to(target);
                     });
                     var drawnItems = new L.FeatureGroup();
+                    drawnItems.isScenarioLayer = true;
                     var markerController = {
                         markerCount: 1,
                         increaseMarkerCount: function() {
@@ -174,11 +173,10 @@ angular.module('transitIndicators')
                     }
 
                     function getTimeTableHtml() {
-                        var number = (markerController.getMarkerCount() >
-                                1) ? markerController.getMarkerCount() :
-                            5,
-                            timeTableRowHtml = '';
-                        for (i = 1; i < number; i++) {
+                        var number = (markerController.getMarkerCount() > 1) ? 
+                                      markerController.getMarkerCount() : 5,
+                                      timeTableRowHtml = '';
+                        for (var i = 1; i < number; i++) {
                             timeTableRowHtml += getTimeTableRow(i);
                         }
                         $('#prototype-time-table').html(
@@ -215,7 +213,7 @@ angular.module('transitIndicators')
                                     weight: 5,
                                     opacity: 0.9,
                                     fill: false
-                                },
+                                }
                             },
                             polygon: false,
                             rectangle: false,
@@ -231,7 +229,7 @@ angular.module('transitIndicators')
                         }
                     });
                     map.addControl(drawControl);
-                    (function(e) {
+                    map.on('draw:created', function(e) {
                         var type = e.layerType,
                             layer = e.layer;
                         if (type === 'marker') {
@@ -240,7 +238,7 @@ angular.module('transitIndicators')
                         drawnItems.addLayer(layer);
                         drawControl.options.draw.marker.icon.options
                             .html = markerController.getMarkerCount();
-                    })(map);
+                    });
                     map.on('draw:edited', function(e) {
                         var layers = e.layers;
                         var countOfEditedLayers = 0;
