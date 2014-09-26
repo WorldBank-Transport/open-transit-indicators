@@ -18,7 +18,7 @@ case class Road(
 /**
  * A trait providing Boundaries to an IndicatorCalculator
  */
-object RoadsTable extends Logging { 
+object RoadsTable extends Logging {
   import PostgresDriver.simple._
   private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
   import gisSupport._

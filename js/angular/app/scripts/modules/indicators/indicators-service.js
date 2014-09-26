@@ -92,10 +92,8 @@ angular.module('transitIndicators')
         $http.get('/api/indicator-version/').success(function (data) {
             var version = nullVersion;
             if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
-                var versionObj = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName});
-                if (versionObj) {
-                    version = versionObj.version;
-                }
+                console.log(data);
+                version = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName}).version || nullVersion;
             }
             callback(version);
         }).error(function (error) {
@@ -135,10 +133,6 @@ angular.module('transitIndicators')
             dfd.resolve({});
         });
         return dfd.promise;
-    };
-
-    otiIndicatorsService.getIndicatorDescriptionTranslationKey = function(key) {
-        return 'INDICATOR_DESCRIPTION.' + key;
     };
 
     return otiIndicatorsService;

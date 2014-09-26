@@ -77,7 +77,7 @@ class GTFSFeedSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
     class Meta:
         model = GTFSFeed
         problem_model = GTFSFeedProblem
-        read_only_fields = ('status',)
+        read_only_fields = ('is_valid', 'is_processed')
         ordering = ('-id',)
 
 
@@ -91,7 +91,7 @@ class RealTimeSerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
     class Meta:
         model = RealTime
         problem_model = RealTimeProblem
-        read_only_fields = ('status',)
+        read_only_fields = ('is_valid', 'is_processed')
         ordering = ('-id',)
 
 
@@ -102,7 +102,7 @@ class OSMDataSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixi
     class Meta:
         model = OSMData
         problem_model = OSMDataProblem
-        read_only_fields = ('status', 'source_file',)
+        read_only_fields = ('is_valid', 'is_processed', 'is_downloaded', 'source_file')
         ordering = ('-id',)
 
 
@@ -117,8 +117,8 @@ class BoundarySerializer(serializers.ModelSerializer, DataSourceProblemCountsMix
     class Meta:
         model = Boundary
         problem_model = BoundaryProblem
-        read_only_fields = ('status', 'geom',)
-        ordering = ('-id',)
+        read_only_fields = ('is_valid', 'is_processed', 'geom')
+        ordering = ('-id')
 
 
 class DemographicDataSourceSerializer(serializers.ModelSerializer, DataSourceProblemCountsMixin,
@@ -132,8 +132,8 @@ class DemographicDataSourceSerializer(serializers.ModelSerializer, DataSourcePro
     class Meta:
         model = DemographicDataSource
         problem_model = DemographicDataSourceProblem
-        read_only_fields = ('status', 'num_features',)
-        ordering = ('-id',)
+        read_only_fields = ('is_valid', 'is_processed', 'is_loaded', 'num_features')
+        ordering = ('-id')
 
     def get_shapefile_fields(self, obj):
         """Get the names of the fields in the associated shapefile."""

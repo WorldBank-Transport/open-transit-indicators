@@ -11,6 +11,7 @@ import com.typesafe.config.{ConfigFactory,Config}
 import org.scalatest._
 
 import scala.slick.jdbc.JdbcBackend.Session
+import scala.util.{Try, Success, Failure}
 
 trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
   /** It's horrible to load the data for each test. But I'm done pulling my hair
@@ -30,7 +31,7 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
   val systemBuilder = TransitSystemBuilder(records)
 
-  val periods = 
+  val periods =
     Seq(
       SamplePeriod(1, "night",
         new LocalDateTime("2014-05-01T00:00:00.000"),
@@ -55,7 +56,7 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
   val period = periods.head
   val system = systemBuilder.systemBetween(period.start, period.end)
-  val systems = 
+  val systems =
     periods.map { period =>
       (period, systemBuilder.systemBetween(period.start, period.end))
     }.toMap
@@ -218,8 +219,10 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
   it should "return map of Route modes and their geometries" in {
     val SystemGeometries(byRoute, byRouteType, bySystem) = SystemGeometries(system)
 
-    val l1 = byRouteType(Rail)
-    l1.lines.size should be (13)
+    Try(byRouteType(Rail)) match {
+      case Success(l1) => l1.lines.size should be (13)
+      case Failure(e) => fail(e)
+    }
   }
 
   it should "calcuate overall distance_between_stops by route for SEPTA" in {
@@ -251,17 +254,17 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
 
     bySystem.get should be (2.35755 +- 1e-5)
   }
-  
+
   // it should "calcuate overall hours_service by route for SEPTA" in {
   //   val hrsServByMode = septaRailCalc.calculatorsByName("hours_service").calcOverallByMode
   //   hrsServByMode(2) should be (146.48164 plusOrMinus 1e-5)
   // }
-  
+
   // it should "calcuate overall hours_service by system for SEPTA" in {
   //   val dbsBySystem = septaRailCalc.calculatorsByName("hours_service").calcOverallBySystem
   //   dbsBySystem should be (146.48164 plusOrMinus 1e-5)
   // }
-  
+
   // it should "calculate hours_service by route for SEPTA" in {
   //   val hrsServByRoute = septaRailCalc.calculatorsByName("hours_service").calcOverallByRoute
   //   hrsServByRoute("PAO") should be (141.84836 plusOrMinus 1e-5)

@@ -1,12 +1,3 @@
-.nopadding {
-  padding: 0;
-}
-
-.block {
-  padding-bottom: $block-spacing;
-  > .row {
-    &:last-child {
-      padding-bottom: 0;
-    }
-  }
+.filter {
+  padding: 1.2rem 0;
 }

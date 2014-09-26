@@ -19,7 +19,7 @@ case class StopsBuffer(
 /**
  * A trait providing Boundaries to an IndicatorCalculator
  */
-object StopsBuffersTable extends Logging { 
+object StopsBuffersTable extends Logging {
   import PostgresDriver.simple._
   private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
   import gisSupport._

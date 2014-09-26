@@ -3,7 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import geotrellis.vector._
 
-class RatioSuburbanLines(params: IndicatorCalculationParams) 
+class RatioSuburbanLines(params: IndicatorCalculationParams)
     extends Indicator
        with AggregatesByAll {
   type Intermediate = Boolean
@@ -11,7 +11,7 @@ class RatioSuburbanLines(params: IndicatorCalculationParams)
 
   val cityBounds = params.cityBoundary
 
-  val calculation = 
+  val calculation =
     new PerRouteIndicatorCalculation[Boolean] {
       // 'true' means the route is suburban, 'false' means it's not.
       def map(trips: Seq[Trip]): Boolean = {

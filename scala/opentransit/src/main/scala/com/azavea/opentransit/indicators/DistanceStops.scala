@@ -15,7 +15,7 @@ object DistanceStops extends Indicator
      // for each route, get tuple of:
      // (sum of trip shape lengths, maximum number of stops in any trip)
       def map(trips: Seq[Trip]) = {
-        val (total, maxStops, count) = 
+        val (total, maxStops, count) =
           trips
             .map { trip =>
               (trip.schedule.size, trip.tripShape.map(_.line.length))
@@ -36,7 +36,7 @@ object DistanceStops extends Indicator
             .foldLeft((0.0, 0)) { case ((total, count), value) =>
               (total + value, count + 1)
              }
-        total / count
+        if (count > 0) total / count else 0.0
       }
     }
 }
