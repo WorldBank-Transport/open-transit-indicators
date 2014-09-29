@@ -4,6 +4,7 @@ import com.azavea.gtfs._
 import scala.slick.driver.PostgresDriver
 import geotrellis.vector._
 import geotrellis.slick._
+import geotrellis.proj4.CRS
 import opentransitgt.IndicatorCalculator
 
 /**
@@ -55,8 +56,10 @@ trait StopsBufferCalculatorComponent {this: IndicatorCalculator =>
             case PolygonResult(p) => MultiPolygon(p)
           }
         }
+      
       val newBuffer = StopsBuffer(bufferRadiusMeters, bufferMp.withSRID(srid),
-        bufferMp.withSRID(4326))
+        bufferMp.withSRID(srid).reproject(CRS.fromName(s"EPSG:${srid}"),
+                                          CRS.fromName("EPSG:4326"))(4326))
       // Clear out any existing buffers before inserting the new one.
       stopsBufferTable.delete
       stopsBufferTable.insert(newBuffer)

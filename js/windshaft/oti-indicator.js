@@ -54,6 +54,16 @@ var styles = {
             'marker-allow-overlap: true;' +
             '}';
         return cartocss;
+    },
+    gtfs_stops_buffers: function () {
+       var cartocss =  '#' + result_tablename + ' {' +
+            'polygon-opacity: 0.7;' +
+            'polygon-fill: #1f78b4;' +
+            'line-color: #CCC;' +
+            'line-width: 0.5;' +
+            'line-opacity: 0.7;' +
+            '}';
+        return cartocss;
     }
 };
 
@@ -93,6 +103,22 @@ GTFSStops.prototype.getSql = function (filetype) {
 GTFSStops.prototype.getStyle = function () {
     return styles.gtfs_stops() || "";
 };
+
+/**
+ * Encapsulates windshaft display logic for the gtfs_stops_buffers table
+ */
+
+var GTFSStopsBuffers = function () {};
+
+GTFSStopsBuffers.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT * FROM gtfs_stops_buffers) AS " + result_tablename;
+    return sqlString;
+}
+
+GTFSStopsBuffers.prototype.getStyle = function () {
+    return styles.gtfs_stops_buffers() || "";
+}
 
 /**
  * Defaults for the IndicatorConfig object
@@ -150,4 +176,5 @@ Indicator.prototype.getStyle = function () {
 exports.Indicator = Indicator;
 exports.GTFSShapes = GTFSShapes;
 exports.GTFSStops = GTFSStops;
+exports.GTFSStopsBuffers = GTFSStopsBuffers;
 exports.table = result_tablename;
