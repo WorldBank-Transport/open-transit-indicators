@@ -14,7 +14,7 @@ class RoadLengthRatio(params: IndicatorCalculationParams)
        with AggregatesBySystem {
   type Intermediate = Double
 
-  val name = "coverage_ratio_stops_buffer"
+  val name = "lines_roads"
 
   val totalRoadLength =  params.totalRoadLength
 
