@@ -16,23 +16,21 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
 
   // Endpoint for uploading a GTFS file
   def ingestRoute =
-    pathPrefix("gt") {
-      path("gtfs") {
-        post {
-          parameter('gtfsDir.as[String]) { gtfsDir =>
-            complete {
-              TaskQueue.execute {
-                println(s"parsing GTFS data from: $gtfsDir")
-                val routeCount =
-                  db withSession { implicit session =>
-                    GtfsIngest(gtfsDir)
-                  }
+    path("gtfs") {
+      post {
+        parameter('gtfsDir.as[String]) { gtfsDir =>
+          complete {
+            TaskQueue.execute {
+              println(s"parsing GTFS data from: $gtfsDir")
+              val routeCount =
+                db withSession { implicit session =>
+                  GtfsIngest(gtfsDir)
+                }
 
-                JsObject(
-                  "success" -> JsBoolean(true),
-                  "message" -> JsString(s"Imported $routeCount routes")
-                )
-              }
+              JsObject(
+                "success" -> JsBoolean(true),
+                "message" -> JsString(s"Imported $routeCount routes")
+              )
             }
           }
         }
