@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-25 22:10+0000\n"
+"POT-Creation-Date: 2014-09-29 16:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,27 +16,28 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Report-msgstr-Bugs-To: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: datasources/models.py:36
 msgid "Pending"
-msgstr ""
+msgstr "待定"
 
 #: datasources/models.py:37
 msgid "Uploading"
-msgstr ""
+msgstr "正在上传"
 
 #: datasources/models.py:38
 msgid "Uploaded"
-msgstr ""
+msgstr "已上传"
 
 #: datasources/models.py:39
 msgid "Processing"
-msgstr ""
+msgstr "正在处理"
 
 #: datasources/models.py:40
 msgid "Downloading"
-msgstr ""
+msgstr "正在下载"
 
 #: datasources/models.py:41
 msgid "Importing"
@@ -44,15 +45,15 @@ msgstr ""
 
 #: datasources/models.py:42
 msgid "Waiting for User Input"
-msgstr ""
+msgstr "正在等待用户输入"
 
 #: datasources/models.py:43
 msgid "Validating"
-msgstr ""
+msgstr "正在验证"
 
 #: datasources/models.py:44
 msgid "Complete"
-msgstr ""
+msgstr "完成"
 
 #: datasources/models.py:45 datasources/models.py:67
 msgid "Warning"
@@ -64,19 +65,19 @@ msgstr "错误"
 
 #: datasources/tasks/gtfs.py:108
 msgid "Unable to calculate route and system length without a shapes.txt"
-msgstr ""
+msgstr "没有shapes.txt，无法计算路线和系统长度"
 
 #: datasources/tasks/gtfs.py:112
 msgid "Unable to calculate length"
-msgstr ""
+msgstr "无法计算长度"
 
 #: datasources/tasks/gtfs.py:140
 msgid "GTFS Data load failed"
-msgstr ""
+msgstr "GTFS 数据加载失败"
 
 #: datasources/tasks/gtfs.py:141
 msgid "Unknown Error"
-msgstr ""
+msgstr "未知错误"
 
 #: transit_indicators/gtfs.py:13
 msgid "Tram, Light Rail, Streetcar"
@@ -104,696 +105,696 @@ msgstr "缆车"
 
 #: transit_indicators/gtfs.py:19
 msgid "Gondola, Suspended cable car"
-msgstr ""
+msgstr "敞车，悬式缆车"
 
 #: transit_indicators/gtfs.py:20
 msgid "Funicular"
-msgstr ""
+msgstr "索道"
 
 #: transit_indicators/gtfs.py:21
 msgid "Railway Service"
-msgstr ""
+msgstr "铁路服务"
 
 #: transit_indicators/gtfs.py:22
 msgid "High Speed Rail Service"
-msgstr ""
+msgstr "高铁服务"
 
 #: transit_indicators/gtfs.py:23
 msgid "Long Distance Trains"
-msgstr ""
+msgstr "长途列车"
 
 #: transit_indicators/gtfs.py:24
 msgid "Inter Regional Rail Service"
-msgstr ""
+msgstr "区际铁路服务"
 
 #: transit_indicators/gtfs.py:25
 msgid "Car Transport Rail Service"
-msgstr ""
+msgstr "汽车运输铁路服务"
 
 #: transit_indicators/gtfs.py:26
 msgid "Sleeper Rail Service"
-msgstr ""
+msgstr "卧铺铁路服务"
 
 #: transit_indicators/gtfs.py:27
 msgid "Regional Rail Service"
-msgstr ""
+msgstr "地区铁路服务"
 
 #: transit_indicators/gtfs.py:28
 msgid "Tourist Railway Service"
-msgstr ""
+msgstr "旅游铁路服务"
 
 #: transit_indicators/gtfs.py:29
 msgid "Rail Shuttle (Within Complex)"
-msgstr ""
+msgstr "铁路运输（综合体内）"
 
 #: transit_indicators/gtfs.py:30
 msgid "Suburban Railway"
-msgstr ""
+msgstr "市郊铁路"
 
 #: transit_indicators/gtfs.py:31
 msgid "Replacement Rail Service"
-msgstr ""
+msgstr "替换性铁路服务"
 
 #: transit_indicators/gtfs.py:32
 msgid "Special Rail Service"
-msgstr ""
+msgstr "特殊铁路服务"
 
 #: transit_indicators/gtfs.py:33
 msgid "Lorry Transport Rail Service"
-msgstr ""
+msgstr "货车运输铁路服务"
 
 #: transit_indicators/gtfs.py:34
 msgid "All Rail Services"
-msgstr ""
+msgstr "所有铁路服务"
 
 #: transit_indicators/gtfs.py:35
 msgid "Cross-Country Rail Service"
-msgstr ""
+msgstr "跨国铁路服务"
 
 #: transit_indicators/gtfs.py:36
 msgid "Vehicle Transport Rail Service"
-msgstr ""
+msgstr "车辆运输铁路服务"
 
 #: transit_indicators/gtfs.py:37
 msgid "Rack and Pinion Railway"
-msgstr ""
+msgstr "齿轨铁路"
 
 #: transit_indicators/gtfs.py:38
 msgid "Additional Rail Service"
-msgstr ""
+msgstr "其他铁路服务"
 
 #: transit_indicators/gtfs.py:39
 msgid "Coach Service"
-msgstr ""
+msgstr "巴士服务"
 
 #: transit_indicators/gtfs.py:40
 msgid "International Coach Service"
-msgstr ""
+msgstr "国际巴士服务"
 
 #: transit_indicators/gtfs.py:41
 msgid "National Coach Service"
-msgstr ""
+msgstr "国家巴士服务"
 
 #: transit_indicators/gtfs.py:42
 msgid "Shuttle Coach Service"
-msgstr ""
+msgstr "专线大巴服务"
 
 #: transit_indicators/gtfs.py:43
 msgid "Regional Coach Service"
-msgstr ""
+msgstr "地区大巴服务"
 
 #: transit_indicators/gtfs.py:44
 msgid "Special Coach Service"
-msgstr ""
+msgstr "特殊大巴服务"
 
 #: transit_indicators/gtfs.py:45
 msgid "Sightseeing Coach Service"
-msgstr ""
+msgstr "观光大巴服务"
 
 #: transit_indicators/gtfs.py:46
 msgid "Tourist Coach Service"
-msgstr ""
+msgstr "旅游大巴服务"
 
 #: transit_indicators/gtfs.py:47
 msgid "Commuter Coach Service"
-msgstr ""
+msgstr "市郊客车服务"
 
 #: transit_indicators/gtfs.py:48
 msgid "All Coach Services"
-msgstr ""
+msgstr "所有大巴服务"
 
 #: transit_indicators/gtfs.py:49
 msgid "Suburban Railway Service"
-msgstr ""
+msgstr "市郊铁路服务"
 
 #: transit_indicators/gtfs.py:50 transit_indicators/gtfs.py:53
 msgid "Urban Railway Service"
-msgstr ""
+msgstr "市区铁路服务"
 
 #: transit_indicators/gtfs.py:51 transit_indicators/gtfs.py:56
 msgid "Metro Service"
-msgstr ""
+msgstr "地铁服务"
 
 #: transit_indicators/gtfs.py:52 transit_indicators/gtfs.py:57
 msgid "Underground Service"
-msgstr ""
+msgstr "地铁服务"
 
 #: transit_indicators/gtfs.py:54
 msgid "All Urban Railway Services"
-msgstr ""
+msgstr "所有市区铁路服务"
 
 #: transit_indicators/gtfs.py:55
 msgid "Monorail"
-msgstr ""
+msgstr "单轨"
 
 #: transit_indicators/gtfs.py:58
 msgid "Bus Service"
-msgstr ""
+msgstr "公共汽车服务"
 
 #: transit_indicators/gtfs.py:59
 msgid "Regional Bus Service"
-msgstr ""
+msgstr "地区公共汽车服务"
 
 #: transit_indicators/gtfs.py:60
 msgid "Express Bus Service"
-msgstr ""
+msgstr "快车服务"
 
 #: transit_indicators/gtfs.py:61
 msgid "Stopping Bus Service"
-msgstr ""
+msgstr "停车服务"
 
 #: transit_indicators/gtfs.py:62
 msgid "Local Bus Service"
-msgstr ""
+msgstr "本地公共汽车服务"
 
 #: transit_indicators/gtfs.py:63
 msgid "Night Bus Service"
-msgstr ""
+msgstr "夜班车服务"
 
 #: transit_indicators/gtfs.py:64
 msgid "Post Bus Service"
-msgstr ""
+msgstr "邮车服务"
 
 #: transit_indicators/gtfs.py:65
 msgid "Special Needs Bus"
-msgstr ""
+msgstr "特殊需求公共汽车"
 
 #: transit_indicators/gtfs.py:66
 msgid "Mobility Bus Service"
-msgstr ""
+msgstr "移动公共汽车服务"
 
 #: transit_indicators/gtfs.py:67
 msgid "Mobility Bus for Registered Disabled"
-msgstr ""
+msgstr "注册为残疾人的移动公共汽车"
 
 #: transit_indicators/gtfs.py:68
 msgid "Sightseeing Bus"
-msgstr ""
+msgstr "观光巴士"
 
 #: transit_indicators/gtfs.py:69
 msgid "Shuttle Bus"
-msgstr ""
+msgstr "班车"
 
 #: transit_indicators/gtfs.py:70
 msgid "School Bus"
-msgstr ""
+msgstr "校车"
 
 #: transit_indicators/gtfs.py:71
 msgid "School and Public Service Bus"
-msgstr ""
+msgstr "校车和公共服务汽车"
 
 #: transit_indicators/gtfs.py:72
 msgid "Rail Replacement Bus Service"
-msgstr ""
+msgstr "铁路更换公共汽车服务"
 
 #: transit_indicators/gtfs.py:73
 msgid "Demand and Response Bus Service"
-msgstr ""
+msgstr "需求和响应公共汽车服务"
 
 #: transit_indicators/gtfs.py:74
 msgid "All Bus Services"
-msgstr ""
+msgstr "所有公共汽车服务"
 
 #: transit_indicators/gtfs.py:75
 msgid "Trolleybus Service"
-msgstr ""
+msgstr "无轨电车服务"
 
 #: transit_indicators/gtfs.py:76
 msgid "Tram Service"
-msgstr ""
+msgstr "电车服务"
 
 #: transit_indicators/gtfs.py:77
 msgid "City Tram Service"
-msgstr ""
+msgstr "城市电车服务"
 
 #: transit_indicators/gtfs.py:78
 msgid "Local Tram Service"
-msgstr ""
+msgstr "本地电车服务"
 
 #: transit_indicators/gtfs.py:79
 msgid "Regional Tram Service"
-msgstr ""
+msgstr "地区电车服务"
 
 #: transit_indicators/gtfs.py:80
 msgid "Sightseeing Tram Service"
-msgstr ""
+msgstr "观光电车服务"
 
 #: transit_indicators/gtfs.py:81
 msgid "Shuttle Tram Service"
-msgstr ""
+msgstr "运输电车服务"
 
 #: transit_indicators/gtfs.py:82
 msgid "All Tram Services"
-msgstr ""
+msgstr "所有电车服务"
 
 #: transit_indicators/gtfs.py:83
 msgid "Water Transport Service"
-msgstr ""
+msgstr "水路运输服务"
 
 #: transit_indicators/gtfs.py:84
 msgid "International Car Ferry Service"
-msgstr ""
+msgstr "国际车辆渡轮服务"
 
 #: transit_indicators/gtfs.py:85
 msgid "National Car Ferry Service"
-msgstr ""
+msgstr "国家车辆渡轮服务"
 
 #: transit_indicators/gtfs.py:86
 msgid "Regional Car Ferry Service"
-msgstr ""
+msgstr "地区车辆渡轮服务"
 
 #: transit_indicators/gtfs.py:87
 msgid "Local Car Ferry Service"
-msgstr ""
+msgstr "本地车辆渡轮服务"
 
 #: transit_indicators/gtfs.py:88
 msgid "International Passenger Ferry Service"
-msgstr ""
+msgstr "国际旅客渡船服务"
 
 #: transit_indicators/gtfs.py:89
 msgid "National Passenger Ferry Service"
-msgstr ""
+msgstr "国家旅客渡船服务"
 
 #: transit_indicators/gtfs.py:90
 msgid "Regional Passenger Ferry Service"
-msgstr ""
+msgstr "地区旅客渡船服务"
 
 #: transit_indicators/gtfs.py:91
 msgid "Local Passenger Ferry Service"
-msgstr ""
+msgstr "本地旅客渡船服务"
 
 #: transit_indicators/gtfs.py:92
 msgid "Post Boat Service"
-msgstr ""
+msgstr "邮船服务"
 
 #: transit_indicators/gtfs.py:93
 msgid "Train Ferry Service"
-msgstr ""
+msgstr "火车渡船服务"
 
 #: transit_indicators/gtfs.py:94
 msgid "Road-Link Ferry Service"
-msgstr ""
+msgstr "道路连接渡船服务"
 
 #: transit_indicators/gtfs.py:95
 msgid "Airport-Link Ferry Service"
-msgstr ""
+msgstr "机场连接渡船服务"
 
 #: transit_indicators/gtfs.py:96
 msgid "Car High-Speed Ferry Service"
-msgstr ""
+msgstr "汽车高速渡船服务"
 
 #: transit_indicators/gtfs.py:97
 msgid "Passenger High-Speed Ferry Service"
-msgstr ""
+msgstr "旅客高速渡船服务"
 
 #: transit_indicators/gtfs.py:98
 msgid "Sightseeing Boat Service"
-msgstr ""
+msgstr "观光船服务"
 
 #: transit_indicators/gtfs.py:99
 msgid "School Boat"
-msgstr ""
+msgstr "校船"
 
 #: transit_indicators/gtfs.py:100
 msgid "Cable-Drawn Boat Service"
-msgstr ""
+msgstr "绳索拉船服务"
 
 #: transit_indicators/gtfs.py:101
 msgid "River Bus Service"
-msgstr ""
+msgstr "水上计程车服务"
 
 #: transit_indicators/gtfs.py:102
 msgid "Scheduled Ferry Service"
-msgstr ""
+msgstr "预订的渡船服务"
 
 #: transit_indicators/gtfs.py:103
 msgid "Shuttle Ferry Service"
-msgstr ""
+msgstr "运输渡船服务"
 
 #: transit_indicators/gtfs.py:104
 msgid "All Water Transport Services"
-msgstr ""
+msgstr "所有水上运输服务"
 
 #: transit_indicators/gtfs.py:105
 msgid "Air Service"
-msgstr ""
+msgstr "航空服务"
 
 #: transit_indicators/gtfs.py:106
 msgid "International Air Service"
-msgstr ""
+msgstr "国际航空服务"
 
 #: transit_indicators/gtfs.py:107
 msgid "Domestic Air Service"
-msgstr ""
+msgstr "国内航空服务"
 
 #: transit_indicators/gtfs.py:108
 msgid "Intercontinental Air Service"
-msgstr ""
+msgstr "洲际航空服务"
 
 #: transit_indicators/gtfs.py:109
 msgid "Domestic Scheduled Air Service"
-msgstr ""
+msgstr "国内预订的航空服务"
 
 #: transit_indicators/gtfs.py:110
 msgid "Shuttle Air Service"
-msgstr ""
+msgstr "运输航空服务"
 
 #: transit_indicators/gtfs.py:111
 msgid "Intercontinental Charter Air Service"
-msgstr ""
+msgstr "洲际包机航空服务"
 
 #: transit_indicators/gtfs.py:112
 msgid "International Charter Air Service"
-msgstr ""
+msgstr "国际包机航空服务"
 
 #: transit_indicators/gtfs.py:113
 msgid "Round-Trip Charter Air Service"
-msgstr ""
+msgstr "双程包机航空服务"
 
 #: transit_indicators/gtfs.py:114
 msgid "Sightseeing Air Service"
-msgstr ""
+msgstr "观光航空服务"
 
 #: transit_indicators/gtfs.py:115
 msgid "Helicopter Air Service"
-msgstr ""
+msgstr "直升飞机航空服务"
 
 #: transit_indicators/gtfs.py:116
 msgid "Domestic Charter Air Service"
-msgstr ""
+msgstr "国内包机航空服务"
 
 #: transit_indicators/gtfs.py:117
 msgid "Schengen-Area Air Service"
-msgstr ""
+msgstr "申根签证区域航空服务"
 
 #: transit_indicators/gtfs.py:118
 msgid "Airship Service"
-msgstr ""
+msgstr "飞船服务"
 
 #: transit_indicators/gtfs.py:119
 msgid "All Air Services"
-msgstr ""
+msgstr "所有航空服务"
 
 #: transit_indicators/gtfs.py:120
 msgid "Ferry Service"
-msgstr ""
+msgstr "渡船服务"
 
 #: transit_indicators/gtfs.py:121 transit_indicators/gtfs.py:122
 msgid "Telecabin Service"
-msgstr ""
+msgstr "单索缆车服务"
 
 #: transit_indicators/gtfs.py:123
 msgid "Cable Car Service"
-msgstr ""
+msgstr "缆车服务"
 
 #: transit_indicators/gtfs.py:124
 msgid "Elevator Service"
-msgstr ""
+msgstr "升降机服务"
 
 #: transit_indicators/gtfs.py:125
 msgid "Chair Lift Service"
-msgstr ""
+msgstr "升降椅服务"
 
 #: transit_indicators/gtfs.py:126
 msgid "Drag Lift Service"
-msgstr ""
+msgstr "阻升服务"
 
 #: transit_indicators/gtfs.py:127
 msgid "Small Telecabin Service"
-msgstr ""
+msgstr "小型单索缆车服务"
 
 #: transit_indicators/gtfs.py:128
 msgid "All Telecabin Services"
-msgstr ""
+msgstr "所有单索缆车服务"
 
 #: transit_indicators/gtfs.py:129 transit_indicators/gtfs.py:130
 msgid "Funicular Service"
-msgstr ""
+msgstr "索道缆车服务"
 
 #: transit_indicators/gtfs.py:131
 msgid "All Funicular Service"
-msgstr ""
+msgstr "所有索道缆车服务"
 
 #: transit_indicators/gtfs.py:132
 msgid "Taxi Service"
-msgstr ""
+msgstr "出租车服务"
 
 #: transit_indicators/gtfs.py:133
 msgid "Communal Taxi Service"
-msgstr ""
+msgstr "公共出租车服务"
 
 #: transit_indicators/gtfs.py:134
 msgid "Water Taxi Service"
-msgstr ""
+msgstr "水上出租车服务"
 
 #: transit_indicators/gtfs.py:135
 msgid "Rail Taxi Service"
-msgstr ""
+msgstr "铁轨出租车服务"
 
 #: transit_indicators/gtfs.py:136
 msgid "Bike Taxi Service"
-msgstr ""
+msgstr "自行车出租车服务"
 
 #: transit_indicators/gtfs.py:137
 msgid "Licensed Taxi Service"
-msgstr ""
+msgstr "许可的出租车服务"
 
 #: transit_indicators/gtfs.py:138
 msgid "Private Hire Service Vehicle"
-msgstr ""
+msgstr "私家出租服务汽车"
 
 #: transit_indicators/gtfs.py:139
 msgid "All Taxi Services"
-msgstr ""
+msgstr "所有出租车服务"
 
 #: transit_indicators/gtfs.py:140
 msgid "Self Drive"
-msgstr ""
+msgstr "自驾"
 
 #: transit_indicators/gtfs.py:141
 msgid "Hire Car"
-msgstr ""
+msgstr "租用汽车"
 
 #: transit_indicators/gtfs.py:142
 msgid "Hire Van"
-msgstr ""
+msgstr "租用货车"
 
 #: transit_indicators/gtfs.py:143
 msgid "Hire Motorbike"
-msgstr ""
+msgstr "租用摩托车"
 
 #: transit_indicators/gtfs.py:144
 msgid "Hire Cycle"
-msgstr ""
+msgstr "租用自行车"
 
 #: transit_indicators/gtfs.py:145
 msgid "Miscellaneous Service"
-msgstr ""
+msgstr "其他”服务"
 
 #: transit_indicators/gtfs.py:146
 msgid "Horse-drawn Carriage"
-msgstr ""
+msgstr "马车"
 
-#: transit_indicators/models.py:120
+#: transit_indicators/models.py:117
 msgid "All Time"
 msgstr "所有时间"
 
-#: transit_indicators/models.py:121
+#: transit_indicators/models.py:118
 msgid "Morning Rush"
 msgstr "早高峰时段"
 
-#: transit_indicators/models.py:122
+#: transit_indicators/models.py:119
 msgid "Mid Day"
 msgstr "正午"
 
-#: transit_indicators/models.py:123
+#: transit_indicators/models.py:120
 msgid "Evening Rush"
 msgstr "晚高峰时段"
 
-#: transit_indicators/models.py:124
+#: transit_indicators/models.py:121
 msgid "Night"
 msgstr "夜晚"
 
-#: transit_indicators/models.py:125
+#: transit_indicators/models.py:122
 msgid "Weekend"
 msgstr "周末"
 
-#: transit_indicators/models.py:146
+#: transit_indicators/models.py:143
 msgid "Job queued for processing"
 msgstr "任务已排队等待处理"
 
-#: transit_indicators/models.py:147
+#: transit_indicators/models.py:144
 msgid "Indicators being processed and calculated"
 msgstr "指标正在被处理、计算"
 
-#: transit_indicators/models.py:148
+#: transit_indicators/models.py:145
 msgid "Error calculating indicators"
 msgstr "计算指标时出现错误"
 
-#: transit_indicators/models.py:149
+#: transit_indicators/models.py:146
 msgid "Completed indicator calculation"
 msgstr "指标计算已完成"
 
-#: transit_indicators/models.py:258
+#: transit_indicators/models.py:255
 msgid "Route"
 msgstr "路线"
 
-#: transit_indicators/models.py:259
+#: transit_indicators/models.py:256
 msgid "Mode"
 msgstr "模式"
 
-#: transit_indicators/models.py:260
+#: transit_indicators/models.py:257
 msgid "System"
 msgstr "系统"
 
-#: transit_indicators/models.py:292
+#: transit_indicators/models.py:289
 msgid "avg deviation from scheduled dwell time"
 msgstr "与计划逗留时间的平均偏差"
 
-#: transit_indicators/models.py:293
+#: transit_indicators/models.py:290
 msgid "avg deviation from scheduled frequency"
 msgstr "与计划频率的平均偏差"
 
-#: transit_indicators/models.py:294
+#: transit_indicators/models.py:291
 msgid "avg deviation from scheduled time"
 msgstr "与计划时间的平均偏差"
 
-#: transit_indicators/models.py:295
+#: transit_indicators/models.py:292
 msgid "stops per hr/pop within 500m"
 msgstr "每小时的公交站点数/500米内人数"
 
-#: transit_indicators/models.py:296
+#: transit_indicators/models.py:293
 msgid "hrs"
 msgstr "小时数"
 
-#: transit_indicators/models.py:297
+#: transit_indicators/models.py:294
 msgid "km"
 msgstr "公里"
 
-#: transit_indicators/models.py:298
+#: transit_indicators/models.py:295
 msgid "km/km²"
 msgstr "公里/平方公里"
 
-#: transit_indicators/models.py:299
+#: transit_indicators/models.py:296
 msgid "low-income population within 500m of a stop"
 msgstr "公交站点500米范围内的低收入人口总数"
 
-#: transit_indicators/models.py:300
+#: transit_indicators/models.py:297
 msgid "min"
 msgstr "分钟"
 
-#: transit_indicators/models.py:301
+#: transit_indicators/models.py:298
 msgid "population within 500m of a stop"
 msgstr "公交站点500米范围内的人口总数"
 
-#: transit_indicators/models.py:302
+#: transit_indicators/models.py:299
 msgid "stops/500m radius"
 msgstr "公交站点数/500米半径"
 
-#: transit_indicators/models.py:303
+#: transit_indicators/models.py:300
 msgid "stops/route length, in km"
 msgstr "公交站点数/路线长度（单位：公里）"
 
-#: transit_indicators/models.py:341
+#: transit_indicators/models.py:338
 msgid "Access index"
 msgstr "可达指数"
 
-#: transit_indicators/models.py:342
+#: transit_indicators/models.py:339
 msgid "Affordability"
 msgstr "可负担性"
 
-#: transit_indicators/models.py:343
+#: transit_indicators/models.py:340
 msgid "Average Service Frequency"
 msgstr "平均服务频率"
 
-#: transit_indicators/models.py:344
+#: transit_indicators/models.py:341
 msgid "System coverage"
 msgstr "系统覆盖率"
 
-#: transit_indicators/models.py:345
+#: transit_indicators/models.py:342
 msgid "Coverage of transit stops"
 msgstr "公交站点覆盖率"
 
-#: transit_indicators/models.py:346
+#: transit_indicators/models.py:343
 msgid "Distance between stops"
 msgstr "公交站点之间的距离"
 
-#: transit_indicators/models.py:347
+#: transit_indicators/models.py:344
 msgid "Dwell Time Performance"
 msgstr "停站时间性能"
 
-#: transit_indicators/models.py:348
+#: transit_indicators/models.py:345
 msgid "Weekly number of hours of service"
 msgstr "每周服务小时数"
 
-#: transit_indicators/models.py:349
+#: transit_indicators/models.py:346
 msgid "Job accessibility"
 msgstr "工作可达性"
 
-#: transit_indicators/models.py:350
+#: transit_indicators/models.py:347
 msgid "Transit system length"
 msgstr "公交系统长度"
 
-#: transit_indicators/models.py:351
+#: transit_indicators/models.py:348
 msgid "Ratio of transit lines length over road length"
 msgstr "公交路线长度与公路长度之比"
 
-#: transit_indicators/models.py:352
+#: transit_indicators/models.py:349
 msgid "Transit line network density"
 msgstr "公交线路网络密度"
 
-#: transit_indicators/models.py:353
+#: transit_indicators/models.py:350
 msgid "Number of modes"
 msgstr "模式数"
 
-#: transit_indicators/models.py:354
+#: transit_indicators/models.py:351
 msgid "Number of routes"
 msgstr "路线数"
 
-#: transit_indicators/models.py:355
+#: transit_indicators/models.py:352
 msgid "Number of stops"
 msgstr "公交站点数"
 
-#: transit_indicators/models.py:356
+#: transit_indicators/models.py:353
 msgid "Number of route types"
 msgstr "路线类型数"
 
-#: transit_indicators/models.py:357
+#: transit_indicators/models.py:354
 msgid "On-Time Performance"
 msgstr "准时性能"
 
-#: transit_indicators/models.py:358
+#: transit_indicators/models.py:355
 msgid "Regularity of Headways"
 msgstr "两车之间时间间隔的规律性"
 
-#: transit_indicators/models.py:359
+#: transit_indicators/models.py:356
 msgid "Service frequency weighted by served population"
 msgstr "按服务人口加权的服务频率"
 
-#: transit_indicators/models.py:360
+#: transit_indicators/models.py:357
 msgid "Ratio of number of stops to route-length"
 msgstr "公交站点数与路线长度之比"
 
-#: transit_indicators/models.py:361
+#: transit_indicators/models.py:358
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
 msgstr "以公交方式运营的郊区线路的比例"
 
-#: transit_indicators/models.py:362
+#: transit_indicators/models.py:359
 msgid "System accessibility"
 msgstr "系统可达性"
 
-#: transit_indicators/models.py:363
+#: transit_indicators/models.py:360
 msgid "System accessibility - low-income"
 msgstr "系统可达性--低收入"
 
-#: transit_indicators/models.py:364
+#: transit_indicators/models.py:361
 msgid "Time traveled between stops"
 msgstr "公交站点之间的交通时间"
 
-#: transit_indicators/models.py:365
+#: transit_indicators/models.py:362
 msgid "Travel Time Performance"
 msgstr "交通时间性能"
 
-#: transit_indicators/models.py:366
+#: transit_indicators/models.py:363
 msgid "Weekday / weekend frequency"
 msgstr "平常日/周末日频率"
