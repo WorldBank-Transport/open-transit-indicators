@@ -331,7 +331,8 @@ class Indicator(models.Model):
                               WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
-                              COVERAGE
+                              COVERAGE,
+                              COVERAGE_STOPS
         ])
 
         CHOICES = (
