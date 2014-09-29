@@ -1,9 +1,6 @@
 import django_filters
 
-from django.conf import settings
-
 from rest_framework import status
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
@@ -100,7 +97,6 @@ class IndicatorViewSet(OTIAdminViewSet):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [CSVRenderer]
     filter_class = IndicatorFilter
 
-
     def create(self, request, *args, **kwargs):
         """ Create Indicator objects via csv upload or json
 
@@ -125,9 +121,9 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         # If this is a post with many indicators, process as many
         if isinstance(request.DATA, list):
-            many=True
+            many = True
         else:
-            many=False
+            many = False
 
         # Continue through normal serializer save process
         serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=many)
@@ -157,7 +153,7 @@ class IndicatorViewSet(OTIAdminViewSet):
                 filters.append(field)
 
         if filters:
-            indicators = Indicator.objects.all();
+            indicators = Indicator.objects.all()
             for field in filters:
                 indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
@@ -196,7 +192,7 @@ class IndicatorTypes(APIView):
                 show = True
             else:
                 show = False
-            response[key] = { 'display_name': value, 'display_on_map': show }
+            response[key] = {'display_name': value, 'display_on_map': show}
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -208,7 +204,7 @@ class IndicatorAggregationTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in Indicator.AggregationTypes.CHOICES }
+        response = {key: value for key, value in Indicator.AggregationTypes.CHOICES}
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -232,7 +228,7 @@ class SamplePeriodTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in SamplePeriod.SamplePeriodTypes.CHOICES }
+        response = {key: value for key, value in SamplePeriod.SamplePeriodTypes.CHOICES}
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -252,7 +248,7 @@ class GTFSRouteTypes(APIView):
             route_types = GTFSRouteType.objects.filter(route_type__lt=10)
         route_types = route_types.order_by('route_type')
 
-        response = [{ 'route_type': rt.route_type, 'description': rt.description } for rt in route_types]
+        response = [{'route_type': rt.route_type, 'description': rt.get_route_type_display()} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
 
 

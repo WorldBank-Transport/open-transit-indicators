@@ -33,6 +33,8 @@ angular.module('transitIndicators')
                             $stateParams,
                             { reload: true, inherit: true, notify: true });
     };
+    // Make Angular respect language cookies on page reload
+    $translate.use($cookies.openTransitLanguage);
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {

@@ -22,9 +22,6 @@ class GTFSRouteType(models.Model):
     # Integer route type, is unique
     route_type = models.IntegerField(unique=True, choices=GTFSRouteTypes.CHOICES)
 
-    # String description of gtfs route type
-    description = models.CharField(max_length=255)
-
     class Meta(object):
         db_table = 'gtfs_route_types'
 
@@ -322,7 +319,7 @@ class Indicator(models.Model):
                             TIME_TRAVELED_STOPS: Units.MINUTES,
                             WEEKDAY_END_FREQ: Units.HOURS
         }
-        
+
         # indicators to display on the map
         INDICATORS_TO_MAP = frozenset([
                               LENGTH,
