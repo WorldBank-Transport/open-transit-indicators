@@ -14,21 +14,21 @@ object TimeTraveledStops extends Indicator
 
   val calculation =
     new PerTripIndicatorCalculation[Seq[Int]] {
-      def map(trip: Trip) =
+      def map(trip: Trip): Seq[Int] =
           trip.schedule
             .zip(trip.schedule.tail)
             .map { case (stop1, stop2) =>
               Minutes.minutesBetween(stop1.arrivalTime, stop2.arrivalTime).getMinutes
              }
-   
-      def reduce(durations: Seq[Seq[Int]]) = {
+
+      def reduce(durations: Seq[Seq[Int]]): Double = {
         val (sum, count) =
           durations
             .flatten
             .foldLeft((0,0)) { case ((sum, count), minutes) =>
               (sum + minutes, count + 1)
              }
-        sum.toDouble / count
+        if (count > 0) sum.toDouble / count else 0.0
       }
     }
 }

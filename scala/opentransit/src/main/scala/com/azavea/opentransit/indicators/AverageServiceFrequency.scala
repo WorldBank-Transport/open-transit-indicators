@@ -34,7 +34,7 @@ object AverageServiceFrequency extends Indicator
         * would calculate a headway of 5 minutes. Then all headways for all stops
         * are averaged.
         */
-      def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]) = {
+      def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
         // Average all the headways between each stop.
         val (total, count) =
           stopSchedules
@@ -55,7 +55,7 @@ object AverageServiceFrequency extends Indicator
                 (total + diff, count + 1)
               }
 
-        total / count
+              if (count > 0) total / count else 0.0
       }
     }
 }
