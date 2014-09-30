@@ -7,7 +7,7 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
 
 /** Indicator calculation that calculates intermediate values of type T */
-trait IndicatorCalculation[T] {
+sealed trait IndicatorCalculation[T] {
   def reduce(results: Seq[T]): Double
 
   def apply(transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults =

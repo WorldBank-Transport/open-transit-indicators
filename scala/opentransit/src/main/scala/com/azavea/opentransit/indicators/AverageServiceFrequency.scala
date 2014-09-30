@@ -7,16 +7,16 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
 /** Average service frequency.
-  * This indicator calculates the frequency of a vehicle arriving 
+  * This indicator calculates the frequency of a vehicle arriving
   * at a stop in a route.
   */
-object AverageServiceFrequency extends Indicator 
+object AverageServiceFrequency extends Indicator
                                   with AggregatesByAll {
   type Intermediate = Map[Stop, Seq[LocalDateTime]]
 
   val name = "avg_service_freq"
 
-  val calculation = 
+  val calculation =
     new PerRouteIndicatorCalculation[Map[Stop, Seq[LocalDateTime]]] {
       def map(trips: Seq[Trip]): Map[Stop, Seq[LocalDateTime]] =
         trips

@@ -59,11 +59,10 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                   }
 
                 // Get parameters, hitting the database for any necessary info now.
-                val params = 
+                val params =
                   db withSession { implicit session =>
                     request.toParams
                   }
-
                 CalculateIndicators(request.samplePeriods, params, gtfsRecords) { containerGenerators =>
                   val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
                   DjangoClient.postIndicators(request.token, indicatorResultContainers)

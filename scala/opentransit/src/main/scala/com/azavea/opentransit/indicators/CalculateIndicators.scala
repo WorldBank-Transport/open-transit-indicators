@@ -8,17 +8,17 @@ import org.joda.time.Seconds
 
 object CalculateIndicators {
   /** Computes all indicators and shovels the IndicatorContainerGenerators to a function.
-    * The sink funciton should be thread safe! 
+    * The sink funciton should be thread safe!
     */
   def apply(periods: Seq[SamplePeriod], params: IndicatorCalculationParams, gtfsRecords: GtfsRecords)(sink: Seq[ContainerGenerator] => Unit): Unit = {
     val builder = TransitSystemBuilder(gtfsRecords)
-    val systemsByPeriod = 
+    val systemsByPeriod =
       periods.map { period =>
-        (period, builder.systemBetween(period.start, period.end)) 
+        (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
     for(indicator <- Indicators.list(params)) {
-      val (periodResults, periodGeometries) = 
+      val (periodResults, periodGeometries) =
         periods
           .map { period =>
             val transitSystem = systemsByPeriod(period)

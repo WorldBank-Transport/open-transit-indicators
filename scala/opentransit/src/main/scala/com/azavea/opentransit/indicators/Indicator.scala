@@ -9,7 +9,7 @@ trait TransitSystemCalculation {
 
 object Indicators {
   // These are indicators that don't need the request info.
-  private val staticIndicators: List[Indicator] = 
+  private val staticIndicators: List[Indicator] =
     List(
       AverageServiceFrequency,
       DistanceStops,
@@ -20,7 +20,7 @@ object Indicators {
     )
 
   // These are indicators that need to know things about the request
-  private def paramIndicators(params: IndicatorCalculationParams): List[Indicator] = 
+  private def paramIndicators(params: IndicatorCalculationParams): List[Indicator] =
     List(
       new CoverageRatioStopsBuffer(params)
     )
