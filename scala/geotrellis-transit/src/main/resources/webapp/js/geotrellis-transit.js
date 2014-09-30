@@ -5,18 +5,34 @@ var GTT = (function() {
         var INITIAL_TIME = d.getTime() - d.setHours(0,0,0,0);
 
         var baseUrl = "http://localhost:9999/api";
-        var baseUrl = baseUrl || "http://transit.geotrellis.com/api";
+//        var baseUrl = baseUrl || "http://transit.geotrellis.com/api";
 
-        var viewCoords = [39.9886950160466,-75.1519775390625];
+//Extent(112.72662842219742, 34.26084468393921, 114.21564888769542, 34.98327924830207)
+    var borderPoly = [
+        [34.26084468393921, 112.72662842219742],
+        [34.26084468393921, 114.21564888769542],
+        [34.98327924830207, 114.21564888769542],
+        [34.98327924830207, 112.72662842219742]
+    ];
+
+  var startLat = 34.739981;
+  var startLng = 113.680349;
+
+  var viewCoords = [startLat, startLng];
+
+
+//        var viewCoords = [39.9886950160466,-75.1519775390625];
         var geoCodeLowerLeft = { lat: 39.7353312333975, lng: -75.4468831918069 };
         var geoCodeUpperRight = { lat: 40.1696687666025, lng: -74.8802888081931 };
 
-        var startLat = 39.950510086014404;   
-        var startLng = -75.1640796661377;
+//        var startLat = 39.950510086014404;   
+//        var startLng = -75.1640796661377;
 
         // For scenic route
         var destLat = 39.970929;
         var destLng = -75.142708;
+
+
 
         var breaks = 
             _.reduce(_.map([10,15,20,30,40,50,60,75,90,120], function(minute) { return minute*60; }),
@@ -37,7 +53,8 @@ var GTT = (function() {
             VIEW_COORDS : viewCoords,
             GEOCODE_LOWERLEFT : geoCodeLowerLeft,
             GEOCODE_UPPERRIGHT: geoCodeUpperRight,
-            BASE_URL : baseUrl
+            BASE_URL : baseUrl,
+            BORDER_POLY : borderPoly
         };
     })();
 

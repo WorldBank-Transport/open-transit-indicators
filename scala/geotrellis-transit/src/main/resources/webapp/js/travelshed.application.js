@@ -7,6 +7,12 @@ var APP = (function() {
             m.setView(m.getBounds(),m.getZoom());
         });
 
+    var polygon = L.polygon(GTT.Constants.BORDER_POLY,
+      {  color: 'black',
+        fillColor: '#f03',
+        fillOpacity: 0.0}).addTo(m);
+
+
         return m;
     })();
 

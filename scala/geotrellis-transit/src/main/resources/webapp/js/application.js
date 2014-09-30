@@ -1,12 +1,11 @@
 var MAX_DURATION = 45 * 60;
 var INITIAL_TIME = 32400;
 
-var city = "Philly";
+//var city = "Philly";
 //var city = "NYC"
+var city = "zhengzhou";
 
 var dynamicRendering = false;
-
-
 
 if(city == "Philly") {
     var viewCoords = [39.9886950160466,-75.1519775390625];
@@ -18,7 +17,7 @@ if(city == "Philly") {
     ];
     var startLat = 40.0175;   
     var startLng = -75.059;
-} else {
+} else if(city == "NYC") {
     // New York
     // WNYC data extent
     //40.495526,-74.260025
@@ -35,6 +34,20 @@ if(city == "Philly") {
     ];
     var startLat = 40.753499; 
     var startLng = -73.983994;
+} else {
+//Extent(112.72662842219742, 34.26084468393921, 114.21564888769542, 34.98327924830207)
+    var borderPoly = [
+        [34.26084468393921, 112.72662842219742],
+        [34.26084468393921, 114.21564888769542],
+        [34.98327924830207, 114.21564888769542],
+        [34.98327924830207, 112.72662842219742]
+    ];
+
+  var startLat = 34.739981;
+  var startLng = 113.680349;
+
+  var viewCoords = [startLat, startLng];
+
 }
 
 var breaks = 

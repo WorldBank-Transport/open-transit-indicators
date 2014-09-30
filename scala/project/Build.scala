@@ -95,7 +95,7 @@ object Build extends Build {
         )
        ) 
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)
-      .dependsOn(gtfs)
+      .dependsOn(gtfs, geotrellis_transit)
 
   lazy val opentransitTest =
     Project("opentransit-test", file("opentransit-test"))
@@ -159,6 +159,7 @@ object Build extends Build {
         ),
         libraryDependencies ++= Seq(
           "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT",
+          "com.azavea.geotrellis" %% "geotrellis-geotools" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-jetty" % "0.10.0-SNAPSHOT",
           "io.spray"        % "spray-client"  % "1.2.1",
           "io.spray"        % "spray-routing" % "1.2.1",

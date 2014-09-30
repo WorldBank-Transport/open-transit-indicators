@@ -4,6 +4,7 @@ import geotrellis.transit._
 import geotrellis.transit.loader.GraphFileSet
 import geotrellis.transit.loader.gtfs.{GtfsDateFiles}
 import geotrellis.transit.loader.osm.OsmFileSet
+import geotrellis.vector._
 
 import geotrellis.network._
 import geotrellis.network.graph._

@@ -7,6 +7,8 @@ import geotrellis.network.graph._
 import geotrellis.transit.loader.gtfs.{GtfsDateFiles}
 import geotrellis.transit.loader.osm.OsmFileSet
 
+import geotrellis.vector._
+
 import scala.collection.mutable
 
 import java.io._
@@ -71,6 +73,8 @@ object Loader {
           mergedResult.graph.vertices.filter(_.vertexType == StationVertex).toSeq
         }
 
+      val transferToStationDistance = 200
+
       Logger.timed(s" Iterating through ${stationVertices.length} " + 
                    "stations to connect to street vertices...",
                    s" Done.") { () =>
@@ -78,7 +82,7 @@ object Loader {
         var noTransferEdgesCount = 0
         for(v <- stationVertices) {
           val extent =
-            Distance.getBoundingBox(v.location.lat, v.location.long, 100)
+            Distance.getBoundingBox(v.location.lat, v.location.long, transferToStationDistance)
 
           val nearest = {
             val l = index.pointsInExtent(extent)
@@ -136,7 +140,8 @@ object Loader {
             Some((name, List(
               graph.edgeCount(ScheduledTransit(name, WeekDaySchedule)),
               graph.edgeCount(ScheduledTransit(name, DaySchedule(Saturday))),
-              graph.edgeCount(ScheduledTransit(name, DaySchedule(Sunday)))
+              graph.edgeCount(ScheduledTransit(name, DaySchedule(Sunday))),
+              graph.edgeCount(ScheduledTransit(name, EveryDaySchedule))
             )))
           case _ => None
         }
@@ -152,6 +157,7 @@ object Loader {
       Logger.log(s"  $service Weekday Transit Edge Count: ${l(0)}")
       Logger.log(s"  $service Saturday Transit Edge Count: ${l(1)}")
       Logger.log(s"  $service Sunday Transit Edge Count: ${l(2)}")
+      Logger.log(s"  $service Everyday Transit Edge Count: ${l(3)}")
     }
     Logger.log(s"  Total Edge Count: ${we + be + totalTransit}")
     Logger.log(s"  Vertex Count: ${graph.vertexCount}")
@@ -161,6 +167,15 @@ object Loader {
         "Packed graph created.") { () =>
         graph.pack
       }
+
+    val totalEnvelope = 
+      MultiPoint(mergedResult.namedLocations.values.map{ nl =>
+        val Location(lat, lng) = nl.location
+        Point(lng, lat)
+      }).envelope
+
+    Logger.log(s"System is contained within $totalEnvelope")
+
 
     (packed, mergedResult.namedLocations, mergedResult.namedWays)
   }

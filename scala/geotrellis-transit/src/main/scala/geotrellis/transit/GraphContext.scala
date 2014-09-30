@@ -2,6 +2,7 @@ package geotrellis.transit
 
 import geotrellis.network._
 import geotrellis.network.graph._
+import geotrellis.vector._
 
 import java.io._
 

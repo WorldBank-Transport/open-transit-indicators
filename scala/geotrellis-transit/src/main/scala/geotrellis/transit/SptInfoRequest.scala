@@ -37,12 +37,13 @@ object SptInfoRequest {
                 case Some(service) =>
                   ScheduledTransit(
                     service,
-                    schedule match {
-                      case "weekday" => WeekDaySchedule
-                      case "saturday" => DaySchedule(Saturday)
-                      case "sunday" => DaySchedule(Sunday)
+                    schedule match {                      
+                      // case "weekday" => WeekDaySchedule
+                      // case "saturday" => DaySchedule(Saturday)
+                      // case "sunday" => DaySchedule(Sunday)
                       case _ =>
-                        throw new Exception(s"Unknown schedule. Choose on of weekday,saturday, or sunday.")
+                        EveryDaySchedule
+//                        throw new Exception(s"Unknown schedule. Choose on of weekday,saturday, or sunday.")
                     })
                 case None =>
                     throw new Exception(s"Unknown mode. Choose one or more from $modesStr.")

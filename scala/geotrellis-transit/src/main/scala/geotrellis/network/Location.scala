@@ -21,6 +21,8 @@ class NamedLocations() extends Serializable {
 
   def lookup(l:Location) = map.get(l)
 
+  def values = map.values
+
   def findName(n:String) = 
     map.values.find(_.name == n)
 
