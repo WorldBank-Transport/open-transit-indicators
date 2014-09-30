@@ -23,9 +23,9 @@ object AverageServiceFrequency extends Indicator
           .map(_.schedule)
           .flatten
           .groupBy(_.stop)
-          .mapValues { schedules =>
-            schedules.map(_.arrivalTime)
-           }
+          .map { case (k, schedules) =>
+            (k, schedules.map(_.arrivalTime))
+          }.toMap
 
       /** This takes the headway between all schedules stops per stop and
         * calculates the headway between those scheduled stops. This means that

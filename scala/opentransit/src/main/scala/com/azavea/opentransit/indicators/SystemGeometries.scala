@@ -28,16 +28,15 @@ object SystemGeometries {
               .flatten
           val multiLine: MultiLine = MultiLine(lines).union
           (route, multiLine)
-         }
-        .toMap
+        }.toMap
 
     val byRouteType: Map[RouteType, MultiLine] =
       byRoute
         .groupBy { case (route, multiLine) => route.routeType }
-        .mapValues { seq: Map[Route, MultiLine] =>
+        .map { case(routeType, seq) =>
           val lines = seq.values.map(_.lines).flatten.toSeq
-          MultiLine(lines).union: MultiLine
-         }
+          (routeType, MultiLine(lines).union: MultiLine)
+        }.toMap
 
     val bySystem: MultiLine =
       MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union
@@ -50,21 +49,21 @@ object SystemGeometries {
       geometries
         .map(_.toTuple)
         .transposeTuples
-  
+
     val mergedRouteGeom =
       byRoutes
         .combineMaps
-        .mapValues { multiLines =>
+        .map { case(route, multiLines) =>
           val lines = multiLines.map(_.lines).flatten
-          MultiLine(lines.toSeq).union: MultiLine
+          (route, MultiLine(lines.toSeq).union: MultiLine)
          }
 
       val mergedRouteTypeGeom =
         byRouteTypes
           .combineMaps
-          .mapValues { multiLines =>
+          .map { case(routeType, multiLines) =>
             val lines = multiLines.map(_.lines).flatten
-            MultiLine(lines.toSeq).union: MultiLine
+            (routeType, MultiLine(lines.toSeq).union: MultiLine)
            }
 
       val mergedSystemGeom: MultiLine =

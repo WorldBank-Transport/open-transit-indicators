@@ -49,7 +49,7 @@ object IndicatorCalculation {
     // Aggregate by route by reducing the set of results for each route.
     val byRoute: Map[Route, Double] =
       if(aggregatesBy(RouteAggregate)) {
-        intermediateResults.mapValues(calc.reduce(_))
+        intermediateResults.map { case (route, result) => (route, calc.reduce(result)) }.toMap
       } else {
         Map()
       }
@@ -61,8 +61,8 @@ object IndicatorCalculation {
       if(aggregatesBy(RouteTypeAggregate)) {
         intermediateResults
           .groupBy { case (route, results) => route.routeType }
-          .mapValues(_.values.flatten.toSeq)
-          .mapValues(calc.reduce(_))
+          .map { case (route, results) => (route, results.values.flatten.toSeq) }.toMap
+          .map { case (route, results) => (route, calc.reduce(results)) }.toMap
       } else {
         Map()
       }
