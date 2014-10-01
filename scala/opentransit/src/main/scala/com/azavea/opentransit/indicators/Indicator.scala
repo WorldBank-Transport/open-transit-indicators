@@ -22,7 +22,8 @@ object Indicators {
   // These are indicators that need to know things about the request
   private def paramIndicators(params: IndicatorCalculationParams): List[Indicator] =
     List(
-      new CoverageRatioStopsBuffer(params)
+      new CoverageRatioStopsBuffer(params),
+      new TransitNetworkDensity(params)
     )
 
   def list(params: IndicatorCalculationParams): List[Indicator] =
