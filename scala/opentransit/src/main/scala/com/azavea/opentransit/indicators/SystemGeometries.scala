@@ -1,5 +1,6 @@
 package com.azavea.opentransit.indicators
 
+import scala.util.{Try, Success, Failure}
 import com.azavea.gtfs._
 import geotrellis.vector._
 
@@ -31,15 +32,31 @@ object SystemGeometries {
         }.toMap
 
     val byRouteType: Map[RouteType, MultiLine] =
-      byRoute
+      Try(byRoute
         .groupBy { case (route, multiLine) => route.routeType }
         .map { case(routeType, seq) =>
           val lines = seq.values.map(_.lines).flatten.toSeq
           (routeType, MultiLine(lines).union: MultiLine)
-        }.toMap
+        }.toMap) match {
+          case Success(brt) =>
+            println("successful by rt")
+            brt
+          case Failure(e) =>
+            println(e)
+            Map()
+        }
+    println("GEOMAPPLY")
 
     val bySystem: MultiLine =
-      MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union
+      Try(MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union) match {
+        case Success(bs) =>
+          println("successful by system")
+          bs
+        case Failure(e) =>
+          println(e)
+          MultiLine.EMPTY
+      }
+    println("GEOMAPPLY")
 
     SystemGeometries(byRoute, byRouteType, bySystem)
   }
