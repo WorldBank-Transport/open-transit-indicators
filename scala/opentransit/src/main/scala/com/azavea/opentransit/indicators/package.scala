@@ -7,7 +7,7 @@ package object indicators {
     * to give one Map[Key, Seq[Value]]
     */
   implicit class CombineMapsWrapper[TKey, TValue](maps: Seq[Map[TKey, TValue]]) {
-    def combineMaps(): Map[TKey, Seq[TValue]] = 
+    def combineMaps(): Map[TKey, Seq[TValue]] =
       maps.map(_.toSeq).flatten.groupBy(_._1).mapValues(_.map(_._2))
   }
 
@@ -15,7 +15,7 @@ package object indicators {
     * to give one Map[Key, Seq[Value]]
     */
   implicit class CombineSeqMapsWrapper[TKey, TValue](maps: Seq[Map[TKey, Seq[TValue]]]) {
-    def combineMaps(): Map[TKey, Seq[TValue]] = 
+    def combineMaps(): Map[TKey, Seq[TValue]] =
       maps.map(_.toSeq).flatten.groupBy(_._1).mapValues(_.map(_._2).flatten)
   }
 

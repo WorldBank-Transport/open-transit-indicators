@@ -16,7 +16,7 @@ case class Boundary(
 /**
  * A trait providing Boundaries to an IndicatorCalculator
  */
-object BoundariesTable { 
+object BoundariesTable {
   import PostgresDriver.simple._
   private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
   import gisSupport._
@@ -36,6 +36,11 @@ object BoundariesTable {
   /**
    * Returns a Boundary (geometry denoting a city or region boundary)
    */
-  def boundary(boundaryId: Int)(implicit session: Session): Projected[MultiPolygon] = 
-    boundariesTable.filter(_.id === boundaryId).first.geom
+  def boundary(boundaryId: Int)(implicit session: Session): Projected[MultiPolygon] = {
+    val bounds = boundariesTable.filter(_.id === boundaryId).firstOption
+    bounds.map(_.geom) match {
+      case Some(geometry: Projected[MultiPolygon]) => geometry
+      case None => Projected(MultiPolygon.EMPTY, 4326)
+    }
+  }
 }

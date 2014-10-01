@@ -9,7 +9,7 @@ object WeeklyServiceHours extends Indicator
   type Intermediate = Double
   val name = "hours_service"
 
-  val calculation = 
+  val calculation =
     new PerRouteIndicatorCalculation[Double] {
       def map(trips: Seq[Trip]): Double = 0.0
       def reduce(vals: Seq[Double]): Double = 0.0
@@ -30,7 +30,6 @@ object WeeklyServiceHours extends Indicator
 //                          val db: DatabaseDef) extends IndicatorCalculator {
 
 //   val name = "hours_service"
-  
 //   // get the representative weekday by finding it from the sample periods
 //   def representativeWeekday: LocalDate = {
 //     /** Recursively look through sample periods and return the first one that's for a weekday.
@@ -41,14 +40,12 @@ object WeeklyServiceHours extends Indicator
 //       val firstPeriod = samplePeriods.head
 //       if (samplePeriodIsWeekday(firstPeriod)) firstPeriod else weekdayPeriod(samplePeriods.tail)
 //     }
-    
 //     def samplePeriodIsWeekday(period: SamplePeriod): Boolean = {
 //       if (period.`type` != "alltime" && period.`type` != "weekend") true else false
 //     }
 
 //     weekdayPeriod(calcParams.sample_periods.toList).period_start.toLocalDate
 //   }
-  
 //   // get service hours for a given day and route
 //   def serviceHoursForDay(day: LocalDate, route: Route): Double = {
  //     // Importing the context within this scope adds additional functionality to Routes
@@ -67,14 +64,12 @@ object WeeklyServiceHours extends Indicator
 //         serviceWindow(trips.tail, newStart, newStop)
 //       }
 //     }
-    
 //     // getScheduledTripsOn returns Seq[ScheduledTrip] for a RichRoute
 //     val tripsForRoute = route.getScheduledTripsOn(day)
-//     if (tripsForRoute.isEmpty) 0 else serviceWindow(tripsForRoute.tail, 
+//     if (tripsForRoute.isEmpty) 0 else serviceWindow(tripsForRoute.tail,
 //                                                     tripsForRoute.head.starts,
 //                                                     tripsForRoute.head.ends)
 //   }
-  
 //   // sum the hours for the week for the given route
 //   def serviceHoursForWeek(route: Route): Double = {
 //     val startDay = representativeWeekday
@@ -90,19 +85,16 @@ object WeeklyServiceHours extends Indicator
 
 //     getHoursForWeekday(0, 0)
 //   }
-  
 //   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
 //     println("in calcByRoute for WeeklyServiceHours")
 //     routesInPeriod(period).map(route => route.id.toString -> serviceHoursForWeek(route)).toMap
 //   }
-  
 //   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
 //     println("in calcByMode for WeeklyServiceHours")
 //     calcByRoute(period).toList
 //       .groupBy(kv => routeByID(kv._1).route_type.id)
 //       .map { case (key, value) => key -> value.map(_._2).toList.max }
 //   }
-  
 //   def calcBySystem(period: SamplePeriod): Double = {
 //     println("in calcBySystem for WeeklyServiceHours")
 //     simpleMaxBySystem(period)

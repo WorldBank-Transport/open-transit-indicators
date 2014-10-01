@@ -18,9 +18,9 @@ object NumStops extends Indicator
         stops.flatten.distinct.size
     }
 
-  // NOTE: This is different then before the Indicator refactor. The previous
+  // NOTE: This is different than before the Indicator refactor. The previous
   // version didn't count distinct stops across trips, but counted the stops
-  // in the trip of a route with the maximum number of stops. If the latter 
+  // in the trip of a route with the maximum number of stops. If the latter
   // is the correct way to do it (which I don't belive it is), this code will
   // do:
     // new PerRouteIndicatorCalculation[Seq[Stop]] {
