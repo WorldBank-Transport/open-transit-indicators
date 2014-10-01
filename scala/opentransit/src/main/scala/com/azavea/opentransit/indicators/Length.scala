@@ -9,6 +9,8 @@ object Length extends Indicator
 
   val name = "length"
 
+  // TODO: Rob pointed out during the refactor walkthrough that this calculation
+  // is not correct and needs tweaking (particularly eliminating the max logic).
   val calculation =
     new PerRouteIndicatorCalculation[Double] {
       def map(trips: Seq[Trip]): Double =
