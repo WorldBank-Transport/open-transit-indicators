@@ -38,25 +38,19 @@ object SystemGeometries {
           val lines = seq.values.map(_.lines).flatten.toSeq
           (routeType, MultiLine(lines).union: MultiLine)
         }.toMap) match {
-          case Success(brt) =>
-            println("successful by rt")
-            brt
+          case Success(brt) => brt
           case Failure(e) =>
-            println(e)
+            println(s"Failure in byRouteType: $e")
             Map()
         }
-    println("GEOMAPPLY")
 
     val bySystem: MultiLine =
       Try(MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union) match {
-        case Success(bs) =>
-          println("successful by system")
-          bs
+        case Success(bs) => bs
         case Failure(e) =>
-          println(e)
+          println(s"Failure in bySystem: $e")
           MultiLine.EMPTY
       }
-    println("GEOMAPPLY")
 
     SystemGeometries(byRoute, byRouteType, bySystem)
   }
