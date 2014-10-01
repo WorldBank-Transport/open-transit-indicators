@@ -180,7 +180,6 @@ angular.module('transitIndicators')
         $scope.eveningPeakEnd = eveningEnd.getHours();
         $scope.weekdayDate = morningStart;
         $scope.weekendDate = weekendStart;
-        setSidebarCheckmark();
     };
 
     var setSidebarCheckmark = function () {
@@ -193,11 +192,9 @@ angular.module('transitIndicators')
         setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
             setSaveConfigButton(true);
-            setSidebarCheckmark();
         }, function () {
             setSaveConfigButton(true);
             $scope.configError = true;
-            setSidebarCheckmark();
         });
     };
 
@@ -251,11 +248,9 @@ angular.module('transitIndicators')
 
         $q.all(promises).then(function (data) {
             setSavePeriodsButton(true);
-            setSidebarCheckmark();
         }, function (error) {
             setSavePeriodsButton(true);
             $scope.samplePeriodsError = true;
-            setSidebarCheckmark();
         });
     };
 

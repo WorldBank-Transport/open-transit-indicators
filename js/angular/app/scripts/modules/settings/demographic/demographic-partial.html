@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="dropzone" ng-show="uploadDemographic && uploadDemographic.is_processed">
+    <div class="dropzone" ng-show="showSelectionDiv()">
         <h3>{{'SETTINGS.DEMOGRAPHIC_DATA' | translate}}: {{ upload.source_file }}</h3>
         <h3>{{'SETTINGS.ASSIGN_FIELDS' | translate}}</h3>
         <h4>{{'SETTINGS.POPULATION' | translate}}</h4>

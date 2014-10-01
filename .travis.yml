@@ -33,6 +33,6 @@ script:
   - pushd js/angular
   -    grunt test
   - popd
-  - pushd geotrellis
-  -     sudo ./sbt test
+  - pushd scala
+  -     sudo ./sbt "project opentransit-test" test
   - popd

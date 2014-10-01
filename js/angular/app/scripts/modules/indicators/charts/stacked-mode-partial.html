@@ -1,0 +1,12 @@
+<nvd3-multi-bar-chart
+    data="data.mode"
+    id="{{ type }}-{{ $index }}-mode-stacked-chart"
+    height="170"
+    showYAxis="true"
+    x="charts.stacked.xFunctionMode()"
+    y="charts.stacked.yFunction()"
+    tooltips="true"
+    stacked="true"
+    tooltipcontent="charts.stacked.tooltipFunction()"
+    forcey="[0, {{ charts.stacked.forceYFunction(indicatorData, type, 'mode') }}]">
+</nvd3-discrete-bar-chart>

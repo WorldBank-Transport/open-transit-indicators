@@ -5,8 +5,11 @@ object Build extends Build {
 
   override lazy val settings =
     super.settings ++ Seq(shellPrompt := { s => Project.extract(s).currentProject.id + " > " })
-  
-  lazy val gtfs = 
+
+  lazy val root = Project("OTI_ROOT", file("."))
+    .aggregate(opentransit, opentransitTest)
+
+  lazy val gtfs =
     Project("gtfs", file("gtfs"))
       .settings(
         name := "gtfs",
@@ -26,7 +29,7 @@ object Build extends Build {
       libraryDependencies ++=
         Seq(
           "org.apache.servicemix.bundles" % "org.apache.servicemix.bundles.commons-csv" % "1.0-r706900_3",
-          
+
           "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
           "com.github.nscala-time" %% "nscala-time" % "0.8.0",
 
@@ -93,7 +96,7 @@ object Build extends Build {
           "ch.qos.logback" % "logback-classic" % "1.1.1",
           "org.clapper" %% "grizzled-slf4j" % "1.0.2"
         )
-       ) 
+       )
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)
       .dependsOn(gtfs, geotrellis_transit)
 

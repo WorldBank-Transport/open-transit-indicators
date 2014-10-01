@@ -24,5 +24,5 @@ case class IndicatorResultContainer(
 )
 
 trait ContainerGenerator {
-  def toContainer(version: String): IndicatorResultContainer 
+  def toContainer(version: String): IndicatorResultContainer
 }

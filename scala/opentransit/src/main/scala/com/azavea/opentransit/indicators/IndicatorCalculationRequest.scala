@@ -20,7 +20,7 @@ case class IndicatorCalculationRequest(
   averageFare: Double,
   samplePeriods: List[SamplePeriod]
 ) extends Logging {
-  // There's probably a better place for these database fetches. Especially if 
+  // There's probably a better place for these database fetches. Especially if
   // the info is used between various requests and some indicators that could
   // start calculation will have to wait on this to happen. But we can do them here
   // and that keeps the database from having to be injected into the Indicators,
@@ -34,7 +34,7 @@ case class IndicatorCalculationRequest(
     val totalRoadLength = {
       debug("Fetching Roads")
       val roadLines: List[Line] = RoadsTable.allRoads
-      val distinctRoadLines: Array[Line] = 
+      val distinctRoadLines: Array[Line] =
         (MultiLine(roadLines: _*).union match {
           case MultiLineResult(ml) => ml
           case LineResult(l) => MultiLine(l)

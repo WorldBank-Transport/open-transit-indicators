@@ -66,8 +66,8 @@ package object json {
 
     def read(value: JsValue): IndicatorCalculationRequest =
       value.asJsObject.getFields(
-        "token", 
-        "version", 
+        "token",
+        "version",
         "poverty_line",
         "nearby_buffer_distance_m",
         "max_commute_time_s",
@@ -94,7 +94,7 @@ package object json {
     def write(routeType: RouteType) =
       JsNumber(routeType.id)
 
-    def read(value: JsValue): RouteType = 
+    def read(value: JsValue): RouteType =
       value match {
         case JsNumber(id) => RouteType(id.toInt)
         case _ => throw new DeserializationException("RouteType is required to be an integer ID.")
@@ -131,13 +131,13 @@ package object json {
         "geom" -> container.geom.toJson,
         "version" -> JsString(container.version),
         "route_id" -> JsString(container.routeId),
-        ("routeType", 
+        ("route_type",
           container.routeType match {
             case Some(routeType) => JsString(routeType.id.toString)
             case None => JsString("")
           }
         ),
-        "cityBounded" -> JsBoolean(container.cityBounded)
+        "city_bounded" -> JsBoolean(container.cityBounded)
       )
   }
 

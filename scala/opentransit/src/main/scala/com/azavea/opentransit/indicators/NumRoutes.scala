@@ -3,7 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.opentransit._
 import com.azavea.gtfs._
 
-object NumRoutes extends Indicator 
+object NumRoutes extends Indicator
                     with AggregatesByAll {
   type Intermediate = Int
 

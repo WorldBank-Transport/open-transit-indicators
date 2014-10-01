@@ -46,45 +46,42 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
   //   in a table, and calculations will be run one (or more) at a time
   //   in the background via an Actor.
   def indicatorsRoute = {
-    pathPrefix("gt") {
-      path("indicators") {
-        post {
-          entity(as[IndicatorCalculationRequest]) { request =>
-            complete {
-              try {
-                TaskQueue.execute {
-                  // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
-                  val gtfsRecords =
-                    db withSession { implicit session =>
-                      GtfsRecords.fromDatabase(dbGeomNameUtm)
-                    }
-
-                  // Get parameters, hitting the database for any necessary info now.
-                  val params = 
-                    db withSession { implicit session =>
-                      request.toParams
-                    }
-
-                  CalculateIndicators(request.samplePeriods, params, gtfsRecords) { containerGenerators =>
-                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                    DjangoClient.postIndicators(request.token, indicatorResultContainers)
+    path("indicators") {
+      post {
+        entity(as[IndicatorCalculationRequest]) { request =>
+          complete {
+            try {
+              TaskQueue.execute {
+                // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
+                val gtfsRecords =
+                  db withSession { implicit session =>
+                    GtfsRecords.fromDatabase(dbGeomNameUtm)
                   }
 
-                  DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
+                // Get parameters, hitting the database for any necessary info now.
+                val params =
+                  db withSession { implicit session =>
+                    request.toParams
+                  }
+                CalculateIndicators(request.samplePeriods, params, gtfsRecords) { containerGenerators =>
+                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
+                  DjangoClient.postIndicators(request.token, indicatorResultContainers)
                 }
 
-                // return a 201 created
-                Created -> JsObject(
-                  "success" -> JsBoolean(true),
-                  "message" -> JsString(s"Calculations started (version ${request.version})")
-                )
-              } catch {
-                case _: Exception =>
-                  JsObject(
-                    "success" -> JsBoolean(false),
-                    "message" -> JsString("No GTFS data")
-                  )
+                DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
               }
+
+              // return a 201 created
+              Created -> JsObject(
+                "success" -> JsBoolean(true),
+                "message" -> JsString(s"Calculations started (version ${request.version})")
+              )
+            } catch {
+              case _: Exception =>
+                JsObject(
+                  "success" -> JsBoolean(false),
+                  "message" -> JsString("No GTFS data")
+                )
             }
           }
         }
