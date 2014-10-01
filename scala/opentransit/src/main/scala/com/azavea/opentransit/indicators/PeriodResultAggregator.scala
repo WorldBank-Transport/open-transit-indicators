@@ -9,7 +9,7 @@ object PeriodResultAggregator {
     values.foldLeft(0.0)(_ + _) / (24 * 7)
 
   private def calculateOverall[T](maps: Seq[Map[T, Double]]): Map[T, Double] =
-    maps.combineMaps.mapValues(calculateOverall(_))
+    maps.combineMaps.map { case (k, v) => (k, calculateOverall(v)) }.toMap
 
   def apply(periodResults: Map[SamplePeriod, AggregatedResults]): AggregatedResults = {
     val periods = periodResults.keys
@@ -33,8 +33,8 @@ object PeriodResultAggregator {
       periodResults
         .map { case (period, (AggregatedResults(byRoute, byRouteType, bySystem))) =>
           val m = periodMultipliers(period)
-          (byRoute.mapValues(_ * m),
-           byRouteType.mapValues(_ * m),
+          (byRoute.map { case (route, value) => (route, value * m) }.toMap,
+           byRouteType.map { case (routeType, value) => (routeType, value * m) }.toMap,
            bySystem.map(_ * m)
           )
          }
@@ -54,7 +54,7 @@ object PeriodResultAggregator {
     val overallBySystem: Option[Double] =
       bySystems.flatten.toList match {
         case Nil => None
-        case results => 
+        case results =>
           Some(calculateOverall(results))
       }
 

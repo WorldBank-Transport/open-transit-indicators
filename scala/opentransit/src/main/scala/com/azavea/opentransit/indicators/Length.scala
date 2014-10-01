@@ -9,7 +9,7 @@ object Length extends Indicator
 
   val name = "length"
 
-  val calculation = 
+  val calculation =
     new PerRouteIndicatorCalculation[Double] {
       def map(trips: Seq[Trip]): Double =
         trips.foldLeft(0.0) { (maxLength, trip) =>

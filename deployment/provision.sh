@@ -41,6 +41,7 @@ TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
 SCALA_ROOT="$PROJECT_ROOT/scala"
+SCALA_OTI_ROOT="$SCALA_ROOT/opentransit"
 
 # Additional repos for snapshot versions of GeoTrellis and GTFS parser.
 # The changes in these repos haven't been published to Maven and may
@@ -48,9 +49,6 @@ SCALA_ROOT="$PROJECT_ROOT/scala"
 GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
 GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
-GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
-GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
-GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
 INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
@@ -74,7 +72,7 @@ VHOST_NAME=$DB_NAME
 
 SPRAY_PORT=8001
 SPRAY_HOST="http://127.0.0.1:$SPRAY_PORT"
-GEOTRELLIS_CATALOG="data/catalog.json"
+OTI_CATALOG="$OTI_ROOT/data/catalog.json"
 SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
@@ -537,27 +535,13 @@ pushd $GEOTRELLIS_REPO_ROOT
     ./sbt "project slick" publish-local
 popd
 
-################################
-# GTFS parser local repo setup #
-################################
-echo 'Setting up local GTFS parser repo'
-if [ ! -d "$GTFS_PARSER_REPO_ROOT" ]; then
-    pushd $PROJECTS_DIR
-        git clone -b $GTFS_PARSER_REPO_BRANCH $GTFS_PARSER_REPO_URI
-    popd
-fi
-pushd $GTFS_PARSER_REPO_ROOT
-    git pull
-    ./sbt publish-local
-popd
-
 #########################
 # GeoTrellis setup      #
 #########################
 echo 'Setting up geotrellis'
 
 gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
+opentransit.catalog = \"$OTI_CATALOG\"
 opentransit.spray.port = \"$SPRAY_PORT\"
 database.geom-name-lat-lng = \"the_geom\"
 database.geom-name-utm = \"geom\"
@@ -568,7 +552,7 @@ spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
 "
 
-pushd $SCALA_ROOT/src/main/resources/
+pushd $SCALA_OTI_ROOT/src/main/resources/
     echo "$gt_application_conf" > application.conf
 popd
 
@@ -580,7 +564,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $SCALA_ROOT
-    exec ./sbt -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
 end script
 
 pre-stop script

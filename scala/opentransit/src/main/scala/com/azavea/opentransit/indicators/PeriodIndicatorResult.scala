@@ -10,10 +10,13 @@ object PeriodIndicatorResult {
 
   def createContainerGenerators(name: String, period: SamplePeriod, results: AggregatedResults, geometries: SystemGeometries): Seq[ContainerGenerator] = {
     val AggregatedResults(byRoute, byRouteType, bySystem) = results
+
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
-        PeriodIndicatorResult(name, period, value).forRoute(route, geometries.byRoute(route))
+        PeriodIndicatorResult(name, period, value)
+          .forRoute(route, geometries.byRoute(route))
       }
+
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
@@ -27,7 +30,6 @@ object PeriodIndicatorResult {
         case None =>
           Seq()
       }
-
     Seq(containersByRoute, containersByRouteType, containerForSystem).flatten
   }
 }
@@ -61,7 +63,7 @@ class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Do
         )
     }
 
-  def forSystem(ml: MultiLine) = 
+  def forSystem(ml: MultiLine) =
     new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(

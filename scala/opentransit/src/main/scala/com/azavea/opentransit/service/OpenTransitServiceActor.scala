@@ -14,7 +14,7 @@ import scala.concurrent._
 
 class OpenTransitServiceActor extends Actor
                                  with HttpService
-                                 with IngestRoute 
+                                 with IngestRoute
                                  with IndicatorsRoute
                                  with MapInfoRoute
                                  with ProductionDatabaseInstance {

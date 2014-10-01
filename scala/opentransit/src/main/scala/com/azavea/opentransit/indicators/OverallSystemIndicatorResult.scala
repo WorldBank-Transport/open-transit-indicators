@@ -4,7 +4,7 @@ import com.azavea.gtfs._
 
 import geotrellis.vector._
 
-object OverallIndicatorResult { 
+object OverallIndicatorResult {
   def apply(indicatorId: String, value: Double): OverallIndicatorResult =
     new OverallIndicatorResult(indicatorId, value)
 
@@ -62,7 +62,7 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
         )
     }
 
-  def forSystem(ml: MultiLine) = 
+  def forSystem(ml: MultiLine) =
     new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
