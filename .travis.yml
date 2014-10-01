@@ -34,5 +34,5 @@ script:
   -    grunt test
   - popd
   - pushd scala
-  -     sudo ./sbt "project opentransit" test
+  -     sudo ./sbt "project opentransit-test" test
   - popd
