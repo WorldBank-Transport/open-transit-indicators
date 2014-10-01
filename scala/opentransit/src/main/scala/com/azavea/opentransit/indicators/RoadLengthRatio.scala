@@ -9,7 +9,7 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
 // Areal Coverage Ratio of Transit Stops (user-configurable buffer)
-class RoadLengthRatio(params: IndicatorCalculationParams) 
+class RoadLengthRatio(params: IndicatorCalculationParams)
     extends Indicator
        with AggregatesBySystem {
   type Intermediate = Double

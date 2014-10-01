@@ -6,8 +6,16 @@ import geotrellis.vector._
 
 // TODO: Move this out of indicators
 
-case class SystemGeometries(byRoute: Map[Route, MultiLine], byRouteType: Map[RouteType, MultiLine], bySystem: MultiLine) {
-  def toTuple = (byRoute, byRouteType, bySystem)
+class SystemGeometries(geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine) {
+  def toTuple = (geomsByRoute, geomsByRouteType, geomForSystem)
+
+  def byRoute(route: Route): MultiLine =
+    geomsByRoute.getOrElse(route, MultiLine.EMPTY)
+
+  def byRouteType(routeType: RouteType): MultiLine =
+    geomsByRouteType.getOrElse(routeType, MultiLine.EMPTY)
+
+  def bySystem = geomForSystem
 }
 
 object SystemGeometries {
@@ -19,38 +27,31 @@ object SystemGeometries {
       case NoResult => MultiLine()
     }
 
+  // TODO: *IMPORTANT* merge in fix for geotrellis' wrapper of JTS so that geometries can be used
+  def apply(geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine): SystemGeometries =
+    new SystemGeometries(geomsByRoute, geomsByRouteType, geomForSystem)
   def apply(transitSystem: TransitSystem): SystemGeometries = {
     val byRoute: Map[Route, MultiLine] =
       transitSystem.routes
         .map { route =>
-          val lines =
-            route.trips
+          val lines = List[Line]() // THIS LINE IS *ONLY* ACCEPTABLE AS A PLACEHOLDER UNTIL GEOMETRY CALCULATION THROUGH JTS IS FIXED
+           /* route.trips
               .map { trip => trip.tripShape.map(_.line.geom) }
-              .flatten
+              .flatten*/
           val multiLine: MultiLine = MultiLine(lines).union
           (route, multiLine)
         }.toMap
 
-    val byRouteType: Map[RouteType, MultiLine] =
-      Try(byRoute
+    def byRouteType: Map[RouteType, MultiLine] =
+      byRoute
         .groupBy { case (route, multiLine) => route.routeType }
         .map { case(routeType, seq) =>
           val lines = seq.values.map(_.lines).flatten.toSeq
           (routeType, MultiLine(lines).union: MultiLine)
-        }.toMap) match {
-          case Success(brt) => brt
-          case Failure(e) =>
-            println(s"Failure in byRouteType: $e")
-            Map()
-        }
+        }.toMap
 
-    val bySystem: MultiLine =
-      Try(MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union) match {
-        case Success(bs) => bs
-        case Failure(e) =>
-          println(s"Failure in bySystem: $e")
-          MultiLine.EMPTY
-      }
+    def bySystem: MultiLine =
+      MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union
 
     SystemGeometries(byRoute, byRouteType, bySystem)
   }

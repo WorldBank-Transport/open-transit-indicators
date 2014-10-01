@@ -17,30 +17,32 @@ object CalculateIndicators {
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
+    val periodGeometries = periods.map { period =>
+      period -> SystemGeometries(systemsByPeriod(period))
+    }.toMap
+    val overallGeometries: SystemGeometries =
+      SystemGeometries.merge(periodGeometries.values.toSeq)
+
     for(indicator <- Indicators.list(params)) {
-      val (periodResults, periodGeometries) =
+      val periodResults =
         periods
           .map { period =>
             val transitSystem = systemsByPeriod(period)
             val results = indicator(transitSystem)
-            val geometries = SystemGeometries(transitSystem)
-            (period, (results, geometries))
+            (period, results)
            }
           .toMap
-          .separateMaps
 
       val overallResults: AggregatedResults =
         PeriodResultAggregator(periodResults)
 
-      val overallGeometries: SystemGeometries =
-        SystemGeometries.merge(periodGeometries.values.toSeq)
 
       val periodIndicatorResults: Seq[ContainerGenerator] =
         periods
           .map { period =>
             val (results, geometries) = (periodResults(period), periodGeometries(period))
             PeriodIndicatorResult.createContainerGenerators(indicator.name, period, results, geometries)
-           }
+          }
           .toSeq
           .flatten
 

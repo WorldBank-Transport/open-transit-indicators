@@ -6,6 +6,15 @@ object TaskQueue {
   def execute[T](f : => T): Future[T] = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    future { f }
+    future {
+      try {
+        f
+      } catch {
+        case e: Exception =>
+          println(e)
+          e.printStackTrace
+          throw(e)
+      }
+    }
   }
 }
