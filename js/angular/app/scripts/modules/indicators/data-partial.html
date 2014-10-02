@@ -27,15 +27,20 @@
     <div class="indicators-row">
         <div class="indicators-cell indicators-label">
             <h3>{{ types[type] }}</h3>
-            <p>{{ getIndicatorDescriptionTranslationKey(type) | translate }}</p>
+            <p>{{ indicatorDetailKey(type) | translate }}</p>
         </div>
+        <!-- store transformed data on local ng-repeat scope via ng-init
+             cannot directly call filterFunction in the nvd3 directive data attribute
+             because that attribute is watched, and calling a function there causes
+             inf watch cycles
+        -->
         <div ng-repeat="(cityname, citydata) in indicator.cities"
-             ng-init="systemData = citydata.system[0].values"
+             ng-init="data = { system: citydata.system[0].values, mode: filterDataForChartType(citydata, type, 'mode') }"
              class="indicators-cell">
             <div ng-if="displayIndicator(type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(type, 'system')">{{ systemData[0].formatted_value || "No Data Available" }}</span>
+            <span ng-if="displayIndicator(type, 'system')">{{ data.system[0].formatted_value || "No Data Available" }}</span>
         </div>
     </div>
 </div>

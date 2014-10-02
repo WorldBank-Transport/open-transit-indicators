@@ -23,11 +23,13 @@ def run_realtime_import(realtime_id):
     logger.debug("Starting RealTime import: %d", realtime_id)
 
     real_time = RealTime.objects.get(pk=realtime_id)
+    real_time.status = RealTime.Statuses.IMPORTING
+    real_time.save()
     error_factory = ErrorFactory(RealTimeProblem, real_time, 'realtime')
 
     def handle_error(title, description):
         error_factory.error(title, description)
-        real_time.is_processed = False
+        real_time.status = RealTime.Statuses.ERROR
         real_time.save()
         return
 
@@ -37,7 +39,7 @@ def run_realtime_import(realtime_id):
         msg = '0 of %i rows', result['total']
         handle_error('No Rows Imported', msg)
     else:
-        real_time.is_processed = True
+        real_time.status = RealTime.Statuses.COMPLETE
         real_time.save()
 
 def load_stop_times(real_time, error_factory):

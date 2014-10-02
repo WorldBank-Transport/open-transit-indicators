@@ -58,8 +58,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
   config.vm.synced_folder "./", "/projects/open-transit-indicators", nfs: true
-  # switch NFS out for a quick fix to perms errors on sbt
-  # owner: "vagrant", mount_options: ["dmode=775,fmode=764"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

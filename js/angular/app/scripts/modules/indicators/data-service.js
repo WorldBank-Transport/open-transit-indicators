@@ -149,7 +149,7 @@ angular.module('transitIndicators')
             'system': 'number'
         },
         'length': {
-            'mode': 'bar',
+            'mode': 'stacked',
             'system': 'number'
         },
         'line_network_density': {
@@ -201,6 +201,90 @@ angular.module('transitIndicators')
             'mode': 'bar',
             'system': 'number'
         }
+    };
+
+    /**
+     * Transforms the /api/indicators/ response into something that we can use in the graphs/table
+     * source data structure:
+
+[OTIIndicatorService.Indicator]
+
+     * dest data structure:
+
+{
+    "<type>": {
+        "<aggregation>": {
+            max: <number>,
+            min: <number>
+        },
+        "cities": {
+            "<city_name>": {
+                "<aggregation>": [{
+                    key: '<route_type|route_id>',
+                    values: [OTIIndicatorService.Indicator]
+                }]
+            }
+        }
+    }
+}
+
+     * @param source data structure defined above
+     * @return dest data structure defined above
+     */
+    otiDataService.transformData = function (data, cities) {
+        var transformed = {};
+        _.each(data, function (indicator) {
+            if (!transformed[indicator.type]) {
+                transformed[indicator.type] = {
+                    cities: {}
+                };
+            }
+
+            // Calculate max/min for each indicator type
+            if (!transformed[indicator.type].cities[indicator.city_name]) {
+                var indicatorCities = {};
+                // The cities must be set in this object, even if there is no data for that indicator,
+                //  so that we can loop them in the template. If we loop in the template via
+                //  $scope.cities rather than this object, we lose the 2-way binding and updates
+                //  to the indicatorData object no longer update the view.
+                _.each(cities, function (city) {
+                    indicatorCities[city] = {};
+                });
+                transformed[indicator.type].cities = indicatorCities;
+            }
+
+            // Set the indicator into it's proper location
+            if (!transformed[indicator.type].cities[indicator.city_name][indicator.aggregation]) {
+                transformed[indicator.type].cities[indicator.city_name][indicator.aggregation] = [{
+                    key: indicator.aggregation,
+                    values: []
+                }];
+            }
+            transformed[indicator.type].cities[indicator.city_name][indicator.aggregation][0].values.push(indicator);
+
+            // Calculate min/max values of indicator type/aggregation so that
+            //  we can properly scale the graphs
+            if (!transformed[indicator.type][indicator.aggregation]) {
+                transformed[indicator.type][indicator.aggregation] = {
+                    max: Number.NEGATIVE_INFINITY,
+                    min: Number.POSITIVE_INFINITY
+                };
+            }
+            var minmax = transformed[indicator.type][indicator.aggregation];
+            if (indicator.value > minmax.max) {
+                minmax.max = indicator.value;
+            }
+            if (indicator.value < minmax.min) {
+                minmax.min = indicator.value;
+            }
+        });
+        return transformed;
+    };
+
+    otiDataService.getChartTypeForIndicator = function (type) {
+        var config = otiDataService.IndicatorConfig;
+        var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
+        return chartType;
     };
 
     return otiDataService;

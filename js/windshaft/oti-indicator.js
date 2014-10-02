@@ -26,7 +26,7 @@ var styles = {
         var cartocss =  '#' + result_tablename + ' { ' +
             'line-color: #000000;' +
             'line-opacity: 1;' +
-            'line-width: 4;' +
+            'line-width: 2;' +
             // Not a complete list, not sure what the best way to provide a complete
             // color palette for each route type would be. There are currently 100+
             // route types defined in the gtfs_route_types table.
@@ -44,10 +44,10 @@ var styles = {
     gtfs_stops: function () {
        var cartocss =  '#' + result_tablename + ' {' +
             'marker-opacity: 1;' +
-            'marker-line-color: #FFF;' +
-            'marker-line-width: 2.5;' +
-            'marker-fill: #B40903;' +
-            'marker-width: 12;' +
+            'marker-line-color: #CCC;' +
+            'marker-line-width: 0.5;' +
+            'marker-fill: #000;' +
+            'marker-width: 8;' +
             'marker-line-opacity: 1;' +
             'marker-placement: point;' +
             'marker-type: ellipse;' +

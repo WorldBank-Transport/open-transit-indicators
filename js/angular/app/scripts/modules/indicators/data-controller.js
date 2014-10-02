@@ -15,7 +15,8 @@ angular.module('transitIndicators')
         var period = $scope.sample_period;
         if (period) {
             var params = {
-                sample_period: period
+                sample_period: period,
+                aggregation: 'mode,system'
             };
 
             OTIIndicatorsService.query('GET', params).then(function (data) {
@@ -36,18 +37,21 @@ angular.module('transitIndicators')
         return display;
     };
 
+    $scope.filterDataForChartType = function (data, type, aggregation) {
+        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        if (chartType === 'nodata') {
+            return data;
+        }
+        return $scope.charts[chartType].filterFunction(data, aggregation);
+    };
+
     $scope.getModePartialForIndicator = function (type) {
-        var config = $scope.indicatorConfig;
-        var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
+        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
         var url = '/scripts/modules/indicators/charts/:charttype-mode-partial.html';
         return url.replace(':charttype', chartType);
     };
 
     $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
-
-    $scope.getIndicatorDescriptionTranslationKey = function(key) {
-        return 'INDICATOR_DESCRIPTION.' + key;
-    };
 
     $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function () {
         getIndicatorData();
