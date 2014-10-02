@@ -26,7 +26,7 @@ object InterstopDistance extends Indicator
       def reduce(stopRates: Seq[Double]): Double = {
         val (total, count) =
           stopRates
-            .reduce { case ((headVal, count), tailVal) =>
+            .foldLeft((0.0, 0)) { case ((headVal, count), tailVal) =>
               ((headVal + tailVal), count + 1)
             }
         if (count > 0) total / count else 0.0
