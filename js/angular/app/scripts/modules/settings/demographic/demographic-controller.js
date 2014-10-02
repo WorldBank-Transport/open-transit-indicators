@@ -11,20 +11,28 @@ angular.module('transitIndicators')
     };
 
     $scope.DemographicUpload = OTIDemographicService.demographicUpload;
+    $scope.uploadDemographic = {};
     $scope.demographicsOptions = {
-        uploadTimeoutMs: 60 * 1000
+        uploadTimeoutMs: 60 * 1000,
+        checkComplete: function (upload) {
+            return $scope.Status.isWaiting(upload.status) ||
+                   $scope.Status.isComplete(upload.status) ||
+                   $scope.Status.IMPORTING === upload.status;
+        },
+        checkContinue: function (upload) {
+            return $scope.Status.PENDING === upload.status || $scope.Status.PROCESSING === upload.status;
+        }
     };
 
     /*
      * Continuously polls for changes to the passed upload object until an error
-     * is encountered or the condition of is_valid === true && is_loaded === true
-     * is satisfied
+     * is encountered or the upload is valid
      *
      * @param upload: A OTIDemographicService.demographicUpload $resource instance
      *
      * @return none
      */
-    var pollForAssignments = function (upload) {
+    var pollForAssignments = function () {
         var ASSIGNMENT_TIMEOUT_MS = 30 * 1000;
         var POLLING_TIMEOUT_MS = 2 * 1000;
         var startDatetime = new Date();
@@ -35,13 +43,19 @@ angular.module('transitIndicators')
                     type: 'danger',
                     msg: 'TIMEOUT'
                 });
-            } else if (!(upload.is_valid && upload.is_loaded)) {
+            } else if ($scope.Status.isPolling($scope.uploadDemographic.status)) {
                 $scope.timeoutId = $timeout(function () {
-                    upload = OTIDemographicService.demographicUpload.get({id: upload.id}, function () {
+                    OTIDemographicService.demographicUpload.get({id: $scope.uploadDemographic.id}, function (data) {
+                        $scope.uploadDemographic = data;
                         checkAssignments();
                     });
                 }, POLLING_TIMEOUT_MS);
-            } else if (!upload.is_valid) {
+            } else if ($scope.Status.isError($scope.uploadDemographic.status)) {
+                addLoadAlert({
+                    type: 'danger',
+                    msg: 'FAILED'
+                });
+            } else if ($scope.Status.isWaiting($scope.uploadDemographic.status)) {
                 // Log error to bottom of assign fields section
                 addLoadAlert({
                     type: 'danger',
@@ -68,9 +82,7 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.uploadProgress = -1;
         $scope.uploadError = null;
-        $scope.setSidebarCheckmark('demographic', false);
     };
 
     /*
@@ -113,7 +125,7 @@ angular.module('transitIndicators')
 
         // if we're setting a new upload object, query the demographics config endpoint
         // to update the selected options
-        if (upload) {
+        if (!_.isEmpty(upload)) {
             OTIDemographicService.demographicsConfig.query(function (data) {
                 if (!(data && data.length)) {
                     return;
@@ -131,10 +143,12 @@ angular.module('transitIndicators')
 
     $scope.$on('pollingUpload:uploadDelete', function () {
         clearUploadProblems();
+        $scope.setSidebarCheckmark('demographic', false);
     });
 
     $scope.$on('pollingUpload:uploadCancel', function () {
         clearUploadProblems();
+        $scope.setSidebarCheckmark('demographic', false);
     });
 
     $scope.$on('pollingUpload:processingError', function () {
@@ -144,6 +158,16 @@ angular.module('transitIndicators')
     $scope.$on('pollingUpload:pollingFinished', function () {
         viewProblems();
     });
+
+    $scope.showSelectionDiv = function () {
+        var validStatuses = [
+            $scope.Status.WAITING_INPUT,
+            $scope.Status.COMPLETE,
+            $scope.Status.ERROR,
+            $scope.Status.IMPORTING
+        ];
+        return _.indexOf(validStatuses, $scope.uploadDemographic.status) >= 0;
+    };
 
     /*
      * Asynchronously Save user selections to the demographics field assignments
@@ -161,8 +185,9 @@ angular.module('transitIndicators')
             data.dest_metric_1_field = $scope.assign.dest_metric_1;
         }
         $http.post('/api/demographics/' + $scope.uploadDemographic.id + '/load/', data
-        ).success(function () {
-            pollForAssignments($scope.uploadDemographic);
+        ).success(function (data) {
+            $scope.uploadDemographic.status = $scope.Status.IMPORTING;
+            pollForAssignments();
             addLoadAlert({
                 type: 'info',
                 msg: 'SAVING'
@@ -182,14 +207,11 @@ angular.module('transitIndicators')
      * setUpload
      */
     $scope.init = function () {
-        setUpload(null);
         clearUploadProblems();
         OTIDemographicService.demographicUpload.query({}, function (uploads) {
-            var validUploads = _.filter(uploads, function (upload) {
-                return upload.is_valid === true && upload.is_processed === true;
-            });
-            if (validUploads.length > 0) {
-                setUpload(validUploads[0]);
+            if (uploads.length > 0) {
+                var upload = uploads[uploads.length - 1];
+                setUpload(upload);
                 viewProblems();
             }
         });

@@ -62,7 +62,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('pollingUpload:uploadDelete', function () {
-        setSidebarCheckmark();
+        $scope.setSidebarCheckmark('boundary', false);
     });
 
     /*
@@ -75,11 +75,13 @@ angular.module('transitIndicators')
     };
 
     $scope.cityOptions = {
-        uploadTimeoutMs: 5 * 60 * 1000
+        uploadTimeoutMs: 5 * 60 * 1000,
+        pollingTimeoutMs: 1000
     };
 
     $scope.boundaryOptions = {
-        uploadTimeoutMs: 5 * 60 * 1000
+        uploadTimeoutMs: 5 * 60 * 1000,
+        pollingTimeoutMs: 1000
     };
 
     $scope.BoundaryUploads = OTIBoundaryService.boundaryUploads;
@@ -95,6 +97,8 @@ angular.module('transitIndicators')
     /*
      * Initialize the view on page load, setting valid boundary uploads if they exist
      */
+     $scope.uploadCity = {};
+     $scope.uploadRegion = {};
     $scope.init = function () {
         // get the global configuration object
         OTIConfigurationService.Config.query({}, function (configs) {

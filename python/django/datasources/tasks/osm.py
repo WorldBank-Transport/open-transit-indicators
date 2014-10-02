@@ -39,13 +39,14 @@ def run_osm_import(osmdata_id):
     logger.debug('Starting OSM import')
 
     osm_data = OSMData.objects.get(pk=osmdata_id)
+    osm_data.status = OSMData.Statuses.PROCESSING
 
     error_factory = ErrorFactory(OSMDataProblem, osm_data, 'osmdata')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
         error_factory.error(title, description)
-        osm_data.is_processed = True
+        osm_data.status = OSMData.Statuses.ERROR
         osm_data.save()
         return
 
@@ -80,6 +81,7 @@ def run_osm_import(osmdata_id):
     _, temp_filename = tempfile.mkstemp()
     logger.debug('Generated tempfile %s to download osm data into', temp_filename)
     osm_data.source_file = temp_filename
+    osm_data.status = OSMData.Statuses.DOWNLOADING
     osm_data.save()
 
     try:
@@ -94,7 +96,7 @@ def run_osm_import(osmdata_id):
                     fh.flush()
         logger.debug('Finished downloading OSM data')
 
-        osm_data.is_downloaded = True
+        osm_data.status = OSMData.Statuses.IMPORTING
         osm_data.save()
     except Exception as e:
         err_msg = 'Error downloading data'
@@ -119,13 +121,12 @@ def run_osm_import(osmdata_id):
     try:
         logger.debug('Running OSM import command %s', ' '.join(osm2pgsql_command))
         subprocess.check_call(osm2pgsql_command, env=env)
-        osm_data.is_valid = True
+        osm_data.status = OSMData.Statuses.COMPLETE
     except subprocess.CalledProcessError as e:
-        osm_data.is_valid = False
+        osm_data.status = OSMData.Statuses.ERROR
         err_msg = 'Error running osm2pgsql command'
         logger.exception('Error running osm2pgsql command')
         error_factory.error(err_msg, e.message)
     finally:
-        osm_data.is_processed = True
         osm_data.save()
         os.remove(temp_filename)

@@ -41,7 +41,6 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.setSidebarCheckmark('upload', false);
     };
 
     /**
@@ -52,7 +51,6 @@ angular.module('transitIndicators')
         if (msg) {
             $scope.osmImportError = msg;
         }
-        $scope.osmImportProgress = $scope.STATUS.UPLOADERROR;
     };
 
     /**
@@ -102,11 +100,10 @@ angular.module('transitIndicators')
             var nowDatetime = new Date();
             if (nowDatetime.getTime() - startDatetime.getTime() > OSMIMPORT_TIMEOUT_MS) {
                 setOsmImportError('OpenStreetMap import timeout');
-                $scope.osmImportProgress = $scope.STATUS.UPLOADERROR;
-            } else if (osmImport.is_valid === false) {
+            } else if ($scope.Status.isError(osmImport.status)) {
                 setOsmImportError();
                 viewOSMProblems(osmImport);
-            } else if (!(osmImport.is_valid && osmImport.is_processed)) {
+            } else if ($scope.Status.isPolling(osmImport.status)) {
                 $scope.timeoutIdOSM = $timeout(function () {
                     osmImport = OTIUploadService.osmImport.get({id: osmImport.id}, function (data) {
                         $scope.osmImport = osmImport;
@@ -114,7 +111,6 @@ angular.module('transitIndicators')
                     });
                 }, POLLING_TIMEOUT_MS);
             } else {
-                $scope.osmImportProgress = $scope.STATUS.DONE;
                 viewOSMProblems(osmImport);
             }
         };
@@ -132,10 +128,8 @@ angular.module('transitIndicators')
             if (osmimports.length > 0) {
                 viewOSMProblems(osmimports[0]);
                 $scope.osmImport = osmimports[0];
-                $scope.osmImportProgress = ($scope.osmImport.is_valid) ? $scope.STATUS.DONE : $scope.STATUS.UPLOADERROR;
             } else {
                 OTIUploadService.osmImport.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
-                    $scope.osmImportProgress = 0;
                     pollForOSMImport(osmImport);
                 });
             }
@@ -147,13 +141,12 @@ angular.module('transitIndicators')
      *
      */
     $scope.retryOSMImport = function() {
-        if ($scope.osmImport) {
+        if (!_.isEmpty($scope.osmImport)) {
             $scope.osmImport.$delete();
             clearOsmImportProblems();
         }
 
         OTIUploadService.osmImport.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
-            $scope.osmImportProgress = 0;
             $scope.osmImport = osmImport;
             pollForOSMImport(osmImport);
         });
@@ -205,38 +198,35 @@ angular.module('transitIndicators')
 
         // OSM imports get deleted since they have a foreign key
         // to the GTFSFeed, but we need to reset the UI
-        $scope.osmImport = null;
+        $scope.osmImport = {};
         $scope.osmImportProgress = -1;
         $scope.osmImportProblems = {};
         $rootScope.$broadcast(OTIEvents.Settings.Upload.GTFSDelete);
     });
 
     // Set initial scope variables and constants
-    $scope.gtfsUpload = null;
+    $scope.gtfsUpload = {};
     $scope.gtfsOptions = {
         uploadTimeoutMs: 90 * 60 * 1000
     };
     $scope.GTFSUploads = OTIUploadService.gtfsUploads;
-    $scope.osmImport = null;
+    $scope.osmImport = {};
     $scope.osmImportProblems = {};
     clearUploadProblems();
 
     $scope.init = function () {
         OTIUploadService.gtfsUploads.query({}, function (uploads) {
-            var validUploads = _.filter(uploads, function (upload) {
-                return upload.is_valid === true && upload.is_processed === true;
-            });
-            if (validUploads.length > 0) {
-                $scope.gtfsUpload = validUploads[0];
+            if (uploads.length > 0) {
+                $scope.gtfsUpload = uploads.pop();
                 viewProblems();
-                $scope.setSidebarCheckmark('upload', true);
-                $scope.uploadProgress = $scope.STATUS.DONE;
+                var valid = $scope.Status.isComplete($scope.gtfsUpload.status);
+                $scope.setSidebarCheckmark('upload', valid);
 
                 // Check OSM imports for GTFS Feed
-                checkOSMImport($scope.gtfsUpload);
+                if (valid) {
+                    checkOSMImport($scope.gtfsUpload);
+                }
             }
         });
-
     };
-
 }]);

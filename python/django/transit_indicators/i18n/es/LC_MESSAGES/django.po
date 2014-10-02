@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-24 16:38+0000\n"
+"POT-Creation-Date: 2014-09-25 22:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,64 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: datasources/models.py:36
+msgid "Pending"
+msgstr ""
+
+#: datasources/models.py:37
+msgid "Uploading"
+msgstr ""
+
+#: datasources/models.py:38
+msgid "Uploaded"
+msgstr ""
+
 #: datasources/models.py:39
-msgid "Error"
+msgid "Processing"
 msgstr ""
 
 #: datasources/models.py:40
+msgid "Downloading"
+msgstr ""
+
+#: datasources/models.py:41
+msgid "Importing"
+msgstr ""
+
+#: datasources/models.py:42
+msgid "Waiting for User Input"
+msgstr ""
+
+#: datasources/models.py:43
+msgid "Validating"
+msgstr ""
+
+#: datasources/models.py:44
+msgid "Complete"
+msgstr ""
+
+#: datasources/models.py:45 datasources/models.py:67
 msgid "Warning"
+msgstr ""
+
+#: datasources/models.py:46 datasources/models.py:66
+msgid "Error"
+msgstr ""
+
+#: datasources/tasks/gtfs.py:108
+msgid "Unable to calculate route and system length without a shapes.txt"
+msgstr ""
+
+#: datasources/tasks/gtfs.py:112
+msgid "Unable to calculate length"
+msgstr ""
+
+#: datasources/tasks/gtfs.py:140
+msgid "GTFS Data load failed"
+msgstr ""
+
+#: datasources/tasks/gtfs.py:141
+msgid "Unknown Error"
 msgstr ""
 
 #: transit_indicators/gtfs.py:13

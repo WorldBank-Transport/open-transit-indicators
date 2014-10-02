@@ -96,14 +96,14 @@ def run_shapefile_to_boundary(boundary_id):
     # Get the boundary object we're processing, note that we're processing, and
     # prepare to store any errors encountered.
     boundary = Boundary.objects.get(pk=boundary_id)
-    boundary.is_valid = False
+    boundary.status = Boundary.Statuses.IMPORTING
     boundary.save()
     error_factory = ErrorFactory(BoundaryProblem, boundary, 'boundary')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
         error_factory.error(title, description)
-        boundary.is_processed = True
+        boundary.status = Boundary.Statuses.ERROR
         boundary.save()
         return
 
@@ -111,7 +111,7 @@ def run_shapefile_to_boundary(boundary_id):
         # There must be valid GTFS data in order to upload a boundary,
         # otherwise UTM projection may not work.
         # TODO: Refactor Shapefile validation and avoid repetition.
-        if GTFSFeed.objects.filter(is_valid=True).count() < 1:
+        if GTFSFeed.objects.filter(status=GTFSFeed.Statuses.COMPLETE).count() < 1:
             handle_error('No valid GTFS feed.',
                          'Please upload a valid GTFS feed before adding boundary data.')
             return
@@ -155,8 +155,7 @@ def run_shapefile_to_boundary(boundary_id):
 
         # Write out the data and save
         boundary.geom = geometry
-        boundary.is_valid = True
-        boundary.is_processed = True
+        boundary.status = Boundary.Statuses.COMPLETE
         boundary.save()
     except Exception as e:
         handle_error('Unexpected error processing shapefile.', str(e))
@@ -175,14 +174,14 @@ def run_get_shapefile_fields(demographicdata_id):
     # Note that we're processing, and
     # prepare to store any errors encountered.
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
-    demog_data.is_valid = False
+    demog_data.status = DemographicDataSource.Statuses.PROCESSING
     demog_data.save()
     error_factory = ErrorFactory(DemographicDataSourceProblem, demog_data, 'datasource')
 
     def handle_error(title, description):
         """Helper method to handle shapefile errors."""
         error_factory.error(title, description)
-        demog_data.is_processed = True
+        demog_data.status = DemographicDataSource.Statuses.ERROR
         demog_data.save()
         return
 
@@ -193,7 +192,7 @@ def run_get_shapefile_fields(demographicdata_id):
 
         # There must be valid GTFS data in order to load demographic data
         # otherwise UTM projection may not work.
-        if GTFSFeed.objects.filter(is_valid=True).count() < 1:
+        if GTFSFeed.objects.filter(status=GTFSFeed.Statuses.COMPLETE).count() < 1:
             error_factory.error('No valid GTFS feed.',
                                 'Please upload a valid GTFS feed before trying again.')
             return
@@ -221,8 +220,7 @@ def run_get_shapefile_fields(demographicdata_id):
             DemographicDataFieldName.objects.get_or_create(datasource=demog_data, name=field_name)
 
         demog_data.num_features = len(demographic_layer)
-        demog_data.is_valid = True
-        demog_data.is_processed = True
+        demog_data.status = DemographicDataSource.Statuses.WAITING_USER_INPUT
         demog_data.save()
 
     except Exception as e:
@@ -251,6 +249,8 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
     # We can assume that the shapefile is valid because get_shapefile_fields
     # has been run, so jump straight to getting the data.
     demog_data = DemographicDataSource.objects.get(pk=demographicdata_id)
+    demog_data.status = DemographicDataSource.Statuses.IMPORTING
+    demog_data.save()
 
     # Get rid of any existing data--need to do a full reload if user changes
     # the configuration.
@@ -283,8 +283,8 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
         # into regular point grid
         with connection.cursor() as c:
             c.execute('SELECT CreateGrid();')
-        
-        demog_data.is_loaded = True
+
+        demog_data.status = DemographicDataSource.Statuses.COMPLETE
         demog_data.save()
         num_loaded_features = DemographicDataFeature.objects.filter(datasource=demog_data).count()
         if (num_loaded_features < demog_data.num_features):
@@ -292,8 +292,7 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
                                % (num_loaded_features, demog_data.num_features))
     except Exception as e:
         error_factory.error('Unexpected error loading shapefile.', str(e))
-        demog_data.is_loaded = True
-        demog_data.is_valid = False
+        demog_data.status = DemographicDataSource.Statuses.WAITING_USER_INPUT
         demog_data.save()
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)

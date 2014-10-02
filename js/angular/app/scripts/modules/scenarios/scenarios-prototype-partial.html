@@ -1,45 +1,3 @@
-<!doctype html style="height: 100%;">
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <!-- build:css styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/leaflet-dist/leaflet.css" />
-    <!-- endbower -->
-    <!-- endbuild -->
-    <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- endbuild -->
-
-    <!-- Adding leaflet draw for prototyping purposes. These will not be used in production. -->
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css">
-
-  </head>
-  <body style="height: 100%;" ng-app="transitIndicators">
-    <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
-
-    <!-- Add your site or application content here -->
-
-    <!-- This leaflet map is a placeholder for the prototype and should be removed/replaced by a functioning map. -->
-
-    <div class="map angular-leaflet-map" id="map" style="top: 5.5rem"></div>
-
-    <header>
-        <div class="navigation-buttongroup">
-            <div class="button--navigation active" id="navigation-scenario">Scenario</div>
-            <div class="button--navigation" id="navigation-indicators">Indicators</div>
-            <div class="button--navigation" id="navigation-settings">Settings</div>
-        </div>
-    </header>
 
     <!--
 
@@ -71,26 +29,26 @@
         <div class="scenario-headings">
             <a class="scenario-heading" href="#my-scenario" id="heading-scenario">
                 <div class="scenario-heading-title">
-                    Scenario
+                   {{'SCENARIO.SCENARIO'|translate}} 
                 </div>
                 <span class="prototype-scenario-text">
-                    New Scenario
+                   {{'SCENARIO.NEW_SCENARIO'|translate}}
                 </span>
             </a>
             <a class="scenario-heading" href="#scenario-20" id="heading-route">
                 <div class="scenario-heading-title">
-                    Route
+                   {{'SCENARIO.ROUTE'|translate}}
                 </div>
                 <span class="prototype-route-text">
-                    New Route
+                    {{'SCENARIO.NEW_ROUTE'|translate}}
                 </span>
             </a>
             <a class="scenario-heading" id="heading-trip">
                 <div class="scenario-heading-title">
-                    Route
+                    {{'SCENARIO.ROUTE'|translate}}
                 </div>
                 <span class="prototype-trip-text">
-                    Trip 1
+                    {{'SCENARIO.TRIP'|translate}} 1
                 </span>
             </a>
             <div class="scenario-heading" id="heading-scroll">
@@ -100,18 +58,18 @@
         <div class="scenario-pages">
             <div class="scenario-page active" id="new-scenario">
                 <div class="scenario-page-content">
-                    <h3>New Scenario</h3>
-                    <p>Get started building your new scenario.</p>
+                    <h3>{{'SCENARIO.NEW_SCENARIO'|translate}}</h3>
+                    <p>{{'SCENARIO.GET_STARTED'|translate}}</p>
                     <div class="block">
-                        <label>Name</label>
+                        <label>{{'SCENARIO.NAME'|translate}}</label>
                         <input type="text" placeholder="Scenario 1" id="prototype-scenario-field">
                     </div>
                     <div class="block">
-                        <label>Description</label>
+                        <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
                         <textarea></textarea>
                     </div>
                     <div class="block">
-                        <label>Date and Time Range</label>
+                        <label>{{'SCENARIO.DATE_AND_TIME_RANGE'|translate}}</label>
                         <div class="row">
                             <div class="col-xs-4">
                                 <select>
@@ -119,7 +77,7 @@
                                 </select>
                             </div>
                             <div class="col-xs-1 nopadding">
-                                from
+                                {{'SCENARIO.DT_RANGE_FROM'|translate}}
                             </div>
                             <div class="col-xs-3">
                                 <select>
@@ -150,7 +108,7 @@
                                 </select>
                             </div>
                             <div class="col-xs-1 nopadding">
-                                to
+                                {{'SCENARIO.DT_RANGE_TO'|translate}}
                             </div>
                             <div class="col-xs-3">
                                 <select>
@@ -184,193 +142,188 @@
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#my-scenario">Finish</a> /
-                    <a class="button--small" href="#new-scenario">Back</a>
+                    <a class="button--small default" href="#my-scenario">{{'SCENARIO.FINISH'|translate}}</a> /
+                    <a class="button--small" href="#new-scenario">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="my-scenario">
                 <div class="scenario-page-content">
-                    <h3 class="prototype-scenario-text">New Scenario</h3>
+                    <h3 class="prototype-scenario-text">{{'SCENARIO.NEW_SCENARIO'}}</h3>
                     <p>
-                        You have successfully created a new scenario: <span
-                        class="prototype-scenario-text">New Scenario</span>.
-                        You can add or edit the routes, modes of transit, and
-                        fares within this system.
+                        {{'SCENARIO.NEW_SCENARIO_INST1'|translate}} <span
+                        class="prototype-scenario-text">{{'SCENARIO.NEW_SCENARIO'}}</span>.
+                        {{'SCENARIO.NEW_SCENARIO_INST2'|translate}}
                     </p>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small" href="#routes">Routes</a> /
-                    <a class="button--small" href="#routes">Modes</a> /
-                    <a class="button--small" href="#routes">Fares</a> /
-                    <a class="button--small" href="#new-scenario">Back</a>
+                    <a class="button--small" href="#routes">{{'SCENARIO.ROUTES'|translate}}</a> /
+                    <a class="button--small" href="#routes">{{'SCENARIO.MODES'|translate}}</a> /
+                    <a class="button--small" href="#routes">{{'SCENARIO.FARES'|translate}}</a> /
+                    <a class="button--small" href="#new-scenario">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="routes">
                 <div class="scenario-page-content">
-                    <h3>Routes</h3>
+                    <h3>{{'SCENARIO.ROUTES'|translate}}</h3>
                     <p>
-                        You can edit a route by selecting it from the list below
-                        or by clicking on an intersecting stop on the map. Also,
-                        you can add a new route.
+                        {{'SCENARIO.ROUTES_INST'|translate}}
                     </p>
                     <div class="block">
                         <div class="filter">
-                            <a class="button--small active" href="#scenario">Trolley</a> <!-- Add Icon -->
-                            <a class="button--small inactive" href="#scenario">Intercity Rail</a> <!-- Add Icon -->
-                            <a class="button--small inactive" href="#scenario">Bus</a> <!-- Add Icon -->
+                            <a class="button--small active" href="#scenario">{{'SCENARIO.TROLLEY'|translate}}</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.INNERCITY_RAIL'|translate}}</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.BUS'|translate}}</a> <!-- Add Icon -->
                         </div>
                     </div>
                     <div class="block">
                         <div class="row">
                             <div class="col-xs-9">
                                 <select>
-                                    <option>Route 4</option>
-                                    <option>Route 12</option>
-                                    <option>Route 13</option>
-                                    <option>Route 18</option>
-                                    <option>Route 20</option>
-                                    <option>Route 24</option>
-                                    <option>Route 32</option>
-                                    <option>Route 33</option>
-                                    <option>Route 34</option>
-                                    <option>Route 38</option>
-                                    <option>Route 40</option>
-                                    <option>Route 64</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 4</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 12</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 13</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 18</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 20</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 24</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 32</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 33</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 34</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 38</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 40</option>
+                                    <option>{{'SCENARIO.ROUTE'|translate}} 64</option>
                                 </select>
                             </div>
                             <div class="col-xs-3">
-                                <a class="button--small" href="#my-scenario">Edit Route</a>
+                                <a class="button--small" href="#my-scenario">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#new-route">New Route</a> /
-                    <a class="button--small" href="#my-scenario">Back</a>
+                    <a class="button--small default" href="#new-route">{{'SCENARIO.NEW_ROUTE'|translate}}</a> /
+                    <a class="button--small" href="#my-scenario">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="new-route">
                 <div class="scenario-page-content">
-                    <h3>New Route</h3>
-                    <p>Add a new route to your scenario.</p>
+                    <h3>{{'SCENARIO.NEW_ROUTE'|translate}}</h3>
+                    <p>{{'SCENARIO.ADD_A_NEW_ROUTE'|translate}}</p>
                     <div class="block">
-                        <label>Name</label>
+                        <label>{{'SCENARIO.NAME'|translate}}</label>
                         <input type="text" id="prototype-route-field" placeholder="Route 1">
                     </div>
                     <div class="block">
                         <div class="filter">
-                            <a class="button--small active" href="#scenario">Trolley</a> <!-- Add Icon -->
-                            <a class="button--small inactive" href="#scenario">Intercity Rail</a> <!-- Add Icon -->
-                            <a class="button--small inactive" href="#scenario">Bus</a> <!-- Add Icon -->
+                            <a class="button--small active" href="#scenario">{{'SCENARIO.TROLLEY'|translate}}</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.INNERCITY_RAIL'|translate}}</a> <!-- Add Icon -->
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.BUS'|translate}}</a> <!-- Add Icon -->
                         </div>
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#add-stops">Continue</a> /
-                    <a class="button--small" href="#routes">Back</a>
+                    <a class="button--small default" href="#add-stops">{{'SCENARIO.CONTINUE'|translate}}</a> /
+                    <a class="button--small" href="#routes">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="scenario-20">
                 <div class="scenario-page-content">
-                    <h3 class="prototype-route-text">New Scenario</h3>
+                    <h3 class="prototype-route-text">{{'SCENARIO.NEW_SCENARIO'|translate}}</h3>
                     <p>
-                        This is your route. You can add stops, change the shape, or change times.
+                        {{'SCENARIO.THIS_IS_YOUR_ROUTE'|translate}}
                     </p>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small" href="#add-stops">Stops</a> /
-                    <a class="button--small" href="#add-shape">Shape</a> /
-                    <a class="button--small" href="#confirm-times">Time Table</a>
+                    <a class="button--small" href="#add-stops">{{'SCENARIO.STOPS'|translate}}</a> /
+                    <a class="button--small" href="#add-shape">{{'SCENARIO.SHAPE'|translate}}</a> /
+                    <a class="button--small" href="#confirm-times">{{'SCENARIO.TIME_TABLE'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="add-stops">
                 <div class="scenario-page-content">
-                    <h3>Add Stops</h3>
+                    <h3>{{'SCENARIO.ADD_STOPS'|translate}}</h3>
                     <p>
-                        Click on a stop to add it to this route or use the stop
-                        tool to place new stops on the map.
+                        {{'SCENARIO.CLICK_A_STOP_TO_ADD'|translate}}
                     </p>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#add-shape">Continue</a> /
-                    <a class="button--small" href="#new-route">Back</a>
+                    <a class="button--small default" href="#add-shape">{{'SCENARIO.CONTINUE'|translate}}</a> /
+                    <a class="button--small" href="#new-route">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="add-shape">
                 <div class="scenario-page-content">
-                    <h3>Add Shape</h3>
+                    <h3>{{'SCENARIO.ADD_SHAPE'|translate}}</h3>
                     <p>
-                        Use the draw tool to add a shape to your route.
+                        {{'SCENARIO.USE_THE_DRAW_TOOL'|translate}}
                     </p>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#confirm-times">Continue</a> /
-                    <a class="button--small" href="#add-stops">Back</a>
+                    <a class="button--small default" href="#confirm-times">{{'SCENARIO.CONTINUE'|translate}}</a> /
+                    <a class="button--small" href="#add-stops">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="confirm-times">
                 <div class="scenario-page-content">
-                    <h3>Confirm Times</h3>
+                    <h3>{{'SCENARIO.CONFIRM_TIMES'|translate}}</h3>
                     <p>
-                        We've estimated the arrival times for each stops. You can
-                        adjust them as necessary.
+                        {{'SCENARIO.WEVE_ESTIMATED_ARRIVAL_TIMES'|translate}}
                     </p>
                     <table id="prototype-time-table">
                     </table>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#prototype-finished">Finish</a> /
-                    <a class="button--small" href="#add-shape">Back</a>
+                    <a class="button--small default" href="#prototype-finished">{{'SCENARIO.FINISH'|translate}}</a> /
+                    <a class="button--small" href="#add-shape">{{'SCENARIO.BACK'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="prototype-finished">
                 <div class="scenario-page-content">
-                    <h3>Prototype Finished</h3>
+                    <h3>{{'SCENARIO.PROTOTYPE_FINISHED'|translate}}</h3>
                     <p>
-                        You just did all of the following:
+                        {{'SCENARIO.YOU_JUST_DID'|translate}}
                     </p>
                     <ol>
-                        <li>Create a new scenario</li>
-                        <li>Add a new route to that scenario</li>
-                        <li>Built the stops and shape of the route</li>
-                        <li>Set the times</li>
+                        <li>{{'SCENARIO.YOU_JUST_CREATE'|translate}}</li>
+                        <li>{{'SCENARIO.YOU_JUST_ADD'|translate}}</li>
+                        <li>{{'SCENARIO.YOU_JUST_BUILT'|translate}}</li>
+                        <li>{{'SCENARIO.YOU_JUST_SET'|translate}}</li>
                     </ol>
                     <table id="prototype-time-table">
                     </table>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#new-scenario">Start Over</a>
+                    <a class="button--small default" href="#new-scenario">{{'SCENARIO.START_OVER'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="scenario-10">
                 <div class="scenario-page-content">
-                    <h3>Confirm Times</h3>
+                    <h3>{{'SCENARIO.CONFIRM_TIMES'|translate}}</h3>
                     <p>How do the below times look?</p>
                     <div class="block">
                         <div class="filter">
-                            <a class="button--small active" href="#scenario">Original</a>
-                            <a class="button--small inactive" href="#scenario">New Bus 1</a>
-                            <a class="button--small inactive" href="#scenario">Difference</a>
+                            <a class="button--small active" href="#scenario">{{'SCENARIO.ORIGINAL'|translate}}</a>
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.NEW_BUS'|translate}} 1</a>
+                            <a class="button--small inactive" href="#scenario">{{'SCENARIO.DIFFERENCE'|translate}}</a>
                         </div>
                     </div>
                     <div class="block">
                         <div class="row">
                             <div class="col-xs-6">
-                                <label>Currency Type</label>
+                                <label>{{'SCENARIO.CURRENCY_TYPE'|translate}}</label>
                                 <input type="text" value="20">
                             </div>
                             <div class="col-xs-6">
-                                <label>Payment Method</label>
+                                <label>{{'SCENARIO.PAYMENT_METHOD'|translate}}</label>
                                 <input type="text" value="2.40">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
-                                <label>Transfers</label>
+                                <label>{{'SCENARIO.TRANSFERS'|translate}}</label>
                                 <input type="text" value="20">
                             </div>
                             <div class="col-xs-6">
-                                <label>Transfer Duration (sec.)</label>
+                                <label>{{'SCENARIO.TRANSFER_DURATION'|translate}}</label>
                                 <input type="text" value="2.40">
                             </div>
                         </div>
@@ -380,19 +333,19 @@
                             <select></select>
                         </div>
                         <div class="col-xs-4">
-                            <a class="button--small">Edit Route</a>
+                            <a class="button--small">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>
                         </div>
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#routes">Next</a> /
-                    <a class="button--small" href="#scenario">Modify manually</a>
+                    <a class="button--small default" href="#routes">{{'SCENARIO.NEXT'|translate}}</a> /
+                    <a class="button--small" href="#scenario">{{'SCENARIO.MODIFY_MANUALLY'|translate}}</a>
                 </div>
             </div>
             <div class="scenario-page" id="scenario-11">
                 <div class="scenario-page-content">
-                    <h3>Confirm Times</h3>
-                    <p>How do the below times look?</p>
+                    <h3>{{'SCENARIO.CONFIRM_TIMES'|translate}}</h3>
+                    <p>{{'SCENARIO.HOW_DO_TIMES_LOOK'|translate}}</p>
                     <table>
                         <tr>
                             <td><span class="badge">1</span></td>
@@ -431,35 +384,35 @@
                         </tr>
                     </table>
                     <div class="filter">
-                        <a class="button--small active" href="#scenario">Original</a> <a class="button--small inactive" href="#scenario">New Bus 1</a> <a class="button--small inactive" href="#scenario">Difference</a>
+                        <a class="button--small active" href="#scenario">{{'SCENARIO.ORIGINAL'|translate}}Original</a> <a class="button--small inactive" href="#scenario">{{'SCENARIO.NEW_BUS'|translate}} 1</a> <a class="button--small inactive" href="#scenario">{{'SCENARIO.DIFFERENCE'|translate}}</a>
                     </div>
                     <div class="row">
                         <div class="col-xs-6">
-                            <label>Fare ID</label>
+                            <label>{{'SCENARIO.FARE_ID'}</label>
                             <input type="text" value="20">
                         </div>
                         <div class="col-xs-6">
-                            <label>Price</label>
+                            <label>{{'SCENARIO.PRICE'}</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-6">
-                            <label>Currency Type</label>
+                            <label>{{'SCENARIO.CURRENCY_TYPE'|translate}}</label>
                             <input type="text" value="20">
                         </div>
                         <div class="col-xs-6">
-                            <label>Payment Method</label>
+                            <label>{{'SCENARIO.PAYMENT_METHOD'|translate}}</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-6">
-                            <label>Transfers</label>
+                            <label>{{'SCENARIO.TRANSFERS'|translate}}</label>
                             <input type="text" value="20">
                         </div>
                         <div class="col-xs-6">
-                            <label>Transfer Duration (sec.)</label>
+                            <label>{{'SCENARIO.TRANSFER_DURATION'|translate}}</label>
                             <input type="text" value="2.40">
                         </div>
                     </div>
@@ -468,22 +421,13 @@
                             <select></select>
                         </div>
                         <div class="col-xs-4">
-                            <a class="button--small">Edit Route</a>
+                            <a class="button--small">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>
                         </div>
                     </div>
                 </div>
                 <div class="scenario-page-buttons">
-                    <a class="button--small default" href="#new-scenario">Great</a> / <a class="button--small" href="#scenario">Modify manually</a>
+                    <a class="button--small default" href="#new-scenario">{{'SCENARIO.GREAT'|translate}}</a> / <a class="button--small" href="#scenario">{{'SCENARIO.MODIFY_MANUALLY'|translate}}</a>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="bower_components/leaflet-dist/leaflet.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
-    <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.3"></script>
-    <script src="scripts/prototype/prototype1.js"></script>
-
-</body>
-</html>

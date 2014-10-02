@@ -27,8 +27,6 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     CURDIR=`pwd`
     PROJECT_ROOT=`dirname $CURDIR`
     PROJECTS_DIR='/home/travis/build'
-else
-    PROJECT_ROOT="/projects/open-transit-indicators"
 fi
 
 echo "Using project root: $PROJECT_ROOT"
@@ -59,7 +57,6 @@ UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 LOG_ROOT="$PROJECT_ROOT/logs"
-WEB_USER='vagrant' # User under which web service runs.
 WEB_PORT='8067'
 
 DB_NAME="transit_indicators"
@@ -102,9 +99,9 @@ mkdir -p $LOG_ROOT
 case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
-        WEB_USER='vagrant' # User under which web service runs.
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
+        WEB_USER="vagrant"
         ;;
     "production")
         echo "Selecting production installation"
@@ -112,13 +109,13 @@ case "$INSTALL_TYPE" in
         # Change once issue #161 is resolved
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS=""
-        WEB_USER='ubuntu'
         WEB_PORT='80'
+        WEB_USER=`logname`
         ;;
     "travis")
         echo "Selecting CI installation"
-        WEB_USER='travis' # User under which web service runs.
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
+        WEB_USER=`logname`
         ;;
     *)
         echo "Invalid installation type; should be one of development / production / travis" >&2
@@ -126,12 +123,22 @@ case "$INSTALL_TYPE" in
         ;;
 esac
 
+#########################
+## Ensure locales set correctly
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+locale-gen en_US.UTF-8
+dpkg-reconfigure locales
 
 #########################
 # Project Dependencies  #
 #########################
 apt-get -qq update
 # Make add-apt-repository available
+
+# install python tools for the add-apt-repository command
+apt-get install -y python-software-properties
 
 add-apt-repository -y ppa:mapnik/v2.2.0
 add-apt-repository -y ppa:gunicorn/ppa
@@ -282,6 +289,12 @@ popd
 # RabbitMQ setup        #
 #########################
 echo 'Setting up RabbitMQ'
+
+echo "Writing rabbitmq environment settings"
+service rabbitmq-server stop
+echo "NODENAME=\"rabbit@localhost\"" > /etc/rabbitmq/rabbitmq-env.conf
+service rabbitmq-server start
+
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
@@ -363,6 +376,9 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     echo 'Running collectstatic (needs to run as root)'
     python manage.py collectstatic --noinput
+
+    echo 'Compiling translations'
+    sudo -Hu "$WEB_USER" python manage.py compilemessages
 popd
 
 # Add triggers which rely on Django migrations (and which therefore can't happen in the
