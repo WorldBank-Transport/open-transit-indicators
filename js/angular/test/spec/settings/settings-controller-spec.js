@@ -16,6 +16,10 @@ describe('OTISettingsController', function () {
         });
     }));
 
+    it('should have a STATUS', function () {
+        expect(scope.STATUS).toBeDefined();
+    });
+
     it('should have checkmarks', function () {
         expect(scope.checkmarks).toBeDefined();
     });
