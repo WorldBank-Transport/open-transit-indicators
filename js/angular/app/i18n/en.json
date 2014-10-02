@@ -82,7 +82,6 @@
         "THIS_IS_YOUR_ROUTE": "This is your route. You can add stops, change the shape, or change times.",
         "STOPS": "Stops",
         "SHAPE": "Shape",
-        "ADD_SHAPE": "Add Shape",
         "TIME_TABLE": "Time Table",
         "ADD_STOPS": "Add Stops",
         "CLICK_A_STOP_TO_ADD": "Click on a stop to add it to this route or use the stop tool to place new stops on the map.",
@@ -109,8 +108,7 @@
         "MODIFY_MANUALLY": "Modify manually",
         "FARE_ID": "Fare ID",
         "PRICE": "Price",
-        "GREAT": "Great",
-        "START_OVER": "Start Over"
+        "GREAT": "Great"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index" : "",
