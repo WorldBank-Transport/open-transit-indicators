@@ -16,7 +16,9 @@ object Indicators {
       Length,
       NumRoutes,
       NumStops,
-      TimeTraveledStops
+      TimeTraveledStops,
+      InterstopDistance,
+      StopsToLength
     )
 
   // These are indicators that need to know things about the request
