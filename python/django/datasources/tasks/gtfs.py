@@ -7,7 +7,6 @@ import zipfile
 
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
 from transitfeed import GetGtfsFactory, ProblemReporter, ProblemAccumulatorInterface
 from transit_indicators.models import IndicatorJob
 from urllib import urlencode
@@ -46,17 +45,17 @@ def run_validate_gtfs(gtfsfeed_id):
     Creates GTSFeedProblem objects for each error/warning
     and updates GTFSFeed processing status once completed.
 
+    is_valid == null indicates job not started
+    Valid gtfsfeed files have state is_valid = True && is_processed = True
+    is_valid = True && is_processed = False indicate a geotrellis error
+
     Arguments:
     :param gtfsfeed_id: ID of GTFSFeed object
     """
-
     gtfsfeed = GTFSFeed.objects.get(id=gtfsfeed_id)
     accumulator = OTIProblemAccumulator()
     problems = ProblemReporter(accumulator=accumulator)
     gtfs_factory = GetGtfsFactory()
-
-    gtfsfeed.status = GTFSFeed.Statuses.VALIDATING
-    gtfsfeed.save()
 
     # load gtfs file(s)
     loader = gtfs_factory.Loader(
@@ -105,22 +104,14 @@ def run_validate_gtfs(gtfsfeed_id):
         # Check if shapes.txt of shape_dist_traveled exist
         stopdatetimes = itertools.chain(*[trip.GetStopTimes() for trip in schedule.trips.values()])
         if not any([stopdatetime.shape_dist_traveled for stopdatetime in stopdatetimes]):
-            length_description = _('Unable to calculate route and system length without a shapes.txt' +
+            length_description = ('Unable to calculate route and system length without a shapes.txt' +
                                   ' or shapes_dist_traveled field in stop_times.txt')
-            unused = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
-                                                    description=length_description,
-                                                    title=_('Unable to calculate length'),
-                                                    type=GTFSFeedProblem.ProblemTypes.WARNING)
+            _ = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
+                                               description=length_description,
+                                               title='Unable to calculate length',
+                                               type=GTFSFeedProblem.ProblemTypes.WARNING)
 
-    if errors_count == 0:
-        gtfsfeed.status = GTFSFeed.Statuses.PROCESSING
-        gtfsfeed.save()
-    else:
-        # Bail out if errors, no need to continue processing
-        gtfsfeed.status = GTFSFeed.Statuses.ERROR
-        gtfsfeed.save()
-        return
-
+    gtfsfeed.is_valid = True if errors_count == 0 else False
 
     # delete any uploaded shapefiles that aren't for this GTFS' city
     delete_other_city_uploads(gtfsfeed.city_name)
@@ -130,19 +121,11 @@ def run_validate_gtfs(gtfsfeed_id):
 
     # send to GeoTrellis
     logger.debug('going to send gtfs to geotrellis')
-    response = send_to_geotrellis(gtfsfeed.source_file)
-    success = response.get('success', False)
+    result = send_to_geotrellis(gtfsfeed.source_file) if gtfsfeed.is_valid else False
 
     # Update processing status
-    logger.debug('gtfs-parser status is %s', response)
-    gtfsfeed.status = GTFSFeed.Statuses.COMPLETE if success else GTFSFeed.Statuses.ERROR
-    if not success:
-        title = _('GTFS Data load failed')
-        msg = response.get('message', _('Unknown Error'))
-        unused = GTFSFeedProblem.objects.create(gtfsfeed=gtfsfeed,
-                                                description=msg,
-                                                title=title,
-                                                type=GTFSFeedProblem.ProblemTypes.ERROR)
+    logger.debug('gtfs-parser result is %s', result)
+    gtfsfeed.is_processed = result
     gtfsfeed.save()
 
 
@@ -182,19 +165,14 @@ def send_to_geotrellis(gtfs_file):
         outfile.write(zip_file.read(name))
         outfile.close()
 
-    gtfs_response = {
-        'success': False,
-        'message': '',
-    }
-
     try:
         params = {'gtfsDir': zip_dir}
         response = requests.post('http://localhost/gt/gtfs?%s' % urlencode(params))
         logger.debug('GeoTrellis response: %s', response.text)
         data = response.json()
-        gtfs_response = data
-    except ValueError as e:
+        success = data['success']
+    except ValueError:
         logger.exception('Error when parsing GeoTrellis response')
-        gtfs_response['message'] = e.message
+        success = False
 
-    return gtfs_response
+    return success

@@ -27,6 +27,8 @@ if [ "$INSTALL_TYPE" == "travis" ]; then
     CURDIR=`pwd`
     PROJECT_ROOT=`dirname $CURDIR`
     PROJECTS_DIR='/home/travis/build'
+else
+    PROJECT_ROOT="/projects/open-transit-indicators"
 fi
 
 echo "Using project root: $PROJECT_ROOT"
@@ -40,7 +42,8 @@ HOST='127.0.0.1'  # TODO: set for production / travis
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
-GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
+SCALA_ROOT="$PROJECT_ROOT/scala"
+SCALA_OTI_ROOT="$SCALA_ROOT/opentransit"
 
 # Additional repos for snapshot versions of GeoTrellis and GTFS parser.
 # The changes in these repos haven't been published to Maven and may
@@ -48,9 +51,6 @@ GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
 GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
-GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
-GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
-GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
 INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
@@ -59,6 +59,7 @@ UPLOADS_ROOT='/var/local/transit-indicators-uploads' # Storage for user-uploaded
 ANGULAR_ROOT="$PROJECT_ROOT/js/angular"
 WINDSHAFT_ROOT="$PROJECT_ROOT/js/windshaft"
 LOG_ROOT="$PROJECT_ROOT/logs"
+WEB_USER='vagrant' # User under which web service runs.
 WEB_PORT='8067'
 
 DB_NAME="transit_indicators"
@@ -72,10 +73,10 @@ REDIS_HOST=$HOST
 REDIS_PORT='6379'
 VHOST_NAME=$DB_NAME
 
-GEOTRELLIS_PORT=8001
-GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
-GEOTRELLIS_CATALOG="data/catalog.json"
-GEOTRELLIS_MEM_MB=7168      # For the oti-geotrellis upstart job
+SPRAY_PORT=8001
+SPRAY_HOST="http://127.0.0.1:$SPRAY_PORT"
+OTI_CATALOG="$OTI_ROOT/data/catalog.json"
+SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
 TRANSITFEED_VERSION=1.2.12
@@ -101,9 +102,9 @@ mkdir -p $LOG_ROOT
 case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
+        WEB_USER='vagrant' # User under which web service runs.
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
-        WEB_USER="vagrant"
         ;;
     "production")
         echo "Selecting production installation"
@@ -111,13 +112,13 @@ case "$INSTALL_TYPE" in
         # Change once issue #161 is resolved
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
         GUNICORN_MAX_REQUESTS=""
+        WEB_USER='ubuntu'
         WEB_PORT='80'
-        WEB_USER=`logname`
         ;;
     "travis")
         echo "Selecting CI installation"
+        WEB_USER='travis' # User under which web service runs.
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        WEB_USER=`logname`
         ;;
     *)
         echo "Invalid installation type; should be one of development / production / travis" >&2
@@ -125,22 +126,12 @@ case "$INSTALL_TYPE" in
         ;;
 esac
 
-#########################
-## Ensure locales set correctly
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-locale-gen en_US.UTF-8
-dpkg-reconfigure locales
 
 #########################
 # Project Dependencies  #
 #########################
 apt-get -qq update
 # Make add-apt-repository available
-
-# install python tools for the add-apt-repository command
-apt-get install -y python-software-properties
 
 add-apt-repository -y ppa:mapnik/v2.2.0
 add-apt-repository -y ppa:gunicorn/ppa
@@ -291,12 +282,6 @@ popd
 # RabbitMQ setup        #
 #########################
 echo 'Setting up RabbitMQ'
-
-echo "Writing rabbitmq environment settings"
-service rabbitmq-server stop
-echo "NODENAME=\"rabbit@localhost\"" > /etc/rabbitmq/rabbitmq-env.conf
-service rabbitmq-server start
-
 pushd $PROJECT_ROOT
     sudo ./deployment/setup_rabbitmq.sh $WEB_USER $VHOST_NAME
 popd
@@ -378,9 +363,6 @@ BROKER_URL = 'amqp://$WEB_USER:$WEB_USER@$RABBIT_MQ_HOST:$RABBIT_MQ_PORT/$VHOST_
 
     echo 'Running collectstatic (needs to run as root)'
     python manage.py collectstatic --noinput
-
-    echo 'Compiling translations'
-    sudo -Hu "$WEB_USER" python manage.py compilemessages
 popd
 
 # Add triggers which rely on Django migrations (and which therefore can't happen in the
@@ -537,28 +519,14 @@ pushd $GEOTRELLIS_REPO_ROOT
     ./sbt "project slick" publish-local
 popd
 
-################################
-# GTFS parser local repo setup #
-################################
-echo 'Setting up local GTFS parser repo'
-if [ ! -d "$GTFS_PARSER_REPO_ROOT" ]; then
-    pushd $PROJECTS_DIR
-        git clone -b $GTFS_PARSER_REPO_BRANCH $GTFS_PARSER_REPO_URI
-    popd
-fi
-pushd $GTFS_PARSER_REPO_ROOT
-    git pull
-    ./sbt publish-local
-popd
-
 #########################
 # GeoTrellis setup      #
 #########################
 echo 'Setting up geotrellis'
 
 gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
-geotrellis.port = \"$GEOTRELLIS_PORT\"
+opentransit.catalog = \"$OTI_CATALOG\"
+opentransit.spray.port = \"$SPRAY_PORT\"
 database.geom-name-lat-lng = \"the_geom\"
 database.geom-name-utm = \"geom\"
 database.name = \"$DB_NAME\"
@@ -568,7 +536,7 @@ spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
 "
 
-pushd $GEOTRELLIS_ROOT/src/main/resources/
+pushd $SCALA_OTI_ROOT/src/main/resources/
     echo "$gt_application_conf" > application.conf
 popd
 
@@ -579,8 +547,8 @@ kill timeout 30
 
 script
     echo \$\$ > /var/run/oti-indicators.pid
-    chdir $GEOTRELLIS_ROOT
-    exec ./sbt -mem $GEOTRELLIS_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    chdir $SCALA_ROOT
+    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
 end script
 
 pre-stop script
@@ -637,7 +605,7 @@ nginx_conf="server {
     }
 
     location /gt {
-        proxy_pass $GEOTRELLIS_HOST;
+        proxy_pass $SPRAY_HOST;
         proxy_read_timeout 1800s;
         proxy_redirect off;
         proxy_set_header Host \$host;

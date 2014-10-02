@@ -16,10 +16,7 @@ describe('pollingUploadTests', function () {
 
     beforeEach(function () {
         module('ngResource');
-        // Commented out because httpBackend expects i18n/en.json and I don't have time
-        // to figure out exactly where mock wants that expect.
-        // TODO: figure it out
-        //module('transitIndicators');
+        module('pollingUpload');
         inject(function ($injector) {
             $compile = $injector.get('$compile');
             $rootScope = $injector.get('$rootScope');
@@ -34,7 +31,7 @@ describe('pollingUploadTests', function () {
         var element;
 
         beforeEach(function () {
-            $rootScope.testUpload = {};
+            $rootScope.testUpload = null;
             // Mock a resource with an arbitrary URL
             // When testing, the calls this resource makes internally will be intercepted and
             //  can be mocked with $httpBackend
@@ -47,8 +44,7 @@ describe('pollingUploadTests', function () {
         });
 
         it('should have an input element if no upload object passed', function () {
-            // Commented out, see above TODO
-            //expect(element.find('input').length).toBe(1);
+            expect(element.find('input').length).toBe(1);
         });
 
     });

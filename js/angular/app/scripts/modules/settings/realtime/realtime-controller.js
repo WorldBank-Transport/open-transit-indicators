@@ -10,15 +10,13 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.setSidebarCheckmark('realtime', false);
+        $scope.setSidebarCheckmark('demographic', false);
     };
 
     var setUpload = function (upload) {
         $scope.uploadRealtime = upload;
         var valid = upload && !_.isEmpty(upload) ? true : false;
-        if (upload !== null) {
-            $scope.setSidebarCheckmark('realtime', valid);
-        }
+        $scope.setSidebarCheckmark('realtime', valid);
     };
 
     var viewProblems = function () {
@@ -35,12 +33,16 @@ angular.module('transitIndicators')
                 $scope.uploadProblems.errors = _.filter(data, function (problem) {
                     return problem.realtime === upload.id && problem.type === 'err';
                 });
+            }, function () {
             });
     };
 
     $scope.RealTimeUpload = OTIRealTimeService.realtimeUpload;
     $scope.realtimeOptions = {
-        uploadTimeoutMs: 10 * 60 * 1000
+        uploadTimeoutMs: 10 * 60 * 1000,
+        checkContinue: function (upload) {
+            return !(upload.is_valid && upload.is_processed);
+        }
     };
     $scope.uploadRealtime = {};
 
@@ -54,7 +56,6 @@ angular.module('transitIndicators')
     });
 
     $scope.$on('pollingUpload:uploadCancel', function () {
-        $scope.setSidebarCheckmark('realtime', false);
         clearUploadProblems();
     });
 
@@ -65,11 +66,14 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
 
+        setUpload(null);
         clearUploadProblems();
         OTIRealTimeService.realtimeUpload.query({}, function (uploads) {
-            if (uploads.length > 0) {
-                var upload = uploads.pop();
-                setUpload(upload);
+            var validUploads = _.filter(uploads, function (upload) {
+                return upload.is_valid === true && upload.is_processed === true;
+            });
+            if (validUploads.length > 0) {
+                setUpload(validUploads[0]);
                 viewProblems();
             }
         });
