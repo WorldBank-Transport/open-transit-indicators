@@ -10,6 +10,16 @@ angular.module('transitIndicators')
     $scope.selfCityName = OTIIndicatorsService.selfCityName;
     var colors = OTIIndicatorsDataService.Colors;
 
+    $scope.chartData = {};
+
+    var filterDataForChartType = function (data, type, aggregation) {
+        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        if (chartType === 'nodata') {
+            return data;
+        }
+        return $scope.charts[chartType].filterFunction(data, aggregation);
+    };
+
     var getIndicatorData = function () {
         $scope.updating = true;
         var period = $scope.sample_period;
@@ -22,6 +32,19 @@ angular.module('transitIndicators')
             OTIIndicatorsService.query('GET', params).then(function (data) {
                 var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
                 $scope.indicatorData = null;
+                $scope.chartData = {};
+                // Populate $scope.chartData, because filterDataForChartType
+                // can't be called inside the view
+                for (var indicator in indicators) {
+                    if (!$scope.chartData[indicator]) {
+                        $scope.chartData[indicator] = {};
+                    }
+                    for(var city in indicators[indicator].cities) {
+                        $scope.chartData[indicator][city] = 
+                            filterDataForChartType(
+                                indicators[indicator].cities[city], indicator, 'mode');
+                    }
+                }
                 $scope.indicatorData = indicators;
                 $scope.updating = false;
             }, function (error) {
@@ -35,14 +58,6 @@ angular.module('transitIndicators')
         var config = $scope.indicatorConfig;
         var display = !!(config && config[type] && config[type][aggregation]);
         return display;
-    };
-
-    $scope.filterDataForChartType = function (data, type, aggregation) {
-        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
-        if (chartType === 'nodata') {
-            return data;
-        }
-        return $scope.charts[chartType].filterFunction(data, aggregation);
     };
 
     $scope.getModePartialForIndicator = function (type) {
