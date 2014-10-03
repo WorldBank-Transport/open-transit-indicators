@@ -34,13 +34,13 @@
              because that attribute is watched, and calling a function there causes
              inf watch cycles
         -->
+
         <div ng-repeat="(cityname, citydata) in indicator.cities"
-             ng-init="data = { system: citydata.system[0].values, mode: filterDataForChartType(citydata, type, 'mode') }"
              class="indicators-cell">
             <div ng-if="displayIndicator(type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(type, 'system')">{{ data.system[0].formatted_value || "No Data Available" }}</span>
+            <span ng-if="displayIndicator(type, 'system')">{{ citydata.system[0].values[0].formatted_value || "No Data Available" }}</span>
         </div>
     </div>
 </div>
