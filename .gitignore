@@ -72,6 +72,7 @@ python/django/transit_indicators/settings/secret_key.py
 python/django/transit_indicators/settings/provision_settings.py
 python/django/transit_indicators/settings/__init__.py
 scala/opentransit/src/main/resources/application.conf
+geotrellis
 
 # Scala build artifacts
 project/boot

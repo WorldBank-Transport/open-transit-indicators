@@ -193,6 +193,9 @@ else
 
 fi
 
+## update npm
+npm -g install npm@2.1.2
+
 #### build postgis and friends #############
 # http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21Ubuntu1204src
 
@@ -268,7 +271,7 @@ popd
 
 # Install node dependencies
 echo 'Installing node dependencies'
-npm install -g grunt-cli yo generator-angular
+npm install -g bower grunt-cli yo generator-angular
 
 # Install ruby gems
 echo 'Installing ruby gems dependencies'
