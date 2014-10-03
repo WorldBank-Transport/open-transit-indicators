@@ -6,23 +6,25 @@ import geotrellis.vector._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
 
+sealed trait IndicatorCalculation {
+\  def apply(transitSystem: TransitSystem): AggregatedResults
+}
+
 /** Indicator calculation that calculates intermediate values of type T */
-sealed trait IndicatorCalculation[T] {
+sealed trait ReducingIndicatorCalculation[T] extends IndicatorCalculation{
   def reduce(results: Seq[T]): Double
 
   def apply(transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults =
     IndicatorCalculation.resultsForSystem(this, transitSystem, aggregatesBy)
 }
 
-trait PerRouteIndicatorCalculation[T] extends IndicatorCalculation[T] {
+trait PerRouteIndicatorCalculation[T] extends ReducingIndicatorCalculation[T] {
   def map(trips: Seq[Trip]): T
 }
 
-trait PerTripIndicatorCalculation[T] extends IndicatorCalculation[T] {
+trait PerTripIndicatorCalculation[T] extends ReducingIndicatorCalculation[T] {
   def map(trip: Trip): T
 }
-
-case class AggregatedResults(byRoute: Map[Route, Double], byRouteType: Map[RouteType, Double], bySystem: Option[Double])
 
 object IndicatorCalculation {
   def resultsForSystem[T](calc: IndicatorCalculation[T], transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults = {
@@ -42,8 +44,8 @@ object IndicatorCalculation {
     val intermediateResults: Map[Route, Seq[T]] =
       transitSystem.routes
         .map { route =>
-        (route, mapRouteToIntermediateResults(route))
-      }
+          (route, mapRouteToIntermediateResults(route))
+         }
         .toMap
     // Aggregate by route by reducing the set of results for each route.
     val byRoute: Map[Route, Double] =

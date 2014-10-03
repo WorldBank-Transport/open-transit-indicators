@@ -93,3 +93,7 @@ tags
 
 /deployment/packer/open-transit-vars.json
 /js/angular/app/scripts/windshaft-config.js
+/scala/.ensime
+/scala/.ensime_cache/build.sbt
+/scala/.ensime_cache/project/build.properties
+/scala/TAGS

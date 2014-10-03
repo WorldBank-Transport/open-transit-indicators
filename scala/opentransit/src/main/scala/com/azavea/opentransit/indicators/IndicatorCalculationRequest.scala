@@ -57,14 +57,3 @@ case class IndicatorCalculationRequest(
     )
   }
 }
-
-case class IndicatorCalculationParams(
-  povertyLine: Double,
-  nearbyBufferDistance: Double,
-  maxCommuteTime: Int,
-  maxWalkTime: Int,
-  cityBoundary: MultiPolygon,
-  regionBoundary: MultiPolygon,
-  averageFare: Double,
-  totalRoadLength: Double
-)

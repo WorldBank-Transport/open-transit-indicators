@@ -33,14 +33,9 @@ object Indicators {
 }
 
 trait Indicator extends TransitSystemCalculation { self: AggregatesBy =>
-  type Intermediate
-
   val name: String
-  val calculation: IndicatorCalculation[Intermediate]
+  def calculation(period: SamplePeriod): IndicatorCalculation
 
   def aggregatesBy(aggregate: Aggregate) =
     self.aggregates.contains(aggregate)
-
-  def apply(transitSystem: TransitSystem): AggregatedResults =
-    calculation(transitSystem, aggregatesBy _)
 }
