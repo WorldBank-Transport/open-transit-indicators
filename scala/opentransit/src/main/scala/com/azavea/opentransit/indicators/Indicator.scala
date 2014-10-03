@@ -25,7 +25,8 @@ object Indicators {
   private def paramIndicators(params: IndicatorCalculationParams): List[Indicator] =
     List(
       new CoverageRatioStopsBuffer(params),
-      new TransitNetworkDensity(params)
+      new TransitNetworkDensity(params),
+      new Affordability(params)
     )
 
   def list(params: IndicatorCalculationParams): List[Indicator] =
