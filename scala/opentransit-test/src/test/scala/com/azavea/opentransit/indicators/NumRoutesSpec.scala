@@ -9,6 +9,24 @@ import com.typesafe.config.{ConfigFactory,Config}
 
 import org.scalatest._
 
+
+class AdHocNumRoutesSpec extends AdHocSystemIndicatorSpec {
+  it should "Accurately calculate the number of routes" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(systemWithAllStops)
+    implicit val routeMap = byRoute
+
+    // each route is only one route
+    routeById("EastRail") should be (1.0)
+    routeById("EastBus") should be (1.0)
+    routeById("NorthSouth") should be (1.0)
+    routeById("WestRail") should be (1.0)
+    routeById("EastWest") should be (1.0)
+    routeById("WestBus") should be (1.0)
+
+  }
+}
+
+
 class NumRoutesSpec extends FlatSpec with Matchers with IndicatorSpec {
   it should "calculate num_routes by mode for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(system)

@@ -9,6 +9,23 @@ import com.typesafe.config.{ConfigFactory,Config}
 
 import org.scalatest._
 
+
+class AdHocLengthSpec extends AdHocSystemIndicatorSpec {
+  it should "Accurately calculate the length of routes" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = Length(systemWithAllStops)
+    implicit val routeMap = byRoute
+
+    // no tripshapes provided means no calculable lengths
+    routeById("EastRail") should be (0.0)
+    routeById("EastBus") should be (0.0)
+    routeById("NorthSouth") should be (0.0)
+    routeById("WestRail") should be (0.0)
+    routeById("EastWest") should be (0.0)
+    routeById("WestBus") should be (0.0)
+  }
+}
+
+
 class LengthSpec extends FlatSpec with Matchers with IndicatorSpec {
   // TODO: the length indicator needs to be reworked. The test results
   // will change because of this. Commenting them out for now.
