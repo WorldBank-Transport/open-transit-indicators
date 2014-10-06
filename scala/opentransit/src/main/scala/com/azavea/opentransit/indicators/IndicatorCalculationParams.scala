@@ -5,6 +5,8 @@ import geotrellis.vector._
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable }
 import scala.slick.jdbc.JdbcBackend.Session
 
+import com.azavea.gtfs.TransitSystem
+
 import scala.collection.mutable
 
 import grizzled.slf4j.Logging
@@ -125,7 +127,7 @@ case class IndicatorSettings(
 )
 
 trait IndicatorParams extends StopBuffers
-                         with Demographics
+//                         with Demographics
                          with Boundaries
                          with RoadLength {
   val settings: IndicatorSettings

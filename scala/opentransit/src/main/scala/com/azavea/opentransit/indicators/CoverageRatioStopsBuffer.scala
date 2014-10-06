@@ -9,7 +9,7 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
 // Areal Coverage Ratio of Transit Stops (user-configurable buffer)
-class CoverageRatioStopsBuffer(params: Boundaries with StopsBuffers)
+class CoverageRatioStopsBuffer(params: Boundaries with StopBuffers)
     extends Indicator
        with AggregatesBySystem {
   type Intermediate = Seq[Stop]
@@ -21,7 +21,7 @@ class CoverageRatioStopsBuffer(params: Boundaries with StopsBuffers)
       def apply(transitSytem: TransitSystem) = {
         val cityBoudary = params.cityBoundary.area
         val systemResult =
-          stopBuffers.bufferForPeriod(period).area / cityBoundary
+          params.bufferForPeriod(period).area / params.cityBoundary.area
         AggregatedResult.systemOnly(systemResult)
       }
     }

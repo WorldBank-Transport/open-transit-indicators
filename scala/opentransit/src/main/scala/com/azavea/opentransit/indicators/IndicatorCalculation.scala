@@ -7,7 +7,7 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
 
 sealed trait IndicatorCalculation {
-\  def apply(transitSystem: TransitSystem): AggregatedResults
+  def apply(transitSystem: TransitSystem): AggregatedResults
 }
 
 /** Indicator calculation that calculates intermediate values of type T */
