@@ -134,7 +134,7 @@ trait IndicatorParams extends StopBuffers
   val settings: IndicatorSettings
 }
 
-object IndicatorParams {
+/*object IndicatorParams {
   def fromRequest(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem])
            (implicit session: Session): IndicatorParams =
     new IndicatorParams {
@@ -155,14 +155,34 @@ object IndicatorParams {
       val totalRoadLength = RoadLength.totalRoadLength
     }
 }
+*/
 
-trait IndicatorParamsBuilder {
-  def apply(system: TransitSystem): IndicatorParams
-}
-
-/*class DatabaseIndicatorParamsBuilder(request: IndicatorCalculationRequest, db: DatabaseDef) extends {
-  def apply(system: TransitSystem): IndicatorParams =
+object DatabaseIndicatorParamsBuilder {
+  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem], db: DatabaseDef): Map[SamplePeriod, IndicatorParams] =
     db withSession { implicit session =>
+      val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance)
+      systems.map{case (period, transitSystem) =>
 
+        period -> new IndicatorParams with StopBuffers {
+
+          def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
+          def bufferForPeriod(period: SamplePeriod): MultiPolygon = stopBuffers.bufferForPeriod(period)
+          def totalBuffer: MultiPolygon = stopBuffers.totalBuffer
+
+          val settings =
+            IndicatorSettings(
+              request.povertyLine,
+              request.nearbyBufferDistance,
+              request.maxCommuteTime,
+              request.maxWalkTime,
+              request.averageFare
+          )
+          val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
+          val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)
+
+          // val populationUnder = Demographics(db)
+          val totalRoadLength = RoadLength.totalRoadLength
+        }
+      }
     }
-}*/
+  }

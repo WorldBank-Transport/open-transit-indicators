@@ -10,7 +10,9 @@ sealed trait IndicatorCalculation {
   def apply(transitSystem: TransitSystem): AggregatedResults
 }
 
-trait ApplyOnlyIndicatorCalculation[T] extends IndicatorCalculation
+trait ApplyOnlyIndicatorCalculation[T] extends IndicatorCalculation {
+  def apply(transitSystem: TransitSystem): AggregatedResults
+}
 
 /** Indicator calculation that calculates intermediate values of type T */
 trait ReducingIndicatorCalculation[T] extends IndicatorCalculation {
