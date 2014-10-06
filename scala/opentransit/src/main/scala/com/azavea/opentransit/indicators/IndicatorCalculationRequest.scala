@@ -45,7 +45,7 @@ case class IndicatorCalculationRequest(
       len
     }
 
-    IndicatorCalculationParams(
+    IndicatorParams(
       povertyLine,
       nearbyBufferDistance,
       maxCommuteTime,

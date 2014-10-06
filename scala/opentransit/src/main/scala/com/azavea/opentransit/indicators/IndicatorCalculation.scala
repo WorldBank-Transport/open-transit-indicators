@@ -10,8 +10,10 @@ sealed trait IndicatorCalculation {
   def apply(transitSystem: TransitSystem): AggregatedResults
 }
 
+trait ApplyOnlyIndicatorCalculation[T] extends IndicatorCalculation
+
 /** Indicator calculation that calculates intermediate values of type T */
-sealed trait ReducingIndicatorCalculation[T] extends IndicatorCalculation{
+trait ReducingIndicatorCalculation[T] extends IndicatorCalculation {
   def reduce(results: Seq[T]): Double
 
   def apply(transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults =
@@ -27,7 +29,7 @@ trait PerTripIndicatorCalculation[T] extends ReducingIndicatorCalculation[T] {
 }
 
 object IndicatorCalculation {
-  def resultsForSystem[T](calc: IndicatorCalculation[T], transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults = {
+  def resultsForSystem[T](calc: ReducingIndicatorCalculation[T], transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults = {
     // Indicators can either map a single trip or a set of trips
     // to an intermediate value. Create a mapping from each route
     // to a set of intermediate results based on the Indicator's

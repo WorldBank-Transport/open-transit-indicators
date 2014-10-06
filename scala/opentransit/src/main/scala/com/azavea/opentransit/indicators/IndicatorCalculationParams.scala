@@ -3,9 +3,10 @@ package com.azavea.opentransit.indicators
 import geotrellis.vector._
 
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable }
-import scala.slick.jdbc.JdbcBackend.Session
+import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 
-import com.azavea.gtfs.TransitSystem
+import com.azavea.opentransit._
+import com.azavea.gtfs.{TransitSystem, Stop}
 
 import scala.collection.mutable
 
@@ -19,27 +20,27 @@ trait StopBuffers {
 
 object StopBuffers {
   def apply(systems: Map[SamplePeriod, TransitSystem], bufferDistance: Double): StopBuffers = {
-    val stopMap: Map[Stop, Polygon] = mutable.Map()
-    val periodMap: Map[SamplePeriod, MultiPolygon] = mutable.Map()
+    val stopMap:mutable.Map[Stop, Polygon] = mutable.Map()
+    val periodMap:mutable.Map[SamplePeriod, MultiPolygon] = mutable.Map()
 
     def calcBufferForStop(stop: Stop): Polygon =
       stop.point.geom.buffer(bufferDistance)
 
     def calcBufferForPeriod(period: SamplePeriod): MultiPolygon = {
+      val system = systems(period)
       val stopBuffers =
         for(
-          system <- systems(period);
           route <- system.routes;
           trip <- route.trips;
-          stop <- trip.stops
-        ) yield bufferForStop(stop)
+          scheduledStop <- trip.schedule
+        ) yield calcBufferForStop(scheduledStop.stop)
 
       stopBuffers
         .foldLeft(MultiPolygon.EMPTY) { (mp, stopPolygon) =>
           mp.union(stopPolygon) match {
             case MultiPolygonResult(mp) => mp
             case PolygonResult(p) => MultiPolygon(p)
-            case NoResult => mp
+            case _ => mp
           }
         }
       }
@@ -54,7 +55,7 @@ object StopBuffers {
 
       def bufferForPeriod(period: SamplePeriod): MultiPolygon = {
         if(!periodMap.contains(period)) {
-          periodMap(stop) = calcBufferForPeriod(period)
+          periodMap(period) = calcBufferForPeriod(period)
         }
         periodMap(period)
       }
@@ -66,7 +67,7 @@ object StopBuffers {
             mp.union(systemBuffer) match {
               case MultiPolygonResult(mp) => mp
               case PolygonResult(p) => MultiPolygon(p)
-              case NoResult => mp
+              case _ => mp
             }
           }
 
@@ -140,6 +141,7 @@ object IndicatorParams {
       val settings =
         IndicatorSettings(
           request.povertyLine,
+          request.nearbyBufferDistance,
           request.maxCommuteTime,
           request.maxWalkTime,
           request.averageFare
@@ -158,9 +160,9 @@ trait IndicatorParamsBuilder {
   def apply(system: TransitSystem): IndicatorParams
 }
 
-class DatabaseIndicatorParamsBuilder(request: IndicatorCalculationRequest, db: DatabaseDef) extends {
+/*class DatabaseIndicatorParamsBuilder(request: IndicatorCalculationRequest, db: DatabaseDef) extends {
   def apply(system: TransitSystem): IndicatorParams =
     db withSession { implicit session =>
 
     }
-}
+}*/

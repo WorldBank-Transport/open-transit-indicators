@@ -5,14 +5,14 @@ import com.azavea.opentransit._
 
 // This indicator is a measure of the distance of track for a
 // given unit of area
-class TransitNetworkDensity(params: IndicatorCalculationParams)
+class TransitNetworkDensity(params:  Map[SamplePeriod, Boundaries])
     extends Indicator
       with AggregatesByAll {
   type Intermediate = Double
 
   val name = "line_network_density"
 
-  val calculation =
+  def calculation(period: SamplePeriod) =
     new PerRouteIndicatorCalculation[Double] {
       def map(trips: Seq[Trip]): Double =
         trips.foldLeft(0.0) { (maxLength, trip) =>
@@ -26,7 +26,7 @@ class TransitNetworkDensity(params: IndicatorCalculationParams)
         }
 
       def reduce(routeLengths: Seq[Double]): Double = {
-        val area: Double = params.regionBoundary.area
+        val area: Double = params(period).regionBoundary.area
         if (area > 0) routeLengths.foldLeft(0.0)(_ + _) / area else 0
       }
     }
