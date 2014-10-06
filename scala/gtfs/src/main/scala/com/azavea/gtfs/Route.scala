@@ -33,6 +33,14 @@ object Route {
       def agency = record.agencyId.map(agencies(_))
 
       def trips = t
+
+      // override equals and hashCode so route id is used for comparison
+      override def equals(o: Any) = o match {
+        case that: Route => that.id.equalsIgnoreCase(this.id)
+        case _ => false
+      }
+
+      override def hashCode = id.hashCode
     }
   }
 }

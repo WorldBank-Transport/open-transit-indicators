@@ -111,30 +111,24 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
     getResultByRouteId(byRoute, "WTR") should be (3.67724 +- 1e-5)
   }
 
-  // TODO: the results of these tests after the refactor look off
-  // Also one other oddity: I inspected the results of byRoute, and there
-  // were multiple entries in the map for each route, all with different values.
-  // This may be a quirk with all 'overall' calculations, but it hasn't been verified.
-  /*
   it should "calculate overall time_traveled_stops by route for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(TimeTraveledStops)
 
-    getResultByRouteId(byRoute, "AIR") should be (3.85039 +- 1e-5)
-    getResultByRouteId(byRoute, "CHE") should be (2.81840 +- 1e-5)
-    getResultByRouteId(byRoute, "CHW") should be (3.13225 +- 1e-5)
-    getResultByRouteId(byRoute, "CYN") should be (1.95500 +- 1e-5)
-    getResultByRouteId(byRoute, "FOX") should be (4.08901 +- 1e-5)
-    getResultByRouteId(byRoute, "GLN") should be (0.00000 +- 1e-5)
-    getResultByRouteId(byRoute, "LAN") should be (3.62624 +- 1e-5)
-    getResultByRouteId(byRoute, "MED") should be (2.88720 +- 1e-5)
-    getResultByRouteId(byRoute, "NOR") should be (3.64666 +- 1e-5)
-    getResultByRouteId(byRoute, "PAO") should be (3.08767 +- 1e-5)
-    getResultByRouteId(byRoute, "TRE") should be (4.81956 +- 1e-5)
-    getResultByRouteId(byRoute, "WAR") should be (3.62163 +- 1e-5)
-    getResultByRouteId(byRoute, "WIL") should be (3.22206 +- 1e-5)
-    getResultByRouteId(byRoute, "WTR") should be (3.43258 +- 1e-5)
+    getResultByRouteId(byRoute, "AIR") should be (3.70315 +- 1e-5)
+    getResultByRouteId(byRoute, "CHE") should be (2.81527 +- 1e-5)
+    getResultByRouteId(byRoute, "CHW") should be (3.07009 +- 1e-5)
+    getResultByRouteId(byRoute, "CYN") should be (4.59710 +- 1e-5)
+    getResultByRouteId(byRoute, "FOX") should be (3.93347 +- 1e-5)
+    findRouteById(byRoute.keys, "GLN") should be (None)
+    getResultByRouteId(byRoute, "LAN") should be (3.56027 +- 1e-5)
+    getResultByRouteId(byRoute, "MED") should be (2.91718 +- 1e-5)
+    getResultByRouteId(byRoute, "NOR") should be (3.56457 +- 1e-5)
+    getResultByRouteId(byRoute, "PAO") should be (3.18547 +- 1e-5)
+    getResultByRouteId(byRoute, "TRE") should be (4.79009 +- 1e-5)
+    getResultByRouteId(byRoute, "WAR") should be (3.59415 +- 1e-5)
+    getResultByRouteId(byRoute, "WIL") should be (3.47082 +- 1e-5)
+    getResultByRouteId(byRoute, "WTR") should be (3.45751 +- 1e-5)
   }
- */
 
   it should "calculate time_traveled_stops by system for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = TimeTraveledStops(system)
@@ -245,26 +239,24 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
     byRouteType(Rail) should be (2.31436 +- 1e-5)
   }
 
-  // TODO: the results of these tests after the refactor look off
-  /*
   it should "calcuate distance_between_stops by route for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(DistanceStops)
 
-    getResultByRouteId(byRoute, "PAO") should be (1.87185 +- 1e-5)
-    getResultByRouteId(byRoute, "MED") should be (1.50170 +- 1e-5)
-    getResultByRouteId(byRoute, "WAR") should be (1.70507 +- 1e-5)
-    getResultByRouteId(byRoute, "NOR") should be (1.75658 +- 1e-5)
-    getResultByRouteId(byRoute, "LAN") should be (2.19893 +- 1e-5)
-    getResultByRouteId(byRoute, "CYN") should be (1.01335 +- 1e-5)
-    getResultByRouteId(byRoute, "WIL") should be (5.45808 +- 1e-5)
-    getResultByRouteId(byRoute, "AIR") should be (1.97381 +- 1e-5)
-    getResultByRouteId(byRoute, "CHW") should be (1.37672 +- 1e-5)
-    getResultByRouteId(byRoute, "WTR") should be (2.30839 +- 1e-5)
-    getResultByRouteId(byRoute, "FOX") should be (1.67826 +- 1e-5)
-    getResultByRouteId(byRoute, "CHE") should be (1.04458 +- 1e-5)
-    getResultByRouteId(byRoute, "TRE") should be (5.58536 +- 1e-5)
+    getResultByRouteId(byRoute, "AIR") should be (1.90437 +- 1e-5)
+    getResultByRouteId(byRoute, "CHE") should be (1.00636 +- 1e-5)
+    getResultByRouteId(byRoute, "CHW") should be (1.32695 +- 1e-5)
+    getResultByRouteId(byRoute, "CYN") should be (2.41703 +- 1e-5)
+    getResultByRouteId(byRoute, "FOX") should be (1.55288 +- 1e-5)
+    findRouteById(byRoute.keys, "GLN") should be (None)
+    getResultByRouteId(byRoute, "LAN") should be (2.08694 +- 1e-5)
+    getResultByRouteId(byRoute, "MED") should be (1.59278 +- 1e-5)
+    getResultByRouteId(byRoute, "NOR") should be (1.72959 +- 1e-5)
+    getResultByRouteId(byRoute, "PAO") should be (1.80415 +- 1e-5)
+    getResultByRouteId(byRoute, "TRE") should be (5.39617 +- 1e-5)
+    getResultByRouteId(byRoute, "WAR") should be (1.75354 +- 1e-5)
+    getResultByRouteId(byRoute, "WIL") should be (5.30987 +- 1e-5)
+    getResultByRouteId(byRoute, "WTR") should be (2.20600 +- 1e-5)
   }
-  */
 
   it should "calcuate overall distance_between_stops by system for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(DistanceStops)

@@ -43,27 +43,24 @@ class NumStopsSpec extends FlatSpec with Matchers with IndicatorSpec {
     getResultByRouteId(byRoute, "WTR") should be (23)
   }
 
-  // TODO: the results of these tests after the refactor look off
-  /*
   it should "calculate overall num_stops by route for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(NumStops)
 
-    getResultByRouteId(byRoute, "AIR") should be ( 9.99988 +- 1e-5)
-    getResultByRouteId(byRoute, "CHE") should be (14.68733 +- 1e-5)
-    getResultByRouteId(byRoute, "CHW") should be (13.99983 +- 1e-5)
-    getResultByRouteId(byRoute, "CYN") should be ( 2.00892 +- 1e-5)
-    getResultByRouteId(byRoute, "FOX") should be ( 9.71417 +- 1e-5)
-    getResultByRouteId(byRoute, "GLN") should be ( 0.00000 +- 1e-5)
-    getResultByRouteId(byRoute, "LAN") should be (24.68423 +- 1e-5)
-    getResultByRouteId(byRoute, "MED") should be (18.99978 +- 1e-5)
-    getResultByRouteId(byRoute, "NOR") should be (16.99980 +- 1e-5)
-    getResultByRouteId(byRoute, "PAO") should be (25.99969 +- 1e-5)
-    getResultByRouteId(byRoute, "TRE") should be (14.77662 +- 1e-5)
-    getResultByRouteId(byRoute, "WAR") should be (16.99980 +- 1e-5)
-    getResultByRouteId(byRoute, "WIL") should be (20.07121 +- 1e-5)
-    getResultByRouteId(byRoute, "WTR") should be (22.38963 +- 1e-5)
+    getResultByRouteId(byRoute, "AIR") should be ( 9.58333 +- 1e-5)
+    getResultByRouteId(byRoute, "CHE") should be (14.13690 +- 1e-5)
+    getResultByRouteId(byRoute, "CHW") should be (13.41666 +- 1e-5)
+    getResultByRouteId(byRoute, "CYN") should be ( 4.79166 +- 1e-5)
+    getResultByRouteId(byRoute, "FOX") should be (10.00595 +- 1e-5)
+    findRouteById(byRoute.keys, "GLN") should be (None)
+    getResultByRouteId(byRoute, "LAN") should be (25.48809 +- 1e-5)
+    getResultByRouteId(byRoute, "MED") should be (18.20833 +- 1e-5)
+    getResultByRouteId(byRoute, "NOR") should be (16.29166 +- 1e-5)
+    getResultByRouteId(byRoute, "PAO") should be (24.91666 +- 1e-5)
+    getResultByRouteId(byRoute, "TRE") should be (14.37500 +- 1e-5)
+    getResultByRouteId(byRoute, "WAR") should be (16.77380 +- 1e-5)
+    getResultByRouteId(byRoute, "WIL") should be (20.93452 +- 1e-5)
+    getResultByRouteId(byRoute, "WTR") should be (22.04166 +- 1e-5)
   }
-  */
 
   it should "calculate num_stops by system for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = NumStops(system)
