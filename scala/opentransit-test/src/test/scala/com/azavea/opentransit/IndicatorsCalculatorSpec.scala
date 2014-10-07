@@ -13,6 +13,7 @@ import org.scalatest._
 import scala.slick.jdbc.JdbcBackend.Session
 import scala.util.{Try, Success, Failure}
 
+
 trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
   /** It's horrible to load the data for each test. But I'm done pulling my hair
     * out trying to fix weird NullPointerExceptions and complaints that multiple
