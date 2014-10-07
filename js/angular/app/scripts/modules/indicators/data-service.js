@@ -129,7 +129,7 @@ angular.module('transitIndicators')
             'mode': 'bar',
             'system': 'number'
         },
-        'average_service_freq': {
+        'avg_service_freq': {
             'mode': 'bar',
             'system': 'number'
         },
