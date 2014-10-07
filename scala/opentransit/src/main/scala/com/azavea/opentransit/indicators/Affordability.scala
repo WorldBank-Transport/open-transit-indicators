@@ -4,7 +4,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import com.azavea.opentransit._
 
-class Affordability(params: IndicatorParams)
+class Affordability(params: StaticParams)
     extends Indicator
        with AggregatesBySystem {
   type Intermediate = Double
@@ -17,11 +17,11 @@ class Affordability(params: IndicatorParams)
    */
   def calculation(period: SamplePeriod) = {
     def calculate(transitSystem: TransitSystem) = {
-      val averageFare = params.settings.averageFare
+      val avgFare = params.settings.averageFare
       val povertyLine = params.settings.povertyLine
       val avgTripsPerWeek = 42
       val monthsPerYear = 12
-      val systemResult = (avgTripsPerWeek * averageFare) / (povertyLine / montsPerYear)*100
+      val systemResult = (avgTripsPerWeek * avgFare) / (povertyLine / monthsPerYear)*100
       AggregatedResults.systemOnly(systemResult)
     }
     perSystemCalculation(calculate)

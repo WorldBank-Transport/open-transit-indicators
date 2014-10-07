@@ -131,9 +131,6 @@ object RoadLength extends Logging {
   }
 }
 
-/**
- * Represents parameters that do not change by period
- */
 case class IndicatorSettings(
   povertyLine: Double,
   nearbyBufferDistance: Double,
@@ -142,11 +139,17 @@ case class IndicatorSettings(
   averageFare: Double
 )
 
-trait IndicatorParams extends StopBuffers
-                         with Boundaries
-                         with RoadLength {
+/**
+ * Represents parameters that do not change by period
+ */
+trait StaticParams {
   val settings: IndicatorSettings
 }
+
+trait IndicatorParams extends StopBuffers
+                         with Boundaries
+                         with RoadLength
+                         with StaticParams
 
 /**
  * Returns paramaters
