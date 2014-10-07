@@ -9,6 +9,7 @@ object FrequenciesFile extends GtfsFile[FrequencyRecord] {
 
   def parse(path: String): Seq[FrequencyRecord] =
     (for (f <- CsvParser.fromPath(path)) yield {
+      println("parsing a FrequencyRecord")
       FrequencyRecord(
         f("trip_id").get.intern,
         f("start_time").get,

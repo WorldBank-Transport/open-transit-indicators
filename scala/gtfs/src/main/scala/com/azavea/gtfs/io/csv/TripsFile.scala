@@ -8,6 +8,7 @@ object TripsFile extends GtfsFile[TripRecord] {
 
   def parse(path: String): Seq[TripRecord] =
     (for (t <- CsvParser.fromPath(path)) yield {
+      println("parsing a Trip")
       TripRecord(
         t("trip_id").get.intern,
         t("service_id").get.intern,

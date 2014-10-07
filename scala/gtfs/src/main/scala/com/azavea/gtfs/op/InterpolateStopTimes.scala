@@ -67,6 +67,7 @@ trait Interpolatable[T] {
 object Interpolator {
   /** Sequence of items that is assumed to be increasing linearly */
   def interpolate[A](arr: Array[A])(implicit s: Interpolatable[A]): Array[A] = {
+    println("interpolating...")
     def fillForward(i: Int): Int = {
       var j = i
       while (s.missing(arr(j))) j += 1   //find next filled
