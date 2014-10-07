@@ -35,4 +35,5 @@ script:
   - popd
   - pushd scala
   -     sudo ./sbt "project opentransit-test" test
+  -     sudo ./sbt "project gtfs-test" test
   - popd
