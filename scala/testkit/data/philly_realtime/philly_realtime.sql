@@ -24503,15 +24503,6 @@ ALTER TABLE ONLY gtfs_stop_times_real
 
 CREATE INDEX gtfs_stop_times_real_3ec3fa10 ON gtfs_stop_times_real USING btree (datasource_id);
 
-
---
--- Name: gtfs__datasource_id_2623398522856024_fk_datasources_realtime_id; Type: FK CONSTRAINT; Schema: public; Owner: transit_indicators
---
-
-ALTER TABLE ONLY gtfs_stop_times_real
-    ADD CONSTRAINT gtfs__datasource_id_2623398522856024_fk_datasources_realtime_id FOREIGN KEY (datasource_id) REFERENCES datasources_realtime(id) DEFERRABLE INITIALLY DEFERRED;
-
-
 --
 -- PostgreSQL database dump complete
 --
