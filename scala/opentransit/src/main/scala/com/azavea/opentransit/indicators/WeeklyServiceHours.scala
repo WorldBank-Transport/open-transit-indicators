@@ -9,11 +9,11 @@ object WeeklyServiceHours extends Indicator
   type Intermediate = Double
   val name = "hours_service"
 
-  val calculation =
-    new PerRouteIndicatorCalculation[Double] {
-      def map(trips: Seq[Trip]): Double = 0.0
-      def reduce(vals: Seq[Double]): Double = 0.0
-    }
+  def calculation(period: SamplePeriod): IndicatorCalculation = {
+    def map(trips: Seq[Trip]): Double = 0.0
+    def reduce(vals: Seq[Double]): Double = 0.0
+    perRouteCalculation(map, reduce)
+  }
 }
 
 // package opentransitgt.indicators

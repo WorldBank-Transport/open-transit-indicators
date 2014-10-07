@@ -12,7 +12,8 @@ import org.scalatest._
 
 class AdHocNumRoutesSpec extends AdHocSystemIndicatorSpec {
   it should "Accurately calculate the number of routes" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(systemWithAllStops)
+    val calculation = NumRoutes.calculation(allStopsPeriod)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute
 
     // each route is only one route
@@ -29,7 +30,8 @@ class AdHocNumRoutesSpec extends AdHocSystemIndicatorSpec {
 
 class NumRoutesSpec extends FlatSpec with Matchers with IndicatorSpec {
   it should "calculate num_routes by mode for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(system)
+    val calculation = NumRoutes.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     byRouteType(Rail) should be (13)
   }
 
@@ -39,7 +41,8 @@ class NumRoutesSpec extends FlatSpec with Matchers with IndicatorSpec {
   }
 
   it should "calculate num_routes by route for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(system)
+    val calculation = NumRoutes.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
 
     getResultByRouteId(byRoute, "AIR") should be (1)
     getResultByRouteId(byRoute, "CHE") should be (1)
@@ -76,8 +79,8 @@ class NumRoutesSpec extends FlatSpec with Matchers with IndicatorSpec {
   }
 
   it should "calculate num_routes by system for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumRoutes(system)
-
+    val calculation = NumRoutes.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.get should be (13)
   }
 

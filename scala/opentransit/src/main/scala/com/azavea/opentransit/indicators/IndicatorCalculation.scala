@@ -51,8 +51,8 @@ object IndicatorCalculation {
     val intermediateResults: Map[Route, Seq[T]] =
       transitSystem.routes
         .map { route =>
-        (route, mapRouteToIntermediateResults(route))
-      }
+          (route, mapRouteToIntermediateResults(route))
+         }
         .toMap
     // Aggregate by route by reducing the set of results for each route.
     val byRoute: Map[Route, Double] =

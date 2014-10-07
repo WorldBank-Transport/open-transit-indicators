@@ -12,7 +12,8 @@ import org.scalatest._
 
 class AdHocLengthSpec extends AdHocSystemIndicatorSpec {
   it should "Accurately calculate the length of routes" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = Length(systemWithAllStops)
+    val calculation = Length.calculation(allStopsPeriod)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute
 
     // no tripshapes provided means no calculable lengths

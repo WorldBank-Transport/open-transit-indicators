@@ -65,12 +65,17 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work
 
-  def septaOverall(indicator: TransitSystemCalculation): AggregatedResults =
-    PeriodResultAggregator(
-      periods.map { period =>
-        (period, indicator(systems(period)))
-      }.toMap
+  def septaOverall(indicator: Indicator): AggregatedResults =
+    PeriodResultAggregator({
+      val results = periods.map { period => {
+        val calculation = indicator.calculation(period)
+        val transitSystem = systems(period)
+        val results = calculation(transitSystem)
+        (period, results)}
+      }
+      results.toMap}
     )
+
 
   def findRouteById(routes: Iterable[Route], id: String): Option[Route] =
     routes.find(_.id == id)
@@ -85,7 +90,8 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
 class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec {
   it should "calculate time_traveled_stops by mode for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = TimeTraveledStops(system)
+    val calculation = TimeTraveledStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     byRouteType(Rail) should be (3.79081 +- 1e-5)
   }
 
@@ -95,7 +101,8 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
   }
 
   it should "calculate time_traveled_stops by route for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = TimeTraveledStops(system)
+    val calculation = TimeTraveledStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
 
     getResultByRouteId(byRoute, "AIR") should be (3.95000 +- 1e-5)
     getResultByRouteId(byRoute, "CHE") should be (2.96923 +- 1e-5)
@@ -132,7 +139,8 @@ class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec 
   }
 
   it should "calculate time_traveled_stops by system for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = TimeTraveledStops(system)
+    val calculation = TimeTraveledStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.get should be (3.79081 +- 1e-5)
   }
 

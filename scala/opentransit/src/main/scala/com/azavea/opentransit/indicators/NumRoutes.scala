@@ -9,12 +9,13 @@ object NumRoutes extends Indicator
 
   val name = "num_routes"
 
-  val calculation =
-    new PerRouteIndicatorCalculation[Int] {
-      def map(trips: Seq[Trip]) =
-        1
+  def calculation(period:SamplePeriod) = {
+    def map(trips: Seq[Trip]) =
+      1
 
-      def reduce(routes: Seq[Int]) =
-        routes.foldLeft(0)(_ + _)
-    }
+    def reduce(routes: Seq[Int]) =
+      routes.foldLeft(0)(_ + _)
+
+    perRouteCalculation(map, reduce)
+  }
 }
