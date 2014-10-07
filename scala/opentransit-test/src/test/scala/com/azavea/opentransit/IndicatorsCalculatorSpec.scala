@@ -3,6 +3,8 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import com.azavea.opentransit.io.GtfsIngest
 
+import geotrellis.vector._ 
+
 import com.azavea.opentransit.testkit._
 
 import com.github.nscala_time.time.Imports._
@@ -85,6 +87,28 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
       case Some(r) => byRoute(r)
       case None => sys.error(s"Route $id isn't in the result set")
     }
+  }
+}
+
+trait StopBuffersSpec {this: IndicatorSpec =>
+  val stopBuffers = db withSession { implicit session =>
+    StopBuffers(systems, 500)
+  }
+  trait StopBuffersSpecParams extends StopBuffers {
+    def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
+    def bufferForPeriod(period: SamplePeriod): MultiPolygon = stopBuffers.bufferForPeriod(period)
+    def totalBuffer: MultiPolygon = stopBuffers.totalBuffer
+  }
+}
+
+trait BoundariesSpec {this: IndicatorSpec =>
+  val testBoundary = db withSession { implicit session =>
+    Boundaries.cityBoundary(1)
+  }
+
+  trait BoundariesSpecParams extends Boundaries {
+    val cityBoundary = testBoundary
+    val regionBoundary = testBoundary
   }
 }
 
