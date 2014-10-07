@@ -8,7 +8,6 @@ object RoutesFile extends GtfsFile[RouteRecord] {
 
   def parse(path: String): Seq[RouteRecord] =
     (for (r <- CsvParser.fromPath(path)) yield {
-      println("parsing a RouteRecord")
       RouteRecord(
         r("route_id").get.intern,
         r("route_short_name").get,

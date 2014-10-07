@@ -10,7 +10,6 @@ object StopTimesFile extends GtfsFile[StopTimeRecord] {
 
   def parse(path: String): Seq[StopTimeRecord] =
     (for (s <- CsvParser.fromPath(path)) yield {
-      println("parsing a StopTimeRecord")
       StopTimeRecord(
         s("stop_id").get.intern,
         s("trip_id").get.intern,

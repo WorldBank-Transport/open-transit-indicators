@@ -11,7 +11,6 @@ object AgencyFile extends GtfsFile[Agency] {
   def parse(path: String): Seq[Agency] = {
     val agencies = mutable.ListBuffer[Agency]()
     for (s <- CsvParser.fromPath(path)) {
-      println("parsing an Agency")
       agencies +=
       Agency(
         id = s("agency_id").get.intern,

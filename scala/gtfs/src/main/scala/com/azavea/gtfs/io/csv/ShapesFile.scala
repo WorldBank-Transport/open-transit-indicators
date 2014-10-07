@@ -10,7 +10,6 @@ object ShapesFile extends GtfsFile[TripShape] {
 
   def parse(path: String): Seq[TripShape] =
     (for (f <- CsvParser.fromPath(path)) yield {
-      println("parsing a TripShape")
         (
           f("shape_id").get.intern,
           f("shape_pt_lat").get.toDouble,

@@ -10,7 +10,6 @@ object CalendarDatesFile extends GtfsFile[CalendarDateRecord] {
 
   def parse(path: String): Seq[CalendarDateRecord] =
     (for(c <- CsvParser.fromPath(path)) yield {
-      println("parsing a CalendarDateRecord")
       val serviceId = c("service_id").get.intern
       CalendarDateRecord(
         serviceId,

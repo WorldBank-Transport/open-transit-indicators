@@ -10,7 +10,6 @@ object StopsFile extends GtfsFile[Stop] {
 
   def parse(path: String): Seq[Stop] =
     (for (s <- CsvParser.fromPath(path)) yield {
-      println("parsing a Stop")
       val lat = s("stop_lat").get.toDouble
       val lng = s("stop_lon").get.toDouble
       Stop(

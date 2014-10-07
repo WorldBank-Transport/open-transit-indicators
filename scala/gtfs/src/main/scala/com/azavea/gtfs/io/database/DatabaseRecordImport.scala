@@ -30,34 +30,43 @@ class DatabaseRecordImport(val geomColumnName: String = Profile.defaultGeomColum
     tripRecordsTable.delete
     routeRecordsTable.delete
   }
+  
+  // time how long each step takes.  from here:
+  // http://stackoverflow.com/questions/9160001/how-to-profile-methods-in-scala
+  def time[R](block: => R): R = {
+    val t0 = System.nanoTime()
+    val result = block    // call-by-name
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + ((t1 - t0) / 1000000000.0) + " s")
+    result
+  }
 
   def load(records: GtfsRecords, clobber: Boolean = true): Unit = {
     if(clobber) deleteAll
 
     def ensureNoNullPeriods(stopTime: StopTimeRecord) = {
-      println("checking for null periods")
       assert(stopTime.arrivalTime != null)
       assert(stopTime.departureTime != null)
       stopTime
     }
 
     println("going to load agencies")
-    load(records.agencies, agenciesTable)
+    time { load(records.agencies, agenciesTable) }
     println("going to load stops")
-    load(records.stops, stopsTable)
+    time { load(records.stops, stopsTable) }
     println("going to load calendar dates")
-    load(records.calendarDateRecords, calendarDateRecordsTable)
+    time { load(records.calendarDateRecords, calendarDateRecordsTable) }
     println("going to load calendar")
-    load(records.calendarRecords, calendarRecordsTable)
+    time { load(records.calendarRecords, calendarRecordsTable) }
     println("going to load routes")
-    load(records.routeRecords, routeRecordsTable)
+    time { load(records.routeRecords, routeRecordsTable) }
     println("going to load trips")
-    load(records.tripRecords, tripRecordsTable)
+    time { load(records.tripRecords, tripRecordsTable) }
     println("going to load stop times")
-    load(records.stopTimeRecords.view.map(ensureNoNullPeriods), stopTimeRecordsTable)
+    time { load(records.stopTimeRecords.view.map(ensureNoNullPeriods), stopTimeRecordsTable) }
     println("going to load frequencies")
-    load(records.frequencyRecords, frequencyRecordsTable)
+    time { load(records.frequencyRecords, frequencyRecordsTable) }
     println("going to load trip shapes")
-    load(records.tripShapes, tripShapesTable)
+    time { load(records.tripShapes, tripShapesTable) }
   }
 }
