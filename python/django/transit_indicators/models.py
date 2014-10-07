@@ -298,10 +298,11 @@ class Indicator(models.Model):
             POP_PER_500_METERS = _(u'population within 500m of a stop')
             STOPS_PER_500_METERS = _(u'stops/500m radius')
             STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+            STOPS_PER_HOUR = _(u'stops per hr')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
-                            AVG_SERVICE_FREQ: Units.HOURS,
+                            AVG_SERVICE_FREQ: Units.STOPS_PER_HOUR,
                             COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
                             DISTANCE_STOPS: Units.KILOMETERS,
                             DWELL_TIME: Units.AVG_DWELL_DEVIATION,

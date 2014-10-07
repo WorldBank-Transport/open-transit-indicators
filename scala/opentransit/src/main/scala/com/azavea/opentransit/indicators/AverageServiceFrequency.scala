@@ -35,25 +35,27 @@ object AverageServiceFrequency extends Indicator
         * are averaged.
         */
       def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
-        // Average all the headways between each stop.
-        val (total, count) =
+        // We are counting the number of time periods between stops,
+        // which is one less the amount of visits to a stop
+        val (totalSeconds, totalPeriods) =
           stopSchedules
             .combineMaps
             .map { case (stop, schedules) =>
               val orderedArrivalTimes = schedules.sorted
-
-              // Calculate the headways for each stop.
-              orderedArrivalTimes
-                .zip(orderedArrivalTimes.tail)
-                .map { case (a1, a2) =>
-                  Seconds.secondsBetween(a1, a2).getSeconds / 60 / 60
-                 }
-              }
-             .flatten
-             .foldLeft((0.0,0)) { case ((total, count), diff) =>
-                (total + diff, count + 1)
-              }
-        if (count > 0) total / count else 0.0
+              val seconds:Double = Seconds.secondsBetween(orderedArrivalTimes.head,
+                                                   orderedArrivalTimes.last).getSeconds
+              val visits = orderedArrivalTimes.size
+              // Need at least two visits to determine a freq
+              // Also, return the amount of time periods
+              // accounted for, not amount of stops
+              if (visits > 1) (seconds, visits-1) else (0.0,0)
+            }
+            .foldLeft((0.0,0)) {
+              case ((totalSeconds, totalPeriods),(seconds,visits)) =>
+                (totalSeconds+seconds, totalPeriods+visits)
+            }
+        // amount of time periods / total time = freq
+        if (totalSeconds > 0) totalPeriods / (totalSeconds/60/60) else 0.0
       }
     }
 }
