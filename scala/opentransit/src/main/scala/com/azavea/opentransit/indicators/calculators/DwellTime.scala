@@ -23,7 +23,7 @@ class DwellTimePerformance(params: ObservedStopTimes) extends Indicator with Agg
           dwellTimeDeviation(sched, obsvd)
       }
     }
-      
+
     def reduce(deviations: Seq[Seq[Double]]): Double = {
       val (sum, count) =
         deviations
