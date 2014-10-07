@@ -9,17 +9,20 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
 // Areal Coverage Ratio of Transit Stops (user-configurable buffer)
-class RoadLengthRatio(params: IndicatorCalculationParams)
+class RoadLengthRatio(roadLength: RoadLength)
     extends Indicator
        with AggregatesBySystem {
   type Intermediate = Double
 
   val name = "lines_roads"
 
-  val totalRoadLength =  params.totalRoadLength
+  val totalRoadLength = roadLength.totalRoadLength
 
-  val calculation =
+  def calculation(period: SamplePeriod) =
     new PerRouteIndicatorCalculation[Double] {
+      def apply(system: TransitSystem) =
+        apply(system, aggregatesBy)
+
       def map(trips: Seq[Trip]): Double =
         trips
           .map { trip =>

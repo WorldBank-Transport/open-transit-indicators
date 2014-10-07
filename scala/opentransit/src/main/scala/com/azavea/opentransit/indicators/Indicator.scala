@@ -1,11 +1,7 @@
 package com.azavea.opentransit.indicators
 
-import com.azavea.gtfs.TransitSystem
+import com.azavea.gtfs._
 import scala.collection.mutable
-
-trait TransitSystemCalculation {
-  def apply(transitSystem: TransitSystem): AggregatedResults
-}
 
 object Indicators {
   // These are indicators that don't need the request info.
@@ -22,26 +18,44 @@ object Indicators {
     )
 
   // These are indicators that need to know things about the request
-  private def paramIndicators(params: IndicatorCalculationParams): List[Indicator] =
+  private def paramIndicators(params: IndicatorParams): List[Indicator] =
     List(
       new CoverageRatioStopsBuffer(params),
       new TransitNetworkDensity(params),
       new Affordability(params)
     )
 
-  def list(params: IndicatorCalculationParams): List[Indicator] =
+  def list(params: IndicatorParams): List[Indicator] =
     staticIndicators ++ paramIndicators(params)
 }
 
-trait Indicator extends TransitSystemCalculation { self: AggregatesBy =>
-  type Intermediate
-
+trait Indicator { self: AggregatesBy =>
   val name: String
-  val calculation: IndicatorCalculation[Intermediate]
+  def calculation(period: SamplePeriod): IndicatorCalculation
 
   def aggregatesBy(aggregate: Aggregate) =
     self.aggregates.contains(aggregate)
 
-  def apply(transitSystem: TransitSystem): AggregatedResults =
-    calculation(transitSystem, aggregatesBy _)
+  def perTripCalculation[T](mapFunc: Trip => T, reduceFunc: Seq[T] => Double): IndicatorCalculation =
+    new PerTripIndicatorCalculation[T] {
+      def apply(system: TransitSystem): AggregatedResults =
+        apply(system, Indicator.this.aggregatesBy _)
+
+      def map(trip: Trip): T = mapFunc(trip)
+      def reduce(results: Seq[T]): Double = reduceFunc(results)
+    }
+
+  def perRouteCalculation[T](mapFunc: Seq[Trip] => T, reduceFunc: Seq[T] => Double): IndicatorCalculation =
+    new PerRouteIndicatorCalculation[T] {
+      def apply(system: TransitSystem): AggregatedResults =
+        apply(system, Indicator.this.aggregatesBy _)
+
+      def map(trips: Seq[Trip]): T = mapFunc(trips)
+      def reduce(results: Seq[T]): Double = reduceFunc(results)
+    }
+
+  def perSystemCalculation(calculate: TransitSystem => AggregatedResults) =
+    new IndicatorCalculation {
+      def apply(system: TransitSystem) = calculate(system)
+    }
 }

@@ -15,10 +15,16 @@ import org.scalatest._
 */
 trait AdHocSystemIndicatorSpec extends FlatSpec with Matchers {
   val systemBuilder = TransitSystemBuilder(TestGtfsRecords())
+  val allStopsPeriod = SamplePeriod(1, "allstops",
+    new LocalDateTime(2014, 2, 3, 5, 0),
+    new LocalDateTime(2014, 2, 3, 18, 0))
+  val missingStopsPeriod = SamplePeriod(1, "missingstops",
+    new LocalDateTime(2014, 2, 3, 6, 0),
+    new LocalDateTime(2014, 2, 3, 18, 0))
   val systemWithAllStops =
-    systemBuilder.systemBetween(new LocalDateTime(2014, 2, 3, 5, 0), new LocalDateTime(2014, 2, 3, 18, 0)) // Weekday
+    systemBuilder.systemBetween(allStopsPeriod.start, allStopsPeriod.end) // Weekday
   val systemWithoutSomeStops =
-    systemBuilder.systemBetween(new LocalDateTime(2014, 2, 3, 6, 15), new LocalDateTime(2014, 2, 3, 18, 0)) // Weekday
+    systemBuilder.systemBetween(missingStopsPeriod.start, missingStopsPeriod.end) // Weekday
 
   def routeById(routeId: String)(implicit routeMap: Map[Route, Double]): Double = {
     val routeIdMap = routeMap.map{case (k, v) => (k.id -> v)}.toMap
@@ -31,7 +37,8 @@ trait AdHocSystemIndicatorSpec extends FlatSpec with Matchers {
 class AdHocDemoSpec extends AdHocSystemIndicatorSpec {
 
   it should "Calculate the length of our ad hoc routes" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = TimeTraveledStops(systemWithAllStops)
+    val calculation = TimeTraveledStops.calculation(allStopsPeriod)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute // Use this implicit to DRY out your tests
 
     routeById("EastRail") should be (50.0)
@@ -42,4 +49,3 @@ class AdHocDemoSpec extends AdHocSystemIndicatorSpec {
     routeById("WestBus") should be (22.0)
   }
 }
-

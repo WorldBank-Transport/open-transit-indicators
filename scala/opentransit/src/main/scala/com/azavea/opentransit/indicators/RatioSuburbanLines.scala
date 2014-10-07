@@ -3,7 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import geotrellis.vector._
 
-class RatioSuburbanLines(params: IndicatorCalculationParams)
+class RatioSuburbanLines(params: Boundaries)
     extends Indicator
        with AggregatesByAll {
   type Intermediate = Boolean
@@ -11,29 +11,29 @@ class RatioSuburbanLines(params: IndicatorCalculationParams)
 
   val cityBounds = params.cityBoundary
 
-  val calculation =
-    new PerRouteIndicatorCalculation[Boolean] {
-      // 'true' means the route is suburban, 'false' means it's not.
-      def map(trips: Seq[Trip]): Boolean = {
-        trips.exists { trip =>
-          trip.tripShape match {
-            case Some(tripShape) => !(cityBounds.contains(tripShape.line))
-            case None => false
-          }
+  def calculation(period: SamplePeriod): IndicatorCalculation = {
+    def map(trips: Seq[Trip]): Boolean = {
+      trips.exists { trip =>
+        trip.tripShape match {
+          case Some(tripShape) => !(cityBounds.contains(tripShape.line))
+          case None => false
         }
-      }
-
-      def reduce(designations: Seq[Boolean]): Double = {
-        val (suburbanCount, cityCount) =
-          designations
-            .foldLeft((0, 0)) { case ((suburbanCount, cityCount), isSuburban) =>
-              if(isSuburban) (suburbanCount + 1, cityCount)
-              else (suburbanCount, cityCount + 1)
-             }
-
-        suburbanCount.toDouble / (cityCount + suburbanCount)
-      }
+                  }
     }
+
+    def reduce(designations: Seq[Boolean]): Double = {
+      val (suburbanCount, cityCount) =
+        designations
+      .foldLeft((0, 0)) { case ((suburbanCount, cityCount), isSuburban) =>
+        if(isSuburban) (suburbanCount + 1, cityCount)
+        else (suburbanCount, cityCount + 1)
+                       }
+
+      suburbanCount.toDouble / (cityCount + suburbanCount)
+    }
+
+    perRouteCalculation(map, reduce)
+  }
 }
 
 // Saving this code because it is late and I'm probably making mistakes.

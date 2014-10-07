@@ -12,10 +12,10 @@ import org.scalatest._
 
 class AdHocNumStopsSpec extends AdHocSystemIndicatorSpec {
   it should "Accurately calculate the number of stops in routes" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumStops(systemWithAllStops)
+    val calculation = NumStops.calculation(allStopsPeriod)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute
 
-    // no tripshapes provided means no calculable lengths
     routeById("EastRail") should be (4.0)
     routeById("EastBus") should be (3.0)
     routeById("NorthSouth") should be (3.0)
@@ -29,8 +29,8 @@ class AdHocNumStopsSpec extends AdHocSystemIndicatorSpec {
 class NumStopsSpec extends FlatSpec with Matchers with IndicatorSpec {
 
   it should "calculate num_stops by mode for SEPTA" in {
-    println(period)
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumStops(system)
+    val calculation = NumStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     byRouteType(Rail) should be (154)
   }
 
@@ -42,7 +42,8 @@ class NumStopsSpec extends FlatSpec with Matchers with IndicatorSpec {
   }
 
   it should "calculate num_stops by route for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumStops(system)
+    val calculation = NumStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
 
     getResultByRouteId(byRoute, "AIR") should be (10)
     getResultByRouteId(byRoute, "CHE") should be (15)
@@ -80,7 +81,9 @@ class NumStopsSpec extends FlatSpec with Matchers with IndicatorSpec {
   }
 
   it should "calculate num_stops by system for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = NumStops(system)
+    val calculation = NumStops.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
+
     bySystem.get should be (154)
   }
 

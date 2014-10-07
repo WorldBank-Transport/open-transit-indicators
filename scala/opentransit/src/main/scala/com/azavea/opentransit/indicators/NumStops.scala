@@ -9,14 +9,15 @@ object NumStops extends Indicator
 
   val name = "num_stops"
 
-  val calculation =
-    new PerTripIndicatorCalculation[Seq[Stop]] {
-      def map(trip: Trip) =
-        trip.schedule.map(_.stop)
+  def calculation(period: SamplePeriod): IndicatorCalculation = {
+    def map(trip: Trip) =
+      trip.schedule.map(_.stop)
 
-      def reduce(stops: Seq[Seq[Stop]]) =
-        stops.flatten.distinct.size
-    }
+    def reduce(stops: Seq[Seq[Stop]]) =
+      stops.flatten.distinct.size
+
+    perTripCalculation(map, reduce)
+  }
 
   // NOTE: This is different than before the Indicator refactor. The previous
   // version didn't count distinct stops across trips, but counted the stops

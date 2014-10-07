@@ -11,20 +11,21 @@ object Length extends Indicator
 
   // TODO: Rob pointed out during the refactor walkthrough that this calculation
   // is not correct and needs tweaking (particularly eliminating the max logic).
-  val calculation =
-    new PerRouteIndicatorCalculation[Double] {
-      def map(trips: Seq[Trip]): Double =
-        trips.foldLeft(0.0) { (maxLength, trip) =>
-          trip.tripShape match {
-            case Some(shape) =>
-              val tripLength = shape.line.length / 1000
-              math.max(maxLength, tripLength)
-            case None =>
-              maxLength
-          }
+  def calculation(period: SamplePeriod) = {
+    def map(trips: Seq[Trip]): Double =
+      trips.foldLeft(0.0) { (maxLength, trip) =>
+        trip.tripShape match {
+          case Some(shape) =>
+            val tripLength = shape.line.length / 1000
+          math.max(maxLength, tripLength)
+          case None =>
+            maxLength
         }
+                         }
 
-      def reduce(routeLengths: Seq[Double]): Double =
-        routeLengths.foldLeft(0.0)(_ + _)
-    }
+    def reduce(routeLengths: Seq[Double]): Double =
+      routeLengths.foldLeft(0.0)(_ + _)
+
+    perRouteCalculation(map, reduce)
+  }
 }
