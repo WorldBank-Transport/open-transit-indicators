@@ -1,6 +1,7 @@
 package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
+import com.azavea.gtfs.io.csv._
 import com.azavea.opentransit.io.GtfsIngest
 import com.azavea.opentransit.indicators.parameters._
 
@@ -33,8 +34,10 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
       GtfsRecords.fromDatabase(dbGeomNameUtm).force
     }
   }
+  val observedRecords = CsvGtfsRecords(TestFiles.rtSeptaPath)
 
   val systemBuilder = TransitSystemBuilder(records)
+  val observedSystemBuilder = TransitSystemBuilder(observedRecords)
 
   val periods =
     Seq(
@@ -59,12 +62,17 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
         new LocalDateTime("2014-05-02T23:59:59.999"))
     )
 
-  val period = periods.head
-  val system = systemBuilder.systemBetween(period.start, period.end)
   val systems =
     periods.map { period =>
       (period, systemBuilder.systemBetween(period.start, period.end))
     }.toMap
+  val observedSystems =
+    periods.map { period =>
+      (period, observedSystemBuilder.systemBetween(period.start, period.end))
+    }.toMap
+  val period = periods.head
+  val system = systemBuilder.systemBetween(period.start, period.end)
+  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end)
 
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work
@@ -99,6 +107,36 @@ trait StopBuffersSpec {this: IndicatorSpec =>
   trait StopBuffersSpecParams extends StopBuffers {
     def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
     def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] = stopBuffers.bufferForPeriod(period)
+  }
+}
+
+trait ObservedStopTimeSpec { this: IndicatorSpec =>
+  val observedStopTimes = {
+    val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
+      observedSystems.map { case (period, sys) =>
+        period -> {
+          sys.routes.map { route =>
+            route.trips.map { trip =>
+              (trip.id -> trip)
+            }
+          }
+          .flatten
+          .toMap
+        }
+      }
+      .toMap
+    }
+    /*new ObservedStopTimes {
+      def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
+        observedTrips(period)(scheduledTripId)
+    }*/
+
+    observedTrips
+  }
+
+  trait ObservedStopTimeSpecParams extends ObservedStopTimes {
+    def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
+      observedStopTimes(period)(scheduledTripId)
   }
 }
 
