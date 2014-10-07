@@ -1,5 +1,7 @@
 package com.azavea.opentransit.service
 
+import com.azavea.gtfs.Timer.timedTask
+
 import com.azavea.opentransit._
 import com.azavea.opentransit.io.GtfsIngest
 
@@ -24,7 +26,7 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
               println(s"parsing GTFS data from: $gtfsDir")
               val routeCount =
                 db withSession { implicit session =>
-                  GtfsIngest(gtfsDir)
+                  timedTask("Ingested GTFS") { GtfsIngest(gtfsDir) }
                 }
 
               JsObject(

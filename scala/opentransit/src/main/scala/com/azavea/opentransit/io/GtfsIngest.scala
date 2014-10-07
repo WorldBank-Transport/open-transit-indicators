@@ -54,7 +54,9 @@ object GtfsIngest {
     geomTransform(srid, "utm_datasources_demographicdatafeature", "MultiPolygon", "geom")
 
     println("Finished transforming to local UTM zone.")
-    records.routeRecords.size
+    val routeSize = records.routeRecords.size
+    println("All done processing feed in GtfsIngest!")
+    routeSize
   }
 
 

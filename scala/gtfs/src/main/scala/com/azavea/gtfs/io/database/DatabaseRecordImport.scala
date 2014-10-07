@@ -1,6 +1,7 @@
 package com.azavea.gtfs.io.database
 
 import com.azavea.gtfs._
+import com.azavea.gtfs.Timer.timedTask
 
 import scala.slick.jdbc.JdbcBackend.Session
 
@@ -32,21 +33,25 @@ class DatabaseRecordImport(val geomColumnName: String = Profile.defaultGeomColum
 
   def load(records: GtfsRecords, clobber: Boolean = true): Unit = {
     if(clobber) deleteAll
-
+    
     def ensureNoNullPeriods(stopTime: StopTimeRecord) = {
       assert(stopTime.arrivalTime != null)
       assert(stopTime.departureTime != null)
       stopTime
     }
 
-    load(records.agencies, agenciesTable)
-    load(records.stops, stopsTable)
-    load(records.calendarDateRecords, calendarDateRecordsTable)
-    load(records.calendarRecords, calendarRecordsTable)
-    load(records.routeRecords, routeRecordsTable)
-    load(records.tripRecords, tripRecordsTable)
-    load(records.stopTimeRecords.view.map(ensureNoNullPeriods), stopTimeRecordsTable)
-    load(records.frequencyRecords, frequencyRecordsTable)
-    load(records.tripShapes, tripShapesTable)
+    timedTask("loaded agencies") { load(records.agencies, agenciesTable) }
+    timedTask("loaded stops") { load(records.stops, stopsTable) }
+    timedTask("loaded calendar dates") {
+      load(records.calendarDateRecords, calendarDateRecordsTable)
+    }
+    timedTask("loaded calendar") { load(records.calendarRecords, calendarRecordsTable) }
+    timedTask("loaded routes") { load(records.routeRecords, routeRecordsTable) }
+    timedTask("loaded trips") { load(records.tripRecords, tripRecordsTable) }
+    timedTask("loaded stop times") {
+      load(records.stopTimeRecords.view.map(ensureNoNullPeriods), stopTimeRecordsTable)
+    }
+    timedTask("loaded frequencies") { load(records.frequencyRecords, frequencyRecordsTable) }
+    timedTask("loaded trip shapes") { load(records.tripShapes, tripShapesTable) }
   }
 }

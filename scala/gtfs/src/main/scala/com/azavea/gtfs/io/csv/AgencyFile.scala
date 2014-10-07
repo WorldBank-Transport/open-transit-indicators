@@ -10,7 +10,6 @@ object AgencyFile extends GtfsFile[Agency] {
 
   def parse(path: String): Seq[Agency] = {
     val agencies = mutable.ListBuffer[Agency]()
-
     for (s <- CsvParser.fromPath(path)) {
       agencies +=
       Agency(
