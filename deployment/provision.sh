@@ -580,7 +580,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $SCALA_ROOT
-    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB run
 end script
 
 pre-stop script
