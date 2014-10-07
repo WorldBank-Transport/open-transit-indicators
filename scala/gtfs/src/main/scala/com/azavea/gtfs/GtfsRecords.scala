@@ -45,6 +45,6 @@ object GtfsRecords {
 
   def fromDatabase(geomColumnName: String)(implicit session: Session): DatabaseGtfsRecords = {
     val gcn = geomColumnName
-    new DatabaseGtfsRecords with Profile { val geomColumnName = gcn }
+    new DatabaseGtfsRecords with DefaultProfile { override val geomColumnName = gcn }
   }
 }

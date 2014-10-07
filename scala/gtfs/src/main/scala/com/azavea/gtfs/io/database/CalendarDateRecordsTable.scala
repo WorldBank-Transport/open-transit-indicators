@@ -7,7 +7,7 @@ trait CalendarDateRecordsTable { this: Profile =>
   import profile.simple._
   import joda._
 
-  class CalendarDateRecords(tag: Tag) extends Table[CalendarDateRecord](tag, "gtfs_calendar_dates") {
+  class CalendarDateRecords(tag: Tag) extends Table[CalendarDateRecord](tag, this.datesTableName) {
     def service_id = column[String]("service_id")
     def date = column[LocalDate]("date")
     def exception_type = column[Int]("exception_type")

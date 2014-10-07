@@ -8,7 +8,7 @@ trait CalendarRecordsTable { this: Profile =>
   import joda._
 
   class CalendarRecords(tag: Tag)
-    extends Table[CalendarRecord](tag, "gtfs_calendar")
+    extends Table[CalendarRecord](tag, this.calendarTableName)
   {
     def serviceId = column[String]("service_id", O.PrimaryKey)
     def start_date = column[LocalDate]("start_date")

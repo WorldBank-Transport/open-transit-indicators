@@ -8,7 +8,7 @@ import geotrellis.slick._
 trait FrequencyRecordsTable {this: Profile  =>
   import profile.simple._
 
-  class FrequencyRecords(tag: Tag) extends Table[FrequencyRecord](tag, "gtfs_frequencies") {
+  class FrequencyRecords(tag: Tag) extends Table[FrequencyRecord](tag, this.frequencyTableName) {
     def trip_id = column[String]("trip_id")
     def start_time = column[Period]("start_time")
     def end_time = column[Period]("end_time")

@@ -5,7 +5,7 @@ import com.azavea.gtfs._
 trait RouteRecordsTable { this: Profile =>
   import profile.simple._
 
-  class RouteRecords(tag: Tag) extends Table[RouteRecord](tag, "gtfs_routes") {
+  class RouteRecords(tag: Tag) extends Table[RouteRecord](tag, this.routesTableName) {
     def id = column[String]("route_id", O.PrimaryKey)
     def short_name = column[String]("route_short_name")
     def long_name = column[String]("route_long_name")

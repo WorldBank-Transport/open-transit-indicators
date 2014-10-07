@@ -8,7 +8,7 @@ trait TripShapesTable { this: Profile =>
   import profile.simple._
   import gis._
 
-  class TripShapes(tag: Tag) extends Table[TripShape](tag, "gtfs_shape_geoms") {
+  class TripShapes(tag: Tag) extends Table[TripShape](tag, this.tripShapesTableName) {
     def id = column[String]("shape_id", O.PrimaryKey)
     def geom = column[Projected[Line]](geomColumnName)
 

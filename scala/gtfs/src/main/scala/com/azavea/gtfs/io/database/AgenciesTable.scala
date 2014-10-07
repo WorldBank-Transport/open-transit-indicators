@@ -5,7 +5,7 @@ import com.azavea.gtfs._
 trait AgenciesTable { this: Profile =>
   import profile.simple._
 
-  class Agencies(tag: Tag) extends Table[Agency](tag, "gtfs_agency") {
+  class Agencies(tag: Tag) extends Table[Agency](tag, this.agencyTableName) {
     def id = column[String]("agency_id", O.PrimaryKey)
     def name = column[String]("agency_name")
     def url = column[String]("agency_url")

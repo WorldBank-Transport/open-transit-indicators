@@ -9,7 +9,7 @@ trait TripRecordsTable {this: Profile  =>
   import profile.simple._
 
   class TripRecords(tag: Tag)
-      extends Table[TripRecord](tag, "gtfs_trips") {
+      extends Table[TripRecord](tag, this.tripRecordsTableName) {
     def id = column[String]("trip_id")
     def service_id = column[String]("service_id")
     def route_id = column[String]("route_id")
