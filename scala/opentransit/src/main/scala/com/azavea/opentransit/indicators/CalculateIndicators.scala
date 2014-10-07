@@ -1,5 +1,7 @@
 package com.azavea.opentransit.indicators
 
+import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
+
 import com.azavea.gtfs._
 import geotrellis.vector._
 
@@ -10,16 +12,20 @@ object CalculateIndicators {
   /** Computes all indicators and shovels the IndicatorContainerGenerators to a function.
     * The sink funciton should be thread safe!
     */
-  def apply(periods: Seq[SamplePeriod], params: IndicatorCalculationParams, gtfsRecords: GtfsRecords)(sink: Seq[ContainerGenerator] => Unit): Unit = {
+  def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords, db: DatabaseDef)(sink: Seq[ContainerGenerator] => Unit): Unit = {
+    val periods = request.samplePeriods
     val builder = TransitSystemBuilder(gtfsRecords)
     val systemsByPeriod =
       periods.map { period =>
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
+    val params = DatabaseIndicatorParamsBuilder(request, systemsByPeriod, db)
+
     val periodGeometries = periods.map { period =>
       period -> SystemGeometries(systemsByPeriod(period))
     }.toMap
+
     val overallGeometries: SystemGeometries =
       SystemGeometries.merge(periodGeometries.values.toSeq)
 
@@ -27,8 +33,10 @@ object CalculateIndicators {
       val periodResults =
         periods
           .map { period =>
+            val calculation =
+              indicator.calculation(period)
             val transitSystem = systemsByPeriod(period)
-            val results = indicator(transitSystem)
+            val results = calculation(transitSystem)
             (period, results)
            }
           .toMap
