@@ -2,7 +2,6 @@ package geotrellis.transit
 
 import geotrellis.raster._
 import geotrellis.vector._
-import geotrellis.geotools._
 import geotrellis.transit.loader._
 import geotrellis.transit.loader.gtfs._
 import geotrellis.transit.loader.osm._
@@ -176,7 +175,7 @@ object Main {
 
     val features: Array[MultiPolygonFeature[Int]] = {
       val path = "/Users/rob/proj/wb/data/zhengzhou/shapefiles/demographics-ll.shp"
-      ShapeFileReader.readMultiPolygonFeatures[Long](path, "Employment")
+      geotrellis.geotools.ShapeFileReader.readMultiPolygonFeatures[Long](path, "Employment")
         .map { feature =>
           MultiPolygonFeature(feature.geom, feature.data.toInt)
          }

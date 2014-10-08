@@ -28,13 +28,14 @@ extends GraphFileSet {
   }
 
   def parse():ParseResult = {
-    val (stops,graph) = GtfsParser.parse(this)
-    val namedLocations = 
-      NamedLocations(
-        for(location <- stops.locationToStop.keys) yield {
-          NamedLocation(stops.locationToStop(location).name,location)
-        }
-      )
-    ParseResult(graph,namedLocations,NamedWays.EMPTY)
+    // val (stops,graph) = GtfsParser.parse(this)
+    // val namedLocations = 
+    //   NamedLocations(
+    //     for(location <- stops.locationToStop.keys) yield {
+    //       NamedLocation(stops.locationToStop(location).name,location)
+    //     }
+    //   )
+    // ParseResult(graph,namedLocations,NamedWays.EMPTY)
+    ???
   }
 }
