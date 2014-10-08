@@ -16,3 +16,5 @@ psql -d $DB_NAME -f $PATH_PREFIX/scala/testkit/data/philly_osm/philly_osm_data.s
 # add boundary data
 psql -d $DB_NAME -f $PATH_PREFIX/scala/testkit/data/philly_bounds/philly_city_bounds.sql
 
+# add realtime data
+psql -d $DB_NAME -f $PATH_PREFIX/scala/testkit/data/philly_realtime/philly_realtime.sql
