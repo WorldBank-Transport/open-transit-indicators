@@ -18,8 +18,13 @@ class CoverageRatioStopsBuffer(params: Boundaries with StopBuffers)
   def calculation(period: SamplePeriod) = {
     def calculate(transitSytem: TransitSystem) = {
       val cityBoundary = params.cityBoundary
+      val coverage = params.bufferForPeriod(period)
       val systemResult =
-        params.bufferForPeriod(period).area / cityBoundary.area
+        ((cityBoundary & coverage) match {
+                case MultiPolygonResult(mp) => mp.area
+                case PolygonResult(p) => p.area
+                case _ => 0.0
+        }) / cityBoundary.area
       AggregatedResults.systemOnly(systemResult)
     }
 
