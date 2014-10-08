@@ -45,8 +45,18 @@ class OpenTransitServiceActor extends Actor
   }
 
   // This will be picked up by the runRoute(_) and used to intercept Exceptions
-  implicit def OpenTransitGeoTrellisExceptionHandler(implicit log: LoggingContext) =
+  def OpenTransitGeoTrellisExceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler {
+      case ex: java.util.NoSuchElementException =>
+        requestUri { uri =>
+          println("Got a NoSuchElementException!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+          log.warning("Something went wrong here.......................................")
+          println(ex.getMessage)
+          println(ex.getStackTrace.mkString("\n"))
+          // replace double quotes with single so our message is more json safe
+          val jsonMessage = ex.getMessage.replace("\"", "'")
+          complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
+        }
       case e: Exception =>
         requestUri { uri =>
           // print error message and stack trace to console so we dont have to go a-hunting
@@ -56,7 +66,7 @@ class OpenTransitServiceActor extends Actor
           println(e.getStackTrace.mkString("\n"))
           // replace double quotes with single so our message is more json safe
           val jsonMessage = e.getMessage.replace("\"", "'")
-          complete(future(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" ))
+          complete(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" )
         }
     }
 }

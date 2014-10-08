@@ -5,6 +5,7 @@ import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit._
 import com.azavea.opentransit.io.GtfsIngest
 
+import spray.routing._
 import spray.routing.HttpService
 
 import spray.json._

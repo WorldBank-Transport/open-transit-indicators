@@ -3,6 +3,7 @@ import os
 import os.path
 import re
 import requests
+from simplejson import JSONDecodeError
 import zipfile
 
 from celery.utils.log import get_task_logger
@@ -193,6 +194,9 @@ def send_to_geotrellis(gtfs_file):
         logger.debug('GeoTrellis response: %s', response.text)
         data = response.json()
         gtfs_response = data
+    except JSONDecodeError as j:
+        logger.exception('GeoTrellis response is not JSON!')
+        gtfs_response['message'] = response.text
     except ValueError as e:
         logger.exception('Error when parsing GeoTrellis response')
         gtfs_response['message'] = e.message
