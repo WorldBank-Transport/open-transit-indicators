@@ -16,12 +16,12 @@ class AdHocLengthSpec extends AdHocSystemIndicatorSpec {
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute
 
-    // no tripshapes provided means no calculable lengths
+    // Only subway tripshapes exist in the AdHoc system.
     routeById("EastRail") should be (0.0)
     routeById("EastBus") should be (0.0)
-    routeById("NorthSouth") should be (0.0)
+    routeById("NorthSouth") should be (0.02) // Kilometers
     routeById("WestRail") should be (0.0)
-    routeById("EastWest") should be (0.0)
+    routeById("EastWest") should be (0.02) // Kilometers
     routeById("WestBus") should be (0.0)
   }
 }
