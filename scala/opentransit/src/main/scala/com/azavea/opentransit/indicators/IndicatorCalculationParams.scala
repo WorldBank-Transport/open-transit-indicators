@@ -5,52 +5,12 @@ import geotrellis.vector._
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable }
 import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 
-import com.azavea.gtfs.io.database._
-import com.azavea.gtfs._
 import com.azavea.opentransit._
 import com.azavea.gtfs.{TransitSystem, Stop}
 
 import scala.collection.mutable
 
 import grizzled.slf4j.Logging
-/**
- * Trait used to populate parameters with data from 'real time' GTFS
- */
-trait ObservedStopTimes {
-  def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip // real-time data corresponding to scheduled trip
-}
-
-object ObservedStopTimes {
-  def apply(scheduledSystems: Map[SamplePeriod, TransitSystem])(implicit session: Session): ObservedStopTimes = {
-    // This is ugly: a thousand sorries. it also is apparently necessary -
-    // we have to index on SamplePeriod and again on trip id
-    val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
-      val periods = scheduledSystems.keys
-      lazy val observedGtfsRecords =
-        new DatabaseGtfsRecords with DefaultProfile {
-          override val stopTimesTableName = "gtfs_stop_times_real"
-        }
-      val builder = TransitSystemBuilder(observedGtfsRecords)
-      val observedSystemsMap = periods.map { period =>
-        (period -> builder.systemBetween(period.start, period.end))
-      }.toMap
-      observedSystemsMap.map { case (period, system) =>
-        period -> system.routes.map { route =>
-          route.trips.map { trip =>
-            (trip.id -> trip)
-          }
-        }
-        .flatten
-        .toMap
-      }
-      .toMap
-    }
-    new ObservedStopTimes {
-      def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-        observedTrips(period)(scheduledTripId)
-    }
-  }
-}
 
 /**
  * Trait used to populate parameters with StopBuffer information
@@ -64,8 +24,8 @@ trait StopBuffers {
 object StopBuffers {
   def apply(systems: Map[SamplePeriod, TransitSystem], bufferDistance: Double): StopBuffers = {
     // Cache buffers so they are only caclulated once
-    val stopMap: mutable.Map[Stop, Polygon] = mutable.Map()
-    val periodMap: mutable.Map[SamplePeriod, MultiPolygon] = mutable.Map()
+    val stopMap:mutable.Map[Stop, Polygon] = mutable.Map()
+    val periodMap:mutable.Map[SamplePeriod, MultiPolygon] = mutable.Map()
 
     def calcBufferForStop(stop: Stop): Polygon =
       stop.point.geom.buffer(bufferDistance)
@@ -200,7 +160,6 @@ object DatabaseIndicatorParamsBuilder {
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance)
 
       new IndicatorParams {
-
         def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
         def bufferForPeriod(period: SamplePeriod): MultiPolygon = stopBuffers.bufferForPeriod(period)
         def totalBuffer: MultiPolygon = stopBuffers.totalBuffer
