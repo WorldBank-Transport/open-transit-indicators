@@ -20,7 +20,7 @@ object TimeTraveledStops extends Indicator
           schedule
           .zip(schedule.tail)
           .map { case (stop1, stop2) =>
-            Minutes.minutesBetween(stop1.arrivalTime, stop2.arrivalTime).getMinutes
+            Minutes.minutesBetween(stop1.departureTime, stop2.arrivalTime).getMinutes
               }
         }
       }
