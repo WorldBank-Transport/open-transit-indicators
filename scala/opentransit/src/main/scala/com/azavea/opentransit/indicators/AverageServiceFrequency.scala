@@ -44,13 +44,13 @@ object AverageServiceFrequency extends Indicator
             orderedArrivalTimes
               .zip(orderedArrivalTimes.tail)
               .map { case (a1, a2) =>
-                Seconds.secondsBetween(a1, a2).getSeconds / 60 / 60
+                Seconds.secondsBetween(a1, a2).getSeconds
               }
           }
           .flatten
           .foldLeft((0.0,0)) { case ((total, count), diff) =>
             (total + diff, count + 1) }
-      if (count > 0) total / count else 0.0
+      if (count > 0) (total / 60 / 60) / count else 0.0
     }
     perRouteCalculation(map, reduce)
   }
