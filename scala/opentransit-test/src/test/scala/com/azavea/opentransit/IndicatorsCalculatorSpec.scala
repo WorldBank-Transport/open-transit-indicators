@@ -2,8 +2,10 @@ package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
 import com.azavea.opentransit.io.GtfsIngest
+import com.azavea.opentransit.indicators.parameters._
 
-import geotrellis.vector._ 
+import geotrellis.vector._
+import geotrellis.slick._
 
 import com.azavea.opentransit.testkit._
 
@@ -92,12 +94,11 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
 trait StopBuffersSpec {this: IndicatorSpec =>
   val stopBuffers = db withSession { implicit session =>
-    StopBuffers(systems, 500)
+    StopBuffers(systems, 500, db)
   }
   trait StopBuffersSpecParams extends StopBuffers {
     def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
-    def bufferForPeriod(period: SamplePeriod): MultiPolygon = stopBuffers.bufferForPeriod(period)
-    def totalBuffer: MultiPolygon = stopBuffers.totalBuffer
+    def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] = stopBuffers.bufferForPeriod(period)
   }
 }
 
