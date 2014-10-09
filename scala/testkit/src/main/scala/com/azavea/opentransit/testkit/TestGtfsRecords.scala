@@ -20,10 +20,19 @@ object TestGtfsRecords {
     val railTravelTime = 45.minute
     val railWaitTime = 5.minute
   }
+
+  object stopLocations {
+    val stopCenter = Point(0,0)
+    val stopWest = Point(-10,0)
+    val stopEast = Point(10,0)
+    val stopNorth = Point(0,10)
+    val stopSouth = Point(0,-10)
+  }
 }
 
 class TestGtfsRecords extends GtfsRecords {
   import TestGtfsRecords.times._
+  import TestGtfsRecords.stopLocations._
 
   val serviceIds = 
     Seq(
@@ -43,12 +52,12 @@ class TestGtfsRecords extends GtfsRecords {
   )
 
   val stops = List(
-    Stop("ST1", "CENTER STATION", Some("Center Station, has bus, and subway"), Point(0,0).withSRID(0)),
+    Stop("ST1", "CENTER STATION", Some("Center Station, has bus, and subway"), stopCenter.withSRID(0)),
 
-    Stop("ST2", "WEST STATION", Some("West Station, has subway and rail"), Point(-10,0).withSRID(0)),
-    Stop("ST3", "EAST STATION", Some("East Station, has subway and rail"), Point(10,0).withSRID(0)),
-    Stop("ST4", "NORTH STATION", Some("North Station, has subway"), Point(0, 10).withSRID(0)),
-    Stop("ST5", "SOUTH STATION", Some("South Station, has subway"), Point(0, -10).withSRID(0)),
+    Stop("ST2", "WEST STATION", Some("West Station, has subway and rail"), stopWest.withSRID(0)),
+    Stop("ST3", "EAST STATION", Some("East Station, has subway and rail"), stopEast.withSRID(0)),
+    Stop("ST4", "NORTH STATION", Some("North Station, has subway"), stopNorth.withSRID(0)),
+    Stop("ST5", "SOUTH STATION", Some("South Station, has subway"), stopSouth.withSRID(0)),
 
     Stop("ST6", "NW STREET", Some("NorthWest Street, has bus and rail"), Point(-5,5).withSRID(0)),
     Stop("ST7", "SW STREET", Some("SoutWest Street, has bus"), Point(-5,-5).withSRID(0)),
@@ -95,20 +104,20 @@ class TestGtfsRecords extends GtfsRecords {
     // Morning = 5 AM - 10 AM  every 10 minutes
     // Afternoon = 10 AM - 4 PM  every 20 minutes
     // Evening = 4 PM - 11 PM  every 10 minutes
-    TripRecord("SUB_WEEKDAY_MORNING_EastWest", "SUB_WEEKDAYS", "EastWest", None, None), 
-    TripRecord("SUB_WEEKDAY_AFTERNOON_EastWest", "SUB_WEEKDAYS", "EastWest", None, None),
-    TripRecord("SUB_WEEKDAY_EVENING_EastWest", "SUB_WEEKDAYS", "EastWest", None, None),
-    TripRecord("SUB_WEEKDAY_MORNING_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, None),
-    TripRecord("SUB_WEEKDAY_AFTERNOON_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, None),
-    TripRecord("SUB_WEEKDAY_EVENING_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, None),
+    TripRecord("SUB_WEEKDAY_MORNING_EastWest", "SUB_WEEKDAYS", "EastWest", None, Some("SUB_EastWest_SHAPE")),
+    TripRecord("SUB_WEEKDAY_AFTERNOON_EastWest", "SUB_WEEKDAYS", "EastWest", None, Some("SUB_EastWest_SHAPE")),
+    TripRecord("SUB_WEEKDAY_EVENING_EastWest", "SUB_WEEKDAYS", "EastWest", None, Some("SUB_EastWest_SHAPE")),
+    TripRecord("SUB_WEEKDAY_MORNING_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, Some("SUB_NorthSouth_SHAPE")),
+    TripRecord("SUB_WEEKDAY_AFTERNOON_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, Some("SUB_NorthSouth_SHAPE")),
+    TripRecord("SUB_WEEKDAY_EVENING_NorthSouth", "SUB_WEEKDAYS", "NorthSouth", None, Some("SUB_NorthSouth_SHAPE")),
 
     // Subway weekends schedules (on frequencies)
     // Saturday = 5 AM - 11 PM  Every 20 minutes
     // Sunday =  5 AM - 11 PM  Every 30 minutes
-    TripRecord("SUB_SATURDAY_EastWest", "SUB_SATURDAY", "EastWest", None, None),
-    TripRecord("SUB_SATURDAY_NorthSouth", "SUB_SATURDAY", "NorthSouth", None, None),
-    TripRecord("SUB_SUNDAY_EastWest", "SUB_SUNDAY", "EastWest", None, None),
-    TripRecord("SUB_SUNDAY_NorthSouth", "SUB_SUNDAY", "NorthSouth", None, None),
+    TripRecord("SUB_SATURDAY_EastWest", "SUB_SATURDAY", "EastWest", None, Some("SUB_EastWest_SHAPE")),
+    TripRecord("SUB_SATURDAY_NorthSouth", "SUB_SATURDAY", "NorthSouth", None, Some("SUB_NorthSouth_SHAPE")),
+    TripRecord("SUB_SUNDAY_EastWest", "SUB_SUNDAY", "EastWest", None, Some("SUB_EastWest_SHAPE")),
+    TripRecord("SUB_SUNDAY_NorthSouth", "SUB_SUNDAY", "NorthSouth", None, Some("SUB_NorthSouth_SHAPE")),
 
     // Bus Weekday, 4 trips: 6 AM, 10 AM, 4 PM, 8 PM
     TripRecord("BUS_WEEKDAY_WestBus_1", "BUS_WEEKDAYS", "WestBus", None, None),
@@ -271,5 +280,8 @@ class TestGtfsRecords extends GtfsRecords {
       FrequencyRecord("RAIL_WEEKEND_EastRail", 5.hour, 23.hour, 1.hour)
   )
 
-  def tripShapes: Seq[TripShape] = Seq.empty
+  def tripShapes: Seq[TripShape] = List(
+    TripShape("SUB_EastWest_SHAPE", Line(List(stopWest, stopCenter, stopEast)).withSRID(0)),
+    TripShape("SUB_NorthSouth_SHAPE", Line(List(stopNorth, stopCenter, stopSouth)).withSRID(0))
+  )
 }
