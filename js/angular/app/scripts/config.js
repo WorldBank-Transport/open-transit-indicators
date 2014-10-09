@@ -155,28 +155,40 @@ angular.module('transitIndicators').constant('config', {
 
     gtfsRouteTypeColors: gtfsRouteTypeColors,
 
-    settingsViews: [
-        {
-            id: 'overview'
-        },
-        {
-            id: 'upload'
-        },
-        {
-            id: 'boundary'
-        },
-        {
-            id: 'demographic'
-        },
-        {
-            id: 'realtime'
-        },
-        {
-            id: 'configuration'
-        },
-        {
-            id: 'users'
-        }
-    ]
+    settingsViews: [{
+        id: 'overview'
+    }, {
+        id: 'upload'
+    }, {
+        id: 'boundary'
+    }, {
+        id: 'demographic'
+    }, {
+        id: 'realtime'
+    }, {
+        id: 'configuration'
+    }, {
+        id: 'users'
+    }],
+
+    scenarioViews: [{
+        id: 'list'
+    }, {
+        id: 'new'
+    }, {
+        id: 'new-success'
+    }, {
+        id: 'routes'
+    }, {
+        id: 'routes-new'
+    }, {
+        id: 'route-stops'
+    }, {
+        id: 'route-shapes'
+    }, {
+        id: 'route-times'
+    }, {
+        id: 'route-done'
+    }]
 
 });
