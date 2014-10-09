@@ -23,6 +23,6 @@ trait CalendarDateRecordsTable { this: Profile =>
       Some( (record.serviceId, record.date, if (record.serviceAdded) 1 else 2) )
   }
 
-  val calendarDateRecordsTable = TableQuery[CalendarDateRecords]
+  def calendarDateRecordsTable = TableQuery[CalendarDateRecords]
 }
 

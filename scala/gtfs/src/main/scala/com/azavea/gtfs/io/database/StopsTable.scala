@@ -17,5 +17,5 @@ trait StopsTable { this: Profile =>
     def * = (id, name, desc, geom) <> (Stop.tupled, Stop.unapply)
   }
 
-  val stopsTable = TableQuery[Stops]
+  def stopsTable = TableQuery[Stops]
 }

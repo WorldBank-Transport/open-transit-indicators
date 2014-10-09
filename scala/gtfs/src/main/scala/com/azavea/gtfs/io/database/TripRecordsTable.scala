@@ -18,5 +18,5 @@ trait TripRecordsTable {this: Profile  =>
 
     def * = (id, service_id, route_id, trip_headsign, shape_id) <> (TripRecord.tupled, TripRecord.unapply)
   }
-  val tripRecordsTable = TableQuery[TripRecords]
+  def tripRecordsTable = TableQuery[TripRecords]
 }

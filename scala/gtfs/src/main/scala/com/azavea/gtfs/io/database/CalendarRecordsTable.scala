@@ -35,5 +35,5 @@ trait CalendarRecordsTable { this: Profile =>
     }
   }
 
-  val calendarRecordsTable = TableQuery[CalendarRecords]
+  def calendarRecordsTable = TableQuery[CalendarRecords]
 }

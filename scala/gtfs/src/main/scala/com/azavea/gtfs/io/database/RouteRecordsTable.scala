@@ -20,5 +20,5 @@ trait RouteRecordsTable { this: Profile =>
       (RouteRecord.tupled, RouteRecord.unapply)
   }
 
-  val routeRecordsTable = TableQuery[RouteRecords]
+  def routeRecordsTable = TableQuery[RouteRecords]
 }

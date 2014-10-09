@@ -19,5 +19,5 @@ trait StopTimeRecordsTable { this: Profile  =>
     def * = (stop_id, trip_id, stop_sequence, arrival_time, departure_time, shape_dist_traveled) <>
       (StopTimeRecord.tupled, StopTimeRecord.unapply)
   }
-  val stopTimeRecordsTable = TableQuery[StopTimeRecords]
+  def stopTimeRecordsTable = TableQuery[StopTimeRecords]
 }

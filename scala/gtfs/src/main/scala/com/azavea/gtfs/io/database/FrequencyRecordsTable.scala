@@ -17,5 +17,5 @@ trait FrequencyRecordsTable {this: Profile  =>
     def * = (trip_id, start_time, end_time, headway) <> (FrequencyRecord.tupled, FrequencyRecord.unapply)
   }
 
-  val frequencyRecordsTable = TableQuery[FrequencyRecords]
+  def frequencyRecordsTable = TableQuery[FrequencyRecords]
 }

@@ -17,6 +17,6 @@ trait AgenciesTable { this: Profile =>
     def * = (id, name, url, timezone, lang, phone, fare_url)  <>
       (Agency.tupled, Agency.unapply)
   }
- 
-  val agenciesTable = TableQuery[Agencies]
+
+  def agenciesTable = TableQuery[Agencies]
 }
