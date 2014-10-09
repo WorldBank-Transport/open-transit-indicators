@@ -33,19 +33,4 @@ trait AdHocSystemIndicatorSpec extends FlatSpec with Matchers {
 
 }
 
-
-class AdHocDemoSpec extends AdHocSystemIndicatorSpec {
-
-  it should "Calculate the length of our ad hoc routes" in {
-    val calculation = TimeTraveledStops.calculation(allStopsPeriod)
-    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
-    implicit val routeMap = byRoute // Use this implicit to DRY out your tests
-
-    routeById("EastRail") should be (50.0)
-    routeById("EastBus") should be (22.0)
-    routeById("NorthSouth") should be (6.0)
-    routeById("WestRail") should be (50.0)
-    routeById("EastWest") should be (6.0)
-    routeById("WestBus") should be (22.0)
-  }
-}
+// For an example of a test utilizing the AdHoc System, see indicators/TimeTraveledStopsSpec.scala
