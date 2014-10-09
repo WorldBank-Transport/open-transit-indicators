@@ -5,6 +5,7 @@ import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit._
 import com.azavea.opentransit.io.GtfsIngest
 
+import spray.routing._
 import spray.routing.HttpService
 
 import spray.json._
@@ -22,17 +23,32 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
       post {
         parameter('gtfsDir.as[String]) { gtfsDir =>
           complete {
+            var err: JsObject = null
             TaskQueue.execute {
               println(s"parsing GTFS data from: $gtfsDir")
               val routeCount =
                 db withSession { implicit session =>
-                  timedTask("Ingested GTFS") { GtfsIngest(gtfsDir) }
+                  try {
+                    timedTask("Ingested GTFS") { GtfsIngest(gtfsDir) }
+                    } catch {
+                      case e: Exception =>
+                        println("Error parsing GTFS!")
+                        println(e.getMessage)
+                        println(e.getStackTrace.mkString("\n"))
+                        err = JsObject(
+                          "success" -> JsBoolean(false),
+                          "message" -> JsString("Error parsing GTFS.\n" + 
+                                                e.getMessage.replace("\"", "'"))
+                        )
+                    }
                 }
 
-              JsObject(
-                "success" -> JsBoolean(true),
-                "message" -> JsString(s"Imported $routeCount routes")
-              )
+              if (err == null)
+                JsObject(
+                  "success" -> JsBoolean(true),
+                  "message" -> JsString(s"Imported $routeCount routes")
+                )
+              else err
             }
           }
         }
