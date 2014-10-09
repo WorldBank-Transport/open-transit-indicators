@@ -241,13 +241,13 @@ else
     popd
     echo 'Tuning Postgres'
     # set SHMMAX for postgres shared buffers
-    cat "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
+    echo "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
     sysctl -p
     pushd /etc/postgresql/9.1/main
         sed -i '/shared_buffers =/c\shared_buffers = 756MB' postgresql.conf
         sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
         sed -i '/effective_cache_size =/c\effective_cache_size = 2GB' postgresql.conf
-        sed -i '/work_mem =/c\work_mem = 64MB' postgresql.conf
+        sed -i '/#work_mem =/c\work_mem = 64MB' postgresql.conf
         sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 512MB' postgresql.conf
         sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
         service postgresql restart
@@ -580,7 +580,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $SCALA_ROOT
-    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB run
 end script
 
 pre-stop script
