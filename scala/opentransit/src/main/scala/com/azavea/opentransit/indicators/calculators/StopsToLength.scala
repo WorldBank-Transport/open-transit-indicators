@@ -1,7 +1,8 @@
-package com.azavea.opentransit.indicators
+package com.azavea.opentransit.indicators.calculators
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
+import com.azavea.opentransit.indicators._
 
 // This indicator calculates the average number of stops
 // for a unit of transit line length

@@ -2,6 +2,8 @@ package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
+import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.indicators.parameters._
 
 // This indicator is a measure of the distance of track for a
 // given unit of area

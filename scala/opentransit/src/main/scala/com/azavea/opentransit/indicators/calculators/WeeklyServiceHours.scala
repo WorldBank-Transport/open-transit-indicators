@@ -1,6 +1,7 @@
 package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
+import com.azavea.opentransit.indicators._
 
 // TODO: Implement. Not sure how this fits into the infrastructure.
 // This calculates more of the transit system then is given by the SamplePeriods.

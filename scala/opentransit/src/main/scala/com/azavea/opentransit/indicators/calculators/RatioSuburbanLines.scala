@@ -1,7 +1,9 @@
-package com.azavea.opentransit.indicators
+package com.azavea.opentransit.indicators.calculators
 
 import com.azavea.gtfs._
 import geotrellis.vector._
+import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.indicators.parameters._
 
 class RatioSuburbanLines(params: Boundaries)
     extends Indicator
