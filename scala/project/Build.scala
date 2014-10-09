@@ -31,7 +31,7 @@ object Build extends Build {
           "org.apache.servicemix.bundles" % "org.apache.servicemix.bundles.commons-csv" % "1.0-r706900_3",
 
           "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-          "com.github.nscala-time" %% "nscala-time" % "0.8.0",
+          "com.github.nscala-time" % "nscala-time_2.10" % "1.4.0",
 
           "commons-io" % "commons-io" % "2.4",
 
@@ -39,7 +39,8 @@ object Build extends Build {
           "com.azavea.geotrellis" %% "geotrellis-proj4" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-slick" % "0.10.0-SNAPSHOT",
 
-          "org.joda" % "joda-convert" % "1.5",
+          "joda-time" % "joda-time" % "2.5",
+          "org.joda" % "joda-convert" % "1.7",
           "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0"
         )
        )
