@@ -2,6 +2,8 @@ package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
 import scala.collection.mutable
+import com.azavea.opentransit.indicators.calculators._
+import com.azavea.opentransit.indicators.parameters._
 
 object Indicators {
   // These are indicators that don't need the request info.
@@ -22,7 +24,10 @@ object Indicators {
     List(
       new CoverageRatioStopsBuffer(params),
       new TransitNetworkDensity(params),
-      new Affordability(params)
+      new Affordability(params),
+      new AllAccessibility(params),
+      new LowIncomeAccessibility(params)
+
     )
 
   def list(params: IndicatorParams): List[Indicator] =
