@@ -10,7 +10,7 @@ object DatabaseRecordImport {
     new DatabaseRecordImport(geomColumnName).load(records, clobber)
 }
 
-class DatabaseRecordImport(val geomColumnName: String = Profile.defaultGeomColumnName)(implicit session: Session) extends GtfsTables with Profile {
+class DatabaseRecordImport(override val geomColumnName: String = Profile.defaultGeomColumnName)(implicit session: Session) extends GtfsTables with DefaultProfile {
   import profile.simple._
 
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {

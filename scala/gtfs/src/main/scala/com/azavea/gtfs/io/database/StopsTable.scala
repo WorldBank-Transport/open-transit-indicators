@@ -8,7 +8,7 @@ trait StopsTable { this: Profile =>
   import profile.simple._
   import gis._
 
-  class Stops(tag: Tag) extends Table[Stop](tag, "gtfs_stops") {
+  class Stops(tag: Tag) extends Table[Stop](tag, this.stopsTableName) {
     def id = column[String]("stop_id", O.PrimaryKey)
     def name = column[String]("stop_name")
     def desc = column[Option[String]]("stop_desc")
@@ -17,5 +17,5 @@ trait StopsTable { this: Profile =>
     def * = (id, name, desc, geom) <> (Stop.tupled, Stop.unapply)
   }
 
-  val stopsTable = TableQuery[Stops]
+  def stopsTable = TableQuery[Stops]
 }
