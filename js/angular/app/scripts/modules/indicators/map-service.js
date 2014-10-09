@@ -68,6 +68,15 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Create windshaft url for boundary
+     */
+     otiMapService.getBoundaryUrl = function () {
+        var url = otiMapService.getWindshaftHost();
+        url += '/tiles/transit_indicators/0/datasources_boundary/morning/route/{z}/{x}/{y}.png';
+        return url;
+    };
+
+    /**
      * Return windshaft hostname, including port, if configured in windshaftConfig.port
      * @return String hostname
      */
