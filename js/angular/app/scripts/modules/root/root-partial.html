@@ -1,7 +1,7 @@
 <header>
     <div class="navigation-buttongroup">
         <div ui-sref="transit" class="button--navigation" ng-class="{active: activeState === 'transit'}" id="navigation-transit">{{ 'NAV.TRANSITMAP' | translate }}</div>
-        <div ui-sref="scenarios" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
+        <div ui-sref="list" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
         <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">{{ 'NAV.INDICATORS' | translate }}</div>
         <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
         <div class="button--navigation pull-right" ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</div>

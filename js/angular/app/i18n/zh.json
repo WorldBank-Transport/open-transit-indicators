@@ -46,6 +46,9 @@
         "SELECTONE": "选择一项",
         "UPLOAD": "上传",
         "RESET": "重置",
+        "LOAD": "Load",
+        "IMPORT": "Import",
+        "EXPORT": "Export",
         "CALCULATE_INDICATORS": "计算指标"
     },
     "INDICATOR": {
@@ -59,6 +62,7 @@
         "ROUTE": "路线",
         "TRIP": "旅行",
         "NEW_SCENARIO": "新场景",
+        "MY_SCENARIOS": "My Scenarios",
         "GET_STARTED": "开始创建您的新场景。",
         "NAME": "名称",
         "DESCRIPTION": "说明",
@@ -109,7 +113,9 @@
         "FARE_ID": "车费 ID",
         "PRICE": "价格",
         "GREAT": "棒极了",
-        "START_OVER": "Start Over"
+        "START_OVER": "Start Over",
+        "HEADER_NAME": "Name",
+        "HEADER_LAST_MODIFIED": "Last Modified"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index": "可达性指标",
