@@ -5,9 +5,6 @@ import com.azavea.gtfs._
 import com.azavea.opentransit.testkit._
 import com.azavea.opentransit.indicators.calculators._
 
-import com.github.nscala_time.time.Imports._
-import com.typesafe.config.{ConfigFactory,Config}
-
 import org.scalatest._
 
 
@@ -29,23 +26,10 @@ class AdHocLengthSpec extends AdHocSystemIndicatorSpec {
 
 
 class LengthSpec extends FlatSpec with Matchers with IndicatorSpec {
-  // TODO: the length indicator needs to be reworked. The test results
-  // will change because of this. Commenting them out for now.
-  /*
-  it should "calculate length by mode for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = Length(system)
-
-    byRouteType(Rail) should be (656.38489 +- 1e-5)
-  }
-
-  it should "calculate overall length by mode for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(Length)
-
-    byRouteType(Rail) should be (589.67491 +- 1e-5)
-  }
-
   it should "calculate length by route for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = Length(system)
+    val calculation = Length.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
+    implicit val routeMap = byRoute
 
     getResultByRouteId(byRoute, "AIR") should be ( 21.86907 +- 1e-5)
     getResultByRouteId(byRoute, "CHE") should be ( 22.47520 +- 1e-5)
@@ -60,35 +44,49 @@ class LengthSpec extends FlatSpec with Matchers with IndicatorSpec {
     getResultByRouteId(byRoute, "WAR") should be ( 45.30601 +- 1e-5)
     getResultByRouteId(byRoute, "WIL") should be (130.04707 +- 1e-5)
     getResultByRouteId(byRoute, "WTR") should be ( 57.57047 +- 1e-5)
+
   }
 
   it should "calculate overall length by route for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(Length)
+    implicit val routeMap = byRoute
 
-    getResultByRouteId(byRoute, "AIR") should be ( 21.86881 +- 1e-5)
-    getResultByRouteId(byRoute, "CHE") should be ( 18.58454 +- 1e-5)
-    getResultByRouteId(byRoute, "CHW") should be ( 19.11063 +- 1e-5)
-    getResultByRouteId(byRoute, "CYN") should be (  4.05340 +- 1e-5)
-    getResultByRouteId(byRoute, "FOX") should be ( 14.58348 +- 1e-5)
-    getResultByRouteId(byRoute, "GLN") should be (  0.00000 +- 1e-5)
-    getResultByRouteId(byRoute, "LAN") should be ( 53.76602 +- 1e-5)
-    getResultByRouteId(byRoute, "MED") should be ( 35.06542 +- 1e-5)
-    getResultByRouteId(byRoute, "NOR") should be ( 34.49976 +- 1e-5)
-    getResultByRouteId(byRoute, "PAO") should be ( 59.62912 +- 1e-5)
-    getResultByRouteId(byRoute, "TRE") should be (103.94350 +- 1e-5)
-    getResultByRouteId(byRoute, "WAR") should be ( 41.07704 +- 1e-5)
-    getResultByRouteId(byRoute, "WIL") should be (130.04556 +- 1e-5)
-    getResultByRouteId(byRoute, "WTR") should be ( 53.44757 +- 1e-5)
+    getResultByRouteId(byRoute, "AIR") should be ( 20.95786 +- 1e-5)
+    getResultByRouteId(byRoute, "CHE") should be ( 21.53873 +- 1e-5)
+    getResultByRouteId(byRoute, "CHW") should be ( 22.40745 +- 1e-5)
+    getResultByRouteId(byRoute, "CYN") should be ( 9.66813 +- 1e-5)
+    getResultByRouteId(byRoute, "FOX") should be ( 13.97600 +- 1e-5)
+    getResultByRouteId(byRoute, "LAN") should be ( 57.20424 +- 1e-5)
+    getResultByRouteId(byRoute, "MED") should be ( 55.90896 +- 1e-5)
+    getResultByRouteId(byRoute, "NOR") should be ( 33.06265 +- 1e-5)
+    getResultByRouteId(byRoute, "PAO") should be ( 58.50689 +- 1e-5)
+    getResultByRouteId(byRoute, "TRE") should be (112.58619 +- 1e-5)
+    getResultByRouteId(byRoute, "WAR") should be ( 43.41826 +- 1e-5)
+    getResultByRouteId(byRoute, "WIL") should be (124.62844 +- 1e-5)
+    getResultByRouteId(byRoute, "WTR") should be ( 55.17171 +- 1e-5)
+  }
+
+  it should "calculate length by mode for SEPTA" in {
+    val calculation = Length.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
+
+    byRouteType(Rail) should be (656.38489 +- 1e-5)
+  }
+
+  it should "calculate overall length by mode for SEPTA" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(Length)
+
+    byRouteType(Rail) should be (629.03553 +- 1e-5)
   }
 
   it should "calculate length by system for SEPTA" in {
-    val AggregatedResults(byRoute, byRouteType, bySystem) = Length(system)
+    val calculation = Length.calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.get should be (656.38489 +- 1e-5)
   }
 
   it should "calculate overall length by system for SEPTA" in {
     val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(Length)
-    bySystem.get should be (589.67491 +- 1e-5)
+    bySystem.get should be (629.03553 +- 1e-5)
   }
-  */
 }
