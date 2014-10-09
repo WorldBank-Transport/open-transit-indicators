@@ -64,6 +64,14 @@ var styles = {
             'line-opacity: 0.7;' +
             '}';
         return cartocss;
+    },
+    datasources_boundary: function () {
+        var cartocss = '#' + result_tablename + ' {' +
+            'line-color: #00f;' +
+            'line-width:3;' +
+            'line-dasharray:3,3;'+
+            '}';
+        return cartocss;
     }
 };
 
@@ -105,6 +113,24 @@ GTFSStops.prototype.getStyle = function () {
 };
 
 /**
+ * Encapsulates windshaft display logic for the datasources_boundary table
+ */
+
+var datasourcesBoundary = function () {};
+
+datasourcesBoundary.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT ST_Transform(geom, 4326) as the_geom FROM datasources_boundary) AS " + result_tablename;
+    return sqlString;
+};
+
+datasourcesBoundary.prototype.getStyle = function () {
+    return styles.datasources_boundary() || "";
+}
+
+;
+
+/**
  * Encapsulates windshaft display logic for the gtfs_stops_buffers table
  */
 
@@ -114,11 +140,11 @@ GTFSStopsBuffers.prototype.getSql = function () {
     var sqlString =
         "(SELECT * FROM gtfs_stops_buffers) AS " + result_tablename;
     return sqlString;
-}
+};
 
 GTFSStopsBuffers.prototype.getStyle = function () {
     return styles.gtfs_stops_buffers() || "";
-}
+};
 
 /**
  * Defaults for the IndicatorConfig object
@@ -177,4 +203,5 @@ exports.Indicator = Indicator;
 exports.GTFSShapes = GTFSShapes;
 exports.GTFSStops = GTFSStops;
 exports.GTFSStopsBuffers = GTFSStopsBuffers;
+exports.datasourcesBoundary = datasourcesBoundary;
 exports.table = result_tablename;

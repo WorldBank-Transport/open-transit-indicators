@@ -29,6 +29,13 @@ angular.module('transitIndicators')
             visible: true,
             layerOptions: $scope.indicator
         },
+        boundary: {
+            name: 'Boundary',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            visible: true,
+            layerOptions: $scope.indicator
+        },
         utfgrid: {
             name: 'GTFS Indicator Interactivity',
             type: 'utfGrid',
