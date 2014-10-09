@@ -21,10 +21,15 @@ trait AdHocSystemIndicatorSpec extends FlatSpec with Matchers {
   val missingStopsPeriod = SamplePeriod(1, "missingstops",
     new LocalDateTime(2014, 2, 3, 6, 0),
     new LocalDateTime(2014, 2, 3, 18, 0))
+  val sundayPeriod = SamplePeriod(1, "sundaystops",
+    new LocalDateTime(2014, 2, 2, 5, 0),
+    new LocalDateTime(2014, 2, 2, 23, 59))
   val systemWithAllStops =
     systemBuilder.systemBetween(allStopsPeriod.start, allStopsPeriod.end) // Weekday
   val systemWithoutSomeStops =
     systemBuilder.systemBetween(missingStopsPeriod.start, missingStopsPeriod.end) // Weekday
+  val systemSunday =
+    systemBuilder.systemBetween(sundayPeriod.start, sundayPeriod.end) // Sunday
 
   def routeById(routeId: String)(implicit routeMap: Map[Route, Double]): Double = {
     val routeIdMap = routeMap.map{case (k, v) => (k.id -> v)}.toMap
