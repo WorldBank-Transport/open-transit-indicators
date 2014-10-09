@@ -73,6 +73,13 @@ class IndicatorSerializer(serializers.ModelSerializer):
         """Validate indicator fields"""
         # TODO: Error messages need to be translated
 
+        # Make sure empty route_ids and route_types are signified by
+        # a null instead of an empty string. Without this check, the
+        # endpoint will return a 500 error when an empty string is used.
+        for attr in ['route_id', 'route_type']:
+            if attr in attrs and attrs[attr] == '':
+                attrs[attr] = None
+
         # Route aggregation type requires a route id and no route type
         if attrs['aggregation'] == Indicator.AggregationTypes.ROUTE:
             if 'route_id' not in attrs or not attrs['route_id']:
