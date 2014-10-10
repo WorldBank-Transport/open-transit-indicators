@@ -4,9 +4,11 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
 import geotrellis.vector._
-
+import com.azavea.opentransit.indicators.parameters._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
+
+import com.typesafe.config.{ConfigFactory, Config}
 
 object CalculateIndicators {
   /** Computes all indicators and shovels the IndicatorContainerGenerators to a function.
@@ -20,7 +22,7 @@ object CalculateIndicators {
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
-    val params = DatabaseIndicatorParamsBuilder(request, systemsByPeriod, db)
+    val params = IndicatorParams(request, systemsByPeriod, db)
 
     val periodGeometries = periods.map { period =>
       period -> SystemGeometries(systemsByPeriod(period))

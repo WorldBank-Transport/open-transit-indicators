@@ -11,9 +11,9 @@ BEGIN
     -- get grid points with SRID (ST_Extent returns object without geometry)
     CREATE TABLE demographic_grid AS
     SELECT (pts.grid).geom AS geom
-    FROM (SELECT ST_RegularGrid(geom, 500, 500) AS grid 
+    FROM (SELECT ST_RegularGrid(geom, 500, 500) AS grid
     FROM (SELECT ST_SetSRID(ST_Extent(geom),
-    find_srid('public', 'datasources_demographicdatafeature', 'geom')) AS geom 
+    find_srid('public', 'datasources_demographicdatafeature', 'geom')) AS geom
     FROM datasources_demographicdatafeature) AS box) AS pts;
 
     ALTER TABLE demographic_grid ADD COLUMN feature_id integer;
@@ -21,7 +21,7 @@ BEGIN
     ALTER TABLE demographic_grid ADD COLUMN population_metric_2 double precision;
     ALTER TABLE demographic_grid ADD COLUMN destination_metric_1 double precision;
     CREATE INDEX demographic_grid_feature_id ON demographic_grid(feature_id);
-    
+
     -- create FK, so the demographic_grid values will be deleted on related features deletion
     ALTER TABLE demographic_grid ADD CONSTRAINT demographic_grid_feature_id_fk
                 FOREIGN KEY (feature_id)
@@ -38,7 +38,7 @@ BEGIN
     SELECT f.id, f.population_metric_1 / COUNT(g.feature_id) as population_metric_1,
     f.population_metric_2 / COUNT(g.feature_id) as population_metric_2,
     f.destination_metric_1 / COUNT(g.feature_id) as destination_metric_1
-    FROM datasources_demographicdatafeature f 
+    FROM datasources_demographicdatafeature f
     INNER JOIN demographic_grid g ON (g.feature_id=f.id)
     GROUP BY f.id;
 
@@ -47,6 +47,10 @@ BEGIN
     destination_metric_1 = v.destination_metric_1
     FROM demographic_point_values v
     WHERE v.id = feature_id;
+
+    -- Reproject to UTM
+    UPDATE demographic_grid SET geom = ST_Transform(geom, (SELECT Find_SRID('public', 'gtfs_stops', 'geom')));
+    PERFORM UpdateGeometrySRID('public', 'demographic_grid', 'geom', (SELECT Find_SRID('public', 'gtfs_stops', 'geom')));
 END;
 $$ LANGUAGE plpgsql;
 

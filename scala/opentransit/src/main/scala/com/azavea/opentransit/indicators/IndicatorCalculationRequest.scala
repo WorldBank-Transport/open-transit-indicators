@@ -18,5 +18,6 @@ case class IndicatorCalculationRequest(
   cityBoundaryId: Int,
   regionBoundaryId: Int,
   averageFare: Double,
-  samplePeriods: List[SamplePeriod]
+  samplePeriods: List[SamplePeriod],
+  runAccessibility: Boolean
 ) extends Logging

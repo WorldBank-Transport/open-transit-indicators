@@ -17,5 +17,13 @@ trait StopsTable { this: Profile =>
     def * = (id, name, desc, geom) <> (Stop.tupled, Stop.unapply)
   }
 
-  def stopsTable = TableQuery[Stops]
+  val stopsTable = TableQuery[Stops]
+
+  def getStopBuffers(radius: Float)(implicit session: Session): Map[String, Projected[Polygon]] = {
+    val result = for {
+      stop <- stopsTable
+    } yield (stop.id, stop.geom.buffer(radius))
+    result.list.map( tup => tup.asInstanceOf[(String, Projected[Polygon])] ).toMap
+  }
+
 }

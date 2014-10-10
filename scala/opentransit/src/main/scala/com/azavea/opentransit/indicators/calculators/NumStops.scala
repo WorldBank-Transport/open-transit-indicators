@@ -1,7 +1,8 @@
-package com.azavea.opentransit.indicators
+package com.azavea.opentransit.indicators.calculators
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
+import com.azavea.opentransit.indicators._
 
 object NumStops extends Indicator
                    with AggregatesByAll {

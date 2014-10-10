@@ -1,10 +1,12 @@
 package com.azavea.opentransit.indicators
 
-import geotrellis.vector._ 
+import geotrellis.vector._
 
 import com.azavea.gtfs._
 
 import com.azavea.opentransit.testkit._
+import com.azavea.opentransit.indicators.calculators._
+
 import com.typesafe.config.{ConfigFactory,Config}
 
 import org.scalatest._

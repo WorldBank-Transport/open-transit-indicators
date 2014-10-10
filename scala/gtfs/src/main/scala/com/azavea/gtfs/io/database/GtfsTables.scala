@@ -12,3 +12,8 @@ trait GtfsTables
        with CalendarDateRecordsTable
        with TripShapesTable
        with FrequencyRecordsTable { self: Profile => }
+
+// Used to make StopsTable easily available
+class DatabaseStops(implicit session: Session) extends StopsTable { self: Profile =>
+  import profile.simple._
+}
