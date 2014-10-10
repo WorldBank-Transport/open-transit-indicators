@@ -47,6 +47,7 @@ object DemographicsTable {
       demographic <- demographicsTable if demographic.geom.within(multipolygon)
     } yield column match {
       case "populationMetric2" => demographic.populationMetric2
+      case "destinationMetric1" => demographic.destinationMetric1
       case _ => demographic.populationMetric1
     }
     metric.sum.run.getOrElse(0.0)

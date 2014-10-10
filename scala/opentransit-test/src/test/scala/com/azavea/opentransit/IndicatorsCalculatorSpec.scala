@@ -113,6 +113,17 @@ trait BoundariesSpec {this: IndicatorSpec =>
   }
 }
 
+trait DemographicsSpec {this: IndicatorSpec =>
+  val demographics = db withSession { implicit session =>
+    Demographics(db)
+  }
+
+  trait DemographicsSpecParams extends Demographics {
+    def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
+      demographics.populationMetricForBuffer(buffer, columnName)
+  }
+}
+
 class IndicatorCalculatorSpec extends FlatSpec with Matchers with IndicatorSpec {
   // TODO: the results of all the avg_service_freq tests after the refactor look off
   // NOTE: this may be a problem with units -- the numbers are similar, but the decimal place isn't
