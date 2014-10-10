@@ -27,6 +27,7 @@ trait IndicatorParamSpec extends DatabaseTestFixture { self: Suite =>
 
   // This is a mock request which IndicatorsRoute.scala generates from an incoming
   // POST
+  val requestSamplePeriods: List[SamplePeriod]
   val request = IndicatorCalculationRequest(
       token = "AuthToken",
       version = "HashToKeepGTFSSystemsVersioned",
@@ -37,33 +38,16 @@ trait IndicatorParamSpec extends DatabaseTestFixture { self: Suite =>
       cityBoundaryId = 1, // index in DB
       regionBoundaryId = 1, // index in DB
       averageFare = 2.5,
-      samplePeriods = List (
-          SamplePeriod(1, "night",
-              new LocalDateTime("2014-05-01T00:00:00.000"),
-              new LocalDateTime("2014-05-01T08:00:00.000")
-          ),
-          SamplePeriod(1, "morning",
-              new LocalDateTime("2014-05-01T08:00:00.000"),
-              new LocalDateTime("2014-05-01T11:00:00.000")
-          ),
-          SamplePeriod(1, "midday",
-              new LocalDateTime("2014-05-01T11:00:00.000"),
-              new LocalDateTime("2014-05-01T16:30:00.000")
-          ),
-          SamplePeriod(1, "evening",
-              new LocalDateTime("2014-05-01T16:30:00.000"),
-              new LocalDateTime("2014-05-01T23:59:59.999")
-          ),
-          SamplePeriod(1, "weekend",
-              new LocalDateTime("2014-05-02T00:00:00.000"),
-              new LocalDateTime("2014-05-02T23:59:59.999")
-          )
-      )
+      samplePeriods = requestSamplePeriods
   )
 
 
-  // Call the GTFS parser (com.azavea.gtfs) to create GTFS records
-  val scheduledRecords = {
+  // Create GTFS records
+  val scheduledRecords: GtfsRecords
+  val observedRecords: GtfsRecords
+
+
+  /*val scheduledRecords = {
     val config = ConfigFactory.load
     val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
@@ -73,7 +57,7 @@ trait IndicatorParamSpec extends DatabaseTestFixture { self: Suite =>
       GtfsRecords.fromDatabase(dbGeomNameUtm).force
     }
   }
-  val observedRecords = CsvGtfsRecords(TestFiles.rtSeptaPath)
+  val observedRecords = CsvGtfsRecords(TestFiles.rtSeptaPath)*/
 
 
   /** This is the GTFS Parser's TransitSystemBuilder, which takes
@@ -82,7 +66,7 @@ trait IndicatorParamSpec extends DatabaseTestFixture { self: Suite =>
    *  `.systemBetween` method)
    */
   val scheduledSystemBuilder = TransitSystemBuilder(scheduledRecords)
-  //val observedSystemBuilder = TransitSystemBuilder(observedRecords)
+  val observedSystemBuilder = TransitSystemBuilder(observedRecords)
 
   // Pull samplePeriods from our request and subset out our TransitSystem
   val periods = request.samplePeriods
@@ -107,16 +91,6 @@ trait IndicatorParamSpec extends DatabaseTestFixture { self: Suite =>
   val firstSystem = scheduledSystemsByPeriod.values.head
 
   // helper functions for testing
-  def septaOverall(indicator: Indicator): AggregatedResults =
-    PeriodResultAggregator({
-      val results = periods.map { period => {
-        val calculation = indicator.calculation(period)
-        val transitSystem = scheduledSystemsByPeriod(period)
-        val results = calculation(transitSystem)
-        (period, results)}
-      }
-      results.toMap}
-    )
 
   /** This helper function is potentially tricky:
    *  just remember to instantiate the implicit it assumes.

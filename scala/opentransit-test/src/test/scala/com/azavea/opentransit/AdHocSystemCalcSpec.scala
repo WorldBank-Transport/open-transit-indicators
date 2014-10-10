@@ -13,8 +13,13 @@ import org.scalatest._
 * Inherit from this trait if you're interested in using ad hoc GTFS data;
 * it will be easier to reason about
 */
-trait AdHocSystemIndicatorSpec extends FlatSpec with Matchers {
-  val systemBuilder = TransitSystemBuilder(TestGtfsRecords())
+trait AdHocSystemIndicatorSpec
+    extends FlatSpec
+    with Matchers
+    with IndicatorParamSpec {
+
+  val scheduledRecords = TestGtfsRecords()
+  val observedRecords = TestRealTimeGtfsRecords()
   val allStopsPeriod = SamplePeriod(1, "allstops",
     new LocalDateTime(2014, 2, 3, 5, 0),
     new LocalDateTime(2014, 2, 3, 18, 0))
