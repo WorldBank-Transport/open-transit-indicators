@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios',
-            function (config, $scope, $rootScope, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios',
+            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios) {
 
     // PRIVATE
 
@@ -47,16 +47,30 @@ angular.module('transitIndicators')
     // EVENTS
 
     $scope.$on('$stateChangeSuccess', function (event, to, toParams, from, fromParams) {
-        $scope.$broadcast('updateHeight');
+        // $scope.back responsible for determining the direction of the x direction animation
+        // From: http://codepen.io/ed_conolly/pen/aubKf
+        $scope.back = OTIScenariosService.isReverseView(from, to);
 
-        // TODO: Why, oh why, sir angular, does this handler get called twice on state change?
-        // Did I not please you?
-        if (to.name !== from.name) {
-            // $scope.back responsible for determining the direction of the x direction animation
-            // From: http://codepen.io/ed_conolly/pen/aubKf
-            $scope.back = OTIScenariosService.isReverseView(from, to);
-        }
+        $scope.$broadcast('updateHeight');
     });
+
+    // SCOPE
+
+    /**
+     * Switch to a new scenario view. Prefer use of this to directly using ui-sref when
+     *  switching between scenario child views.
+     */
+    $scope.transition = function (stateId, uuid) {
+        // Required state param cannot be null or undefined
+        // If it is, it will cause two transitions, first to new state with uuid: null, then
+        // the router sends a second transition with null param massaged to ''
+
+        // STUB
+        // TODO : scenario uuid selection logic when that is figured out
+        var uuidParam = uuid || '';
+        $state.go(stateId, {'uuid': uuidParam});
+    };
+
 
     // INIT
 

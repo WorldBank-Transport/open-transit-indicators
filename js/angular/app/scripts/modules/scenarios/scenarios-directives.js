@@ -19,15 +19,17 @@ angular.module('transitIndicators')
         link: function(scope, element) {
 
             var updateScenarioHeight = function () {
-                var pageHeight = element.find('.scenario-page').outerHeight();
-                var headerHeight = element.find('.scenario-headings').outerHeight();
-                var height = pageHeight + headerHeight;
-                element.css({
-                    'height': (height)
+                $timeout(function () {
+                    var pageHeight = element.find('.scenario-page').outerHeight();
+                    var headerHeight = element.find('.scenario-headings').outerHeight();
+                    var height = pageHeight + headerHeight;
+                    element.css({
+                        'height': height
+                    });
                 });
             };
 
-            $timeout(updateScenarioHeight);
+            updateScenarioHeight();
 
             // TODO: Is there a better way to update the height on a view switch?
             scope.$on('updateHeight', updateScenarioHeight);
