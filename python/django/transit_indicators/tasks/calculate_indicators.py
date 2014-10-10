@@ -13,8 +13,11 @@ GT_INDICATORS_ENDPOINT = 'http://localhost/gt/indicators'
 
 def run_accessibility():
     """Helper function that returns True if accesibility calculators can be run"""
-    demographic_datasource_status = DemographicDataSource.objects.filter().first().status
-    is_completed = (demographic_datasource_status == 'complete')
+    demographic_datasource = DemographicDataSource.objects.filter().first()
+    if demographic_datasource:
+        is_completed = (demographic_datasource.status == 'complete')
+    else:
+        is_completed = False
     has_features = DemographicDataFeature.objects.filter().count() > 0
     return is_completed and has_features
 
