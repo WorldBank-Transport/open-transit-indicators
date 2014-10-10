@@ -75,16 +75,17 @@ package object json {
         "city_boundary_id",
         "region_boundary_id",
         "avg_fare",
-        "sample_periods"
+        "sample_periods",
+        "run_accessibility"
       ) match {
         case Seq(JsString(token), JsString(version), JsNumber(povertyLine), JsNumber(nearbyBufferDistance),
                  JsNumber(maxCommuteTime), JsNumber(maxWalkTime), JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
-                 JsNumber(averageFare), samplePeriodsJson) =>
+                 JsNumber(averageFare), samplePeriodsJson, JsBoolean(runAccessibility)) =>
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
           IndicatorCalculationRequest(
             token, version, povertyLine.toDouble, nearbyBufferDistance.toDouble,
             maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
-            averageFare.toDouble, samplePeriods
+            averageFare.toDouble, samplePeriods, runAccessibility
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
       }

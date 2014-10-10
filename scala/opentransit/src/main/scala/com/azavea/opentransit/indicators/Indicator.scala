@@ -20,18 +20,25 @@ object Indicators {
     )
 
   // These are indicators that need to know things about the request
-  private def paramIndicators(params: IndicatorParams): List[Indicator] =
+  private def paramIndicators(params: IndicatorParams): List[Indicator] = {
     List(
       new CoverageRatioStopsBuffer(params),
       new TransitNetworkDensity(params),
-      new Affordability(params),
-      new AllAccessibility(params),
-      new LowIncomeAccessibility(params)
-
+      new Affordability(params)
     )
+  }
+
+  private def accessibilityIndicators(params: IndicatorParams): List[Indicator] = {
+    if (params.settings.runAccessibility)
+      List(
+        new AllAccessibility(params),
+        new LowIncomeAccessibility(params)
+      )
+    else List()
+  }
 
   def list(params: IndicatorParams): List[Indicator] =
-    staticIndicators ++ paramIndicators(params)
+    staticIndicators ++ paramIndicators(params) ++ accessibilityIndicators(params)
 }
 
 trait Indicator { self: AggregatesBy =>

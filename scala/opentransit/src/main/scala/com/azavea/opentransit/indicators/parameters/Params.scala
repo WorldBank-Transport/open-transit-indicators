@@ -17,7 +17,8 @@ case class IndicatorSettings(
   nearbyBufferDistance: Double,
   maxCommuteTime: Int,
   maxWalkTime: Int,
-  averageFare: Double
+  averageFare: Double,
+  runAccessibility: Boolean
 )
 
 // Do not change by period or scenario
@@ -43,7 +44,7 @@ object IndicatorParams {
         def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
           stopBuffers.bufferForPeriod(period)
 
-        def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName:String) =
+        def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
           demographics.populationMetricForBuffer(buffer, columnName)
 
         val settings =
@@ -52,7 +53,8 @@ object IndicatorParams {
             request.nearbyBufferDistance,
             request.maxCommuteTime,
             request.maxWalkTime,
-            request.averageFare
+            request.averageFare,
+            request.runAccessibility
           )
         val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
         val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)
