@@ -16,6 +16,7 @@ trait DatabaseTestFixture extends TestDatabase with BeforeAndAfterAll { self: Su
     // initialize the test database via the setup_db script
     s"sudo -u postgres ../deployment/setup_db.sh $dbName $dbUser $dbPassword ..".!!
     s"sudo -u postgres testkit/data/populate_db.sh $dbName $dbUser $dbPassword ..".!!
+    s"sudo -u postgres psql -d $dbName -f testkit/data/philly_demographics/demographics.sql".!!
   }
 
   // after all tests have been run in the spec, drop the test database
