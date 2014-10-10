@@ -5,6 +5,7 @@ angular.module('transitIndicators')
         ['config',
         function (config) {
 
+    // STUB data
     var scenarios = [{
             id: '1',
             name: 'Mutually Assured Destruction',
