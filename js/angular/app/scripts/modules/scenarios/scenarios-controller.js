@@ -1,8 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios',
+            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios) {
+
+    // PRIVATE
 
     var overlays = {
         gtfs_shapes: {
@@ -41,28 +43,40 @@ angular.module('transitIndicators')
         });
     };
 
+
+    // EVENTS
+
+    $scope.$on('$stateChangeSuccess', function (event, to, toParams, from, fromParams) {
+        // $scope.back responsible for determining the direction of the x direction animation
+        // From: http://codepen.io/ed_conolly/pen/aubKf
+        $scope.back = OTIScenariosService.isReverseView(from, to);
+
+        $scope.$broadcast('updateHeight');
+    });
+
+    // SCOPE
+
+    /**
+     * Switch to a new scenario view. Prefer use of this to directly using ui-sref when
+     *  switching between scenario child views.
+     */
+    $scope.transition = function (stateId, uuid) {
+        // Required state param cannot be null or undefined
+        // If it is, it will cause two transitions, first to new state with uuid: null, then
+        // the router sends a second transition with null param massaged to ''
+
+        // STUB
+        // TODO : scenario uuid selection logic when that is figured out
+        var uuidParam = uuid || '';
+        $state.go(stateId, {'uuid': uuidParam});
+    };
+
+
+    // INIT
+
+    $scope.height = 0;
+    $scope.scenarios = scenarios;
     $scope.updateLeafletOverlays(overlays);
     setLegend();
-
-    $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
-        $scope.leaflet.markers.length = 0;
-        if (leafletEvent && leafletEvent.data && leafletEvent.data.stop_routes) {
-            $scope.$apply(function () {
-                var marker = {
-                    lat: leafletEvent.latlng.lat,
-                    lng: leafletEvent.latlng.lng,
-                    message: leafletEvent.data.stop_routes,
-                    focus: true,
-                    draggable: false,
-                    icon: {
-                        type: 'div',
-                        iconSize: [0, 0],
-                        popupAnchor:  [0, 0]
-                    }
-                };
-                $scope.leaflet.markers.push(marker);
-            });
-        }
-    });
 
 }]);

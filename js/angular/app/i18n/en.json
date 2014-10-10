@@ -46,6 +46,9 @@
         "SELECTONE": "Select One",
         "UPLOAD": "Upload",
         "RESET": "Reset",
+        "LOAD": "Load",
+        "IMPORT": "Import",
+        "EXPORT": "Export",
         "CALCULATE_INDICATORS": "Calculate Indicators"
     },
     "INDICATOR": {
@@ -59,6 +62,7 @@
         "ROUTE": "Route",
         "TRIP": "Trip",
         "NEW_SCENARIO": "New Scenario",
+        "MY_SCENARIOS": "My Scenarios",
         "GET_STARTED": "Get started building your new scenario.",
         "NAME": "Name",
         "DESCRIPTION": "Description",
@@ -110,7 +114,9 @@
         "FARE_ID": "Fare ID",
         "PRICE": "Price",
         "GREAT": "Great",
-        "START_OVER": "Start Over"
+        "START_OVER": "Start Over",
+        "HEADER_NAME": "Name",
+        "HEADER_LAST_MODIFIED": "Last Modified"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index" : "",

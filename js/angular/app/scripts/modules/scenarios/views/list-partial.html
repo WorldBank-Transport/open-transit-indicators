@@ -1,0 +1,23 @@
+<div class="scenario-page-content">
+    <h3>{{'SCENARIO.MY_SCENARIOS'|translate}}</h3>
+    <div class="block">
+        <div class="row">
+            <div class="col-xs-4 text-muted">{{'SCENARIO.HEADER_NAME'|translate}}</div>
+            <div class="col-xs-8 text-muted">{{'SCENARIO.HEADER_LAST_MODIFIED'|translate}}</div>
+        </div>
+        <div class="row" ng-repeat="scenario in scenarios">
+            <div class="col-xs-4">{{ scenario.name }}</div>
+            <div class="col-xs-4">
+                2014/08/22
+            </div>
+            <div class="col-xs-4">
+                <a class="button--small default" ng-click="transition('list')">{{'TERM.LOAD'|translate}}</a> /
+                <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="transition('new')">{{'SCENARIO.NEW_SCENARIO'|translate}}</a> /
+    <a class="button--small default" ng-click="transition('list')">{{'TERM.IMPORT'|translate}}</a>
+</div>
