@@ -3,86 +3,22 @@
     <p>{{'SCENARIO.GET_STARTED'|translate}}</p>
     <div class="block">
         <label>{{'SCENARIO.NAME'|translate}}</label>
-        <input type="text" placeholder="New Scenario" id="prototype-scenario-field">
+        <input type="text" ng-model="scenario.name" placeholder="New Scenario" id="prototype-scenario-field">
     </div>
     <div class="block">
         <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
-        <textarea></textarea>
+        <textarea ng-model="scenario.description"></textarea>
     </div>
     <div class="block">
-        <label>{{'SCENARIO.DATE_AND_TIME_RANGE'|translate}}</label>
+        <label>{{'SCENARIO.TIME_PERIOD'|translate}}</label>
         <div class="row">
-            <div class="col-xs-4">
-                <select>
-                    <option id="prototype-new-date"></option>
-                </select>
-            </div>
-            <div class="col-xs-1 nopadding">
-                {{'SCENARIO.DT_RANGE_FROM'|translate}}
-            </div>
-            <div class="col-xs-3">
-                <select>
-                    <option>00:00</option>
-                    <option>01:00</option>
-                    <option>02:00</option>
-                    <option>03:00</option>
-                    <option>04:00</option>
-                    <option>05:00</option>
-                    <option>06:00</option>
-                    <option>07:00</option>
-                    <option>08:00</option>
-                    <option>09:00</option>
-                    <option>10:00</option>
-                    <option>11:00</option>
-                    <option>12:00</option>
-                    <option>13:00</option>
-                    <option>14:00</option>
-                    <option selected>15:00</option>
-                    <option>16:00</option>
-                    <option>17:00</option>
-                    <option>18:00</option>
-                    <option>19:00</option>
-                    <option>20:00</option>
-                    <option>21:00</option>
-                    <option>22:00</option>
-                    <option>23:00</option>
-                </select>
-            </div>
-            <div class="col-xs-1 nopadding">
-                {{'SCENARIO.DT_RANGE_TO'|translate}}
-            </div>
-            <div class="col-xs-3">
-                <select>
-                    <option>00:00</option>
-                    <option>01:00</option>
-                    <option>02:00</option>
-                    <option>03:00</option>
-                    <option>04:00</option>
-                    <option>05:00</option>
-                    <option>06:00</option>
-                    <option>07:00</option>
-                    <option>08:00</option>
-                    <option>09:00</option>
-                    <option>10:00</option>
-                    <option>11:00</option>
-                    <option>12:00</option>
-                    <option>13:00</option>
-                    <option>14:00</option>
-                    <option>15:00</option>
-                    <option>16:00</option>
-                    <option>17:00</option>
-                    <option>18:00</option>
-                    <option selected>19:00</option>
-                    <option>20:00</option>
-                    <option>21:00</option>
-                    <option>22:00</option>
-                    <option>23:00</option>
-                </select>
+            <div class="col-xs-12">
+                <select ng-model="scenario.samplePeriod" ng-options="key as value for (key, value) in samplePeriods" ></select>
             </div>
         </div>
     </div>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-click="transition('list')">{{'SCENARIO.FINISH'|translate}}</a> /
-    <a class="button--small" ng-click="transition('list')">{{'SCENARIO.BACK'|translate}}</a>
+    <a class="button--small default" ng-click="create()">{{'TERM.FINISH'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>

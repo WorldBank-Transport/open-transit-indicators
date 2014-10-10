@@ -75,6 +75,10 @@ angular.module('transitIndicators', [
             controller: 'OTIScenariosController',
             resolve: {
                 OTIScenariosService: 'OTIScenariosService',
+                OTIIndicatorsService: 'OTIIndicatorsService',
+                samplePeriods: function (OTIIndicatorsService) {
+                    return OTIIndicatorsService.getSamplePeriodTypes();
+                },
                 scenarios: function (OTIScenariosService) {
                     return OTIScenariosService.getScenarios();
                 }
@@ -118,10 +122,10 @@ angular.module('transitIndicators', [
         _.each(config.scenarioViews, function (view) {
             var viewId = view.id;
             var nodash = viewId.replace('-', '');
-            var capsId = nodash.charAt(0).toUpperCase() + viewId.slice(1);
+            var capsId = nodash.charAt(0).toUpperCase() + nodash.slice(1);
             $stateProvider.state(view.id, {
                 parent: 'scenarios',
-                url: '/' + viewId + '/:uuid',
+                url: '/' + viewId,
                 templateUrl: 'scripts/modules/scenarios/views/' + viewId + '-partial.html',
                 controller: 'OTIScenarios' +  capsId + 'Controller'
             });

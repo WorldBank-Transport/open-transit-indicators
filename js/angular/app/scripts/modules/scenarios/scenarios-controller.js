@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios',
-            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods',
+            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods) {
 
     // PRIVATE
 
@@ -46,36 +46,24 @@ angular.module('transitIndicators')
 
     // EVENTS
 
-    $scope.$on('$stateChangeSuccess', function (event, to, toParams, from, fromParams) {
+    $scope.$on('$stateChangeSuccess', function (event, to, toParams, from) {
         // $scope.back responsible for determining the direction of the x direction animation
         // From: http://codepen.io/ed_conolly/pen/aubKf
         $scope.back = OTIScenariosService.isReverseView(from, to);
 
         $scope.$broadcast('updateHeight');
+
+        // TODO: Add logic to lock navigation out of an edit view if $scope.scenario.id
+        //       is not defined
     });
-
-    // SCOPE
-
-    /**
-     * Switch to a new scenario view. Prefer use of this to directly using ui-sref when
-     *  switching between scenario child views.
-     */
-    $scope.transition = function (stateId, uuid) {
-        // Required state param cannot be null or undefined
-        // If it is, it will cause two transitions, first to new state with uuid: null, then
-        // the router sends a second transition with null param massaged to ''
-
-        // STUB
-        // TODO : scenario uuid selection logic when that is figured out
-        var uuidParam = uuid || '';
-        $state.go(stateId, {'uuid': uuidParam});
-    };
 
 
     // INIT
 
     $scope.height = 0;
     $scope.scenarios = scenarios;
+    $scope.samplePeriods = samplePeriods;
+
     $scope.updateLeafletOverlays(overlays);
     setLegend();
 

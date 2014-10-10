@@ -52,6 +52,7 @@
         "LOAD": "Load",
         "IMPORT": "Import",
         "EXPORT": "Export",
+        "CREATE": "Create",
         "CALCULATE_INDICATORS": "计算指标"
     },
     "INDICATOR": {
@@ -124,7 +125,8 @@
         "GREAT": "棒极了",
         "START_OVER": "Start Over",
         "HEADER_NAME": "Name",
-        "HEADER_LAST_MODIFIED": "Last Modified"
+        "HEADER_LAST_MODIFIED": "Last Modified",
+        "TIME_PERIOD": "Time Period"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index": "可达性指标",
