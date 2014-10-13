@@ -1,22 +1,24 @@
 <div class="scenario-page-content">
-    <h3>{{'SCENARIO.NEW_SCENARIO'|translate}}</h3>
-    <p>{{'SCENARIO.GET_STARTED'|translate}}</p>
-    <div class="block">
-        <label>{{'SCENARIO.NAME'|translate}}</label>
-        <input type="text" ng-model="scenario.name" placeholder="New Scenario" id="prototype-scenario-field">
-    </div>
-    <div class="block">
-        <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
-        <textarea ng-model="scenario.description"></textarea>
-    </div>
-    <div class="block">
-        <label>{{'SCENARIO.TIME_PERIOD'|translate}}</label>
-        <div class="row">
-            <div class="col-xs-12">
-                <select ng-model="scenario.samplePeriod" ng-options="key as value for (key, value) in samplePeriods" ></select>
+    <form novalidate name="newScenario">
+        <h3>{{'SCENARIO.NEW_SCENARIO'|translate}}</h3>
+        <p>{{'SCENARIO.GET_STARTED'|translate}}</p>
+        <div class="block">
+            <label>{{'SCENARIO.NAME'|translate}}</label>
+            <input type="text" ng-model="scenario.name" required placeholder="New Scenario" id="prototype-scenario-field">
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
+            <textarea ng-model="scenario.description" required ></textarea>
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.TIME_PERIOD'|translate}}</label>
+            <div class="row">
+                <div class="col-xs-12">
+                    <select ng-model="scenario.samplePeriod" required ng-options="key as value for (key, value) in samplePeriods" ></select>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 <div class="scenario-page-buttons">
     <a class="button--small default" ng-click="create()">{{'TERM.FINISH'|translate}}</a> /
