@@ -19,6 +19,8 @@ angular.module('transitIndicators')
 
     $scope.config = null;
     $scope.samplePeriods = null;
+    $scope.serviceStart = null;
+    $scope.serviceEnd = null;
 
     $scope.savePeriodsButton = {
         text: 'STATUS.SAVE',
@@ -321,6 +323,24 @@ angular.module('transitIndicators')
     $scope.disableWeekday = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekday(date));
     };
+    
+    var setServiceDateRange = function (obj) {
+        var serviceDates = obj['service-dates'];
+        if (serviceDates != null) {
+            $scope.serviceStart = serviceDates['start'];
+            $scope.serviceEnd = serviceDates['end'];
+            console.log("service starts on: " + $scope.serviceStart);
+            console.log("service ends on: " + $scope.serviceEnd);
+        } else {
+            var error = obj['error'];
+            if (error != null) {
+                console.log("Server returned error fetching feed service dates:");
+                console.log(error);
+            } else {
+                console.log("No service dates found; GTFS probably isn't loaded yet.");
+            }
+        }
+    }
 
     /**
      * Initialize config page with data
@@ -335,6 +355,13 @@ angular.module('transitIndicators')
             setConfig(configs[0]);
         }, function () {
             $scope.configLoadError = true;
+        });
+        
+        // get service date range
+        OTIConfigurationService.ServiceDates.get({}, function (data) {
+          setServiceDateRange(data);
+        }, function () {
+          console.log("Error fetching feed service dates!");
         });
 
         OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {

@@ -45,7 +45,9 @@ angular.module('transitIndicators')
                 url: '/api/sample-periods/:type/ '
             }
         }),
-
+        
+        ServiceDates: $resource('/gt/service-dates', {}, {}),
+        
         SamplePeriodTypes: ['morning', 'midday', 'evening', 'night', 'weekend']
     };
 }]);
