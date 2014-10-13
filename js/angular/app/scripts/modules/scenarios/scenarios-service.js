@@ -32,11 +32,7 @@ angular.module('transitIndicators')
         }
     ];
 
-    var otiScenariosService = {};
-
-    otiScenariosService.otiScenario = {};
-
-    otiScenariosService.routes = [{
+    var routes = [{
         routeId: createUUID(),
         routeShortName: 'Route 1',
         routeType: 1,
@@ -101,10 +97,20 @@ angular.module('transitIndicators')
 
     }];
 
+    var otiScenariosService = {};
+
+    otiScenariosService.otiScenario = {};
+
+    otiScenariosService.otiRoute = {};
+
     otiScenariosService.getScenarios = function () {
         // STUB
         // TODO: Replace with resource call
         return scenarios;
+    };
+
+    otiScenariosService.getRoutes = function () {
+        return routes;
     };
 
     otiScenariosService.upsertScenario = function (scenario) {
@@ -117,6 +123,19 @@ angular.module('transitIndicators')
         });
         if (!found) {
             scenarios.push(scenario);
+        }
+    };
+
+    otiScenariosService.upsertRoute = function (route) {
+        var found = false;
+        _.each(routes, function (r, index) {
+            if (r.routeId === route.routeId) {
+                routes[index] = route;
+                found = true;
+            }
+        });
+        if (!found) {
+            routes.push(route);
         }
     };
 

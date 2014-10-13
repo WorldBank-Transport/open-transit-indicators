@@ -13,9 +13,9 @@ angular.module('transitIndicators')
         });
     };
 
+    $scope.routes = OTIScenariosService.getRoutes();
+    $scope.filteredRoutes = [];
     $scope.scenario = OTIScenariosService.otiScenario;
-    $scope.routes = OTIScenariosService.routes;
-    $scope.route = {};
 
     $scope.selectedRouteId = '';
     $scope.selectedRouteType = -1;
@@ -25,16 +25,14 @@ angular.module('transitIndicators')
         if (!routeId) {
             return;
         }
-        $scope.route = _.find($scope.routes, function (r) {
+        OTIScenariosService.otiRoute = _.find($scope.routes, function (r) {
             return r.routeId === routeId;
         });
-
         $state.go('routes-edit');
     };
 
     $scope.newRoute = function () {
-        $scope.route = new OTIScenariosService.Route();
-
+        OTIScenariosService.otiRoute = new OTIScenariosService.Route();
         $state.go('routes-edit');
     };
 
@@ -44,6 +42,6 @@ angular.module('transitIndicators')
     };
 
     $scope.$watch('selectedRouteType', function (newValue) {
-        $scope.routes = filterRoutes(OTIScenariosService.routes, newValue);
+        $scope.filteredRoutes = filterRoutes($scope.routes, newValue);
     });
 }]);

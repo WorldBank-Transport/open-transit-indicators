@@ -79,6 +79,9 @@ angular.module('transitIndicators', [
                 samplePeriods: function (OTIIndicatorsService) {
                     return OTIIndicatorsService.getSamplePeriodTypes();
                 },
+                routeTypes: function (OTIIndicatorsService) {
+                    return OTIIndicatorsService.getRouteTypes();
+                },
                 scenarios: function (OTIScenariosService) {
                     return OTIScenariosService.getScenarios();
                 }
@@ -127,7 +130,10 @@ angular.module('transitIndicators', [
                 parent: 'scenarios',
                 url: '/' + viewId,
                 templateUrl: 'scripts/modules/scenarios/views/' + viewId + '-partial.html',
-                controller: 'OTIScenarios' +  capsId + 'Controller'
+                controller: 'OTIScenarios' +  capsId + 'Controller',
+                resolve: {
+
+                }
             });
         });
 
