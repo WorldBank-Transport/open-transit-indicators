@@ -157,6 +157,8 @@ angular.module('transitIndicators')
         this.stops = [];
         this.shapes = [];
         this.stopTimes = [];
+
+        this.lastShapeLatLng = null;
     };
 
     // Sort by shapePtSequence ascending
@@ -164,6 +166,29 @@ angular.module('transitIndicators')
         this.shapes.sort(function (a, b) {
             return a.shapePtSequence - b.shapePtSequence;
         });
+    };
+
+    otiScenariosService.Route.prototype.addShape = function (latLng) {
+        if (latLng && latLng.lat && latLng.lng) {
+            var shape = new otiScenariosService.Shape();
+            var index = this.shapes.length;
+            shape.shapePtLat = latLng.lat;
+            shape.shapePtLon = latLng.lng;
+            shape.shapeDistTraveled = 0;
+            if (this.lastShapeLatLng) {
+                var newDistance = latLng.distanceTo(this.lastShapeLatLng) / 1000.0;
+                var oldDistance = this.shapes[index - 1].shapeDistTraveled;
+                shape.shapeDistTraveled = oldDistance + newDistance;
+            }
+            shape.shapePtSequence = index;
+            this.shapes.push(shape);
+            this.lastShapeLatLng = latLng;
+        }
+    };
+
+    otiScenariosService.Route.prototype.deleteShapes = function () {
+        this.shapes = [];
+        this.lastShapeLatLng = null;
     };
 
     otiScenariosService.StopTime = function () {
