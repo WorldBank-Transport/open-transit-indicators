@@ -44,7 +44,8 @@ object IndicatorParams {
         def observedForTrip(period: SamplePeriod, tripId: String) =
           observedStopTimes.observedForTrip(period, tripId)
 
-        def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
+        def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
+        def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
         def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
           stopBuffers.bufferForPeriod(period)
 
