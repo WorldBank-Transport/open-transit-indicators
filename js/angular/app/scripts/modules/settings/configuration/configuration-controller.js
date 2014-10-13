@@ -19,6 +19,8 @@ angular.module('transitIndicators')
 
     $scope.config = null;
     $scope.samplePeriods = null;
+    $scope.serviceStart = null;
+    $scope.serviceEnd = null;
 
     $scope.savePeriodsButton = {
         text: 'STATUS.SAVE',
@@ -267,19 +269,36 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Invalidate samplePeriodsForm if weekdayDate is not a weekday
+     * Invalidate samplePeriodsForm if weekdayDate is not a weekday in service date range
      */
     $scope.validateWeekday = function () {
-        var isValid = OTIConfigurationService.isWeekday($scope.weekdayDate);
+        var isValid = OTIConfigurationService.isWeekday($scope.weekdayDate) && 
+                      isInServiceRange($scope.weekdayDate);
         $scope.samplePeriodsForm.weekdayDate.$setValidity('weekdayDate', isValid);
     };
 
     /**
-     * Invalidate samplePeriodsForm if weekendDate is not a weekend
+     * Invalidate samplePeriodsForm if weekendDate is not a weekend in service date range
      */
     $scope.validateWeekend = function () {
-        var isValid = OTIConfigurationService.isWeekend($scope.weekendDate);
+        var isValid = OTIConfigurationService.isWeekend($scope.weekendDate) &&
+                      isInServiceRange($scope.weekendDate);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
+    };
+    
+    /**
+     * Returns true if the given Date object is within the feed's service range
+     */
+    var isInServiceRange = function (date) {
+        if (!$scope.serviceStart || !$scope.serviceEnd) {
+            return true;
+        }
+        
+        if (date && date >= $scope.serviceStart && date <= $scope.serviceEnd) {
+            return true;
+        }
+        
+        return false;
     };
 
     /**
@@ -321,7 +340,47 @@ angular.module('transitIndicators')
     $scope.disableWeekday = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekday(date));
     };
-
+    
+    /**
+     * Get the start and end dates for the feed's service from the query response object
+     */
+    var setServiceDateRange = function (obj) {
+        var serviceDates = obj.serviceDates;
+        if (serviceDates !== null) {
+            $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
+            $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
+            
+            // if dates have not been chosen yet, default to first valid date in range
+            if (!$scope.weekdayDate) {
+                var nextDay = new Date($scope.serviceStart);
+                while (!OTIConfigurationService.isWeekday(nextDay)) {
+                  nextDay.setDate(nextDay.getDate() + 1);
+                }
+                $scope.weekdayDate = nextDay;
+            }
+            
+            if (!$scope.weekendDate) {
+                var nextDay = new Date($scope.serviceStart);
+                while (!OTIConfigurationService.isWeekend(nextDay)) {
+                  nextDay.setDate(nextDay.getDate() + 1);
+                }
+                $scope.weekendDate = nextDay;
+            }
+        } else {
+            var error = obj['error'];
+            if (error !== null) {
+                console.log("Server returned error fetching feed service dates:");
+                console.log(error);
+            } else {
+                // No service dates found; GTFS probably isn't loaded yet.
+            }
+        }
+    };
+    
+    /**
+     * Create a JS Date object from an ISO-formatted date string
+     */
+    
     /**
      * Initialize config page with data
      */
@@ -335,6 +394,13 @@ angular.module('transitIndicators')
             setConfig(configs[0]);
         }, function () {
             $scope.configLoadError = true;
+        });
+        
+        // get service date range
+        OTIConfigurationService.ServiceDates.get({}, function (data) {
+            setServiceDateRange(data);
+        }, function () {
+          console.log("Error fetching feed service dates!");
         });
 
         OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {

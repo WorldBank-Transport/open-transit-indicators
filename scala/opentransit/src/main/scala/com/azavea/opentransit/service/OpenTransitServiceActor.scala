@@ -17,6 +17,7 @@ class OpenTransitServiceActor extends Actor
                                  with IngestRoute
                                  with IndicatorsRoute
                                  with MapInfoRoute
+                                 with ServiceDateRangeRoute
                                  with ProductionDatabaseInstance {
   // This is the execution context to use for this Actor
   implicit val dispatcher = context.dispatcher
@@ -30,7 +31,8 @@ class OpenTransitServiceActor extends Actor
     pathPrefix("gt") {
       ingestRoute ~
       indicatorsRoute ~
-      mapInfoRoute
+      mapInfoRoute ~
+      serviceDateRangeRoute
     }
   }
   
