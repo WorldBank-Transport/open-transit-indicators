@@ -7,10 +7,12 @@ angular.module('transitIndicators')
     $scope.scenario = OTIScenariosService.otiScenario;
 
     $scope.create = function () {
-        // TODO: Validate
-        // TODO: Save scenario
-        OTIScenariosService.upsertScenario($scope.scenario);
-        $state.go('new-success');
+        // TODO: UI feedback for validation -- all fields are required
+        if ($scope.newScenario.$valid) {
+            // TODO: Save scenario
+            OTIScenariosService.upsertScenario($scope.scenario);
+            $state.go('new-success');
+        }
     };
 
     $scope.back = function () {
