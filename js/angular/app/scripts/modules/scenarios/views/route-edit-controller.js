@@ -1,13 +1,14 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosRouteeditController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService) {
+            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService', 'OTIDrawService',
+            function (config, $scope, $state, $stateParams, OTIScenariosService, OTIDrawService) {
 
     $scope.scenario = OTIScenariosService.otiScenario;
     $scope.selectedRouteType = 0;
     $scope.route = OTIScenariosService.otiRoute;
-    console.log($scope.route);
+
+    OTIDrawService.reset();
 
     $scope.continue = function () {
         // TODO: UI Validation
