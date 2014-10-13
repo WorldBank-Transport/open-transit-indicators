@@ -31,6 +31,10 @@ class LengthSpec extends FlatSpec with Matchers with IndicatorSpec {
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     implicit val routeMap = byRoute
 
+    // NOTE: These are results for SEPTA regional rail, but the trip shapes
+    // for SEPTA are completely messed up, so these shouldn't be taken as
+    // representing actual values for SEPTA, but rather indicators of whether
+    // the indicator calculations remain consistent.
     getResultByRouteId(byRoute, "AIR") should be ( 21.86907 +- 1e-5)
     getResultByRouteId(byRoute, "CHE") should be ( 22.47520 +- 1e-5)
     getResultByRouteId(byRoute, "CHW") should be ( 23.38168 +- 1e-5)

@@ -10,8 +10,12 @@ object Length extends Indicator
 
   val name = "length"
 
-  // TODO: Rob pointed out during the refactor walkthrough that this calculation
-  // is not correct and needs tweaking (particularly eliminating the max logic).
+  // NOTE: This calculation is not correct in all circumstances; that is, the trip
+  // with the maximum number of stops may not contain every stop on the route, and
+  // might therefore be shorter than the actual length of the route. However, this
+  // has been determined to be close enough for now.
+  // TODO: Fix this if there is time or an edge case in which it makes a significant
+  // difference.
   def calculation(period: SamplePeriod) = {
     def map(trips: Seq[Trip]): Double =
       trips.foldLeft(0.0) { (maxLength, trip) =>
