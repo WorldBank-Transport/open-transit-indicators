@@ -15,23 +15,6 @@ angular.module('transitIndicators')
     };
 
     // STUB data
-    var scenarios = [
-        {
-            id: '1',
-            name: 'Mutually Assured Destruction',
-            description: 'Test me!',
-            samplePeriod: 'morning',
-            routes: []
-        },
-        {
-            id: '2',
-            name: 'Kobayashi Maru',
-            description: 'No win...except that one time.',
-            samplePeriod: 'evening',
-            routes: []
-        }
-    ];
-
     var routes = [{
         routeId: createUUID(),
         routeShortName: 'Route 1',
@@ -96,6 +79,23 @@ angular.module('transitIndicators')
         }]
 
     }];
+
+    var scenarios = [
+        {
+            id: '1',
+            name: 'Mutually Assured Destruction',
+            description: 'Test me!',
+            samplePeriod: 'morning',
+            routes: []
+        },
+        {
+            id: '2',
+            name: 'Kobayashi Maru',
+            description: 'No win...except that one time.',
+            samplePeriod: 'evening',
+            routes: []
+        }
+    ];
 
     var otiScenariosService = {};
 
@@ -186,6 +186,15 @@ angular.module('transitIndicators')
         this.stopDesc = '';
         this.stopLat = -999;
         this.stopLon = -999;
+    };
+
+    otiScenariosService.stopFromMarker = function (marker) {
+        var stop = new otiScenariosService.Stop();
+        var latLon = marker.getLatLng();
+        stop.stopName = 'Stop ' + (otiScenariosService.otiRoute.stops.length + 1);
+        stop.stopLat = latLon.lat;
+        stop.stopLon = latLon.lng;
+        return stop;
     };
 
     otiScenariosService.getScenario = function(uuid) {
