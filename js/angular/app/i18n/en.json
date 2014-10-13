@@ -90,6 +90,8 @@
         "THIS_IS_YOUR_ROUTE": "This is your route. You can add stops, change the shape, or change times.",
         "STOPS": "Stops",
         "SHAPE": "Shape",
+        "SHAPE_LENGTH": "Shape Length",
+        "SHAPE_UNITS": "km",
         "ADD_SHAPE": "Add Shape",
         "TIME_TABLE": "Time Table",
         "ADD_STOPS": "Add Stops",

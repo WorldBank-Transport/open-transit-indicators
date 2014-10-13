@@ -41,7 +41,6 @@ angular.module('transitIndicators')
     };
 
     $scope.back = function () {
-        $scope.scenario = {};
         $state.go('route-edit');
     };
 

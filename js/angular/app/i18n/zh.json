@@ -90,6 +90,8 @@
         "THIS_IS_YOUR_ROUTE": "这是您的路线。您可以添加站点，更改形状或更改时间。",
         "STOPS": "站点",
         "SHAPE": "形状",
+        "SHAPE_LENGTH": "Shape Length",
+        "SHAPE_UNITS": "km",
         "ADD_SHAPE": "Add Shape",
         "TIME_TABLE": "时间表",
         "ADD_STOPS": "添加站点",
