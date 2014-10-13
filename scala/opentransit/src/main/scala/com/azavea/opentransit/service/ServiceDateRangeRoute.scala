@@ -33,24 +33,24 @@ trait ServiceDateRangeRoute extends Route { self: DatabaseInstance =>
 
                 // construct the json response, using null if no data is available
                 val serviceRangeJson = 
-                  if (serviceRange.start == null || serviceRange.end == null) JsNull else
-                  JsObject(
+                  if (serviceRange.start == null || serviceRange.end == null) JsNull 
+                  else JsObject(
                     // return dates as ANSI-formatted strings (YYYY-MM-DD)
                     "start" -> JsString(serviceRange.start),
                     "end" -> JsString(serviceRange.end)
                   )
                 // return the service date range json
-                JsObject("service-dates" -> serviceRangeJson) 
+                JsObject("serviceDates" -> serviceRangeJson) 
               } catch {
                 case e: Exception =>
-                        println("Error checking feed service date range!")
-                        println(e.getMessage)
-                        println(e.getStackTrace.mkString("\n"))
-                        // return error instead
-                        JsObject(
-                          "error" -> JsString("Error getting feed service date range.\n" + 
-                                              e.getMessage.replace("\"", "'"))
-                        )
+                  println("Error checking feed service date range!")
+                  println(e.getMessage)
+                  println(e.getStackTrace.mkString("\n"))
+                  // return error instead
+                  JsObject(
+                    "error" -> JsString("Error getting feed service date range.\n" + 
+                                        e.getMessage.replace("\"", "'"))
+                )
               }
             }
           }
