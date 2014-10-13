@@ -4,6 +4,7 @@ import org.joda.time.Seconds
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
+import com.azavea.opentransit.indicators.parameters._
 
 /**
 * This indicator calculates the average distance between

@@ -126,10 +126,6 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
       }
       .toMap
     }
-    /*new ObservedStopTimes {
-      def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-        observedTrips(period)(scheduledTripId)
-    }*/
 
     observedTrips
   }
