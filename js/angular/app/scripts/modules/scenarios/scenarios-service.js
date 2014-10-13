@@ -5,6 +5,15 @@ angular.module('transitIndicators')
         ['config',
         function (config) {
 
+    // Temp function to create uuids, remove when STUBS are complete
+    var createUUID = function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0;
+            var v=c=='x'?r:r&0x3|0x8;
+            return v.toString(16);
+        });
+    };
+
     // STUB data
     var scenarios = [
         {
@@ -23,18 +32,74 @@ angular.module('transitIndicators')
         }
     ];
 
-    // Temp function to create uuids, remove when STUBS are complete
-    var createUUID = function () {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random()*16|0;
-            var v=c=='x'?r:r&0x3|0x8;
-            return v.toString(16);
-        });
-    };
-
     var otiScenariosService = {};
 
     otiScenariosService.otiScenario = {};
+
+    otiScenariosService.routes = [{
+        routeId: createUUID(),
+        routeShortName: 'Route 1',
+        routeType: 1,
+        headway: 10,
+        stops: [{
+            stopId: createUUID(),
+            stopName: 'Stop 1',
+            stopDesc: 'Stop 1 Description',
+            stopLat: 39.95,
+            stopLon: -75.1667
+        }, {
+            stopId: createUUID(),
+            stopName: 'Stop 2',
+            stopDesc: 'Stop 2 Description',
+            stopLat: 39.98,
+            stopLon: -75.2667
+        }],
+        shapes: [{
+            shapeId: createUUID(),
+            shapePtLat: 39.95,
+            shapePtLon: -75.1667,
+            shapePtSequence: 1,
+            shapeDistTraveled: 0
+        }, {
+            shapeId: createUUID(),
+            shapePtLat: 39.98,
+            shapePtLon: -75.2667,
+            shapePtSequence: 2,
+            shapeDistTraveled: 10
+        }]
+    }, {
+        routeId: createUUID(),
+        routeShortName: 'Route 2',
+        routeType: 3,
+        headway: 15,
+        stops: [{
+            stopId: createUUID(),
+            stopName: 'Stop 3',
+            stopDesc: 'Stop 3 Description',
+            stopLat: 39.92,
+            stopLon: -75.1667
+        }, {
+            stopId: createUUID(),
+            stopName: 'Stop 4',
+            stopDesc: 'Stop 4 Description',
+            stopLat: 39.93,
+            stopLon: -75.2667
+        }],
+        shapes: [{
+            shapeId: createUUID(),
+            shapePtLat: 39.92,
+            shapePtLon: -75.1667,
+            shapePtSequence: 1,
+            shapeDistTraveled: 0
+        }, {
+            shapeId: createUUID(),
+            shapePtLat: 39.93,
+            shapePtLon: -75.2667,
+            shapePtSequence: 2,
+            shapeDistTraveled: 10
+        }]
+
+    }];
 
     otiScenariosService.getScenarios = function () {
         // STUB
@@ -65,7 +130,7 @@ angular.module('transitIndicators')
     };
 
     otiScenariosService.Route = function () {
-        this.routeId = createUUID(),
+        this.routeId = createUUID();
         this.routeShortName = '';
         this.routeDesc = '';
         this.routeType = 0;
@@ -73,6 +138,13 @@ angular.module('transitIndicators')
         this.stops = [];
         this.shapes = [];
         this.stopTimes = [];
+    };
+
+    // Sort by shapePtSequence ascending
+    otiScenariosService.Route.prototype.sortShapes = function () {
+        this.shapes.sort(function (a, b) {
+            return a.shapePtSequence - b.shapePtSequence;
+        });
     };
 
     otiScenariosService.StopTime = function () {
