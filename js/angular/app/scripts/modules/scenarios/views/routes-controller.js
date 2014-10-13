@@ -18,7 +18,9 @@ angular.module('transitIndicators')
     $scope.scenario = OTIScenariosService.otiScenario;
 
     $scope.selectedRouteId = '';
-    $scope.selectedRouteType = -1;
+    $scope.routeType = {
+        selected: -1
+    };
 
     $scope.editRoute = function (routeId) {
         // TODO: Validate
@@ -41,7 +43,7 @@ angular.module('transitIndicators')
         $state.go('new-success');
     };
 
-    $scope.$watch('selectedRouteType', function (newValue) {
+    $scope.$watch('routeType.selected', function (newValue) {
         $scope.filteredRoutes = filterRoutes($scope.routes, newValue);
     });
 }]);
