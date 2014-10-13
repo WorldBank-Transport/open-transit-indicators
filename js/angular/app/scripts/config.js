@@ -193,7 +193,7 @@ angular.module('transitIndicators').constant('config', {
             id: 'routes'
         },
         {
-            id: 'routes-edit'
+            id: 'route-edit'
         },
         {
             id: 'route-stops'
