@@ -13,6 +13,9 @@ class AdHocInterstopDistanceSpec extends AdHocSystemIndicatorSpec {
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemWithAllStops)
     implicit val routeMap = byRoute // Use this implicit to DRY out your tests
 
+    // Tests have +- 1e-2 because of a limitation of the current
+    // implementation of InterstopDistance. (Indicator slightly
+    // miscalculates trips missing distanceTraveled.)
     routeById("EastRail") should be (0.0)
     routeById("EastBus") should be (0.0)
     routeById("NorthSouth") should be (0.01 +- 1e-2)

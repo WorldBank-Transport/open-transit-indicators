@@ -21,6 +21,9 @@ object InterstopDistance extends Indicator
           case Some(dt) =>
             dt
           // otherwise, use the trip shape length / # of stops - 1
+          // This is a best-effort estimation, and should be improved
+          // by modifying the GTFS parser to fill in missing
+          // distanceTraveled values.
           case None =>
             trip.tripShape match {
               case Some(shape) =>
