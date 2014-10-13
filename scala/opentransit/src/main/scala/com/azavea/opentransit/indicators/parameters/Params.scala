@@ -31,14 +31,18 @@ trait IndicatorParams extends Boundaries
                          with RoadLength
                          with StaticParams
                          with Demographics
+                         with ObservedStopTimes
 
 object IndicatorParams {
   def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem], db: DatabaseDef): IndicatorParams =
     db withSession { implicit session =>
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
       val demographics = Demographics(db)
+      val observedStopTimes = ObservedStopTimes(systems)
 
       new IndicatorParams {
+        def observedForTrip(period: SamplePeriod, tripId: String) =
+          observedStopTimes.observedForTrip(period, tripId)
 
         def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
         def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
