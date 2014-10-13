@@ -28,12 +28,12 @@ angular.module('transitIndicators')
         OTIScenariosService.otiRoute = _.find($scope.routes, function (r) {
             return r.routeId === routeId;
         });
-        $state.go('routes-edit');
+        $state.go('route-edit');
     };
 
     $scope.newRoute = function () {
         OTIScenariosService.otiRoute = new OTIScenariosService.Route();
-        $state.go('routes-edit');
+        $state.go('route-edit');
     };
 
     $scope.back = function () {

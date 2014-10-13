@@ -1,6 +1,6 @@
 'use strict';
 angular.module('transitIndicators')
-.controller('OTIScenariosRouteseditController',
+.controller('OTIScenariosRouteeditController',
             ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
             function (config, $scope, $state, $stateParams, OTIScenariosService) {
 
@@ -13,7 +13,7 @@ angular.module('transitIndicators')
         // TODO: UI Validation
         if ($scope.newRoute.$valid) {
             OTIScenariosService.upsertRoute($scope.route);
-            $state.go('routes-stops');
+            $state.go('route-stops');
         }
     };
 
