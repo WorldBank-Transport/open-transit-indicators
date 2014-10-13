@@ -5,11 +5,8 @@
     </p>
     <div class="block">
         <div class="filter btn-group">
-            <a class="button--small" ng-model="selectedRouteType" btn-radio="-1">{{'SCENARIO.ALL'|translate}}</a> <!-- Add Icon -->
-            <a class="button--small" ng-model="selectedRouteType" btn-radio="0">{{'SCENARIO.INNERCITY_RAIL'|translate}}</a> <!-- Add Icon -->
-            <a class="button--small" ng-model="selectedRouteType" btn-radio="1">{{'SCENARIO.SUBWAY'|translate}}</a> <!-- Add Icon -->
-            <a class="button--small" ng-model="selectedRouteType" btn-radio="2">{{'SCENARIO.RAIL'|translate}}</a> <!-- Add Icon -->
-            <a class="button--small" ng-model="selectedRouteType" btn-radio="3">{{'SCENARIO.BUS'|translate}}</a> <!-- Add Icon -->
+            <a class="button--small" ng-model="routeType.selected" btn-radio="-1">{{'SCENARIO.ALL'|translate}}</a> <!-- Add Icon -->
+            <a class="button--small" ng-repeat="type in routeTypes" ng-model="routeType.selected" btn-radio="type.route_type">{{type.description}}</a> <!-- Add Icon -->
         </div>
     </div>
     <div class="block">
