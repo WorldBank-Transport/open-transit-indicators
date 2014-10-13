@@ -49,6 +49,7 @@
         "LOAD": "Load",
         "IMPORT": "Import",
         "EXPORT": "Export",
+        "CREATE": "Create",
         "CALCULATE_INDICATORS": "Calculate Indicators"
     },
     "INDICATOR": {
@@ -115,7 +116,8 @@
         "GREAT": "Great",
         "START_OVER": "Start Over",
         "HEADER_NAME": "Name",
-        "HEADER_LAST_MODIFIED": "Last Modified"
+        "HEADER_LAST_MODIFIED": "Last Modified",
+        "TIME_PERIOD": "Time Period"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index": "",
