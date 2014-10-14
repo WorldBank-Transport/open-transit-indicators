@@ -7,6 +7,9 @@ import com.azavea.opentransit.indicators.parameters._
 import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
+/** This indicator calculates the average deviation from scheduled dwell time
+ *  in minutes.
+ */
 class DwellTimePerformance(params: ObservedStopTimes) extends Indicator with AggregatesByAll {
   type Intermediate = Seq[Double]
 
@@ -28,7 +31,7 @@ class DwellTimePerformance(params: ObservedStopTimes) extends Indicator with Agg
           .foldLeft((0.0,0.0)) { case ((sum, count), minutes) =>
             (sum + minutes, count + 1)
            }
-      if (count > 0) sum / count else 0.0
+      if (count > 0) sum / count / 60 else 0.0
     }
     perTripCalculation(map, reduce)
   }

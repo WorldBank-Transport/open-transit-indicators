@@ -24,7 +24,7 @@ class TravelTimePerformanceSpec
   it should "calculate travel time performance for SEPTA" in {
     val calculation = new TravelTimePerformance(observedMapping).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
-    bySystem.get should be (0.125 +- 1e-2)
+    bySystem.get should be (7.5 +- 1e-1)
   }
 
 }

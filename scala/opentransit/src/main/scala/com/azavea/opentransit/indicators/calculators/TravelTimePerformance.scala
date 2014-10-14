@@ -8,8 +8,8 @@ import com.azavea.opentransit.indicators._
 import com.azavea.opentransit.indicators.parameters._
 
 /**
-* This indicator calculates the average distance between
-* arrival times predicted and actually observed
+* This indicator calculates the average deviation between
+* arrival times predicted and actually observed (in minutes)
 **/
 class TravelTimePerformance(params: ObservedStopTimes)
     extends Indicator
@@ -38,7 +38,7 @@ class TravelTimePerformance(params: ObservedStopTimes)
           timeDeltas.flatten.foldLeft((0.0, 0)) { case ((total, count), diff) =>
             (total + diff, count + 1)
           }
-        if (count > 0) (total / 60 / 60) / count else 0.0
+        if (count > 0) (total / 60) / count else 0.0
       }
       perTripCalculation(map, reduce)
     }

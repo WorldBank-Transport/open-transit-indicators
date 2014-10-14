@@ -68,11 +68,15 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
     }.toMap
   val observedSystems =
     periods.map { period =>
-      (period, observedSystemBuilder.systemBetween(period.start, period.end))
+      // Need to pad the period for the observed System because the stops may have
+      // deviated such that they're outside the system.
+      (period, observedSystemBuilder.systemBetween(period.start.minusMinutes(15),
+        period.end.plusMinutes(15)))
     }.toMap
   val period = periods.head
   val system = systemBuilder.systemBetween(period.start, period.end)
-  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end)
+  val observedSystem = observedSystemBuilder.systemBetween(period.start.minusMinutes(15),
+    period.end.plusMinutes(15))
 
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work
@@ -131,9 +135,29 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
     observedTrips
   }
 
+  val observedPeriodTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
+    val scheduledTrips = system.routes.map(_.trips).flatten
+    val observedTripsById = observedStopTimes(period)
+    scheduledTrips.map { trip =>
+      (trip.id -> {
+        val schedStops: Map[String, ScheduledStop] =
+          trip.schedule.map(sst => sst.stop.id -> sst).toMap
+        val obsvdStops: Map[String, ScheduledStop] =
+          observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
+        for (s <- trip.schedule)
+          yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
+      }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
+    }.toMap
+    
+  }
+
   trait ObservedStopTimeSpecParams extends ObservedStopTimes {
     def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
       observedStopTimes(period)(scheduledTripId)
+
+    // Testing, so just return the same period every time.
+    def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+      observedPeriodTrips
   }
 }
 
