@@ -53,6 +53,10 @@ angular.module('transitIndicators')
 
         $scope.$broadcast('updateHeight');
 
+        if (to.parent.name === 'scenario') {
+            $scope.page = to.name;
+        }
+
         // TODO: Add logic to lock navigation out of an edit view if $scope.scenario.id
         //       is not defined
     });
@@ -65,6 +69,7 @@ angular.module('transitIndicators')
     $scope.samplePeriods = samplePeriods;
     $scope.samplePeriodI18N = samplePeriodI18N;
     $scope.routeTypes = routeTypes;
+    $scope.page = '';
 
     $scope.updateLeafletOverlays(overlays);
     setLegend();
