@@ -37,13 +37,13 @@ class WeightedServiceFrequency(params: StopBuffers with Demographics)
     def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
       // Average all the headways between each stop with weight.
       // Total population over which our weighting will be averaged
-      val allStops = params.bufferForStops {
+      val allStopBuffers = params.bufferForStops {
         stopSchedules.map { mapping => mapping.keys }
           .flatten
           .distinct
       }
-      val allStopsPop = params.populationMetricForBuffer(
-        allStops,
+      val allStopPop = params.populationMetricForBuffer(
+        allStopBuffers,
         "populationMetric1"
       )
 
@@ -71,7 +71,7 @@ class WeightedServiceFrequency(params: StopBuffers with Demographics)
             .sum
 
       // Return the weighted average
-      freqsForPop / allStopsPop / 60 / 60
+      freqsForPop / allStopPop / 60 / 60
     }
 
     perRouteCalculation(map, reduce)
