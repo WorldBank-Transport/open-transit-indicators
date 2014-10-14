@@ -9,7 +9,7 @@ import org.scalatest._
 class TransitSystemBuilderSpec extends FunSpec with Matchers {
   describe("TransitSystemFactory") {
     it("should leave out stops in a trip if they are before or after the start and end date") {
-      val builder = TransitSystemBuilder(TestGtfsRecords())
+      val builder = TransitSystemBuilder(new TestGtfsRecords())
       val systemWithAllStops = 
         builder.systemBetween(new LocalDateTime(2014, 2, 3, 5, 0), new LocalDateTime(2014, 2, 3, 18, 0)) //Weekday
       val systemWithoutSomeStops = 
@@ -35,7 +35,7 @@ class TransitSystemBuilderSpec extends FunSpec with Matchers {
       departureTimesWithout.size should be (2)
 
       val scheduledStop = departureTimesWith.diff(departureTimesWithout).toList.head
-      scheduledStop should be (new LocalDateTime(2014, 2, 3, 6, 0) + TestGtfsRecords.times.busWaitTime)
+      scheduledStop should be (new LocalDateTime(2014, 2, 3, 6, 0) + new TestGtfsRecords().busWaitTime)
     }
 
     it("should not include a route with no trips, and include one with trips") {
