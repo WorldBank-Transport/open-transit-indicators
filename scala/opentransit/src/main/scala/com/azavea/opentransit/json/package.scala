@@ -143,10 +143,15 @@ package object json {
   }
 
   implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
-    def write(job: IndicatorJob) =
+    def write(job: IndicatorJob) = {
+      // A job is complete if nothing is queued or pending
+      val isComplete = job.status.forall(s => s._2 != "pending" && s._2 != "queued")
+
       JsObject(
         "version" -> JsString(job.version),
-        "job_status" -> JsString(job.status)
+        "job_status" -> JsString(if (isComplete) "complete" else "processing"),
+        "calculation_status" -> JsString(job.status.toJson.toString)
       )
+    }
   }
 }

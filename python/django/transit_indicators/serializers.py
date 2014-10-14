@@ -39,7 +39,7 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
     job_status = serializers.ChoiceField(choices=IndicatorJob.StatusChoices.CHOICES,
                                          required=False)
     is_latest_version = serializers.BooleanField(required=False)
-
+    calculation_status = serializers.CharField(required=False)
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""

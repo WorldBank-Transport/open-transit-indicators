@@ -33,7 +33,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   version: String = "",
-  status: String = "processing"
+  status: Map[String, String]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance =>
@@ -58,12 +58,17 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     GtfsRecords.fromDatabase(dbGeomNameUtm)
                   }
 
-                CalculateIndicators(request, gtfsRecords, db) { containerGenerators =>
-                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                  DjangoClient.postIndicators(request.token, indicatorResultContainers)
-                }
+                // Perform all indicator calculations, store results and statuses
+                CalculateIndicators(request, gtfsRecords, db, new CalculationStatusManager {
+                  def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
+                    DjangoClient.postIndicators(request.token, indicatorResultContainers)
+                  }
 
-                DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
+                  def statusChanged(status: Map[String, String]) = {
+                    DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
+                  }
+                })
               }
 
               // return a 201 created
