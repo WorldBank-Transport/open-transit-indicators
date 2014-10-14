@@ -1,0 +1,27 @@
+<div class="calculation-heading">
+    <span ng-if="!statusFetched" class="calculation-description">
+        {{ 'CALCULATION.OBTAINING' | translate }}
+    </span>
+    <span ng-if="statusFetched && calculationStatus" class="calculation-description">
+        {{ 'CALCULATION.STATUS' | translate }} -
+        {{ (currentJob.job_status === 'complete') ? 'STATUS.COMPLETE' : 'STATUS.PROCESSING' | translate }}
+    </span>
+    <span ng-if="statusFetched && !calculationStatus" class="calculation-description">
+        {{ 'CALCULATION.EMPTY' | translate }}
+    </span>
+    <span ng-if="statusFetched && (!calculationStatus || currentJob.job_status !== 'processing')"
+         ng-click="calculateIndicators()" class="button--calculate">
+      {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
+    </span>
+</div>
+<div ng-repeat="(indicator, status) in calculationStatus" class="calculation-table">
+    <div class="calculation-row">
+        <div class="calculation-cell indicators-label">
+            <span ng-if="status === 'submitted'" class="glyphicon glyphicon-minus"></span>
+            <span ng-if="status === 'processing'" class="glyphicon glyphicon-flash"></span>
+            <span ng-if="status === 'complete'" class="glyphicon glyphicon-ok"></span>
+            <span ng-if="status === 'failed'" class="glyphicon glyphicon-remove"></span>
+            <span>{{ types[indicator] }}</span>
+        </div>
+    </div>
+</div>
