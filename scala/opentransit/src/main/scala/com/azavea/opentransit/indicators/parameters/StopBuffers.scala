@@ -42,6 +42,7 @@ object StopBuffers {
 
     val periodMap:mutable.Map[SamplePeriod, Projected[MultiPolygon]] = mutable.Map()
 
+
     // calculate buffers for a given sequence of stops (useful for populations served by trips/routes/etc
     def calcBufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = {
       val stopBuffers = stops.distinct.map(stop => stopMap(stop.id)).map(_.jtsGeom)
@@ -67,16 +68,7 @@ object StopBuffers {
           scheduledStop <- trip.schedule
         ) yield scheduledStop.stop
 
-      val stopBuffers = allStops.distinct.map(stop => stopMap(stop.id)).map(_.jtsGeom)
-      val stopSrid = stopBuffers.head.getSRID
-
-      val union = new CascadedPolygonUnion(stopBuffers)
-      val unionedGeometry = union.union()
-      val multipolygon = unionedGeometry match {
-        case p:JTSPolygon => MultiPolygon(Polygon(p))
-        case mp:JTSMultiPolygon => MultiPolygon(mp)
-      }
-      Projected(multipolygon, stopSrid)
+      calcBufferForStops(allStops)
     }
 
     new StopBuffers {
