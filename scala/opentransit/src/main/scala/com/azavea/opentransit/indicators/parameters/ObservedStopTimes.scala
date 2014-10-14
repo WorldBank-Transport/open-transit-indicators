@@ -24,6 +24,7 @@ object ObservedStopTimes {
   def apply(scheduledSystems: Map[SamplePeriod, TransitSystem])(implicit session: Session): ObservedStopTimes = {
     // This is ugly: a thousand sorries. it also is apparently necessary -
     // we have to index on SamplePeriod and again on trip id
+    // Check out issue #282 on Github for more information
     val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
       val periods = scheduledSystems.keys
       val observedGtfsRecords =
