@@ -1,0 +1,19 @@
+<div class="scenario-page-content">
+    <h3>{{'SCENARIO.CONFIRM_TIMES'|translate}}</h3>
+    <p>
+        {{'SCENARIO.WEVE_ESTIMATED_ARRIVAL_TIMES'|translate}}
+    </p>
+    <table>
+        <tr ng-repeat="(i, stop) in route.stops">
+            <td><span class="badge">{{ i + 1 }}</span></td>
+            <td>{{ stop.stopName }}</td>
+            <td><input type="time" class="time" placeholder="HH:mm"
+                       ng-model="stop.stopTime.arrivalTime"
+                       ng-change="stop.stopTime.departureTime = stop.stopTime.arrivalTime"/></td>
+        </tr>
+    </table>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+</div>

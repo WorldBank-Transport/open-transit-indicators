@@ -15,6 +15,13 @@ angular.module('transitIndicators')
     };
 
     // STUB data
+
+    var stopTimeStub = {
+        stopId: 'TEST',
+        arrivalTime: '',
+        departureTime: ''
+    };
+
     var routes = [{
         routeId: createUUID(),
         routeShortName: 'Route 1',
@@ -25,13 +32,16 @@ angular.module('transitIndicators')
             stopName: 'Stop 1',
             stopDesc: 'Stop 1 Description',
             stopLat: 39.95,
-            stopLon: -75.1667
+            stopLon: -75.1667,
+            stopTime: angular.extend({}, stopTimeStub)
         }, {
             stopId: createUUID(),
             stopName: 'Stop 2',
             stopDesc: 'Stop 2 Description',
             stopLat: 39.98,
-            stopLon: -75.2667
+            stopLon: -75.2667,
+            stopTime: angular.extend({}, stopTimeStub)
+
         }],
         shapes: [{
             shapeId: createUUID(),
@@ -56,13 +66,15 @@ angular.module('transitIndicators')
             stopName: 'Stop 3',
             stopDesc: 'Stop 3 Description',
             stopLat: 39.92,
-            stopLon: -75.1667
+            stopLon: -75.1667,
+            stopTime: angular.extend({}, stopTimeStub)
         }, {
             stopId: createUUID(),
             stopName: 'Stop 4',
             stopDesc: 'Stop 4 Description',
             stopLat: 39.93,
-            stopLon: -75.2667
+            stopLon: -75.2667,
+            stopTime: angular.extend({}, stopTimeStub)
         }],
         shapes: [{
             shapeId: createUUID(),
@@ -156,7 +168,6 @@ angular.module('transitIndicators')
         this.headway = 0;   // Minutes
         this.stops = [];
         this.shapes = [];
-        this.stopTimes = [];
 
         this.lastShapeLatLng = null;
     };
@@ -191,8 +202,11 @@ angular.module('transitIndicators')
         this.lastShapeLatLng = null;
     };
 
-    otiScenariosService.StopTime = function () {
-        this.stopId = createUUID();
+    otiScenariosService.StopTime = function (stopId) {
+        if (!stopId) {
+            return null;
+        }
+        this.stopId = stopId;
         this.arrivalTime = '';
         this.departureTime = '';
     };
@@ -211,6 +225,7 @@ angular.module('transitIndicators')
         this.stopDesc = '';
         this.stopLat = -999;
         this.stopLon = -999;
+        this.stopTime = new otiScenariosService.StopTime(this.stopId);
     };
 
     otiScenariosService.stopFromMarker = function (marker) {
