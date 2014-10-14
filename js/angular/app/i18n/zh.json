@@ -110,6 +110,8 @@
         "CONFIRM_TIMES": "确认时间",
         "WEVE_ESTIMATED_ARRIVAL_TIMES": "我们已估算每个站点的到站时间。",
         "PROTOTYPE_FINISHED": "原型完成",
+        "SUCCESS": "Success!",
+        "YOU_JUST_CREATE_ROUTE": "You just created the route:",
         "YOU_JUST_DID": "您刚才完成了以下所有操作：",
         "YOU_JUST_CREATE": "新建场景",
         "YOU_JUST_ADD": "在新建的场景中添加新路线",

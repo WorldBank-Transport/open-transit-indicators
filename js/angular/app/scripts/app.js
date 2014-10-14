@@ -76,7 +76,11 @@ angular.module('transitIndicators', [
             resolve: {
                 OTIScenariosService: 'OTIScenariosService',
                 OTIIndicatorsService: 'OTIIndicatorsService',
-                samplePeriods: function (OTIIndicatorsService) {
+                OTISettingsService: 'OTISettingsService',
+                samplePeriods: function (OTISettingsService) {
+                    return OTISettingsService.samplePeriods.query();
+                },
+                samplePeriodI18N: function (OTIIndicatorsService) {
                     return OTIIndicatorsService.getSamplePeriodTypes();
                 },
                 routeTypes: function (OTIIndicatorsService) {

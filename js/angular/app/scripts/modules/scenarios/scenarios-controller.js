@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods', 'routeTypes',
-            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods, routeTypes) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods', 'samplePeriodI18N', 'routeTypes',
+            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods, samplePeriodI18N, routeTypes) {
 
     // PRIVATE
 
@@ -63,6 +63,7 @@ angular.module('transitIndicators')
     $scope.height = 0;
     $scope.scenarios = scenarios;
     $scope.samplePeriods = samplePeriods;
+    $scope.samplePeriodI18N = samplePeriodI18N;
     $scope.routeTypes = routeTypes;
 
     $scope.updateLeafletOverlays(overlays);

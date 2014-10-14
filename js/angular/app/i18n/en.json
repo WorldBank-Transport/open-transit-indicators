@@ -131,6 +131,8 @@
         "CONFIRM_TIMES": "Confirm Times",
         "WEVE_ESTIMATED_ARRIVAL_TIMES": "We've estimated the arrival times for each stop.",
         "PROTOTYPE_FINISHED": "Prototype Finished",
+        "SUCCESS": "Success!",
+        "YOU_JUST_CREATE_ROUTE": "You just created the route:",
         "YOU_JUST_DID": "You just did all of the following:",
         "YOU_JUST_CREATE": "Create a new scenario",
         "YOU_JUST_ADD": "Add a new route to that scenario",
