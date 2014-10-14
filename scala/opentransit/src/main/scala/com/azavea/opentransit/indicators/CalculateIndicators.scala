@@ -4,19 +4,13 @@ import scala.collection.mutable
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
+import com.azavea.opentransit.CalculationStatus
 import geotrellis.vector._
 import com.azavea.opentransit.indicators.parameters._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
 
 import com.typesafe.config.{ConfigFactory, Config}
-
-object CalculationStatus {
-  final val SUBMITTED = "submitted"
-  final val PROCESSING = "processing"
-  final val COMPLETE = "complete"
-  final val FAILED = "failed"
-}
 
 trait CalculationStatusManager {
   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]): Unit

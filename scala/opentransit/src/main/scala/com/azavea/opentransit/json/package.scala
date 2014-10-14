@@ -14,6 +14,13 @@ import geotrellis.vector.json._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
 
+object CalculationStatus {
+  final val SUBMITTED = "submitted"
+  final val PROCESSING = "processing"
+  final val COMPLETE = "complete"
+  final val FAILED = "failed"
+}
+
 package object json {
   // TODO: Find if we need the DateTime part of the string for this.
   // DateTime gets printed\parsed in format like 2014-09-24T16:59:06-04:00
@@ -145,11 +152,13 @@ package object json {
   implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
     def write(job: IndicatorJob) = {
       // A job is complete if nothing is processing or submitted
-      val isComplete = job.status.forall(s => s._2 != "processing" && s._2 != "submitted")
+      val isComplete = job.status.forall(s =>
+        s._2 != CalculationStatus.PROCESSING && s._2 != CalculationStatus.SUBMITTED)
+      val jobStatus = if (isComplete) CalculationStatus.COMPLETE else CalculationStatus.PROCESSING
 
       JsObject(
         "version" -> JsString(job.version),
-        "job_status" -> JsString(if (isComplete) "complete" else "processing"),
+        "job_status" -> JsString(jobStatus),
         "calculation_status" -> JsString(job.status.toJson.toString)
       )
     }
