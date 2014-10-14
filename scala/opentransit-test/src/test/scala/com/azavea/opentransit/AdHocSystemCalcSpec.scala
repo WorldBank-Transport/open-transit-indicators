@@ -2,6 +2,7 @@ package com.azavea.opentransit.indicators
 
 import com.azavea.gtfs._
 import com.azavea.opentransit.io.GtfsIngest
+import com.github.nscala_time.time.Imports._
 
 import com.azavea.opentransit.testkit._
 
@@ -16,10 +17,10 @@ import org.scalatest._
 trait AdHocSystemIndicatorSpec
     extends FlatSpec
     with Matchers
-    with IndicatorParamSpec {
+    with AdHocE2EParamSpec {
 
-  val scheduledRecords = TestGtfsRecords()
-  val observedRecords = TestRealTimeGtfsRecords()
+  val scheduledRecords = new TestGtfsRecords with TestScheduledStops
+  val observedRecords = new TestGtfsRecords with TestObservedStops
   val allStopsPeriod = SamplePeriod(1, "allstops",
     new LocalDateTime(2014, 2, 3, 5, 0),
     new LocalDateTime(2014, 2, 3, 18, 0))
@@ -30,16 +31,11 @@ trait AdHocSystemIndicatorSpec
     new LocalDateTime(2014, 2, 2, 5, 0),
     new LocalDateTime(2014, 2, 2, 23, 59))
   val systemWithAllStops =
-    systemBuilder.systemBetween(allStopsPeriod.start, allStopsPeriod.end) // Weekday
+    scheduledSystemBuilder.systemBetween(allStopsPeriod.start, allStopsPeriod.end) // Weekday
   val systemWithoutSomeStops =
-    systemBuilder.systemBetween(missingStopsPeriod.start, missingStopsPeriod.end) // Weekday
+    scheduledSystemBuilder.systemBetween(missingStopsPeriod.start, missingStopsPeriod.end) // Weekday
   val systemSunday =
-    systemBuilder.systemBetween(sundayPeriod.start, sundayPeriod.end) // Sunday
-
-  def routeById(routeId: String)(implicit routeMap: Map[Route, Double]): Double = {
-    val routeIdMap = routeMap.map{case (k, v) => (k.id -> v)}.toMap
-    routeIdMap(routeId)
-  }
+    scheduledSystemBuilder.systemBetween(sundayPeriod.start, sundayPeriod.end) // Sunday
 
 }
 

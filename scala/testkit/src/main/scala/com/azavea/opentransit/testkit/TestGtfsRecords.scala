@@ -1,40 +1,50 @@
 package com.azavea.opentransit.testkit
 
 import com.azavea.gtfs._
-
 import com.azavea.gtfs.io.csv._
 
 import com.github.nscala_time.time.Imports._
 import geotrellis.vector._
 import geotrellis.slick._
 
-object TestGtfsRecords {
-  def apply(): TestGtfsRecords =
-    new TestGtfsRecords
-
-  object times {
-    val subTravelTime = 5.minute
-    val subWaitTime = 1.minute
-    val busTravelTime = 20.minute
-    val busWaitTime = 2.minute
-    val railTravelTime = 45.minute
-    val railWaitTime = 5.minute
-  }
-
-  object stopLocations {
-    val stopCenter = Point(0,0)
-    val stopWest = Point(-10,0)
-    val stopEast = Point(10,0)
-    val stopNorth = Point(0,10)
-    val stopSouth = Point(0,-10)
-  }
+trait StopLocations {
+  val stopCenter = Point(0,0)
+  val stopWest = Point(-10,0)
+  val stopEast = Point(10,0)
+  val stopNorth = Point(0,10)
+  val stopSouth = Point(0,-10)
 }
 
-class TestGtfsRecords extends GtfsRecords {
-  import TestGtfsRecords.times._
-  import TestGtfsRecords.stopLocations._
+trait Times {
+  val subTravelTime: Period
+  val subWaitTime: Period
+  val busTravelTime: Period
+  val busWaitTime: Period
+  val railTravelTime: Period
+  val railWaitTime: Period
+}
 
-  val serviceIds = 
+trait TestScheduledStops {
+  val subTravelTime: Period = 5.minute
+  val subWaitTime: Period  = 1.minute
+  val busTravelTime: Period = 20.minute
+  val busWaitTime: Period = 2.minute
+  val railTravelTime: Period = 45.minute
+  val railWaitTime: Period = 5.minute
+}
+
+trait TestObservedStops {
+  val subTravelTime: Period = 10.minute
+  val subWaitTime: Period  = 2.minute
+  val busTravelTime: Period = 25.minute
+  val busWaitTime: Period = 3.minute
+  val railTravelTime: Period = 50.minute
+  val railWaitTime: Period = 6.minute
+}
+
+abstract class TestGtfsRecords extends GtfsRecords with Times with StopLocations {
+
+  val serviceIds =
     Seq(
       "SUB_WEEKDAYS",
       "SUB_SATURDAY",
@@ -284,4 +294,25 @@ class TestGtfsRecords extends GtfsRecords {
     TripShape("SUB_EastWest_SHAPE", Line(List(stopWest, stopCenter, stopEast)).withSRID(0)),
     TripShape("SUB_NorthSouth_SHAPE", Line(List(stopNorth, stopCenter, stopSouth)).withSRID(0))
   )
+}
+
+/** Sometimes, there's a need to work with things like boundaries and population
+ *  here, such data can be added
+ */
+trait NonGtfsTestExtensions {
+
+  val scheduledSystem: TransitSystem
+
+  // the city boundary is a square with corners at (-15, -15) and (15, 15) - it excludes 4 rail stops
+  val cityBoundary = MultiPolygon(Polygon(Line((-15,-15),(-15,15),(15,15),(15,-15),(-15,-15))))
+  // the region boundary is a square with corners at (-15, -15) and (15, 15) - it excludes no stops
+  val regionBoundary = MultiPolygon(Polygon(Line((-25,-25),(-25,25),(25,25),(25,-25),(-25,-25))))
+
+  def observedForTrip(tripId: String): Trip = {
+    val thisTrip = scheduledSystem.routes.flatMap(_.trips).filter(_.id == tripId).head
+    thisTrip
+  }
+
+  def totalRoadLength = 1000.0
+
 }

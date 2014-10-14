@@ -1,5 +1,7 @@
 package com.azavea.opentransit.indicators
 
+import com.azavea.opentransit.indicators.calculators._
+
 import org.scalatest._
 
 // Remember: this thing is hella broken right now.
