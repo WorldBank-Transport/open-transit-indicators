@@ -24,7 +24,7 @@ trait ServiceDateRangeRoute extends Route { self: DatabaseInstance =>
     path("service-dates") {
       get {
         complete {
-          future {
+          TaskQueue.execute {
             db withSession { implicit session: Session =>
               try {
                 val q = Q.queryNA[ServiceDateRange]("""
