@@ -54,6 +54,11 @@
         "time_traveled_stops": "站间平均间隔",
         "avg_service_freq": "平均服务频率"
     },
+    "CALCULATION": {
+        "OBTAINING": "Obtaining indicator calculation status",
+        "STATUS": "Indicator calculation status",
+        "EMPTY": "Indicators have not been calculated"
+    },
     "SCENARIO": {
         "SCENARIO": "场景",
         "ROUTE": "路线",

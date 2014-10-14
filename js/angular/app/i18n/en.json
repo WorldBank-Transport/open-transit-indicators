@@ -54,6 +54,11 @@
         "time_traveled_stops": "Avg Time Between Stops",
         "avg_service_freq": "Avg Service Frequency"
     },
+    "CALCULATION": {
+        "OBTAINING": "Obtaining indicator calculation status",
+        "STATUS": "Indicator calculation status",
+        "EMPTY": "Indicators have not been calculated"
+    },
     "SCENARIO": {
         "SCENARIO": "Scenario",
         "ROUTE": "Route",

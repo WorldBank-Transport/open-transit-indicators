@@ -54,6 +54,11 @@
         "time_traveled_stops": "Thời gian di chuyển giữa các điểm dừng",
         "avg_service_freq": "Tần suất phục vụ trung bình"
     },
+    "CALCULATION": {
+        "OBTAINING": "Obtaining indicator calculation status",
+        "STATUS": "Indicator calculation status",
+        "EMPTY": "Indicators have not been calculated"
+    },
     "SCENARIO": {
         "SCENARIO": "Scenario",
         "ROUTE": "Route",
