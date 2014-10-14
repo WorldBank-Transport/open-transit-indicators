@@ -3,6 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 
 import com.azavea.opentransit.testkit._
+import com.azavea.opentransit.indicators.calculators._
 
 import org.scalatest._
 
