@@ -12,10 +12,10 @@ import org.joda.time.Seconds
 import com.typesafe.config.{ConfigFactory, Config}
 
 object CalculationStatus {
-  final val QUEUED = "queued"
+  final val SUBMITTED = "submitted"
   final val PROCESSING = "processing"
   final val COMPLETE = "complete"
-  final val ERROR = "error"
+  final val FAILED = "failed"
 }
 
 trait CalculationStatusManager {
@@ -43,7 +43,7 @@ object CalculateIndicators {
     // Helper for tracking indicator calculation status
     val trackStatus = {
       val status = mutable.Map[String, String]() ++
-        Indicators.list(params).map(indicator => (indicator.name, CalculationStatus.QUEUED))
+        Indicators.list(params).map(indicator => (indicator.name, CalculationStatus.SUBMITTED))
 
       (indicator: Indicator, newStatus: String) => {
         status(indicator.name) = newStatus
@@ -95,7 +95,7 @@ object CalculateIndicators {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          trackStatus(indicator, CalculationStatus.ERROR)
+          trackStatus(indicator, CalculationStatus.FAILED)
         }
       }
     }
