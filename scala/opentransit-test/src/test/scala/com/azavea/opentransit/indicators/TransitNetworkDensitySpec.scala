@@ -16,7 +16,6 @@ class TransitNetworkDensitySpec
     extends FlatSpec
     with Matchers
     with IndicatorSpec
-    with StopBuffersSpec
     with BoundariesSpec {
 
   val boundaries = new BoundariesSpecParams {}

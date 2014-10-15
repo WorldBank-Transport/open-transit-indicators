@@ -32,8 +32,6 @@ class TransitNetworkDensity(params:  Boundaries)
 
       def reduce(routeLengths: Seq[Double]): Double = {
         val area: Double = params.regionBoundary.area / 1000 // div by 1000 for km
-        println(routeLengths)
-        println(area)
         if (area > 0) routeLengths.foldLeft(0.0)(_ + _) / area else 0
       }
     }
