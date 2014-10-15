@@ -1,0 +1,4 @@
+Chicago,http://www.transitchicago.com/downloads/sch_data/google_transit.zip
+BART,http://www.bart.gov/dev/schedules/google_transit.zip
+Seattle,http://metro.kingcounty.gov/GTFS/google_transit.zip
+Boston,http://www.mbta.com/uploadedfiles/MBTA_GTFS.zip
