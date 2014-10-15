@@ -23,7 +23,7 @@ class TransitNetworkDensity(params:  Boundaries)
         trips.foldLeft(0.0) { (maxLength, trip) =>
           trip.tripShape match {
             case Some(shape) =>
-              val tripLength = shape.line.length / 1000
+              val tripLength = shape.line.length / 1000 // div by 1000 for kms
               math.max(maxLength, tripLength)
             case None =>
               maxLength
@@ -31,7 +31,7 @@ class TransitNetworkDensity(params:  Boundaries)
         }
 
       def reduce(routeLengths: Seq[Double]): Double = {
-        val area: Double = params.regionBoundary.area
+        val area: Double = params.regionBoundary.area / 1000 // div by 1000 for km
         if (area > 0) routeLengths.foldLeft(0.0)(_ + _) / area else 0
       }
     }
