@@ -14,9 +14,7 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
   import profile.simple._
 
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {
-    for(record <- records) {
-      table.forceInsert(record)
-    }
+    table.forceInsertAll(records:_*)
   }
 
   private def deleteAll(): Unit = {
