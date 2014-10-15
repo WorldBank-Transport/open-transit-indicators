@@ -68,15 +68,11 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
     }.toMap
   val observedSystems =
     periods.map { period =>
-      // Need to pad the period for the observed System because the stops may have
-      // deviated such that they're outside the system.
-      (period, observedSystemBuilder.systemBetween(period.start.minusMinutes(15),
-        period.end.plusMinutes(15)))
+      (period, observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false))
     }.toMap
   val period = periods.head
   val system = systemBuilder.systemBetween(period.start, period.end)
-  val observedSystem = observedSystemBuilder.systemBetween(period.start.minusMinutes(15),
-    period.end.plusMinutes(15))
+  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false)
 
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work

@@ -27,7 +27,6 @@ object ObservedStopTimes {
   def apply(scheduledSystems: Map[SamplePeriod, TransitSystem])(implicit session: Session): ObservedStopTimes = {
     // This is ugly: a thousand sorries. it also is apparently necessary -
     // we have to index on SamplePeriod and again on trip id
-    // Check out issue #282 on Github for more information
     val periods = scheduledSystems.keys
     val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
       val observedGtfsRecords =
@@ -36,9 +35,7 @@ object ObservedStopTimes {
         }
       val builder = TransitSystemBuilder(observedGtfsRecords)
       val observedSystemsMap = periods.map { period =>
-        // Pad the period to hopefully pick up more stops that might otherwise have been
-        // shifted outside the period.
-        (period -> builder.systemBetween(period.start.minusMinutes(120), period.end.plusMinutes(120)))
+        (period -> builder.systemBetween(period.start, period.end, pruneStops=false))
       }.toMap
       observedSystemsMap.map { case (period, system) =>
         period -> system.routes.map { route =>
@@ -80,7 +77,7 @@ object ObservedStopTimes {
       def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
         observedTrips(period)(scheduledTripId)
 
-      def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] = 
+      def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
         observedPeriodTrips(period)
     }
   }
