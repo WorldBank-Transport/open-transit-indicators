@@ -71,6 +71,24 @@
   }
 }
 
+.calculation-status {
+  &.submitted {
+    color: #FF6600;
+  }
+
+  &.processing {
+    color: #3333FF;
+  }
+
+  &.complete {
+    color: #336633;
+  }
+
+  &.failed {
+    color: #600000;
+  }
+}
+
 .indicators-row-heading > .indicators-cell {
   border-top: 1px solid #eee;
   border-bottom: 4px solid #eee;

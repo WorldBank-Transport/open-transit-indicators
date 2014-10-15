@@ -21,7 +21,7 @@
             <span ng-if="status === 'processing'" class="glyphicon glyphicon-flash"></span>
             <span ng-if="status === 'complete'" class="glyphicon glyphicon-ok"></span>
             <span ng-if="status === 'failed'" class="glyphicon glyphicon-remove"></span>
-            <span>{{ types[indicator] }}</span>
+            <span class="calculation-status {{ status }}">{{ types[indicator] }}</span>
         </div>
     </div>
 </div>
