@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
-            ['$scope', '$state', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
-            function ($scope, $state, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
+            ['$scope', '$state', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+            function ($scope, $state, $modal, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
@@ -30,9 +30,20 @@ angular.module('transitIndicators')
             };
 
             OTIIndicatorsService.query('GET', params).then(function (data) {
-                // If there is no indicator data, switch to the calculation status page
+                // If there is no indicator data, ask to redirect to the calculation status page
                 if (!data.length) {
-                    $state.go('calculation');
+                    $modal.open({
+                        templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                        controller: 'OTIYesNoModalController',
+                        windowClass: 'yes-no-modal-window',
+                        resolve: {
+                            getMessage: function() {
+                                return 'CALCULATION.REDIRECT';
+                            }
+                        }
+                    }).result.then(function() {
+                        $state.go('calculation');
+                    });
                 }
 
                 var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);

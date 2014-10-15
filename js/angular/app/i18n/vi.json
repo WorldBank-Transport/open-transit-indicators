@@ -46,7 +46,9 @@
         "SELECTONE": "!Select One",
         "UPLOAD": "!Upload",
         "RESET": "!Reset",
-        "CALCULATE_INDICATORS": "Calculate Indicators"
+        "CALCULATE_INDICATORS": "Calculate Indicators",
+        "YES": "Yes",
+        "NO": "No"
     },
     "INDICATOR": {
         "num_stops": "Số điểm dừng mỗi tuyến",
@@ -57,7 +59,8 @@
     "CALCULATION": {
         "OBTAINING": "Obtaining indicator calculation status",
         "STATUS": "Indicator calculation status",
-        "EMPTY": "Indicators have not been calculated"
+        "EMPTY": "Indicators have not been calculated",
+        "REDIRECT": "No indicator data found. Go to the status page?"
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
