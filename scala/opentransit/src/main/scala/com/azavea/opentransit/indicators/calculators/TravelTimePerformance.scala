@@ -1,11 +1,15 @@
 package com.azavea.opentransit.indicators.calculators
 
+import scala.util.{Try, Success, Failure}
 import org.joda.time.Seconds
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
 import com.azavea.opentransit.indicators._
 import com.azavea.opentransit.indicators.parameters._
+
+import com.github.nscala_time.time.Imports._
+import org.joda.time._
 
 /**
 * This indicator calculates the average deviation between
@@ -14,32 +18,52 @@ import com.azavea.opentransit.indicators.parameters._
 class TravelTimePerformance(params: ObservedStopTimes)
     extends Indicator
       with AggregatesByAll {
-  type Intermediate = Seq[Double]
+  type Intermediate = Option[Double]
 
-  val name = "on_time_perf"
+  val name = "travel_time"
 
   def calculation(period: SamplePeriod) = {
-      def map(trip: Trip): Seq[Double] = {
-        val obsTrip = params.observedForTrip(period, trip.id)
-        val schedStopIds = trip.schedule map (_.stop.id)
-        for {
-          id <- schedStopIds
-          schedStop <- trip.schedule if schedStop.stop.id == id
-          schedStopTime = schedStop.arrivalTime
-          obsStop <- obsTrip.schedule if obsStop.stop.id == id
-          obsStopTime = obsStop.arrivalTime
-        } yield Seconds.secondsBetween(schedStopTime, obsStopTime)
-          .getSeconds
-          .toDouble
-      }
+    val observedTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+      params.observedStopsByTrip(period)
 
-      def reduce(timeDeltas: Seq[Seq[Double]]): Double = {
-        val (total, count) =
-          timeDeltas.flatten.foldLeft((0.0, 0)) { case ((total, count), diff) =>
-            (total + diff, count + 1)
+    def map(trip: Trip): Option[Seq[Double]] = {
+      val (schedTimes, obsTimes) = observedTrips(trip.id).sortBy { case (sched, obsvd) =>
+        sched.arrivalTime // Order stops by scheduled arrival time
+      }.unzip
+
+      Try { // Try monad here for zipping over the empty list throwing an error
+        val schedTravelTimes =
+          schedTimes.zip(schedTimes.tail).map { case (t1, t2) =>
+            Seconds.secondsBetween(t1.arrivalTime, t2.arrivalTime).getSeconds.toDouble
           }
-        if (count > 0) (total / 60) / count else 0.0
+
+        val obsTravelTimes =
+          obsTimes.zip(obsTimes.tail).map { case (t1, t2) =>
+            Seconds.secondsBetween(t1.arrivalTime, t2.arrivalTime).getSeconds.toDouble
+          }
+
+        schedTravelTimes.zip(obsTravelTimes).map { case (schedSeconds, obsSeconds) =>
+          (schedSeconds - obsSeconds).abs
+        }.toSeq
+      } match {
+        case Success(avgTravelTimeDifference: Seq[Double]) => Some(avgTravelTimeDifference)
+        case Failure(_) => None
       }
-      perTripCalculation(map, reduce)
     }
+
+    def reduce(timeDeltas: Seq[Option[Seq[Double]]]): Double = {
+      val (total, count) =
+        timeDeltas.flatten.flatten.foldLeft((0.0, 0)){ case ((total, count), diff) =>
+            (total + diff, count + 1)
+        }
+      if (count > 0) (total / count) / 60 else 0.0
+    }
+    perTripCalculation(map, reduce)
   }
+
+  def travelTimeDeviation(s1: ScheduledStop, s2: ScheduledStop): Double = {
+    (Seconds.secondsBetween(s1.arrivalTime, s1.departureTime).getSeconds -
+     Seconds.secondsBetween(s2.arrivalTime, s2.departureTime).getSeconds).abs.toDouble
+  }
+
+}
