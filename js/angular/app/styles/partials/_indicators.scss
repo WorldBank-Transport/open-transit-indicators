@@ -27,7 +27,13 @@
   min-height: 10rem;
 }
 
-.indicators-table {
+.calculation-heading {
+  font-size: $h1;
+  padding: 7rem 2rem 0 2rem;
+  min-height: 10rem;
+}
+
+.indicators-table, .calculation-table {
   display: table;
   table-layout: fixed;
   width: 100%;
@@ -45,11 +51,11 @@
   float: left;
 }
 
-.indicators-row {
+.indicators-row, .calculation-row {
   display: table-row;
 }
 
-.indicators-cell {
+.indicators-cell, .calculation-cell {
   display: table-cell;
   text-align: center;
   padding: 2rem 1.6rem;
@@ -62,6 +68,24 @@
     font-size: $h5 !important;
     font-weight: normal;
     text-align: left;
+  }
+}
+
+.calculation-status {
+  &.submitted {
+    color: #FF6600;
+  }
+
+  &.processing {
+    color: #3333FF;
+  }
+
+  &.complete {
+    color: #336633;
+  }
+
+  &.failed {
+    color: #600000;
   }
 }
 
@@ -95,7 +119,7 @@
 
 }
 
-.indicators-city-modal-window {
+.indicators-city-modal-window, .yes-no-modal-window {
     margin-top: 11rem;
 }
 

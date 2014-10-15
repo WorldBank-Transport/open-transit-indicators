@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
-            ['$scope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
-            function ($scope, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
+            ['$scope', '$state', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+            function ($scope, $state, $modal, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
@@ -30,6 +30,22 @@ angular.module('transitIndicators')
             };
 
             OTIIndicatorsService.query('GET', params).then(function (data) {
+                // If there is no indicator data, ask to redirect to the calculation status page
+                if (!data.length) {
+                    $modal.open({
+                        templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                        controller: 'OTIYesNoModalController',
+                        windowClass: 'yes-no-modal-window',
+                        resolve: {
+                            getMessage: function() {
+                                return 'CALCULATION.REDIRECT';
+                            }
+                        }
+                    }).result.then(function() {
+                        $state.go('calculation');
+                    });
+                }
+
                 var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
                 $scope.indicatorData = null;
                 $scope.chartData = {};
@@ -40,7 +56,7 @@ angular.module('transitIndicators')
                         $scope.chartData[indicator] = {};
                     }
                     for(var city in indicators[indicator].cities) {
-                        $scope.chartData[indicator][city] = 
+                        $scope.chartData[indicator][city] =
                             filterDataForChartType(
                                 indicators[indicator].cities[city], indicator, 'mode');
                     }

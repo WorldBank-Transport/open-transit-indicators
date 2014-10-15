@@ -75,6 +75,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
     model = IndicatorJob
     lookup_field = 'version'
     serializer_class = IndicatorJobSerializer
+    filter_fields = ('job_status', 'is_latest_version',)
 
     def create(self, request):
         """Override request to handle kicking off celery task"""

@@ -60,6 +60,12 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/data-partial.html',
             controller: 'OTIIndicatorsDataController'
         })
+        .state('calculation', {
+            parent: 'indicators',
+            url: '/calculation',
+            templateUrl: 'scripts/modules/indicators/calculation-partial.html',
+            controller: 'OTIIndicatorsCalculationController'
+        })
         .state('scenarios', {
             parent: 'root',
             url: '/scenarios',

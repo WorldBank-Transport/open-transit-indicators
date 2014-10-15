@@ -46,13 +46,21 @@
         "SELECTONE": "选择一项",
         "UPLOAD": "上传",
         "RESET": "重置",
-        "CALCULATE_INDICATORS": "计算指标"
+        "CALCULATE_INDICATORS": "计算指标",
+        "YES": "Yes",
+        "NO": "No"
     },
     "INDICATOR": {
         "num_stops": "每条路线的公交站点数目",
         "length": "每条路线的最大长度",
         "time_traveled_stops": "站间平均间隔",
         "avg_service_freq": "平均服务频率"
+    },
+    "CALCULATION": {
+        "OBTAINING": "Obtaining indicator calculation status",
+        "STATUS": "Indicator calculation status",
+        "EMPTY": "Indicators have not been calculated",
+        "REDIRECT": "No indicator data found. Go to the status page?"
     },
     "SCENARIO": {
         "SCENARIO": "场景",

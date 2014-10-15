@@ -155,6 +155,9 @@ class IndicatorJob(models.Model):
     # external imports must provide a city name as part of the upload
     city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
 
+    # json string map of indicator name to status
+    calculation_status = models.TextField(default='{}')
+
 
 class Indicator(models.Model):
     """Stores a single indicator calculation"""

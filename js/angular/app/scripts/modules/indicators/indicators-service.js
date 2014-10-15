@@ -21,7 +21,13 @@ angular.module('transitIndicators')
     /**
      * Resource for indicator jobs
      */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {});
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {
+        search: {
+            method: 'GET',
+            isArray: true,
+            url: '/api/indicator-jobs/'
+        }
+    });
 
     /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
