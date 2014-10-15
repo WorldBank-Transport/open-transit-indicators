@@ -689,6 +689,17 @@ service nginx restart
 echo 'Nginx now running'
 
 #########################
+# Canned data download  #
+#########################
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    pushd $PROJECT_ROOT/deployment
+        . load_cities.sh
+    popd
+else
+    echo "Skipping loading of canned data"
+fi
+
+#########################
 # Monit setup           #
 #########################
 # Don't install monit on Travis; could lead to strange test behavior
@@ -769,6 +780,7 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     echo "Monit now running. Access service management console at:"
     echo "http://$HOST/monitoring/; user / pass: oti-admin / oti-admin"
 fi
+
 
 # Remind user to set their timezone -- interactive, so can't be done in provisioner script
 echo ''
