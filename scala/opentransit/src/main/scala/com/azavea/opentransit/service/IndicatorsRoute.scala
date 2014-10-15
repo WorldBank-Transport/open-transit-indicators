@@ -1,6 +1,8 @@
 package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
+import com.azavea.opentransit.CalculationStatus
+import com.azavea.opentransit.CalculationStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
 
@@ -33,7 +35,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   version: String = "",
-  status: Map[String, String]
+  status: Map[String, CalculationStatus]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance =>
@@ -65,7 +67,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     DjangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
 
-                  def statusChanged(status: Map[String, String]) = {
+                  def statusChanged(status: Map[String, CalculationStatus]) = {
                     DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })

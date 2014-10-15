@@ -14,11 +14,12 @@ import geotrellis.vector.json._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
 
-object CalculationStatus {
-  final val SUBMITTED = "submitted"
-  final val PROCESSING = "processing"
-  final val COMPLETE = "complete"
-  final val FAILED = "failed"
+object CalculationStatus extends Enumeration {
+  type CalculationStatus = Value
+  val Submitted = Value("submitted")
+  val Processing = Value("processing")
+  val Complete = Value("complete")
+  val Failed = Value("failed")
 }
 
 package object json {
@@ -153,13 +154,14 @@ package object json {
     def write(job: IndicatorJob) = {
       // A job is complete if nothing is processing or submitted
       val isComplete = job.status.forall(s =>
-        s._2 != CalculationStatus.PROCESSING && s._2 != CalculationStatus.SUBMITTED)
-      val jobStatus = if (isComplete) CalculationStatus.COMPLETE else CalculationStatus.PROCESSING
+        s._2 != CalculationStatus.Processing && s._2 != CalculationStatus.Submitted)
+      val jobStatus = if (isComplete) CalculationStatus.Complete else CalculationStatus.Processing
+      val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
 
       JsObject(
         "version" -> JsString(job.version),
-        "job_status" -> JsString(jobStatus),
-        "calculation_status" -> JsString(job.status.toJson.toString)
+        "job_status" -> JsString(jobStatus.toString),
+        "calculation_status" -> JsString(calculationStatus.toJson.toString)
       )
     }
   }
