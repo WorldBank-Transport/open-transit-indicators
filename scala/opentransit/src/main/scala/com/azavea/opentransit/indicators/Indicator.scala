@@ -25,7 +25,9 @@ object Indicators {
       new CoverageRatioStopsBuffer(params),
       new TransitNetworkDensity(params),
       new Affordability(params),
-      new TravelTimePerformance(params)
+      new TravelTimePerformance(params),
+      new AllWeightedServiceFrequency(params),
+      new LowIncomeWeightedServiceFrequency(params)
     )
   }
 
