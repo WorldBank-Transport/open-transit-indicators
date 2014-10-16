@@ -27,7 +27,8 @@ object Indicators {
       new Affordability(params),
       new TravelTimePerformance(params),
       new AllWeightedServiceFrequency(params),
-      new LowIncomeWeightedServiceFrequency(params)
+      new LowIncomeWeightedServiceFrequency(params),
+      new DwellTimePerformance(params)
     )
   }
 

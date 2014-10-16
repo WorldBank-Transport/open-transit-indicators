@@ -27,7 +27,10 @@ class TransitSystemBuilder(records: GtfsRecords) {
     records.agencies.map { agency => (agency.id, agency) }.toMap
 
   /** Generates a TransitSystem for the specified period */
-  def systemBetween(start: LocalDateTime, end: LocalDateTime): TransitSystem = {
+  def systemBetween(
+      start: LocalDateTime,
+      end: LocalDateTime,
+      pruneStops: Boolean = true): TransitSystem = {
     val dates = {
       val startDate = start.toLocalDate
       val endDate = end.toLocalDate
@@ -66,9 +69,9 @@ class TransitSystemBuilder(records: GtfsRecords) {
                             ScheduledStop(record, startTime, offset, stopIdToStop)
                            }
                           .filter { scheduledStop =>
-                            start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
+                            !pruneStops || (start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end)
                           }
-     
+
                       if(!scheduledStops.isEmpty)
                         Some(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
                       else
@@ -85,8 +88,14 @@ class TransitSystemBuilder(records: GtfsRecords) {
                     .sortBy(_.sequence)
                     .map(ScheduledStop(_, midnight, stopIdToStop))
                     .filter { scheduledStop =>
-                      start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
+                      !pruneStops || (start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end)
                      }
+
+                if(!scheduledStops.isEmpty){
+                  Some(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
+                }
+                else
+                  None
                 Seq(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
               }).flatten.toSeq
           }
