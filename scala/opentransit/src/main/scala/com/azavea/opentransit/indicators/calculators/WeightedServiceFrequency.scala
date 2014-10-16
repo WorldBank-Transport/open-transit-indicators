@@ -8,8 +8,9 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
 /** Average service frequency.
-  * This indicator calculates the frequency of a vehicle arriving
-  * at a stop in a route.
+  * This abstract indicator calculates the frequency of a mode of public transit
+  * arriving at a stop in a route. and weights it according to the population served
+  * It is abstracted out so that different demographics can be used
   */
 abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
     extends Indicator

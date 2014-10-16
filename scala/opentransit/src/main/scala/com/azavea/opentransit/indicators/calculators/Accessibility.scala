@@ -15,9 +15,9 @@ import org.joda.time._
 abstract class Accessibility(params: StopBuffers with Demographics)
     extends Indicator with AggregatesBySystem {
 
-  val name:String
+  val name: String
 
-  val columnName:String
+  val columnName: String
 
   def calculation(period: SamplePeriod) = {
     def calculate(transitSytem: TransitSystem) = {
