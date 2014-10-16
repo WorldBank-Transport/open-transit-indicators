@@ -16,10 +16,10 @@ import org.joda.time.format.ISODateTimeFormat
 
 object CalculationStatus extends Enumeration {
   type CalculationStatus = Value
-  val Submitted = Value("submitted")
+  val Submitted = Value("queued")
   val Processing = Value("processing")
   val Complete = Value("complete")
-  val Failed = Value("failed")
+  val Failed = Value("error")
 }
 
 package object json {
@@ -155,7 +155,9 @@ package object json {
       // A job is complete if nothing is processing or submitted
       val isComplete = job.status.forall(s =>
         s._2 != CalculationStatus.Processing && s._2 != CalculationStatus.Submitted)
-      val jobStatus = if (isComplete) CalculationStatus.Complete else CalculationStatus.Processing
+      val jobStatus = if (isComplete) (
+        if (job.status.forall(s => s._2 != CalculationStatus.Failed)) CalculationStatus.Complete else CalculationStatus.Failed) 
+        else CalculationStatus.Processing
       val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
 
       JsObject(

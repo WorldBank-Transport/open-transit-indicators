@@ -2,14 +2,14 @@
     <span ng-if="!statusFetched" class="calculation-description">
         {{ 'CALCULATION.OBTAINING' | translate }}
     </span>
-    <span ng-if="statusFetched && calculationStatus" class="calculation-description">
+    <span ng-if="statusFetched && jobStatus" class="calculation-description">
         {{ 'CALCULATION.STATUS' | translate }} -
-        {{ (currentJob.job_status === 'complete') ? 'STATUS.COMPLETE' : 'STATUS.PROCESSING' | translate }}
+        {{ displayStatus | translate }}
     </span>
-    <span ng-if="statusFetched && !calculationStatus" class="calculation-description">
+    <span ng-if="statusFetched && !jobStatus" class="calculation-description">
         {{ 'CALCULATION.EMPTY' | translate }}
     </span>
-    <span ng-if="statusFetched && (!calculationStatus || currentJob.job_status !== 'processing')"
+    <span ng-if="statusFetched && (!jobStatus || currentJob.job_status !== 'processing')"
          ng-click="calculateIndicators()" class="button--calculate">
       {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
     </span>
@@ -20,7 +20,7 @@
             <span ng-if="status === 'submitted'" class="glyphicon glyphicon-minus"></span>
             <span ng-if="status === 'processing'" class="glyphicon glyphicon-flash"></span>
             <span ng-if="status === 'complete'" class="glyphicon glyphicon-ok"></span>
-            <span ng-if="status === 'failed'" class="glyphicon glyphicon-remove"></span>
+            <span ng-if="status === 'error'" class="glyphicon glyphicon-remove"></span>
             <span class="calculation-status {{ status }}">{{ types[indicator] }}</span>
         </div>
     </div>

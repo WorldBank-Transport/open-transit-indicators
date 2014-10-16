@@ -52,8 +52,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
-            try {
-              TaskQueue.execute {
+            var err: JsObject = null
+            TaskQueue.execute {
+              try {
                 // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
                 val gtfsRecords =
                   db withSession { implicit session =>
@@ -71,19 +72,34 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })
-              }
+              } catch {
+              case e: Exception =>
+                println("Error calculating indicators!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
+                err = JsObject(
+                  "success" -> JsBoolean(false),
+                  "message" -> JsString("No GTFS data")
+                )
 
+                // update status to indicate indicator calculation failure
+                try {
+                  DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, Map("alltime" -> CalculationStatus.Failed)))
+                } catch {
+                  case ex: Exception =>
+                    println("Failed to set failure status for indicator calculation job!")
+                }
+              }
+            }
+
+            if (err == null) {
               // return a 201 created
               Created -> JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Calculations started (version ${request.version})")
               )
-            } catch {
-              case _: Exception =>
-                JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No GTFS data")
-                )
+            } else {
+              err
             }
           }
         }

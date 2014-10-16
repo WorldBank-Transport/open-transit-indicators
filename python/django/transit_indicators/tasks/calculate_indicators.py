@@ -85,3 +85,5 @@ def run_indicator_calculation(indicator_job):
         IndicatorJob.objects.filter(city_name=indicator_job.city_name).update(is_latest_version=False)
         indicator_job.is_latest_version = True
         indicator_job.save()
+    else:
+        logger.error('Indicator calculation job failed with status: %s', status)
