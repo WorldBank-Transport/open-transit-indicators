@@ -4,6 +4,7 @@ import scala.collection.mutable
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
+import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit.CalculationStatus
 import com.azavea.opentransit.CalculationStatus._
 import geotrellis.vector._
@@ -56,37 +57,40 @@ object CalculateIndicators {
 
     for(indicator <- Indicators.list(params)) {
       try {
-        println(s"Calculating indicator: ${indicator.name}")
-        trackStatus(indicator, CalculationStatus.Processing)
+      	timedTask(s"Processed indicator: ${indicator.name}") {
+	        println(s"Calculating indicator: ${indicator.name}")
+	        trackStatus(indicator, CalculationStatus.Processing)
 
-        val periodResults =
-          periods
-            .map { period =>
-              val calculation =
-                indicator.calculation(period)
-              val transitSystem = systemsByPeriod(period)
-              val results = calculation(transitSystem)
-              (period, results)
-            }
-            .toMap
+	        val periodResults =
+	          periods
+	            .map { period =>
+	              val calculation =
+	                indicator.calculation(period)
+	              val transitSystem = systemsByPeriod(period)
+	              val results = calculation(transitSystem)
+	              (period, results)
+	            }
+	            .toMap
 
-        val overallResults: AggregatedResults =
-          PeriodResultAggregator(periodResults)
+	        val overallResults: AggregatedResults =
+	          PeriodResultAggregator(periodResults)
 
-        val periodIndicatorResults: Seq[ContainerGenerator] =
-          periods
-            .map { period =>
-              val (results, geometries) = (periodResults(period), periodGeometries(period))
-              PeriodIndicatorResult.createContainerGenerators(indicator.name, period, results, geometries)
-            }
-            .toSeq
-            .flatten
+	        val periodIndicatorResults: Seq[ContainerGenerator] =
+	          periods
+	            .map { period =>
+	              val (results, geometries) = (periodResults(period), periodGeometries(period))
+	              PeriodIndicatorResult.createContainerGenerators(indicator.name, period, results, geometries)
+	            }
+	            .toSeq
+	            .flatten
 
-        val overallIndicatorResults: Seq[ContainerGenerator] =
-          OverallIndicatorResult.createContainerGenerators(indicator.name, overallResults, overallGeometries)
+	        val overallIndicatorResults: Seq[ContainerGenerator] =
+	          OverallIndicatorResult.createContainerGenerators(indicator.name, overallResults, overallGeometries)
 
-        statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
-        trackStatus(indicator, CalculationStatus.Complete)
+	        statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
+	        trackStatus(indicator, CalculationStatus.Complete)
+	    }
+	    println("Done processing indicators")
       } catch {
         case e: Exception => {
           println(e.getMessage)
