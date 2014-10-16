@@ -181,6 +181,10 @@ angular.module('transitIndicators')
             'mode': 'bar',
             'system': 'number'
         },
+        'service_freq_weighted_low': {
+            'mode': 'bar',
+            'system': 'number'
+        },
         'stops_route_length': {
             'mode': 'bar',
             'system': 'number'
