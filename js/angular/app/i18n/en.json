@@ -54,7 +54,7 @@
         "num_stops": "Num stops per route",
         "time_traveled_stops": "Avg Time Between Stops",
         "avg_service_freq": "Avg Service Frequency",
-        "access_index": "Access Index"
+        "access_index": "Access Index",
         "affordability": "Affordability",
         "coverage": "System coverage",
         "coverage_ratio_stops_buffer": "Stop coverage",
