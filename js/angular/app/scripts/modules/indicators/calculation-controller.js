@@ -83,7 +83,7 @@ angular.module('transitIndicators')
                                 OTIIndicatorsService.IndicatorJob.search({ job_status: 'error' })
                                     .$promise.then(function(errorData) {
                                         if (errorData.length) {
-                                            setCurrentJob(errorData); // TODO:  why does it still say it's processing?
+                                            setCurrentJob(errorData);
                                         }
                                     });
                                     $scope.statusFetched = true;
