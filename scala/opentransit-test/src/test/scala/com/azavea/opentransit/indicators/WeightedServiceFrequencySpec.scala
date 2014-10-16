@@ -20,11 +20,18 @@ class WeightedServiceFrequencySpec
   /**The result 0.29 is in the ballpark of 0.22 (which is the result
    * of the unweighted Avg Svc Freq indicator)
    */
-  it should "calculate overall system accessibility by system for SEPTA" in {
-    val calculation = new WeightedServiceFrequency(demographicsAndBuffers).calculation(period)
+  it should "calculate service frequency weighted by population served for SEPTA" in {
+    val calculation = new AllWeightedServiceFrequency(demographicsAndBuffers).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.isDefined should be (true)
     bySystem.get should be (0.30 +- 1e-2)
+  }
+
+  it should "calculate service frequency weighted by low income population served for SEPTA" in {
+    val calculation = new LowIncomeWeightedServiceFrequency(demographicsAndBuffers).calculation(period)
+    val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
+    bySystem.isDefined should be (true)
+    bySystem.get should be (0.31 +- 1e-2)
   }
 }
 

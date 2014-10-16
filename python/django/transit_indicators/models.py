@@ -280,6 +280,7 @@ class Indicator(models.Model):
         ON_TIME_PERF = 'on_time_perf'
         REGULARITY_HEADWAYS = 'regularity_headways'
         SERVICE_FREQ_WEIGHTED = 'service_freq_weighted'
+        SERVICE_FREQ_WEIGHTED_LOW = 'service_freq_weighted_low'
         STOPS_ROUTE_LENGTH = 'stops_route_length'
         SUBURBAN_LINES = 'ratio_suburban_lines'
         SYSTEM_ACCESS = 'system_access'

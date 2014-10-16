@@ -11,12 +11,13 @@ import org.joda.time._
   * This indicator calculates the frequency of a vehicle arriving
   * at a stop in a route.
   */
-class WeightedServiceFrequency(params: StopBuffers with Demographics)
+abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
     extends Indicator
     with AggregatesByAll {
   type Intermediate = Map[Stop, Seq[LocalDateTime]]
 
-  val name = "weighted_service_freq"
+  val name: String
+  val demographicsColumnName: String
 
   def calculation(period: SamplePeriod) = {
     /** For each trip, return a Map of stops to trip arrival times at said stops */
@@ -44,7 +45,7 @@ class WeightedServiceFrequency(params: StopBuffers with Demographics)
       }
       val allStopPop = params.populationMetricForBuffer(
         allStopBuffers,
-        "populationMetric1"
+        demographicsColumnName
       )
 
       val freqsForPop =
@@ -54,7 +55,7 @@ class WeightedServiceFrequency(params: StopBuffers with Demographics)
             val thisStopBuffer = params.bufferForStop(stop)
             val popInBuffer = params.populationMetricForBuffer(
                 thisStopBuffer,
-                "populationMetric1"
+                demographicsColumnName
             )
 
             val orderedArrivalTimes = schedules.sorted
@@ -76,4 +77,14 @@ class WeightedServiceFrequency(params: StopBuffers with Demographics)
 
     perRouteCalculation(map, reduce)
   }
+}
+
+class AllWeightedServiceFrequency(params: StopBuffers with Demographics) extends WeightedServiceFrequency(params) {
+  val name = "service_freq_weighted"
+  val demographicsColumnName = "populationMetric1"
+}
+
+class LowIncomeWeightedServiceFrequency(params: StopBuffers with Demographics) extends WeightedServiceFrequency(params) {
+  val name = "service_freq_weighted_low"
+  val demographicsColumnName = "populationMetric2"
 }
