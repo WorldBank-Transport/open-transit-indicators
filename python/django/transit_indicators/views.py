@@ -1,6 +1,7 @@
 import django_filters
 
 from rest_framework import status
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
@@ -59,6 +60,7 @@ class IndicatorFilter(django_filters.FilterSet):
     TODO: Filter all but the most recent version for each city in the sent response
 
     """
+
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
     is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
@@ -76,7 +78,6 @@ class IndicatorJobViewSet(OTIAdminViewSet):
     lookup_field = 'version'
     serializer_class = IndicatorJobSerializer
     filter_fields = ('job_status', 'is_latest_version',)
-
     def create(self, request):
         """Override request to handle kicking off celery task"""
         response = super(IndicatorJobViewSet, self).create(request)
@@ -97,6 +98,8 @@ class IndicatorViewSet(OTIAdminViewSet):
     serializer_class = IndicatorSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [CSVRenderer]
     filter_class = IndicatorFilter
+    filter_backends = api_settings.DEFAULT_FILTER_BACKENDS + [OrderingFilter]
+    ordering = ('id', 'value')  # Default to standard id, but allow by value
 
     def create(self, request, *args, **kwargs):
         """ Create Indicator objects via csv upload or json
