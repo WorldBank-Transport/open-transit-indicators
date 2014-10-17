@@ -5,7 +5,7 @@ import com.azavea.gtfs._
 import com.github.nscala_time.time.Imports._
 
 /** Interpolates the arrival and depature times
-  * for StopTimeRecords that have no entires.
+  * for StopTimeRecords that have no entries.
   * This happen for some GTFS data sets that are off-spec,
   * as Spec (Revised June 20, 2012) says these fields are
   * required.

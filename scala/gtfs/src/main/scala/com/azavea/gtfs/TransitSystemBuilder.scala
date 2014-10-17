@@ -4,10 +4,11 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time.Days
 
 import scala.collection.mutable
+import com.azavea.gtfs.op._
 
 object TransitSystemBuilder {
   def apply(records: GtfsRecords): TransitSystemBuilder =
-    new TransitSystemBuilder(records)
+    new TransitSystemBuilder(InterpolateStopTimes(records))
 }
 
 class TransitSystemBuilder(records: GtfsRecords) {
