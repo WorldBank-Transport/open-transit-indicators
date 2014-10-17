@@ -1,8 +1,8 @@
 package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.CalculationStatus
-import com.azavea.opentransit.CalculationStatus._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
 
@@ -35,7 +35,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   version: String = "",
-  status: Map[String, CalculationStatus]
+  status: Map[String, JobStatus]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance =>
@@ -68,7 +68,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     DjangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
 
-                  def statusChanged(status: Map[String, CalculationStatus]) = {
+                  def statusChanged(status: Map[String, JobStatus]) = {
                     DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })
@@ -84,7 +84,8 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
 
                 // update status to indicate indicator calculation failure
                 try {
-                  DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, Map("alltime" -> CalculationStatus.Failed)))
+                  DjangoClient.updateIndicatorJob(request.token,
+                    IndicatorJob(request.version, Map("alltime" -> JobStatus.Failed)))
                 } catch {
                   case ex: Exception =>
                     println("Failed to set failure status for indicator calculation job!")

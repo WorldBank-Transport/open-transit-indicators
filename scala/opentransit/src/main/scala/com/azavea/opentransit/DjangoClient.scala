@@ -1,6 +1,6 @@
 package com.azavea.opentransit
 
-import com.azavea.opentransit.service.IndicatorJob
+import com.azavea.opentransit.service.{ IndicatorJob, Scenario }
 import com.azavea.opentransit.indicators.IndicatorResultContainer
 import com.azavea.opentransit.json._
 
@@ -39,10 +39,17 @@ object DjangoClient {
     }
   }
 
-  // Send a PATCH to update processing status for celery job
+  // Send a PATCH to update processing status for indicator calculation job
   def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
-    val indicator_job_uri = s"$BASE_URI/indicator-jobs/${indicatorJob.version}/"
-    val patch = Patch(indicator_job_uri, indicatorJob) ~> addHeader("Authorization", s"Token $token")
+    val uri = s"$BASE_URI/indicator-jobs/${indicatorJob.version}/"
+    val patch = Patch(uri, indicatorJob) ~> addHeader("Authorization", s"Token $token")
+    processResponse(patch)
+  }
+
+  // Send a PATCH to update processing status for scenatio creation
+  def updateScenario(token: String, scenario: Scenario) = {
+    val uri = s"$BASE_URI/scenarios/${scenario.dbName}/"
+    val patch = Patch(uri, scenario) ~> addHeader("Authorization", s"Token $token")
     processResponse(patch)
   }
 

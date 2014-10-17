@@ -2,6 +2,7 @@
 package com.azavea.opentransit
 
 import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.scenarios._
 import com.azavea.opentransit.service._
 
 import com.azavea.gtfs._
@@ -14,8 +15,8 @@ import geotrellis.vector.json._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
 
-object CalculationStatus extends Enumeration {
-  type CalculationStatus = Value
+object JobStatus extends Enumeration {
+  type JobStatus = Value
   val Submitted = Value("queued")
   val Processing = Value("processing")
   val Complete = Value("complete")
@@ -99,6 +100,29 @@ package object json {
       }
   }
 
+  implicit object ScenarioCreationRequestFormat extends RootJsonFormat[ScenarioCreationRequest] {
+    def write(request: ScenarioCreationRequest) =
+      JsObject(
+        "token" -> JsString(request.token),
+        "db_name" -> JsString(request.dbName),
+        "base_db_name" -> JsString(request.baseDbName),
+        "sample_period" -> request.samplePeriod.toJson
+      )
+
+    def read(value: JsValue): ScenarioCreationRequest =
+      value.asJsObject.getFields(
+        "token",
+        "db_name",
+        "base_db_name",
+        "sample_period"
+      ) match {
+        case Seq(JsString(token), JsString(dbName), JsString(baseDbName), samplePeriodJson) =>
+          val samplePeriod = samplePeriodJson.convertTo[SamplePeriod]
+          ScenarioCreationRequest(token, dbName, baseDbName, samplePeriod)
+        case _ => throw new DeserializationException("ScenarioCreationRequest expected.")
+      }
+  }
+
   implicit object RouteTypeFormat extends JsonFormat[RouteType] {
     def write(routeType: RouteType) =
       JsNumber(routeType.id)
@@ -154,16 +178,25 @@ package object json {
     def write(job: IndicatorJob) = {
       // A job is complete if nothing is processing or submitted
       val isComplete = job.status.forall(s =>
-        s._2 != CalculationStatus.Processing && s._2 != CalculationStatus.Submitted)
+        s._2 != JobStatus.Processing && s._2 != JobStatus.Submitted)
       val jobStatus = if (isComplete) (
-        if (job.status.forall(s => s._2 != CalculationStatus.Failed)) CalculationStatus.Complete else CalculationStatus.Failed) 
-        else CalculationStatus.Processing
+        if (job.status.forall(s => s._2 != JobStatus.Failed)) JobStatus.Complete else JobStatus.Failed)
+        else JobStatus.Processing
       val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
 
       JsObject(
         "version" -> JsString(job.version),
         "job_status" -> JsString(jobStatus.toString),
         "calculation_status" -> JsString(calculationStatus.toJson.toString)
+      )
+    }
+  }
+
+  implicit object ScenarioWriter extends RootJsonWriter[Scenario] {
+    def write(scenario: Scenario) = {
+      JsObject(
+        "db_name" -> JsString(scenario.dbName),
+        "job_status" -> JsString(scenario.jobStatus.toString)
       )
     }
   }
