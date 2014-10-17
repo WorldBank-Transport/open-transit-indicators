@@ -54,21 +54,19 @@ class TransitSystemBuilder(records: GtfsRecords) {
               // Since this trip is scheduled per frequency, we need to go over each frequency schedule
               // for each of the dates in the range, and generate all applicable scheduled trips.
               (for(date <- dates) yield {
-                val midnight = date.toLocalDateTime(LocalTime.Midnight)
-
                 frequencyRecords.map { frequencyRecord =>
                   frequencyRecord.generateStartTimes(date)
                     .map { startTime =>
                       val offset = stopTimeRecords.head.arrivalTime
                       val scheduledStops = 
                         stopTimeRecords
+                          .sortBy(_.sequence)
                           .map { record =>
                             ScheduledStop(record, startTime, offset, stopIdToStop)
                            }
                           .filter { scheduledStop =>
                             start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
                           }
-     
                       if(!scheduledStops.isEmpty)
                         Some(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
                       else
