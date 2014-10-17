@@ -1,0 +1,23 @@
+<div class="scenario-page-content">
+    <form name="newRoute" novalidate>
+        <h3>{{'SCENARIO.NEW_ROUTE'|translate}}</h3>
+        <p>{{'SCENARIO.ADD_A_NEW_ROUTE'|translate}}</p>
+        <div class="block">
+            <label>{{'SCENARIO.NAME'|translate}}</label>
+            <input type="text" ng-model="route.routeShortName" required placeholder="Route 1" />
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
+            <input type="text" ng-model="route.routeDesc" placeholder="Add description here..." />
+        </div>
+        <div class="block">
+            <div class="filter">
+                <a ng-repeat="type in routeTypes" class="button--small btn-group" ng-model="route.routeType" btn-radio="type.route_type">{{ type.description }}</a><br />
+            </div>
+        </div>
+    </form>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+</div>

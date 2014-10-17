@@ -143,6 +143,17 @@ angular.module('transitIndicators')
         return dfd.promise;
     };
 
+    otiIndicatorsService.getRouteTypes = function () {
+        var dfd = $q.defer();
+        $http.get('/api/gtfs-route-types/').success(function (data) {
+            dfd.resolve(data);
+        }).error(function (error) {
+            console.error('getRouteTypes Error: ', error);
+            dfd.resolve([]);
+        });
+        return dfd.promise;
+    };
+
     otiIndicatorsService.getIndicatorDescriptionTranslationKey = function(key) {
         return 'INDICATOR_DESCRIPTION.' + key;
     };

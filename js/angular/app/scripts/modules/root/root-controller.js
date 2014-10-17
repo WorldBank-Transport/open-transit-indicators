@@ -5,6 +5,8 @@ angular.module('transitIndicators')
             function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
 
     var mapStates = ['map', 'transit', 'scenarios'];
+    // Add all scenario views to map states
+    mapStates = mapStates.concat(_.map(config.scenarioViews, function (view) { return view.id; }));
 
     // Setup defaults for all leaflet maps:
     // Includes: baselayers, center, bounds
@@ -85,8 +87,8 @@ angular.module('transitIndicators')
 
         $scope.leaflet.legend = {};
 
-        if (fromState.name === "scenarios") {
-            leafletData.getMap().then(function(map) { // remove layers from the scenario 
+        if (fromState.parent.name === "scenarios") {
+            leafletData.getMap().then(function(map) { // remove layers from the scenario
                 map.eachLayer(function (layer) {      // prototype
                     if(layer.isScenarioLayer) {
                         map.removeLayer(layer);
@@ -106,6 +108,8 @@ angular.module('transitIndicators')
         if (toState.parent === 'indicators') {
             activeState = 'indicators';
             $scope.mapClassNav2 = true;
+        } else if (toState.parent === 'scenarios') {
+            activeState = 'scenarios';
         } else if (toState.parent === 'settings') {
             activeState = 'settings';
         }

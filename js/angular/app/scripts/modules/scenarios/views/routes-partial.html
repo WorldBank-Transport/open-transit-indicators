@@ -1,0 +1,26 @@
+<div class="scenario-page-content">
+    <h3>{{'SCENARIO.ROUTES'|translate}}</h3>
+    <p>
+        {{'SCENARIO.ROUTES_INST'|translate}}
+    </p>
+    <div class="block">
+        <div class="filter btn-group">
+            <a class="button--small" ng-model="routeType.selected" btn-radio="-1">{{'SCENARIO.ALL'|translate}}</a> <!-- Add Icon -->
+            <a class="button--small" ng-repeat="type in routeTypes" ng-model="routeType.selected" btn-radio="type.route_type">{{type.description}}</a> <!-- Add Icon -->
+        </div>
+    </div>
+    <div class="block">
+        <div class="row">
+            <div class="col-xs-9">
+                <select ng-model="selectedRouteId" ng-options="r.routeId as r.routeShortName for r in filteredRoutes"></select>
+            </div>
+            <div class="col-xs-3">
+            <a class="button--small" ng-click="editRoute(selectedRouteId, selectedRouteType)">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="newRoute()">{{'SCENARIO.NEW_ROUTE'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+</div>
