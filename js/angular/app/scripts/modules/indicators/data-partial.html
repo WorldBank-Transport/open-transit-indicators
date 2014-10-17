@@ -37,10 +37,10 @@
 
         <div ng-repeat="(cityname, citydata) in indicator.cities"
              class="indicators-cell">
-            <div ng-if="displayIndicator(type, 'mode')">
+            <div ng-if="displayIndicator(citydata, type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(type, 'system')">{{ citydata.system[0].values[0].formatted_value || "No Data Available" }}</span>
+            <span ng-if="displayIndicator(citydata, type, 'system')">{{ citydata.system[0].values[0].formatted_value || "No Data Available" }}</span>
         </div>
     </div>
 </div>

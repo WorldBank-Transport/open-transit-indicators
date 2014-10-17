@@ -70,9 +70,9 @@ angular.module('transitIndicators')
         }
     };
 
-    $scope.displayIndicator = function (type, aggregation) {
+    $scope.displayIndicator = function (citydata, type, aggregation) {
         var config = $scope.indicatorConfig;
-        var display = !!(config && config[type] && config[type][aggregation]);
+        var display = !!(config && config[type] && config[type][aggregation] && citydata[aggregation]);
         return display;
     };
 
