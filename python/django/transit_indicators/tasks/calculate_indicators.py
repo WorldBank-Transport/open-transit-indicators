@@ -30,7 +30,7 @@ def run_osm_indicators():
     osm_datasource = OSMData.objects.filter().first()
     return is_complete(osm_datasource)
 
-def run_accessibility():
+def run_demographics_indicators():
     """Helper function that returns True if accessibility calculators can be run"""
     demographic_datasource = DemographicDataSource.objects.filter().first()
     is_complete(demographic_datasource)
@@ -58,7 +58,7 @@ def run_indicator_calculation(indicator_job):
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
         'params_requirements': {
-            'access': run_accessibility(),
+            'demographics': run_demographics_indicators(),
             'osm': run_osm_indicators(),
             'observed': run_realtime_indicators(),
             'city_bounds': True if config.city_boundary else False,

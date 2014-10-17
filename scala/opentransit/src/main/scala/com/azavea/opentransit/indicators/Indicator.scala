@@ -9,40 +9,66 @@ object Indicators {
   // These are indicators that don't need the request info.
   private val staticIndicators: List[Indicator] =
     List(
-      AverageServiceFrequency,
-      DistanceStops,
-      Length,
-      NumRoutes,
-      NumStops,
-      TimeTraveledStops,
-      InterstopDistance,
-      StopsToLength
+        AverageServiceFrequency,
+        DistanceStops,
+        Length,
+        NumRoutes,
+        NumStops,
+        TimeTraveledStops,
+        InterstopDistance,
+        StopsToLength
     )
 
   // These are indicators that need to know things about the request
   private def paramIndicators(params: IndicatorParams): List[Indicator] = {
-    List(
-      new CoverageRatioStopsBuffer(params),
-      new TransitNetworkDensity(params),
-      new Affordability(params),
-      new TravelTimePerformance(params),
-      new AllWeightedServiceFrequency(params),
-      new LowIncomeWeightedServiceFrequency(params),
-      new DwellTimePerformance(params)
-    )
+    case class Requires(requirements: Seq[Boolean]=Seq())
+    val settings = params.settings
+
+    List( // Tuples of requirements and params-requiring indicators
+            (
+                new CoverageRatioStopsBuffer(params),
+                Requires(Seq(settings.hasCityBounds))
+            ),
+            (
+                new TransitNetworkDensity(params),
+                Requires(Seq(settings.hasRegionBounds))
+            ),
+            (
+                new TravelTimePerformance(params),
+                Requires(Seq(settings.hasObserved))
+            ),
+            (
+                new DwellTimePerformance(params),
+                Requires(Seq(settings.hasObserved))
+            ),
+            (
+                new AllWeightedServiceFrequency(params),
+                Requires(Seq(settings.hasDemographics))
+            ),
+            (
+                new LowIncomeWeightedServiceFrequency(params),
+                Requires(Seq(settings.hasDemographics))
+            ),
+            (
+                new AllAccessibility(params),
+                Requires(Seq(settings.hasDemographics))
+            ),
+            (
+                new LowIncomeAccessibility(params),
+                Requires(Seq(settings.hasDemographics))
+            ),
+            (
+                new Affordability(params),
+                Requires()
+            )
+    ).map { case (indicator: Indicator, reqs: Requires) =>
+      if (reqs.requirements.foldLeft(true)(_ && _)) Some(indicator) else None
+    }.flatten
   }
 
-  private def accessibilityIndicators(params: IndicatorParams): List[Indicator] = {
-    if (params.settings.runAccessibility)
-      List(
-        new AllAccessibility(params),
-        new LowIncomeAccessibility(params)
-      )
-    else List()
-  }
 
   def list(params: IndicatorParams): List[Indicator] =
-    staticIndicators ++ paramIndicators(params) ++ accessibilityIndicators(params)
+    staticIndicators ++ paramIndicators(params)
 }
 
 trait Indicator { self: AggregatesBy =>

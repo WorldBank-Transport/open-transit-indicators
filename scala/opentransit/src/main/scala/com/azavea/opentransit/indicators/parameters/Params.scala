@@ -18,7 +18,11 @@ case class IndicatorSettings(
   maxCommuteTime: Int,
   maxWalkTime: Int,
   averageFare: Double,
-  runAccessibility: Boolean
+  hasDemographics: Boolean,
+  hasOsm: Boolean,
+  hasObserved: Boolean,
+  hasCityBounds: Boolean,
+  hasRegionBounds: Boolean
 )
 
 // Do not change by period or scenario
@@ -63,7 +67,11 @@ object IndicatorParams {
             request.maxCommuteTime,
             request.maxWalkTime,
             request.averageFare,
-            request.runAccessibility
+            hasDemographics = request.params_requirements.demographics,
+            hasOsm = request.params_requirements.osm,
+            hasObserved = request.params_requirements.observed,
+            hasCityBounds = request.params_requirements.city_bounds,
+            hasRegionBounds = request.params_requirements.region_bounds
           )
         val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
         val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)
