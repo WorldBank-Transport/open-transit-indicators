@@ -5,23 +5,40 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 import requests
 
-from datasources.models import DemographicDataSource, DemographicDataFeature
+from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
 from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
 
-def run_accessibility():
-    """Helper function that returns True if accesibility calculators can be run"""
-    demographic_datasource = DemographicDataSource.objects.filter().first()
-    if demographic_datasource:
-        is_completed = (demographic_datasource.status == 'complete')
+def is_complete(file_data_source_instance):
+    """Abstraction to check on completion of file data sources"""
+    if file_data_source_instance:
+        return file_data_source_instance.status == 'complete'
     else:
-        is_completed = False
+        return False
+
+def run_realtime_indicators():
+    """Helper function that returns True if indicators which depend upon realtime
+    data can be run"""
+    realtime_datasource = RealTime.objects.filter().first()
+    return is_complete(realtime_datasource)
+
+def run_osm_indicators():
+    """Helper function that returns True if indicators which depend upon osm
+    data can be run"""
+    osm_datasource = OSMData.objects.filter().first()
+    return is_complete(osm_datasource)
+
+def run_accessibility():
+    """Helper function that returns True if accessibility calculators can be run"""
+    demographic_datasource = DemographicDataSource.objects.filter().first()
+    is_complete(demographic_datasource)
     has_features = DemographicDataFeature.objects.filter().count() > 0
     return is_completed and has_features
 
 def run_indicator_calculation(indicator_job):
+    """Initiate celery job which tells scala to calculate indicators"""
     logger.debug('Starting indicator job: %s for city %s', indicator_job, indicator_job.city_name)
     indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
     indicator_job.save()
@@ -40,7 +57,13 @@ def run_indicator_calculation(indicator_job):
         'max_walk_time_s': config.max_walk_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
-        'run_accessibility': run_accessibility(),
+        'params_requirements': {
+            'access': run_accessibility(),
+            'osm': run_osm_indicators(),
+            'observed': run_realtime_indicators(),
+            'city_bounds': True if config.city_boundary else False,
+            'region_bounds': True if config.region_boundary else False
+        },
         'sample_periods': [
             {
                 'id': s.id,
