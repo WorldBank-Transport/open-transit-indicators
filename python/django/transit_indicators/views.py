@@ -100,6 +100,9 @@ class IndicatorViewSet(OTIAdminViewSet):
     filter_class = IndicatorFilter
     filter_backends = api_settings.DEFAULT_FILTER_BACKENDS + [OrderingFilter]
     ordering = ('id', 'value')  # Default to standard id, but allow by value
+    paginate_by = None
+    paginate_by_param = 'page_size'
+    max_paginate_by = 25
 
     def create(self, request, *args, **kwargs):
         """ Create Indicator objects via csv upload or json
