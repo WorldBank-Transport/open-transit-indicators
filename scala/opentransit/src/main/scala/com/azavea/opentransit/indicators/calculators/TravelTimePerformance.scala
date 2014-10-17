@@ -1,6 +1,5 @@
 package com.azavea.opentransit.indicators.calculators
 
-import scala.util.{Try, Success, Failure}
 import org.joda.time.Seconds
 
 import com.azavea.gtfs._
@@ -36,7 +35,7 @@ class TravelTimePerformance(params: ObservedStopTimes)
           sched.arrivalTime // Order stops by scheduled arrival time
         }.unzip // unzip so that we are left with two ordered lists - scheduled and observed stops
 
-      Try { // Try monad here for zipping over the empty list throwing an uncaught exception
+      if (!obsTimes.isEmpty && !schedTimes.isEmpty) {
         val schedTravelTimes: Seq[Double] = // Moving window with a width of 2 for scheduled times
           schedTimes.zip(schedTimes.tail).map { case (t1, t2) =>
             Seconds.secondsBetween(t1.departureTime, t2.arrivalTime).getSeconds.toDouble
@@ -48,13 +47,10 @@ class TravelTimePerformance(params: ObservedStopTimes)
           }
 
         // Zip the data up and map distance aggregation over that zipped data
-        schedTravelTimes.zip(obsTravelTimes).map { case (schedSeconds, obsSeconds) =>
+        Some(schedTravelTimes.zip(obsTravelTimes).map { case (schedSeconds, obsSeconds) =>
           (schedSeconds - obsSeconds).abs
-        }.toSeq
-      } match {
-        case Success(avgTravelTimeDifference: Seq[Double]) => Some(avgTravelTimeDifference)
-        case Failure(_) => None
-      }
+        }.toSeq)
+      } else None
     }
 
     def reduce(timeDeltas: Seq[Option[Seq[Double]]]): Double = {
