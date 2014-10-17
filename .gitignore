@@ -60,6 +60,7 @@ logs/
 ~*
 \#*#
 .#*
+.idea
 
 # OS X
 .DS_Store
