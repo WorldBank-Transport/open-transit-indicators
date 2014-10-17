@@ -93,6 +93,12 @@ trait ScenariosRoute extends Route { self: DatabaseInstance =>
     GroupTrips.groupByPath(trips)
   }
 
+  private def deleteTrip(tripId: String)(implicit s: Session): Unit = {
+    tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
+    tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
+    tables.tripRecordsTable.filter(_.id === tripId).delete
+
+  }
   private def saveTripPattern(pattern: TripPattern)(implicit s: Session): Unit = {
     tables.tripRecordsTable.insert(pattern.trip)
     tables.frequencyRecordsTable.insertAll(pattern.frequencies:_*)
@@ -133,8 +139,7 @@ trait ScenariosRoute extends Route { self: DatabaseInstance =>
             for { // delete all trips that are in the same bin as our parameter
               bin <- bins.find(_.exists(r => r.trip.id == pattern.trip.id))
               tt <- bin
-            } tables.tripRecordsTable.filter(_.id === tt.trip.id).delete
-            // relying on the cascading delete to get rid of the StopTimes record
+            } deleteTrip(tt.trip.id)
             // TODO Stops will never cascade delete, but we're filling up the DB with "trash stops" on every save ?!
 
             saveTripPattern(pattern)
@@ -153,7 +158,7 @@ trait ScenariosRoute extends Route { self: DatabaseInstance =>
           /** Replace specific trip with parameter */
           post { entity(as[TripPattern]) { pattern =>
             db withSession { implicit s =>
-              tables.tripRecordsTable.filter(_.id === tripId).delete
+              deleteTrip(pattern.trip.id)
               saveTripPattern(pattern)
             }
             complete(StatusCodes.Created)
@@ -161,7 +166,7 @@ trait ScenariosRoute extends Route { self: DatabaseInstance =>
           /** Delete all traces of the trip */
           delete {
             db withSession { implicit s =>
-              tables.tripRecordsTable.filter(_.id === tripId).delete
+              deleteTrip(tripId)
             }
             complete(StatusCodes.OK)
           }
