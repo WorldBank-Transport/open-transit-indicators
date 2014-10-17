@@ -101,11 +101,13 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_QUEUES = (
     Queue('datasources', Exchange('datasources'), routing_key='datasources'),
-    Queue('indicators', Exchange('indicators'), routing_key='indicators')
+    Queue('indicators', Exchange('indicators'), routing_key='indicators'),
+    Queue('scenarios', Exchange('scenarios'), routing_key='scenarios')
 )
 CELERY_ROUTES = {
     'datasource_import_tasks': {'queue': 'datasources', 'routing_key': 'datasources'},
-    'calculate_indicator_tasks': {'queue': 'indicators', 'routing_key': 'indicators'}
+    'calculate_indicator_tasks': {'queue': 'indicators', 'routing_key': 'indicators'},
+    'create_scenario_tasks': {'queue': 'scenarios', 'routing_key': 'scenarios'}
 }
 CELERY_ACCEPT_CONTENT=['json']
 

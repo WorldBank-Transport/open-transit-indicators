@@ -454,8 +454,24 @@ exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --que
 celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
 echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
 
+# scenarios
+celery_scenarios_conf="
+start on (filesystem or (vagrant-mounted or cloud-final))
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue scenarios --logfile $LOG_ROOT/celery.log -l debug --pidfile /var/run/celery-scenarios.pid --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_scenarios_conf_file="/etc/init/oti-celery-scenarios.conf"
+echo "$celery_scenarios_conf" > "$celery_scenarios_conf_file"
+
 service oti-celery-datasources restart
 service oti-celery-indicators restart
+service oti-celery-scenarios restart
 
 echo "Finished setting up celery and background processes started"
 

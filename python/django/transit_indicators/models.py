@@ -159,6 +159,34 @@ class IndicatorJob(models.Model):
     calculation_status = models.TextField(default='{}')
 
 
+class Scenario(models.Model):
+    """Stores metadata about a scenario"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Scenario initialization queued for processing')),
+            (PROCESSING, _(u'Scenario initialization is processing')),
+            (ERROR, _(u'Error initializing scenario')),
+            (COMPLETE, _(u'Completed scenario initialization')),
+        )
+
+    # Name of the database where the scenario is stored
+    db_name = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+
+    # Optional scenario to base this scenario off of
+    base_scenario = models.ForeignKey('self', blank=True, null=True)
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    sample_period = models.ForeignKey(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
