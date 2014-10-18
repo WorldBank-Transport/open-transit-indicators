@@ -69,11 +69,15 @@ class ScenarioSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
 
-        if not attrs.get("job_status"):
-            attrs["job_status"] = IndicatorJob.StatusChoices.QUEUED
+        if not attrs.get('job_status'):
+            attrs['job_status'] = IndicatorJob.StatusChoices.QUEUED
 
-        if not attrs.get("created_by"):
-            attrs["created_by"] = self.context["request"].user
+        if not attrs.get('created_by'):
+            attrs['created_by'] = self.context['request'].user
+
+        if ('sample_period' in attrs and
+            attrs.get('sample_period').type == SamplePeriod.SamplePeriodTypes.ALLTIME):
+            raise serializers.ValidationError('Scenario for alltime not allowed')
 
         return super(ScenarioSerializer, self).validate(attrs)
 

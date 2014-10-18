@@ -98,9 +98,7 @@ class ScenarioViewSet(OTIAdminViewSet):
         """Override request to handle kicking off celery task"""
         response = super(ScenarioViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
-            print "starting scenario creation"
             start_scenario_creation.apply_async(args=[self.object.id], queue='scenarios')
-            print "finished starting scenario creation"
         return response
 
 

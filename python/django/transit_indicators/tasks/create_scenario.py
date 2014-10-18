@@ -11,7 +11,6 @@ logger = get_task_logger(__name__)
 GT_SCENARIOS_ENDPOINT = 'http://localhost/gt/scenarios'
 
 def run_scenario_creation(scenario):
-    print "in run_scenario_creation"
     period = scenario.sample_period
     logger.debug('Starting scenario creation: %s for user %s, period %s, db_name: %s',
                  scenario.name, scenario.created_by.username, period.type, scenario.db_name)

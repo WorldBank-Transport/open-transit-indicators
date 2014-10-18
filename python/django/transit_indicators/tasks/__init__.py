@@ -1,4 +1,3 @@
-import traceback
 from transit_indicators.models import IndicatorJob, Scenario
 from transit_indicators.tasks.calculate_indicators import run_indicator_calculation
 from transit_indicators.tasks.create_scenario import run_scenario_creation
@@ -17,12 +16,10 @@ def start_indicator_calculation(self, indicator_job_id):
 
 @app.task(bind=True, max_retries=3)
 def start_scenario_creation(self, scenario_id):
-    print "IN START_SCENARIO_CREATION"
     try:
         scenario = Scenario.objects.get(pk=scenario_id)
         run_scenario_creation(scenario)
     except Exception as e:
-        print traceback.format_exc()
         Scenario.objects.get(pk=scenario_id).job_status = Scenario.StatusChoices.ERROR
         scenario.save()
         raise self.retry(exc=e)
