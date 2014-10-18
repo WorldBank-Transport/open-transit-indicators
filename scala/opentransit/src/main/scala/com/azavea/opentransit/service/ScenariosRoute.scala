@@ -33,7 +33,7 @@ trait ScenariosRoute extends Route { self: DatabaseInstance =>
             TaskQueue.execute {
               try {
                 println(s"Creating scenario with dbName: ${request.dbName}")
-                CreateScenario(request) { status =>
+                CreateScenario(request, dbByName) { status =>
                   DjangoClient.updateScenario(request.token, Scenario(request.dbName, status))
                 }
                 println("Finished creating scenario")

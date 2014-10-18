@@ -5,12 +5,15 @@ import com.typesafe.config.{ ConfigFactory, Config }
 
 trait DatabaseInstance {
   val db: DatabaseDef
+  def dbByName(dbName: String): DatabaseDef
 }
 
 trait ProductionDatabaseInstance extends DatabaseInstance {
-  val db = {
+  val db = dbByName(ConfigFactory.load.getString("database.name"))
+
+  // Allows retrieving a database other than the configured default
+  def dbByName(dbName: String): Database = {
     val config = ConfigFactory.load
-    val dbName = config.getString("database.name")
     val dbUser = config.getString("database.user")
     val dbPassword = config.getString("database.password")
     Database.forURL(s"jdbc:postgresql:$dbName", driver = "org.postgresql.Driver",
