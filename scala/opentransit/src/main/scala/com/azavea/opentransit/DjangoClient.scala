@@ -39,23 +39,23 @@ object DjangoClient {
     }
   }
 
+  // Send a request with an authorization header
+  def sendRequest(token: String, request: HttpRequest) = {
+    processResponse(request ~> addHeader("Authorization", s"Token $token"))
+  }
+
   // Send a PATCH to update processing status for indicator calculation job
   def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
-    val uri = s"$BASE_URI/indicator-jobs/${indicatorJob.version}/"
-    val patch = Patch(uri, indicatorJob) ~> addHeader("Authorization", s"Token $token")
-    processResponse(patch)
+    sendRequest(token, Patch(s"$BASE_URI/indicator-jobs/${indicatorJob.version}/", indicatorJob))
   }
 
   // Send a PATCH to update processing status for scenatio creation
   def updateScenario(token: String, scenario: Scenario) = {
-    val uri = s"$BASE_URI/scenarios/${scenario.dbName}/"
-    val patch = Patch(uri, scenario) ~> addHeader("Authorization", s"Token $token")
-    processResponse(patch)
+    sendRequest(token, Patch(s"$BASE_URI/scenarios/${scenario.dbName}/", scenario))
   }
 
   // Sends a POST request to the indicators endpoint
   def postIndicators(token: String, indicators: Seq[IndicatorResultContainer]) = {
-    val post = Post(INDICATOR_URI, indicators.map(_.toJson)) ~> addHeader("Authorization", s"Token $token")
-    processResponse(post)
+    sendRequest(token, Post(INDICATOR_URI, indicators.map(_.toJson)))
   }
 }
