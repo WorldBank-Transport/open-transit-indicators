@@ -49,7 +49,7 @@ object DjangoClient {
     sendRequest(token, Patch(s"$BASE_URI/indicator-jobs/${indicatorJob.version}/", indicatorJob))
   }
 
-  // Send a PATCH to update processing status for scenatio creation
+  // Send a PATCH to update processing status for scenario creation
   def updateScenario(token: String, scenario: Scenario) = {
     sendRequest(token, Patch(s"$BASE_URI/scenarios/${scenario.dbName}/", scenario))
   }
