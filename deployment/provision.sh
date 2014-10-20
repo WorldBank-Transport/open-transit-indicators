@@ -707,7 +707,9 @@ echo 'Nginx now running'
 #########################
 # Canned data           #
 #########################
-. load_canned_data.sh
+pushd $PROJECT_ROOT/deployment
+    . load_canned_data.sh
+popd
 
 #########################
 # Monit setup           #
