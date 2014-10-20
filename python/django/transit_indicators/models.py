@@ -132,35 +132,6 @@ class SamplePeriod(models.Model):
     period_end = models.DateTimeField()
 
 
-class IndicatorJob(models.Model):
-    """Stores processing status of an indicator job"""
-
-    class StatusChoices(object):
-        QUEUED = 'queued'
-        PROCESSING = 'processing'
-        ERROR = 'error'
-        TIMEDOUT = 'timedout'
-        COMPLETE = 'complete'
-        CHOICES = (
-            (QUEUED, _(u'Job queued for processing')),
-            (PROCESSING, _(u'Indicators being processed and calculated')),
-            (ERROR, _(u'Error calculating indicators')),
-            (COMPLETE, _(u'Completed indicator calculation')),
-        )
-
-    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
-    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
-    is_latest_version = models.BooleanField(default=False)
-    sample_periods = models.ManyToManyField(SamplePeriod)
-    created_by = models.ForeignKey(OTIUser)
-    # A city name used to differentiate indicator sets
-    # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
-
-    # json string map of indicator name to status
-    calculation_status = models.TextField(default='{}')
-
-
 class Scenario(models.Model):
     """Stores metadata about a scenario"""
 
@@ -189,6 +160,40 @@ class Scenario(models.Model):
     created_by = models.ForeignKey(OTIUser)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True, null=True)
+
+
+class IndicatorJob(models.Model):
+    """Stores processing status of an indicator job"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        TIMEDOUT = 'timedout'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Job queued for processing')),
+            (PROCESSING, _(u'Indicators being processed and calculated')),
+            (ERROR, _(u'Error calculating indicators')),
+            (COMPLETE, _(u'Completed indicator calculation')),
+        )
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+    is_latest_version = models.BooleanField(default=False)
+    sample_periods = models.ManyToManyField(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+
+    # Optional scenario to calculate indicators for.
+    # If a scenario isn't provided, the base data will be used.
+    scenario = models.ForeignKey(Scenario, blank=True, null=True)
+
+    # A city name used to differentiate indicator sets
+    # external imports must provide a city name as part of the upload
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
+
+    # json string map of indicator name to status
+    calculation_status = models.TextField(default='{}')
 
 
 class Indicator(models.Model):
