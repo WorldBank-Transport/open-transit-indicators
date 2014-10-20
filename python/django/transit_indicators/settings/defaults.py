@@ -118,6 +118,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         # Required for API browsing interface
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+        # basic auth required for loading canned data
     ),
     'DEFAULT_PERMISSIONS_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'TEST_REQUEST_RENDERER_CLASSES': (
