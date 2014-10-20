@@ -11,7 +11,7 @@ import com.typesafe.config.{ConfigFactory,Config}
 import org.scalatest._
 import org.scalatest.OptionValues._
 
-class TravelTimePerformanceSpec
+class OnTimePerformanceSpec
     extends FlatSpec
     with Matchers
     with IndicatorSpec
@@ -20,13 +20,11 @@ class TravelTimePerformanceSpec
 
   val observedMapping = new ObservedStopTimeSpecParams {}
 
-  // Noise with a mean value of 7.5 minutes was introduced to create this simulated
-  // observational data - the result of 5.08 is quite close to 5.0 (which was verified manually
-  // in through numpy to be the dwell time)
+  // Noise with a mean value of 7.5 minutes was introduced to create this simulated observational data
   it should "calculate on time performance for SEPTA" in {
-    val calculation = new TravelTimePerformance(observedMapping).calculation(period)
+    val calculation = new OnTimePerformance(observedMapping).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
-    bySystem.get should be (5.0 +- 1e-1)
+    bySystem.get should be (7.5 +- 1e-1)
   }
 
 }

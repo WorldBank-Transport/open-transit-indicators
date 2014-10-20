@@ -59,14 +59,8 @@ object ObservedStopTimes {
                 trip.schedule.map(sst => sst.stop.id -> sst).toMap
               val obsvdStops: Map[String, ScheduledStop] =
                 observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
-              for {
-                s <- trip.schedule
-                // TODO: This will throw an exception if the stop id isn't found.
-                // This can happen if a stop is so shifted in the observed data that it
-                // falls outside the sample period. The systems are constructed with a 2-hour
-                // pad that will protect against most cases, but it's still possible that certain
-                // observed data could break this indicator.
-              } yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
+              for (s <- trip.schedule)
+                yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
             }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
           }.toMap
         }) // Seq[(Period, Map[String, Seq[(ScheduledStop, ScheduledStop)]])]

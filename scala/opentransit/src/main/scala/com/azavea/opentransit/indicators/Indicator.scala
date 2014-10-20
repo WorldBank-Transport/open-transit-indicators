@@ -57,6 +57,10 @@ object Indicators {
         Requires(settings.hasObserved)
       ),
       (
+        new OnTimePerformance(params),
+        Requires(settings.hasObserved)
+      ),
+      (
         new DwellTimePerformance(params),
         Requires(settings.hasObserved)
       ),
