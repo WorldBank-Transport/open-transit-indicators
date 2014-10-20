@@ -2,13 +2,13 @@ import json
 from time import sleep
 
 from celery.utils.log import get_task_logger
+from django.conf import settings
 import requests
 
 from transit_indicators.models import Scenario
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
-GT_SCENARIOS_ENDPOINT = 'http://localhost/gt/scenarios'
 
 def run_scenario_creation(scenario):
     period = scenario.sample_period
@@ -37,7 +37,7 @@ def run_scenario_creation(scenario):
     })
 
     logger.debug('Payload JSON: %s ', payload)
-    response = requests.post(GT_SCENARIOS_ENDPOINT, data=payload, headers=headers)
+    response = requests.post(settings.SCALA_ENDPOINTS['SCENARIOS'], data=payload, headers=headers)
 
     if response.status_code != 201:
         logger.error('%d encountered', response.status_code)

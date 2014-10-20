@@ -132,3 +132,9 @@ DJANGO_SRID = 3857
 
 # Temporary default city_name for indicators
 OTI_CITY_NAME = 'My City'
+
+# Scala endpoints called by Django code
+SCALA_ENDPOINTS = {
+    'INDICATORS': 'http://localhost/gt/indicators',
+    'SCENARIOS': 'http://localhost/gt/scenarios',
+}

@@ -2,6 +2,7 @@ import json
 from time import sleep
 
 from celery.utils.log import get_task_logger
+from django.conf import settings
 import requests
 
 from datasources.models import DemographicDataSource, DemographicDataFeature
@@ -9,7 +10,6 @@ from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
-GT_INDICATORS_ENDPOINT = 'http://localhost/gt/indicators'
 
 def run_accessibility():
     """Helper function that returns True if accesibility calculators can be run"""
@@ -53,7 +53,7 @@ def run_indicator_calculation(indicator_job):
     })
 
     logger.debug('Payload JSON: %s ', payload)
-    response = requests.post(GT_INDICATORS_ENDPOINT, data=payload, headers=headers)
+    response = requests.post(settings.SCALA_ENDPOINTS['INDICATORS'], data=payload, headers=headers)
 
     if response.status_code != 201:
         logger.error('%d encountered', response.status_code)
