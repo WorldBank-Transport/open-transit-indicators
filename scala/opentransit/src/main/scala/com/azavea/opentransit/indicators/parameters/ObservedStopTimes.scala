@@ -38,12 +38,11 @@ object ObservedStopTimes {
         (period -> builder.systemBetween(period.start, period.end, pruneStops=false))
       }.toMap
       observedSystemsMap.map { case (period, system) =>
-        period -> system.routes.map { route =>
+        period -> system.routes.flatMap { route =>
           route.trips.map { trip =>
             (trip.id -> trip)
           }
         }
-        .flatten
         .toMap
       }
       .toMap
@@ -52,7 +51,7 @@ object ObservedStopTimes {
     lazy val observedPeriodTrips: Map[SamplePeriod, Map[String, Seq[(ScheduledStop, ScheduledStop)]]] =
       periods.map { period =>
         (period -> {
-          val scheduledTrips = scheduledSystems(period).routes.map(_.trips).flatten
+          val scheduledTrips = scheduledSystems(period).routes.flatMap(_.trips)
           val observedTripsById = observedTrips(period)
           scheduledTrips.map { trip =>
             (trip.id -> {
@@ -86,8 +85,7 @@ object ObservedStopTimes {
         def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
             scheduledSystems(period)
               .routes
-              .map(_.trips)
-              .flatten
+              .flatMap(_.trips)
               .head
 
         def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =

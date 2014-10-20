@@ -43,7 +43,7 @@ object IndicatorParams {
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
       val demographics = Demographics(db)
       val observedStopTimes =
-        ObservedStopTimes(systems, request.params_requirements.observed)
+        ObservedStopTimes(systems, request.paramsRequirements.observed)
 
       new IndicatorParams {
         def observedForTrip(period: SamplePeriod, tripId: String) =
@@ -68,11 +68,11 @@ object IndicatorParams {
             request.maxCommuteTime,
             request.maxWalkTime,
             request.averageFare,
-            hasDemographics = request.params_requirements.demographics,
-            hasOsm = request.params_requirements.osm,
-            hasObserved = request.params_requirements.observed,
-            hasCityBounds = request.params_requirements.city_bounds,
-            hasRegionBounds = request.params_requirements.region_bounds
+            hasDemographics = request.paramsRequirements.demographics,
+            hasOsm = request.paramsRequirements.osm,
+            hasObserved = request.paramsRequirements.observed,
+            hasCityBounds = request.paramsRequirements.cityBounds,
+            hasRegionBounds = request.paramsRequirements.regionBounds
           )
         val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
         val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)

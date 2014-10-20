@@ -12,14 +12,9 @@ case class Requirements(
   demographics: Boolean,
   osm: Boolean,
   observed: Boolean,
-  city_bounds: Boolean,
-  region_bounds: Boolean
+  cityBounds: Boolean,
+  regionBounds: Boolean
 )
-
-// implicit conversion from json to above class
-object RequirementsJsonProtocol extends DefaultJsonProtocol {
-  implicit val requiresFormat = jsonFormat5(Requirements)
-}
 
 // Calculation request parameters
 case class IndicatorCalculationRequest(
@@ -33,5 +28,5 @@ case class IndicatorCalculationRequest(
   regionBoundaryId: Int,
   averageFare: Double,
   samplePeriods: List[SamplePeriod],
-  params_requirements: Requirements
+  paramsRequirements: Requirements
 ) extends Logging

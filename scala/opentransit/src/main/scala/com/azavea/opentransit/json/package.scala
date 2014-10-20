@@ -58,7 +58,32 @@ package object json {
       }
   }
 
+  implicit object RequirementsJsonProtocol extends RootJsonFormat[Requirements] {
+    def write(r: Requirements): JsObject = JsObject(
+      "demographics" -> JsBoolean(r.demographics),
+      "osm" -> JsBoolean(r.osm),
+      "observed" -> JsBoolean(r.observed),
+      "city_bounds" -> JsBoolean(r.cityBounds),
+      "region_bounds" -> JsBoolean(r.regionBounds)
+    )
+
+    def read(v: JsValue): Requirements =
+      v.asJsObject.getFields(
+        "demographics",
+        "osm",
+        "observed",
+        "city_bounds",
+        "region_bounds"
+      ) match {
+        case Seq(JsBoolean(demographics), JsBoolean(osm), JsBoolean(observed),
+                 JsBoolean(cityBounds), JsBoolean(regionBounds)) =>
+          Requirements(demographics, osm, observed, cityBounds, regionBounds)
+        case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
+      }
+  }
+
   implicit object IndicatorCalculationRequestFormat extends RootJsonFormat[IndicatorCalculationRequest] {
+    import RequirementsJsonProtocol._
     def write(request: IndicatorCalculationRequest) =
       JsObject(
         "token" -> JsString(request.token),
@@ -70,7 +95,8 @@ package object json {
         "city_boundary_id" -> JsNumber(request.cityBoundaryId),
         "region_boundary_id" -> JsNumber(request.regionBoundaryId),
         "avg_fare" -> JsNumber(request.averageFare),
-        "sample_periods" -> request.samplePeriods.toJson
+        "sample_periods" -> request.samplePeriods.toJson,
+        "params_requirements" -> request.paramsRequirements.toJson
       )
 
     def read(value: JsValue): IndicatorCalculationRequest =
@@ -90,7 +116,6 @@ package object json {
         case Seq(JsString(token), JsString(version), JsNumber(povertyLine), JsNumber(nearbyBufferDistance),
                  JsNumber(maxCommuteTime), JsNumber(maxWalkTime), JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
                  JsNumber(averageFare), samplePeriodsJson, paramsRequirementsJson) =>
-          import RequirementsJsonProtocol._
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
