@@ -5,7 +5,8 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 import requests
 
-from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
+from datasources.models import (DemographicDataSource, DemographicDataFeature,
+                                RealTime, OSMData, SamplePeriod)
 from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
@@ -42,6 +43,23 @@ def run_indicator_calculation(indicator_job):
     indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
     indicator_job.save()
 
+    # Set db names and sample periods based on whether or not this is a scenario calculation.
+    # There are two databases references:
+    #   gtfs - Holds all GTFS data
+    #   aux  - Holds all auxiliary data - OSM/demographics/boundaries/etc.
+    # For non-scenarios, these both refer to the same database.
+    # For scenarios, the aux db refers to the one that was initialized during scenario the creation.
+    default_db_name = settings.DATABASES['default']['NAME']
+    scenario = indicator_job.scenario
+    if scenario:
+        sample_periods = [scenario.sample_period]
+        gtfs_db_name = default_db_name
+        aux_db_name = scenario.db_name
+    else:
+        sample_periods = SamplePeriod.objects.exclude(type=SamplePeriod.SamplePeriodTypes.ALLTIME)
+        gtfs_db_name = default_db_name
+        aux_db_name = default_db_name
+
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 
     config = OTIIndicatorsConfig.objects.get()
@@ -56,6 +74,8 @@ def run_indicator_calculation(indicator_job):
         'max_walk_time_s': config.max_walk_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
+        'gtfs_db_name': gtfs_db_name,
+        'aux_db_name': aux_db_name,
         'params_requirements': {
             'demographics': run_demographics_indicators(),
             'osm': run_osm_indicators(),
@@ -70,7 +90,7 @@ def run_indicator_calculation(indicator_job):
                 'period_start': s.period_start.isoformat(),
                 'period_end': s.period_end.isoformat(),
             }
-            for s in indicator_job.sample_periods.all()
+            for s in sample_periods
         ]
     })
 

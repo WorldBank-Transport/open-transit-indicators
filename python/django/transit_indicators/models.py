@@ -181,7 +181,6 @@ class IndicatorJob(models.Model):
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
     version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
     is_latest_version = models.BooleanField(default=False)
-    sample_periods = models.ManyToManyField(SamplePeriod)
     created_by = models.ForeignKey(OTIUser)
 
     # Optional scenario to calculate indicators for.
