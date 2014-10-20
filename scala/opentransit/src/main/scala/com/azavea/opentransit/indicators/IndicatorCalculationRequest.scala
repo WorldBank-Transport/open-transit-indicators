@@ -9,11 +9,11 @@ import scala.slick.jdbc.JdbcBackend.Session
 import grizzled.slf4j.Logging
 
 case class Requirements(
-    demographics: Boolean,
-    osm: Boolean,
-    observed: Boolean,
-    city_bounds: Boolean,
-    region_bounds: Boolean
+  demographics: Boolean,
+  osm: Boolean,
+  observed: Boolean,
+  city_bounds: Boolean,
+  region_bounds: Boolean
 )
 
 // implicit conversion from json to above class
@@ -23,15 +23,15 @@ object RequirementsJsonProtocol extends DefaultJsonProtocol {
 
 // Calculation request parameters
 case class IndicatorCalculationRequest(
-    token: String,
-    version: String,
-    povertyLine: Double,
-    nearbyBufferDistance: Double,
-    maxCommuteTime: Int,
-    maxWalkTime: Int,
-    cityBoundaryId: Int,
-    regionBoundaryId: Int,
-    averageFare: Double,
-    samplePeriods: List[SamplePeriod],
-    params_requirements: Requirements
+  token: String,
+  version: String,
+  povertyLine: Double,
+  nearbyBufferDistance: Double,
+  maxCommuteTime: Int,
+  maxWalkTime: Int,
+  cityBoundaryId: Int,
+  regionBoundaryId: Int,
+  averageFare: Double,
+  samplePeriods: List[SamplePeriod],
+  params_requirements: Requirements
 ) extends Logging

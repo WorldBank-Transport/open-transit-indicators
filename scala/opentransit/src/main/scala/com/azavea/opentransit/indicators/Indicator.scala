@@ -12,74 +12,74 @@ object Indicators {
     val settings = params.settings
 
     List( // Tuples of requirements and params-requiring indicators
-            (
-                AverageServiceFrequency,
-                Requires()
-            ),
-            (
-                DistanceStops,
-                Requires()
-            ),
-            (
-                Length,
-                Requires()
-            ),
-            (
-                NumRoutes,
-                Requires()
-            ),
-            (
-                NumStops,
-                Requires()
-            ),
-            (
-                TimeTraveledStops,
-                Requires()
-            ),
-            (
-                InterstopDistance,
-                Requires()
-            ),
-            (
-                StopsToLength,
-                Requires()
-            ),
-            (
-                new CoverageRatioStopsBuffer(params),
-                Requires(settings.hasCityBounds)
-            ),
-            (
-                new TransitNetworkDensity(params),
-                Requires(settings.hasRegionBounds)
-            ),
-            (
-                new TravelTimePerformance(params),
-                Requires(settings.hasObserved)
-            ),
-            (
-                new DwellTimePerformance(params),
-                Requires(settings.hasObserved)
-            ),
-            (
-                new AllWeightedServiceFrequency(params),
-                Requires(settings.hasDemographics)
-            ),
-            (
-                new LowIncomeWeightedServiceFrequency(params),
-                Requires(settings.hasDemographics)
-            ),
-            (
-                new AllAccessibility(params),
-                Requires(settings.hasDemographics)
-            ),
-            (
-                new LowIncomeAccessibility(params),
-                Requires(settings.hasDemographics)
-            ),
-            (
-                new Affordability(params),
-                Requires()
-            )
+      (
+        AverageServiceFrequency,
+        Requires()
+      ),
+      (
+        DistanceStops,
+        Requires()
+      ),
+      (
+        Length,
+        Requires()
+      ),
+      (
+        NumRoutes,
+        Requires()
+      ),
+      (
+        NumStops,
+        Requires()
+      ),
+      (
+        TimeTraveledStops,
+        Requires()
+      ),
+      (
+        InterstopDistance,
+        Requires()
+      ),
+      (
+        StopsToLength,
+        Requires()
+      ),
+      (
+        new CoverageRatioStopsBuffer(params),
+        Requires(settings.hasCityBounds)
+      ),
+      (
+        new TransitNetworkDensity(params),
+        Requires(settings.hasRegionBounds)
+      ),
+      (
+        new TravelTimePerformance(params),
+        Requires(settings.hasObserved)
+      ),
+      (
+        new DwellTimePerformance(params),
+        Requires(settings.hasObserved)
+      ),
+      (
+        new AllWeightedServiceFrequency(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new LowIncomeWeightedServiceFrequency(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new AllAccessibility(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new LowIncomeAccessibility(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new Affordability(params),
+        Requires()
+      )
     ).map { case (indicator: Indicator, reqs: Requires) =>
       if (reqs.requirements.foldLeft(true)(_ && _)) Some(indicator) else None
     }.flatten
