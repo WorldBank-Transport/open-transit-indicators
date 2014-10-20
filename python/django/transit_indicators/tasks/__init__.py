@@ -3,6 +3,8 @@ from transit_indicators.tasks.calculate_indicators import run_indicator_calculat
 from transit_indicators.tasks.create_scenario import run_scenario_creation
 from transit_indicators.celery_settings import app
 
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 @app.task(bind=True, max_retries=3)
 def start_indicator_calculation(self, indicator_job_id):
@@ -10,6 +12,7 @@ def start_indicator_calculation(self, indicator_job_id):
         indicator_job = IndicatorJob.objects.get(pk=indicator_job_id)
         run_indicator_calculation(indicator_job)
     except Exception as e:
+        logger.debug('Job failure for indicator: %s', indicator_job_id)
         IndicatorJob.objects.get(pk=indicator_job_id).job_status = IndicatorJob.StatusChoices.ERROR
         indicator_job.save()
         raise self.retry(exc=e)

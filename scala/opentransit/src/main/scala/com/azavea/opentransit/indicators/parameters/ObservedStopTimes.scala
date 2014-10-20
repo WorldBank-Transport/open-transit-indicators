@@ -24,11 +24,11 @@ trait ObservedStopTimes {
 }
 
 object ObservedStopTimes {
-  def apply(scheduledSystems: Map[SamplePeriod, TransitSystem])(implicit session: Session): ObservedStopTimes = {
+  def apply(scheduledSystems: Map[SamplePeriod, TransitSystem], hasObserved: Boolean)(implicit session: Session): ObservedStopTimes = {
     // This is ugly: a thousand sorries. it also is apparently necessary -
     // we have to index on SamplePeriod and again on trip id
     val periods = scheduledSystems.keys
-    val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
+    lazy val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
       val observedGtfsRecords =
         new DatabaseGtfsRecords with DefaultProfile {
           override val stopTimesTableName = "gtfs_stop_times_real"
@@ -38,21 +38,20 @@ object ObservedStopTimes {
         (period -> builder.systemBetween(period.start, period.end, pruneStops=false))
       }.toMap
       observedSystemsMap.map { case (period, system) =>
-        period -> system.routes.map { route =>
+        period -> system.routes.flatMap { route =>
           route.trips.map { trip =>
             (trip.id -> trip)
           }
         }
-        .flatten
         .toMap
       }
       .toMap
     }
 
-    val observedPeriodTrips: Map[SamplePeriod, Map[String, Seq[(ScheduledStop, ScheduledStop)]]] = {
+    lazy val observedPeriodTrips: Map[SamplePeriod, Map[String, Seq[(ScheduledStop, ScheduledStop)]]] =
       periods.map { period =>
         (period -> {
-          val scheduledTrips = scheduledSystems(period).routes.map(_.trips).flatten
+          val scheduledTrips = scheduledSystems(period).routes.flatMap(_.trips)
           val observedTripsById = observedTrips(period)
           scheduledTrips.map { trip =>
             (trip.id -> {
@@ -72,13 +71,26 @@ object ObservedStopTimes {
           }.toMap
         }) // Seq[(Period, Map[String, Seq[(ScheduledStop, ScheduledStop)]])]
       }.toMap
-    }
-    new ObservedStopTimes {
-      def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-        observedTrips(period)(scheduledTripId)
 
-      def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
-        observedPeriodTrips(period)
+    if (hasObserved) {
+      new ObservedStopTimes {
+        def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
+          observedTrips(period)(scheduledTripId)
+
+        def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+          observedPeriodTrips(period)
+      }
+    } else {
+      new ObservedStopTimes {
+        def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
+            scheduledSystems(period)
+              .routes
+              .flatMap(_.trips)
+              .head
+
+        def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+          Map()
+      }
     }
   }
 }

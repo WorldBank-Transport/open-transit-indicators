@@ -52,7 +52,6 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
-            var err: JsObject = null
             TaskQueue.execute {
               try {
                 // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
@@ -72,15 +71,10 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })
-              } catch {
-              case e: Exception =>
+              } catch { case e: Exception =>
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
-                err = JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No GTFS data")
-                )
 
                 // update status to indicate indicator calculation failure
                 try {
@@ -93,15 +87,11 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
               }
             }
 
-            if (err == null) {
-              // return a 201 created
-              Created -> JsObject(
+            // return a 201 created
+            Created -> JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Calculations started (version ${request.version})")
-              )
-            } else {
-              err
-            }
+            )
           }
         }
       }

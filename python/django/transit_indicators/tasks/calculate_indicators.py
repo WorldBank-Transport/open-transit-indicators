@@ -5,23 +5,32 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 import requests
 
-from datasources.models import DemographicDataSource, DemographicDataFeature
+from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
 from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
 
-def run_accessibility():
-    """Helper function that returns True if accesibility calculators can be run"""
+def run_realtime_indicators():
+    """Helper function that returns True if indicators which depend upon realtime
+    data can be run"""
+    realtime_datasource = RealTime.objects.filter().first()
+    return realtime_datasource.is_complete()
+
+def run_osm_indicators():
+    """Helper function that returns True if indicators which depend upon osm
+    data can be run"""
+    osm_datasource = OSMData.objects.filter().first()
+    return osm_datasource.is_complete()
+
+def run_demographics_indicators():
+    """Helper function that returns True if accessibility calculators can be run"""
     demographic_datasource = DemographicDataSource.objects.filter().first()
-    if demographic_datasource:
-        is_completed = (demographic_datasource.status == 'complete')
-    else:
-        is_completed = False
     has_features = DemographicDataFeature.objects.filter().count() > 0
-    return is_completed and has_features
+    return demographic_datasource.is_complete() and has_features
 
 def run_indicator_calculation(indicator_job):
+    """Initiate celery job which tells scala to calculate indicators"""
     logger.debug('Starting indicator job: %s for city %s', indicator_job, indicator_job.city_name)
     indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
     indicator_job.save()
@@ -40,7 +49,13 @@ def run_indicator_calculation(indicator_job):
         'max_walk_time_s': config.max_walk_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
-        'run_accessibility': run_accessibility(),
+        'params_requirements': {
+            'demographics': run_demographics_indicators(),
+            'osm': run_osm_indicators(),
+            'observed': run_realtime_indicators(),
+            'city_bounds': bool(config.city_boundary),
+            'region_bounds': bool(config.region_boundary)
+        },
         'sample_periods': [
             {
                 'id': s.id,

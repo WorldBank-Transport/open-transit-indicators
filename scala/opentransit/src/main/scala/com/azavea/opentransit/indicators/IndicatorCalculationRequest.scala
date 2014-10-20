@@ -1,11 +1,20 @@
 package com.azavea.opentransit.indicators
 
+import spray.json._
 import geotrellis.vector._
 
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable }
 import scala.slick.jdbc.JdbcBackend.Session
 
 import grizzled.slf4j.Logging
+
+case class Requirements(
+  demographics: Boolean,
+  osm: Boolean,
+  observed: Boolean,
+  cityBounds: Boolean,
+  regionBounds: Boolean
+)
 
 // Calculation request parameters
 case class IndicatorCalculationRequest(
@@ -19,5 +28,5 @@ case class IndicatorCalculationRequest(
   regionBoundaryId: Int,
   averageFare: Double,
   samplePeriods: List[SamplePeriod],
-  runAccessibility: Boolean
+  paramsRequirements: Requirements
 ) extends Logging

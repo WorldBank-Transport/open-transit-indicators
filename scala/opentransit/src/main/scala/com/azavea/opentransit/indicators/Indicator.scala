@@ -6,43 +6,88 @@ import com.azavea.opentransit.indicators.calculators._
 import com.azavea.opentransit.indicators.parameters._
 
 object Indicators {
-  // These are indicators that don't need the request info.
-  private val staticIndicators: List[Indicator] =
-    List(
-      AverageServiceFrequency,
-      DistanceStops,
-      Length,
-      NumRoutes,
-      NumStops,
-      TimeTraveledStops,
-      InterstopDistance,
-      StopsToLength
-    )
+  // The case class in the second position of each tuple specifies requirements
+  private def filteredIndicators(params: IndicatorParams): List[Indicator] = {
+    case class Requires(requirements: Boolean*)
+    val settings = params.settings
 
-  // These are indicators that need to know things about the request
-  private def paramIndicators(params: IndicatorParams): List[Indicator] = {
-    List(
-      new CoverageRatioStopsBuffer(params),
-      new TransitNetworkDensity(params),
-      new Affordability(params),
-      new TravelTimePerformance(params),
-      new AllWeightedServiceFrequency(params),
-      new LowIncomeWeightedServiceFrequency(params),
-      new DwellTimePerformance(params)
-    )
-  }
-
-  private def accessibilityIndicators(params: IndicatorParams): List[Indicator] = {
-    if (params.settings.runAccessibility)
-      List(
+    List( // Tuples of requirements and params-requiring indicators
+      (
+        AverageServiceFrequency,
+        Requires()
+      ),
+      (
+        DistanceStops,
+        Requires()
+      ),
+      (
+        Length,
+        Requires()
+      ),
+      (
+        NumRoutes,
+        Requires()
+      ),
+      (
+        NumStops,
+        Requires()
+      ),
+      (
+        TimeTraveledStops,
+        Requires()
+      ),
+      (
+        InterstopDistance,
+        Requires()
+      ),
+      (
+        StopsToLength,
+        Requires()
+      ),
+      (
+        new CoverageRatioStopsBuffer(params),
+        Requires(settings.hasCityBounds)
+      ),
+      (
+        new TransitNetworkDensity(params),
+        Requires(settings.hasRegionBounds)
+      ),
+      (
+        new TravelTimePerformance(params),
+        Requires(settings.hasObserved)
+      ),
+      (
+        new DwellTimePerformance(params),
+        Requires(settings.hasObserved)
+      ),
+      (
+        new AllWeightedServiceFrequency(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new LowIncomeWeightedServiceFrequency(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
         new AllAccessibility(params),
-        new LowIncomeAccessibility(params)
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new LowIncomeAccessibility(params),
+        Requires(settings.hasDemographics)
+      ),
+      (
+        new Affordability(params),
+        Requires()
       )
-    else List()
+    ).map { case (indicator: Indicator, reqs: Requires) =>
+      if (reqs.requirements.foldLeft(true)(_ && _)) Some(indicator) else None
+    }.flatten
   }
+
 
   def list(params: IndicatorParams): List[Indicator] =
-    staticIndicators ++ paramIndicators(params) ++ accessibilityIndicators(params)
+    filteredIndicators(params)
 }
 
 trait Indicator { self: AggregatesBy =>

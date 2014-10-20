@@ -18,7 +18,11 @@ case class IndicatorSettings(
   maxCommuteTime: Int,
   maxWalkTime: Int,
   averageFare: Double,
-  runAccessibility: Boolean
+  hasDemographics: Boolean,
+  hasOsm: Boolean,
+  hasObserved: Boolean,
+  hasCityBounds: Boolean,
+  hasRegionBounds: Boolean
 )
 
 // Do not change by period or scenario
@@ -38,19 +42,20 @@ object IndicatorParams {
     db withSession { implicit session =>
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
       val demographics = Demographics(db)
-      val observedStopTimes = ObservedStopTimes(systems)
+      val observedStopTimes =
+        ObservedStopTimes(systems, request.paramsRequirements.observed)
 
       new IndicatorParams {
         def observedForTrip(period: SamplePeriod, tripId: String) =
           observedStopTimes.observedForTrip(period, tripId)
+        def observedStopsByTrip(period: SamplePeriod) =
+          observedStopTimes.observedStopsByTrip(period)
+
 
         def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
         def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
         def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
           stopBuffers.bufferForPeriod(period)
-
-        def observedStopsByTrip(period: SamplePeriod) =
-          observedStopTimes.observedStopsByTrip(period)
 
 
         def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
@@ -63,7 +68,11 @@ object IndicatorParams {
             request.maxCommuteTime,
             request.maxWalkTime,
             request.averageFare,
-            request.runAccessibility
+            hasDemographics = request.paramsRequirements.demographics,
+            hasOsm = request.paramsRequirements.osm,
+            hasObserved = request.paramsRequirements.observed,
+            hasCityBounds = request.paramsRequirements.cityBounds,
+            hasRegionBounds = request.paramsRequirements.regionBounds
           )
         val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
         val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)
