@@ -48,11 +48,11 @@ class TravelTimePerformance(params: ObservedStopTimes)
 
         // Zip the data up and map distance aggregation over that zipped data
         Some(
-            schedTravelTimes
-              .zip(obsTravelTimes)
-              .map { case (schedSeconds, obsSeconds) =>
-                (schedSeconds - obsSeconds).abs
-              }.toSeq
+          schedTravelTimes
+            .zip(obsTravelTimes)
+            .map { case (schedSeconds, obsSeconds) =>
+              (schedSeconds - obsSeconds).abs
+            }.toSeq
         )
       } else None
     }
