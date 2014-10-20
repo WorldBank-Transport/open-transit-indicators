@@ -41,7 +41,7 @@ class TravelTimePerformance(params: ObservedStopTimes)
             Seconds.secondsBetween(t1.departureTime, t2.arrivalTime).getSeconds.toDouble
           }
 
-        val obsTravelTimes: Seq[Double] = // Moving window with a widht of 2 for observed times
+        val obsTravelTimes: Seq[Double] = // Moving window with a width of 2 for observed times
           obsTimes.zip(obsTimes.tail).map { case (t1, t2) =>
             Seconds.secondsBetween(t1.departureTime, t2.arrivalTime).getSeconds.toDouble
           }
