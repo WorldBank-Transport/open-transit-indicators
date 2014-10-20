@@ -19,6 +19,7 @@ def run_scenario_creation(scenario):
     scenario.save()
 
     # A base scenario is optional. If one isn't defined, use the default database name
+    default_db_name = settings.DATABASES['default']['NAME']
     base_db_name = scenario.base_scenario.name if scenario.base_scenario else 'transit_indicators'
 
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
