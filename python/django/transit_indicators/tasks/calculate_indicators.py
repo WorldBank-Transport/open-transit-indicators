@@ -53,8 +53,8 @@ def run_indicator_calculation(indicator_job):
             'demographics': run_demographics_indicators(),
             'osm': run_osm_indicators(),
             'observed': run_realtime_indicators(),
-            'city_bounds': True if config.city_boundary else False,
-            'region_bounds': True if config.region_boundary else False
+            'city_bounds': bool(config.city_boundary),
+            'region_bounds': bool(config.region_boundary)
         },
         'sample_periods': [
             {
