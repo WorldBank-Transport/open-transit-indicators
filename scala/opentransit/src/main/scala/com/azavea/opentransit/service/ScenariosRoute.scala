@@ -25,12 +25,18 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
   private def buildTripTuple(trip: TripRecord)(implicit s: Session): TripTuple =
     TripTuple(trip, tables.stopTimeRecordsTable.filter( _.trip_id === trip.id).sortBy(_.stop_sequence).list)
 
-  private def fetchBinnedTrips(routeId: String)(implicit s: Session): Array[Array[TripTuple]] = {
-    val trips = tables.tripRecordsTable
-      .filter(_.route_id === routeId)
-      .list
-      .map { trip => buildTripTuple(trip) }
-    GroupTrips.groupByPath(trips)
+  private def fetchBinnedTrips(routeId: String)(implicit s: Session): Option[Array[Array[TripTuple]]] = {
+    tables.routeRecordsTable
+      .filter(_.id === routeId)
+      .firstOption // we only do this to distinguish between route with no trips and no-such-route
+      .map { _ =>
+        val trips = tables.tripRecordsTable
+          .filter(_.route_id === routeId)
+          .list
+          .map { trip => buildTripTuple(trip) }
+
+        GroupTrips.groupByPath(trips)
+      }
   }
 
   private def deleteTrip(tripId: String)(implicit s: Session): Unit = {
@@ -79,9 +85,9 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
             complete {
               import DefaultJsonProtocol._
               db withSession { implicit s =>
-                fetchBinnedTrips(routeId) map {
-                  _.head
-                } map buildTripPattern
+                fetchBinnedTrips(routeId) map { // into Option
+                  _ map { bin => buildTripPattern(bin.head) }
+                }
               }
             }
           } ~
@@ -95,17 +101,18 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
           post { entity(as[TripPattern]) { pattern =>
             complete {
               db withSession { implicit s =>
-                val bins = fetchBinnedTrips(routeId)
-                for {// delete all trips that are in the same bin as our parameter
-                  bin <- bins.find(_.exists(r => r.trip.id == pattern.trip.id))
-                  tt <- bin
-                } deleteTrip(tt.trip.id)
-                // TODO Stops will never cascade delete, but we're filling up the DB with "trash stops" on every save ?!
+                fetchBinnedTrips(routeId) map { bins =>
+                  for {
+                    bin <- bins.find(_.exists(r => r.trip.id == pattern.trip.id))
+                    tt <- bin // delete all trips that are in the same bin as our parameter
+                  } deleteTrip(tt.trip.id)
+                  // TODO Stops will never cascade delete, but we're filling up the DB with "trash stops" on every save ?!
 
-                saveTripPattern(pattern)
+                  saveTripPattern(pattern)
+                }
+
+                StatusCodes.Created
               }
-
-              StatusCodes.Created
             }
           } }
         } ~
@@ -114,8 +121,12 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
           get {
             complete{
               db withSession { implicit s =>
-                buildTripPattern(buildTripTuple(tables.tripRecordsTable.filter(_.id === tripId).first))
+                tables.tripRecordsTable.filter(_.id === tripId)
+                  .firstOption
+                  .map(buildTripTuple)
+                  .map(buildTripPattern)
               }
+              // note: None will map to 404 response
             }
           } ~
           /** Replace specific trip with parameter */
@@ -133,9 +144,15 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
           delete {
             complete{
               db withSession { implicit s =>
-                deleteTrip(tripId)
+                tables.tripRecordsTable
+                  .filter(_.id === tripId)
+                  .firstOption
+                  .map { _ =>
+                    deleteTrip(tripId)
+                    StatusCodes.OK
+                  }
               }
-              StatusCodes.OK
+
             }
           }
         }

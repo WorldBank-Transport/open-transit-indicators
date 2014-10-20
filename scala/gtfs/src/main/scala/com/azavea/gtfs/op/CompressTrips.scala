@@ -41,26 +41,29 @@ object GroupTrips {
     true
   }
 
-  def groupByPath(trips: Seq[TripTuple]): Array[Array[TripTuple]] = {
-    val offsetTrips = trips.map(_.toOffset)
-    val bins = ArrayBuffer(ArrayBuffer(offsetTrips.head))
+  def groupByPath(trips: Seq[TripTuple]): Array[Array[TripTuple]] = trips match {
+    case Seq() => Array.empty
+    case Seq(trip) => Array(Array(trip))
+    case _ =>
+      val offsetTrips = trips.map(_.toOffset)
+      val bins = ArrayBuffer(ArrayBuffer(offsetTrips.head))
 
-    //go where you belong
-    def belongs(x: OffsetTripTuple): Boolean = {
-      for (bin <- bins) {
-        if (samePath(x, bin.head)) {
-          bin += x
-          return true
+      //go where you belong
+      def belongs(x: OffsetTripTuple): Boolean = {
+        for (bin <- bins) {
+          if (samePath(x, bin.head)) {
+            bin += x
+            return true
+          }
         }
+        false
       }
-      false
-    }
 
-    for (t <- offsetTrips.tail) {
-      if (! belongs(t))
-        bins += ArrayBuffer(t) //You're in a class of you own!
-    }
+      for (t <- offsetTrips.tail) {
+        if (! belongs(t))
+          bins += ArrayBuffer(t) //You're in a class of you own!
+      }
 
-    bins.map(_.map(_.mergeOffset).toArray).toArray
+      bins.map(_.map(_.mergeOffset).toArray).toArray
   }
 }
