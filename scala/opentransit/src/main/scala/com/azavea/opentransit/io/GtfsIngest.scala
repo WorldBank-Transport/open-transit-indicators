@@ -16,9 +16,7 @@ object GtfsIngest {
   }
 
   /** Ingest the GTFS data into the database this session is tied to */
-  def apply(gtfsDir: String)(implicit session: Session): Int = {
-    val records = GtfsRecords.fromFiles(gtfsDir)
-
+  def apply(records: GtfsRecords)(implicit session: Session): Int = {
     // data is read from the file and inserted into the db as lat/lng
     DatabaseRecordImport(records, dbGeomNameLatLng)
 

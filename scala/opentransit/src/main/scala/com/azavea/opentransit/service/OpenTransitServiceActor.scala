@@ -16,6 +16,7 @@ class OpenTransitServiceActor extends Actor
                                  with HttpService
                                  with IngestRoute
                                  with IndicatorsRoute
+                                 with ScenariosRoute
                                  with MapInfoRoute
                                  with ServiceDateRangeRoute
                                  with ProductionDatabaseInstance {
@@ -31,18 +32,19 @@ class OpenTransitServiceActor extends Actor
     pathPrefix("gt") {
       ingestRoute ~
       indicatorsRoute ~
+      scenariosRoute ~
       mapInfoRoute ~
       serviceDateRangeRoute
     }
   }
-  
+
   // timeout handling, from here:
   // http://spray.io/documentation/1.1-SNAPSHOT/spray-routing/key-concepts/timeout-handling/
   // return JSON message instead of default string message:
   // The server was not able to produce a timely response to your request.
   def handleTimeouts: Receive = {
     case Timedout(x: HttpRequest) =>
-      sender ! HttpResponse(InternalServerError, 
+      sender ! HttpResponse(InternalServerError,
                             """{ "success": false, "message": "Spray timeout encountered" }""")
   }
 

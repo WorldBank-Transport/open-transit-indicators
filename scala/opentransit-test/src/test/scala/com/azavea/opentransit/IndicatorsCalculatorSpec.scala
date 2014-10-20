@@ -30,7 +30,8 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
     // Import the files into the database to do the reprojection.
     db withSession { implicit session =>
-      GtfsIngest(TestFiles.septaPath)
+      val records = GtfsRecords.fromFiles(TestFiles.septaPath)
+      GtfsIngest(records)
       GtfsRecords.fromDatabase(dbGeomNameUtm).force
     }
   }

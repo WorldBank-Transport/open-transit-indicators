@@ -4,7 +4,8 @@ import time
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from transit_indicators.models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator, IndicatorJob
+from transit_indicators.models import (OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod,
+                                       Indicator, IndicatorJob, Scenario)
 from userdata.models import OTIUser
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
@@ -58,6 +59,32 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
         model = IndicatorJob
         read_only_fields = ('id', 'sample_periods', 'version',
                             'created_by')
+
+class ScenarioSerializer(serializers.ModelSerializer):
+    """Serializer for Scenarios"""
+
+    job_status = serializers.ChoiceField(choices=Scenario.StatusChoices.CHOICES,
+                                         required=False)
+
+    def validate(self, attrs):
+        """Handle validation to set read-only fields"""
+
+        if not attrs.get('job_status'):
+            attrs['job_status'] = IndicatorJob.StatusChoices.QUEUED
+
+        if not attrs.get('created_by'):
+            attrs['created_by'] = self.context['request'].user
+
+        if ('sample_period' in attrs and
+            attrs.get('sample_period').type == SamplePeriod.SamplePeriodTypes.ALLTIME):
+            raise serializers.ValidationError('Scenario for alltime not allowed')
+
+        return super(ScenarioSerializer, self).validate(attrs)
+
+    class Meta:
+        model = Scenario
+        read_only_fields = ('id', 'created_by', 'db_name')
+
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""

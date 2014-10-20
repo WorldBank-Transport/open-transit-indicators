@@ -12,10 +12,12 @@ from models import (OTIIndicatorsConfig,
                     SamplePeriod,
                     Indicator,
                     IndicatorJob,
+                    Scenario,
                     GTFSRouteType)
-from transit_indicators.tasks import start_indicator_calculation
+from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
-                         SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer)
+                         SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
+                         ScenarioSerializer)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -82,6 +84,21 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
+        return response
+
+
+class ScenarioViewSet(OTIAdminViewSet):
+    """Viewset for Scenarios"""
+    model = Scenario
+    lookup_field = 'db_name'
+    serializer_class = ScenarioSerializer
+    filter_fields = ('job_status',)
+
+    def create(self, request):
+        """Override request to handle kicking off celery task"""
+        response = super(ScenarioViewSet, self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            start_scenario_creation.apply_async(args=[self.object.id], queue='scenarios')
         return response
 
 
@@ -259,4 +276,5 @@ indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()
 indicator_cities = IndicatorCities.as_view()
 sample_period_types = SamplePeriodTypes.as_view()
+scenarios = ScenarioViewSet.as_view()
 gtfs_route_types = GTFSRouteTypes.as_view()

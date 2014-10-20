@@ -4,8 +4,8 @@ import scala.collection.mutable
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
-import com.azavea.opentransit.CalculationStatus
-import com.azavea.opentransit.CalculationStatus._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 import geotrellis.vector._
 import com.azavea.opentransit.indicators.parameters._
 
@@ -16,7 +16,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 trait CalculationStatusManager {
   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]): Unit
-  def statusChanged(status: Map[String, CalculationStatus]): Unit
+  def statusChanged(status: Map[String, JobStatus]): Unit
 }
 
 object CalculateIndicators {
@@ -38,10 +38,10 @@ object CalculateIndicators {
 
     // Helper for tracking indicator calculation status
     val trackStatus = {
-      val status = mutable.Map[String, CalculationStatus]() ++
-        Indicators.list(params).map(indicator => (indicator.name, CalculationStatus.Submitted))
+      val status = mutable.Map[String, JobStatus]() ++
+        Indicators.list(params).map(indicator => (indicator.name, JobStatus.Submitted))
 
-      (indicator: Indicator, newStatus: CalculationStatus) => {
+      (indicator: Indicator, newStatus: JobStatus) => {
         status(indicator.name) = newStatus
         statusManager.statusChanged(status.toMap)
       }
@@ -57,7 +57,7 @@ object CalculateIndicators {
     for(indicator <- Indicators.list(params)) {
       try {
         println(s"Calculating indicator: ${indicator.name}")
-        trackStatus(indicator, CalculationStatus.Processing)
+        trackStatus(indicator, JobStatus.Processing)
 
         val periodResults =
           periods
@@ -86,12 +86,12 @@ object CalculateIndicators {
           OverallIndicatorResult.createContainerGenerators(indicator.name, overallResults, overallGeometries)
 
         statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
-        trackStatus(indicator, CalculationStatus.Complete)
+        trackStatus(indicator, JobStatus.Complete)
       } catch {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          trackStatus(indicator, CalculationStatus.Failed)
+          trackStatus(indicator, JobStatus.Failed)
         }
       }
     }

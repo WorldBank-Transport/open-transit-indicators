@@ -1,10 +1,12 @@
 # coding=UTF-8
 import csv
+from datetime import datetime
 import uuid
 
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.db import transaction
+from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
 from transit_indicators.gtfs import GTFSRouteTypes
@@ -157,6 +159,36 @@ class IndicatorJob(models.Model):
 
     # json string map of indicator name to status
     calculation_status = models.TextField(default='{}')
+
+
+class Scenario(models.Model):
+    """Stores metadata about a scenario"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Scenario initialization queued for processing')),
+            (PROCESSING, _(u'Scenario initialization is processing')),
+            (ERROR, _(u'Error initializing scenario')),
+            (COMPLETE, _(u'Completed scenario initialization')),
+        )
+
+    # Name of the database where the scenario is stored
+    db_name = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+
+    # Optional scenario to base this scenario off of
+    base_scenario = models.ForeignKey('self', blank=True, null=True)
+
+    create_date = models.DateTimeField(auto_now_add=True, default=datetime.now)
+    last_modify_date = models.DateTimeField(auto_now=True, default=datetime.now)
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    sample_period = models.ForeignKey(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Indicator(models.Model):
