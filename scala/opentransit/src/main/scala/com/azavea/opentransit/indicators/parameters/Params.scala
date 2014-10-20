@@ -42,19 +42,20 @@ object IndicatorParams {
     db withSession { implicit session =>
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
       val demographics = Demographics(db)
-      val observedStopTimes = ObservedStopTimes(systems)
+      val observedStopTimes =
+        ObservedStopTimes(systems, request.params_requirements.observed)
 
       new IndicatorParams {
         def observedForTrip(period: SamplePeriod, tripId: String) =
           observedStopTimes.observedForTrip(period, tripId)
+        def observedStopsByTrip(period: SamplePeriod) =
+          observedStopTimes.observedStopsByTrip(period)
+
 
         def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
         def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
         def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
           stopBuffers.bufferForPeriod(period)
-
-        def observedStopsByTrip(period: SamplePeriod) =
-          observedStopTimes.observedStopsByTrip(period)
 
 
         def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =

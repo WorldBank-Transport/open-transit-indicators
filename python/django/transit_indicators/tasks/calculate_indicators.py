@@ -35,7 +35,7 @@ def run_demographics_indicators():
     demographic_datasource = DemographicDataSource.objects.filter().first()
     is_complete(demographic_datasource)
     has_features = DemographicDataFeature.objects.filter().count() > 0
-    return is_completed and has_features
+    return is_complete and has_features
 
 def run_indicator_calculation(indicator_job):
     """Initiate celery job which tells scala to calculate indicators"""
