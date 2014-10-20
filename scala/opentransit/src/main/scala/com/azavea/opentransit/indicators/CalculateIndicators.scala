@@ -7,8 +7,9 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit.CalculationStatus
 import com.azavea.opentransit.CalculationStatus._
-import geotrellis.vector._
 import com.azavea.opentransit.indicators.parameters._
+import com.azavea.opentransit.indicators.WeeklyServiceHours._
+import geotrellis.vector._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
@@ -42,8 +43,8 @@ object CalculateIndicators {
       val status = mutable.Map[String, CalculationStatus]() ++
         Indicators.list(params).map(indicator => (indicator.name, CalculationStatus.Submitted))
 
-      (indicator: Indicator, newStatus: CalculationStatus) => {
-        status(indicator.name) = newStatus
+      (indicatorName: String, newStatus: CalculationStatus) => {
+        status(indicatorName) = newStatus
         statusManager.statusChanged(status.toMap)
       }
     }
@@ -52,14 +53,13 @@ object CalculateIndicators {
       period -> SystemGeometries(systemsByPeriod(period))
     }.toMap
 
-    val overallGeometries: SystemGeometries =
-      SystemGeometries.merge(periodGeometries.values.toSeq)
+    val overallGeometries: SystemGeometries = SystemGeometries.merge(periodGeometries.values.toSeq)
 
     for(indicator <- Indicators.list(params)) {
       try {
       	timedTask(s"Processed indicator: ${indicator.name}") {
 	        println(s"Calculating indicator: ${indicator.name}")
-	        trackStatus(indicator, CalculationStatus.Processing)
+	        trackStatus(indicator.name, CalculationStatus.Processing)
 
 	        val periodResults =
 	          periods
@@ -72,32 +72,41 @@ object CalculateIndicators {
 	            }
 	            .toMap
 
-	        val overallResults: AggregatedResults =
-	          PeriodResultAggregator(periodResults)
+	        val overallResults: AggregatedResults = PeriodResultAggregator(periodResults)
 
 	        val periodIndicatorResults: Seq[ContainerGenerator] =
 	          periods
 	            .map { period =>
 	              val (results, geometries) = (periodResults(period), periodGeometries(period))
-	              PeriodIndicatorResult.createContainerGenerators(indicator.name, period, results, geometries)
+	              PeriodIndicatorResult.createContainerGenerators(indicator.name, 
+                                                                period, 
+                                                                results, 
+                                                                geometries)
 	            }
 	            .toSeq
 	            .flatten
 
 	        val overallIndicatorResults: Seq[ContainerGenerator] =
-	          OverallIndicatorResult.createContainerGenerators(indicator.name, overallResults, overallGeometries)
+	          OverallIndicatorResult.createContainerGenerators(indicator.name, 
+                                                             overallResults, 
+                                                             overallGeometries)
 
 	        statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
-	        trackStatus(indicator, CalculationStatus.Complete)
-	    }
-	    println("Done processing indicators")
+	        trackStatus(indicator.name, CalculationStatus.Complete)
+	      }
       } catch {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          trackStatus(indicator, CalculationStatus.Failed)
+          trackStatus(indicator.name, CalculationStatus.Failed)
         }
       }
     }
+
+    println("Done processing periodic indicators; going to calculate weekly service hours...")
+    timedTask("Processed indicator: hours_service") { 
+      WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
+    println("Done processing indicators in CalculateIndicators")
   }
+
 }
