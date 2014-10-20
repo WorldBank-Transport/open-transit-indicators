@@ -1,10 +1,12 @@
 # coding=UTF-8
 import csv
+from datetime import datetime
 import uuid
 
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.db import transaction
+from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
 from transit_indicators.gtfs import GTFSRouteTypes
@@ -180,6 +182,8 @@ class Scenario(models.Model):
     # Optional scenario to base this scenario off of
     base_scenario = models.ForeignKey('self', blank=True, null=True)
 
+    create_date = models.DateTimeField(auto_now_add=True, default=datetime.now)
+    last_modify_date = models.DateTimeField(auto_now=True, default=datetime.now)
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
     sample_period = models.ForeignKey(SamplePeriod)
     created_by = models.ForeignKey(OTIUser)
