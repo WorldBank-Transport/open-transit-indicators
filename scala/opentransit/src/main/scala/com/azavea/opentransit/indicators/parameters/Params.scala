@@ -43,7 +43,7 @@ object IndicatorParams {
       val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
       val demographics = Demographics(db)
       val observedStopTimes =
-        ObservedStopTimes(systems, request.paramsRequirements.observed)
+        ObservedStopTimes(systems, db, request.paramsRequirements.observed)
 
       new IndicatorParams {
         def observedForTrip(period: SamplePeriod, tripId: String) =
