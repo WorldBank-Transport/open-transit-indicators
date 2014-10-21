@@ -15,6 +15,7 @@ import spray.json._
 import spray.httpx.SprayJsonSupport
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.global
+import scala.util.{Success, Try, Failure}
 
 case class TripTuple(trip: TripRecord,
                      stopTimes: Seq[(StopTimeRecord, Stop)],
@@ -22,7 +23,7 @@ case class TripTuple(trip: TripRecord,
                      shape: Option[TripShape])
 
 
-trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstance =>
+trait ScenariosGtfsRoute extends Route with SprayJsonSupport { self: DatabaseInstance =>
 
   private val tables = new GtfsTables with DefaultProfile
   import tables.profile.simple._
@@ -103,7 +104,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
   implicit val routeFormat = ScenariosGtfsRouteJsonProtocol.routeFormat
   import DefaultJsonProtocol._ // this handles arrays and futures
 
-  def scenariosRoute =
+  def scenarioGtfsRoute =
     pathPrefix("scenarios" / Segment) { scenarioSlug =>
       //val db = ??? // TODO get the scenario database connection
       pathPrefix("routes") {
