@@ -12,6 +12,8 @@ import spray.http._
 import spray.json.DefaultJsonProtocol
 import spray.json._
 import spray.httpx.SprayJsonSupport
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.global
 
 case class TripTuple(trip: TripRecord, stopTimes: Seq[(StopTimeRecord, Stop)], frequencies: Seq[FrequencyRecord])
 
@@ -91,31 +93,30 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
   /** This seems weird, but scalac will NOT find this implicit with simple import */
   implicit val tripPatternFormat = ScenariosJsonProtocol.tripTupleFormat
   implicit val routeFormat = ScenariosJsonProtocol.routeFormat
+  import DefaultJsonProtocol._ // this handles arrays and futures
 
   def scenariosRoute =
     pathPrefix("scenarios" / Segment) { scenarioSlug =>
       //val db = ??? // TODO get the scenario database connection
       pathPrefix("routes") {
         pathEnd {
-          complete {
-            import DefaultJsonProtocol._
+          complete { future {
             db withSession { implicit s =>
               val routes: List[RouteRecord] = tables.routeRecordsTable.list
               routes
             }
-          }
+          } }
         } ~
         pathPrefix(Segment) { routeId =>
           pathPrefix("trips") {
             pathEnd {
               /** List all trip_ids in the route and bin them by their path */
               get {
-                complete {
-                  import DefaultJsonProtocol._
+                complete { future {
                   db withSession { implicit s =>
                     fetchTripBins(routeId)
                   }
-                }
+                } }
               }
             } ~
             pathPrefix(Segment) { tripId =>
@@ -123,16 +124,16 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
 
               /** Fetch specific trip by id */
               get {
-                complete {
+                complete { future {
                   db withSession { implicit s =>
                     trip.firstOption.map(buildTripPattern)
                   }
-                }
+                } }
               } ~
               /** Accept a trip pattern, use it as a basis for creating new TripRecord, StopTimesRecords and Stops. */
               post {
                 entity(as[TripTuple]) { pattern =>
-                  complete {
+                  complete { future {
                     db withTransaction { implicit s =>
                       val bins = fetchTripBins(routeId)
                       for {
@@ -143,12 +144,12 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
                       saveTripPattern(pattern)
                       StatusCodes.Created
                     }
-                  }
+                  } }
                 }
               } ~
               /** Delete all traces of the trip */
               delete {
-                complete {
+                complete { future {
                   db withTransaction { implicit s =>
                     trip.firstOption
                       .map { _ =>
@@ -156,7 +157,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
                       StatusCodes.OK
                     }
                   }
-                }
+                } }
               }
             }
           }
