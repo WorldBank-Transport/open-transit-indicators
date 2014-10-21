@@ -2,26 +2,42 @@ import json
 from time import sleep
 
 from celery.utils.log import get_task_logger
+from django.conf import settings
 import requests
 
-from datasources.models import DemographicDataSource, DemographicDataFeature
+from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
 from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
-GT_INDICATORS_ENDPOINT = 'http://localhost/gt/indicators'
 
-def run_accessibility():
-    """Helper function that returns True if accesibility calculators can be run"""
-    demographic_datasource = DemographicDataSource.objects.filter().first()
-    if demographic_datasource:
-        is_completed = (demographic_datasource.status == 'complete')
+def is_complete(file_data_source_instance):
+    """Abstraction to check on completion of file data sources"""
+    if file_data_source_instance:
+        return file_data_source_instance.status == file_data_source_instance.Statuses.COMPLETE
     else:
-        is_completed = False
+        return False
+
+def run_realtime_indicators():
+    """Helper function that returns True if indicators which depend upon realtime
+    data can be run"""
+    realtime_datasource = RealTime.objects.filter().first()
+    return is_complete(realtime_datasource)
+
+def run_osm_indicators():
+    """Helper function that returns True if indicators which depend upon osm
+    data can be run"""
+    osm_datasource = OSMData.objects.filter().first()
+    return is_complete(osm_datasource)
+
+def run_demographics_indicators():
+    """Helper function that returns True if accessibility calculators can be run"""
+    demographic_datasource = DemographicDataSource.objects.filter().first()
     has_features = DemographicDataFeature.objects.filter().count() > 0
-    return is_completed and has_features
+    return is_complete(demographic_datasource) and has_features
 
 def run_indicator_calculation(indicator_job):
+    """Initiate celery job which tells scala to calculate indicators"""
     logger.debug('Starting indicator job: %s for city %s', indicator_job, indicator_job.city_name)
     indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
     indicator_job.save()
@@ -40,7 +56,13 @@ def run_indicator_calculation(indicator_job):
         'max_walk_time_s': config.max_walk_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
-        'run_accessibility': run_accessibility(),
+        'params_requirements': {
+            'demographics': run_demographics_indicators(),
+            'osm': run_osm_indicators(),
+            'observed': run_realtime_indicators(),
+            'city_bounds': bool(config.city_boundary),
+            'region_bounds': bool(config.region_boundary)
+        },
         'sample_periods': [
             {
                 'id': s.id,
@@ -53,7 +75,7 @@ def run_indicator_calculation(indicator_job):
     })
 
     logger.debug('Payload JSON: %s ', payload)
-    response = requests.post(GT_INDICATORS_ENDPOINT, data=payload, headers=headers)
+    response = requests.post(settings.SCALA_ENDPOINTS['INDICATORS'], data=payload, headers=headers)
 
     if response.status_code != 201:
         logger.error('%d encountered', response.status_code)
@@ -85,3 +107,5 @@ def run_indicator_calculation(indicator_job):
         IndicatorJob.objects.filter(city_name=indicator_job.city_name).update(is_latest_version=False)
         indicator_job.is_latest_version = True
         indicator_job.save()
+    else:
+        logger.error('Indicator calculation job failed with status: %s', status)

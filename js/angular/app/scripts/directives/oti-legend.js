@@ -7,26 +7,44 @@ by the angular-leaflet-directive.
 Updates the legend when the labels property changes
 and sets the legend to hidden when labels is undefined or empty
 
+Legend can either have one of two styles:
+'stacked':
+--------------------
+|_| label          |
+|_| label          |
+|_| label          |
+--------------------
+
+'flat':
+----------------
+|  |  |  |  |  |
+----------------
+|0           10|
+ ---------------
+
 */
 
 angular.module('transitIndicators')
 .directive('otiLegend', [function () {
 
     var template = [
-        '<div ng-show="visible" class="legend">',
-        '  <div ng-repeat="label in labels">',
-        '    <div class="outline">',
-        '      <i style="background: {{ colors[$index] }}"></i>',
-        '    </div>',
-        '    <div class="info-label">{{ label }}</div>',
-        '  </div>',
+
+        '<div ng-show="visible" class="legend" ng-class="{ \'legend-flat\': style === \'flat\', \'legend-stacked\': style !== \'flat\',  }">',
+        '<div ng-if="title" class="legend-title">{{ title }}</div>',
+        '<div class="legend-scale">',
+            '<ul class="legend-labels">',
+                '<li ng-repeat="color in colors"><span style="background:{{ color }};"></span>{{ labels[$index] }}</li>',
+            '</ul>',
+        '</div>',
+        '<div ng-if="source" class="legend-source">Source: <a href="{{ source.link }}">{{ source.text }}</a></div>',
         '</div>'
     ].join('');
     return {
         restrict: 'AE',
         scope: {
             colors: '=',
-            labels: '='
+            labels: '=',
+            style: '='
         },
         template: template,
         link: function (scope) {

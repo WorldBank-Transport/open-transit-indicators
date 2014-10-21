@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('transitIndicators', [
+    'ngAnimate',
     'ngCookies',
     'ngResource',
     'ui.router',
@@ -60,11 +61,35 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/data-partial.html',
             controller: 'OTIIndicatorsDataController'
         })
+        .state('calculation', {
+            parent: 'indicators',
+            url: '/calculation',
+            templateUrl: 'scripts/modules/indicators/calculation-partial.html',
+            controller: 'OTIIndicatorsCalculationController'
+        })
         .state('scenarios', {
+            abstract: true,
             parent: 'root',
             url: '/scenarios',
             templateUrl: 'scripts/modules/scenarios/scenarios-partial.html',
-            controller: 'OTIScenariosController'
+            controller: 'OTIScenariosController',
+            resolve: {
+                OTIScenariosService: 'OTIScenariosService',
+                OTIIndicatorsService: 'OTIIndicatorsService',
+                OTISettingsService: 'OTISettingsService',
+                samplePeriods: function (OTISettingsService) {
+                    return OTISettingsService.samplePeriods.query();
+                },
+                samplePeriodI18N: function (OTIIndicatorsService) {
+                    return OTIIndicatorsService.getSamplePeriodTypes();
+                },
+                routeTypes: function (OTIIndicatorsService) {
+                    return OTIIndicatorsService.getRouteTypes();
+                },
+                scenarios: function (OTIScenariosService) {
+                    return OTIScenariosService.getScenarios();
+                }
+            }
         })
         .state('settings', {
             parent: 'root',
@@ -100,6 +125,22 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
+
+        _.each(config.scenarioViews, function (view) {
+            var viewId = view.id;
+            var nodash = viewId.replace('-', '');
+            var capsId = nodash.charAt(0).toUpperCase() + nodash.slice(1);
+            $stateProvider.state(view.id, {
+                parent: 'scenarios',
+                url: '/' + viewId,
+                templateUrl: 'scripts/modules/scenarios/views/' + viewId + '-partial.html',
+                controller: 'OTIScenarios' +  capsId + 'Controller',
+                resolve: {
+
+                }
+            });
+        });
+
 }]).config(['$translateProvider', 'config', function($translateProvider, config) {
     $translateProvider.useStaticFilesLoader({
        prefix: 'i18n/',

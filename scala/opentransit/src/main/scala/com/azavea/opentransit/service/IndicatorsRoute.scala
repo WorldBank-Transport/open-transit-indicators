@@ -1,6 +1,8 @@
 package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
 
@@ -33,7 +35,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   version: String = "",
-  status: String = "processing"
+  status: Map[String, JobStatus]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance =>
@@ -50,34 +52,46 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
-            try {
-              TaskQueue.execute {
+            TaskQueue.execute {
+              try {
                 // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
                 val gtfsRecords =
                   db withSession { implicit session =>
                     GtfsRecords.fromDatabase(dbGeomNameUtm)
                   }
 
-                CalculateIndicators(request, gtfsRecords, db) { containerGenerators =>
-                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                  DjangoClient.postIndicators(request.token, indicatorResultContainers)
+                // Perform all indicator calculations, store results and statuses
+                CalculateIndicators(request, gtfsRecords, db, new CalculationStatusManager {
+                  def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
+                    DjangoClient.postIndicators(request.token, indicatorResultContainers)
+                  }
+
+                  def statusChanged(status: Map[String, JobStatus]) = {
+                    DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
+                  }
+                })
+              } catch { case e: Exception =>
+                println("Error calculating indicators!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
+
+                // update status to indicate indicator calculation failure
+                try {
+                  DjangoClient.updateIndicatorJob(request.token,
+                    IndicatorJob(request.version, Map("alltime" -> JobStatus.Failed)))
+                } catch {
+                  case ex: Exception =>
+                    println("Failed to set failure status for indicator calculation job!")
                 }
-
-                DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
               }
+            }
 
-              // return a 201 created
-              Created -> JsObject(
+            // return a 201 created
+            Created -> JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Calculations started (version ${request.version})")
-              )
-            } catch {
-              case _: Exception =>
-                JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No GTFS data")
-                )
-            }
+            )
           }
         }
       }

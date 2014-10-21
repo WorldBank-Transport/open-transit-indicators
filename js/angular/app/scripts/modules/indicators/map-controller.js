@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         version: 0,
@@ -78,6 +78,16 @@ angular.module('transitIndicators')
         $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
     };
 
+    var updateIndicatorLegend = function (indicator) {
+        var params = angular.extend({}, indicator, {
+            'ordering': 'value'
+        });
+        OTIIndicatorsService.query('GET', params).then(function (data) {
+            // Redraw new
+            $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
+        });
+    };
+
     // TODO: Update this method to allow changes on aggregation, version, sample_period
     $scope.setIndicator = function (type) {
         $scope.indicator.type = type;
@@ -110,6 +120,8 @@ angular.module('transitIndicators')
                 }
             });
         });
+
+        updateIndicatorLegend(indicator);
     };
 
     $scope.selectType = function (type) {
@@ -140,6 +152,7 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
+        updateIndicatorLegend($scope.indicator);
     };
     $scope.init();
 }]);

@@ -38,6 +38,12 @@
     padding-right: 2rem;
 }
 
+/* Legend CSS from:
+https://www.mapbox.com/tilemill/docs/guides/advanced-legends/
+
+Use class legend + (stacked-legend || flat-legend)
+*/
+
 .legend {
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: rgba(255,255,255, 1);
@@ -52,10 +58,71 @@
     right: 3rem;
 }
 
-.legend i {
-    width: 16px;
-    height: 16px;
+.legend-flat {
+    padding-top: 2rem;
+}
+
+.legend .legend-title {
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 90%;
+}
+
+.legend-stacked .legend-scale ul {
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
     float: left;
-    margin-right: 8px;
-    opacity: 0.7;
+    list-style: none;
+}
+.legend-stacked .legend-scale ul li {
+    font-size: 80%;
+    list-style: none;
+    margin-left: 0;
+    line-height: 18px;
+    margin-bottom: 2px;
+}
+.legend-stacked ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 16px;
+    width: 30px;
+    margin-right: 5px;
+    margin-left: 0;
+    border: 1px solid #999;
+}
+
+.legend-flat .legend-scale ul {
+    margin: 0;
+    padding: 0;
+    float: left;
+    list-style: none;
+}
+
+.legend-flat .legend-scale ul li {
+    display: block;
+    float: left;
+    width: 44px;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 80%;
+    list-style: none;
+}
+
+.legend-flat ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 15px;
+    width: 44px;
+}
+
+.legend .legend-source {
+    font-size: 70%;
+    color: #999;
+    clear: both;
+}
+
+.legend a {
+    color: #777;
 }

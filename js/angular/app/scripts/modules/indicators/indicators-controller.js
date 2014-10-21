@@ -14,6 +14,7 @@ angular.module('transitIndicators')
     $scope.sample_period = $cookieStore.get('sample_period') || 'morning';
 
     $scope.cities = cities;
+    $scope.showingState = 'data';
 
     var setIndicatorVersion = function (version) {
         $scope.indicatorVersion = version;
@@ -62,20 +63,6 @@ angular.module('transitIndicators')
         });
     };
 
-    /**
-     * Submits a job for calculating indicators
-     */
-    $scope.calculateIndicators = function () {
-        var job = new OTIIndicatorsService.IndicatorJob({
-            city_name: OTIIndicatorsService.selfCityName
-        });
-        job.$save().then(function (data) {
-            // This alert is temporary. It will be switched to a
-            // progress grid once status updates are available.
-            alert('Calculation job started with id #' + data.id);
-        });
-    };
-
     $scope.selectSamplePeriod = function (sample_period) {
         $scope.dropdown_sample_period_open = false;
         $scope.sample_period = sample_period;
@@ -84,7 +71,7 @@ angular.module('transitIndicators')
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
-        $scope.showingMap = toState.name === 'map' ? true : false;
+        $scope.showingState = toState.name;
     });
 
     $scope.init = function () {

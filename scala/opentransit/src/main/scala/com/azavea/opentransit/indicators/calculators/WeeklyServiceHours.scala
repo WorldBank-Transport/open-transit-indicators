@@ -1,103 +1,163 @@
-package com.azavea.opentransit.indicators.calculators
+package com.azavea.opentransit.indicators
+
+import scala.annotation.tailrec
 
 import com.azavea.gtfs._
-import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 
-// TODO: Implement. Not sure how this fits into the infrastructure.
-// This calculates more of the transit system then is given by the SamplePeriods.
-object WeeklyServiceHours extends Indicator
-                             with AggregatesByAll {
-  type Intermediate = Double
+import com.github.nscala_time.time.Imports._
+import org.joda.time.Seconds
+
+// This indicator calculation is too strange to inherit from Indicator, as it does not use sample 
+// periods.  So, it gets its own processing logic here, to be run from CalculateIndicators after
+// the other indicators are done.
+object WeeklyServiceHours {
   val name = "hours_service"
 
-  def calculation(period: SamplePeriod): IndicatorCalculation = {
-    def map(trips: Seq[Trip]): Double = 0.0
-    def reduce(vals: Seq[Double]): Double = 0.0
-    perRouteCalculation(map, reduce)
+  // helper function to ease running tests
+  def runTest(periods: Seq[SamplePeriod], builder: TransitSystemBuilder): AggregatedResults = {
+    val weeklyHours = new WeeklyServiceHours(periods, builder)
+    val firstDay = weeklyHours.representativeWeekday.get
+    weeklyHours.calculate(firstDay)
+  }
+
+  def apply(periods: Seq[SamplePeriod], builder: TransitSystemBuilder, 
+    overallGeometries: SystemGeometries, statusManager: CalculationStatusManager, 
+    trackStatus:(String, JobStatus) => Unit): Unit = {
+
+    try {
+      val weeklyHours = new WeeklyServiceHours(periods, builder)
+
+      val firstDay = weeklyHours.representativeWeekday.getOrElse({ 
+        println("No representative weekday found!  Not calculating weekly service hours.")
+        return
+      })
+
+      println("Representative weekday found; going to calculate weekly service hours.")
+      trackStatus(name, JobStatus.Processing)
+
+      val overallResults = weeklyHours.calculate(firstDay)
+      val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
+        name, overallResults, overallGeometries)
+      statusManager.indicatorFinished(results)
+      
+      trackStatus(name, JobStatus.Complete)
+      println("Done processing weekly service hours!")
+    } catch {
+        case e: Exception => {
+          println(e.getMessage)
+          println(e.getStackTrace.mkString("\n"))
+          statusManager.statusChanged(Map(name -> JobStatus.Failed))
+        }
+    }
   }
 }
 
-// package opentransitgt.indicators
+class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSystemBuilder) {
+  // Helper method to perform calculation (and ease testing).
+  def calculate(firstDay: LocalDateTime): AggregatedResults = {
+    val routeResults = hoursByRoute(buildSystems(buildWeek(firstDay)))
+    val modeResults = routeResults.groupBy { case (route, results) => route.routeType }
+      .map { case (route, results) => (route, results.values.max) }.toMap
+    val systemResult = Some(routeResults.values.max)        
+    AggregatedResults(routeResults, modeResults, systemResult)
+  }
 
-// import com.azavea.gtfs._
-// import com.azavea.gtfs.data._
-// import opentransitgt._
-// import opentransitgt.DjangoAdapter._
-// import scala.slick.jdbc.JdbcBackend.DatabaseDef
-// import com.github.nscala_time.time.Imports._
+  // Get total system hours per route for the representative week.
+  def hoursByRoute(weekSystems: Seq[TransitSystem]): Map[Route, Double] = {
 
-// // Number of hours in service for the week starting on the representative weekday selected
-// class WeeklyServiceHours(val gtfsData: GtfsData, val calcParams: CalcParams,
-//                          val db: DatabaseDef) extends IndicatorCalculator {
+    def systemRouteHours(system: TransitSystem): Map[Route, Double] =
+      if (system.routes.isEmpty) Map[Route, Double]()
+      else system.routes.map(route => route -> {
+        routeHours(route) match {
+          case Some(v) => Seconds.secondsBetween(v._1, v._2).getSeconds / 60.0 / 60.0
+          case None => 0
+        }
+      }).toMap
 
-//   val name = "hours_service"
-//   // get the representative weekday by finding it from the sample periods
-//   def representativeWeekday: LocalDate = {
-//     /** Recursively look through sample periods and return the first one that's for a weekday.
-//      *  This will throw ElementNotFoundException if no weekday sample periods found.
-//      *  (Should only run weekly service hours calculation with weekday sample period.)
-//      */
-//     def weekdayPeriod(samplePeriods: List[SamplePeriod]): SamplePeriod = {
-//       val firstPeriod = samplePeriods.head
-//       if (samplePeriodIsWeekday(firstPeriod)) firstPeriod else weekdayPeriod(samplePeriods.tail)
-//     }
-//     def samplePeriodIsWeekday(period: SamplePeriod): Boolean = {
-//       if (period.`type` != "alltime" && period.`type` != "weekend") true else false
-//     }
+    // returns earliest departure and latest arrival for given route
+    def routeHours(route: Route): Option[(LocalDateTime, LocalDateTime)] = {
 
-//     weekdayPeriod(calcParams.sample_periods.toList).period_start.toLocalDate
-//   }
-//   // get service hours for a given day and route
-//   def serviceHoursForDay(day: LocalDate, route: Route): Double = {
- //     // Importing the context within this scope adds additional functionality to Routes
-//     import gtfsData.context._
+      // find the earliest departure and latest arrival across all the route's trips
+      @tailrec 
+      def tripHours(trips: Seq[Trip], lastMin: LocalDateTime, lastMax: LocalDateTime): 
+        Option[(LocalDateTime, LocalDateTime)] = {
 
-//     // returns number of hours in service window for given set of trips
-//     def serviceWindow(trips: Seq[ScheduledTrip], start: LocalDateTime, stop: LocalDateTime): Double = {
-//       if (trips.isEmpty) {
-//         val hrs = hoursDifference(start, stop)
-//         // do not return more than 24 hours of service for a day (if last trip goes past midnight)
-//         if (hrs > 24) 24 else hrs
-//       } else {
-//         val trip = trips.head
-//         val newStart = if (trip.starts < start) trip.starts else start
-//         val newStop = if (trip.ends > stop) trip.ends else stop
-//         serviceWindow(trips.tail, newStart, newStop)
-//       }
-//     }
-//     // getScheduledTripsOn returns Seq[ScheduledTrip] for a RichRoute
-//     val tripsForRoute = route.getScheduledTripsOn(day)
-//     if (tripsForRoute.isEmpty) 0 else serviceWindow(tripsForRoute.tail,
-//                                                     tripsForRoute.head.starts,
-//                                                     tripsForRoute.head.ends)
-//   }
-//   // sum the hours for the week for the given route
-//   def serviceHoursForWeek(route: Route): Double = {
-//     val startDay = representativeWeekday
+        if (trips.isEmpty) Some((lastMin, lastMax))
+        else {
+          val tripStops = trips.head.schedule
+          val arrivals = tripStops.map(stop => stop.arrivalTime)
+          val departures = tripStops.map(stop => stop.departureTime)
+          val tripMin = if (departures.isEmpty) lastMin else departures.min
+          val tripMax = if (arrivals.isEmpty) lastMax else arrivals.max
+          tripHours(trips.tail, 
+                    if (tripMin < lastMin) tripMin else lastMin, 
+                    if (tripMax > lastMax) tripMax else lastMax)
+        }
+      }
 
-//     def getHoursForWeekday(offset: Int, runningTotal: Double): Double = {
-//       if (offset == 7) {
-//         runningTotal
-//       } else
-//         getHoursForWeekday(offset + 1,
-//                            runningTotal + serviceHoursForDay(startDay.plusDays(offset),
-//                            route))
-//     }
+      if(route.trips.isEmpty) None
+      else {
+        val firstTripStops = route.trips.head.schedule
+        tripHours(route.trips.tail, firstTripStops.map(
+          stop => stop.departureTime).min, firstTripStops.map(stop => stop.arrivalTime).max)
+      }
+    }
 
-//     getHoursForWeekday(0, 0)
-//   }
-//   def calcByRoute(period: SamplePeriod): Map[String, Double] = {
-//     println("in calcByRoute for WeeklyServiceHours")
-//     routesInPeriod(period).map(route => route.id.toString -> serviceHoursForWeek(route)).toMap
-//   }
-//   def calcByMode(period: SamplePeriod): Map[Int, Double] = {
-//     println("in calcByMode for WeeklyServiceHours")
-//     calcByRoute(period).toList
-//       .groupBy(kv => routeByID(kv._1).route_type.id)
-//       .map { case (key, value) => key -> value.map(_._2).toList.max }
-//   }
-//   def calcBySystem(period: SamplePeriod): Double = {
-//     println("in calcBySystem for WeeklyServiceHours")
-//     simpleMaxBySystem(period)
-//   }
-// }
+    // sum the daily service windows for each route to get weekly hours for route
+    @tailrec
+    def sumRouteHours(systems: Seq[TransitSystem], soFar: Map[Route, Double]): Map[Route, Double] = {
+      if (systems.isEmpty) soFar
+      else {
+        val dayRoutes = systemRouteHours(systems.head)
+        val newMap = 
+          if (soFar.isEmpty) dayRoutes
+          else soFar ++ dayRoutes.map{ case (k, v) => k -> (v + soFar.getOrElse(k, 0.0)) }
+        sumRouteHours(systems.tail, newMap)
+      }
+    }
+
+    sumRouteHours(weekSystems, Map[Route, Double]())
+  }
+
+  // Get the representative weekday by finding it from the sample periods.
+  def representativeWeekday: Option[LocalDateTime] = {
+    // Recursively look through sample periods and return the first one that's for a weekday.
+    @tailrec def weekdayPeriod(samplePeriods: Seq[SamplePeriod]): Option[SamplePeriod] = {
+      if (samplePeriods.isEmpty) None
+      else {
+        val firstPeriod = samplePeriods.head
+        if (samplePeriodIsWeekday(firstPeriod)) Some(firstPeriod) 
+        else weekdayPeriod(samplePeriods.tail)
+      }
+    }
+
+    def samplePeriodIsWeekday(period: SamplePeriod): Boolean = {
+      period.periodType != "alltime" && period.periodType != "weekend"
+    }
+
+    // start each day at midnight
+    weekdayPeriod(periods) match {
+      case Some(p) => Some(p.start.withTime(0, 0, 0, 0))
+      case None => None
+    }
+  }
+
+  // returns periods for each day of the week starting on the given date
+  def buildWeek(startDateTime: LocalDateTime): Seq[SamplePeriod] = {
+    // recursively build list of periods for each day in week
+    @tailrec def buildDay(offset: Int, week: List[SamplePeriod]): Seq[SamplePeriod] = {
+      if (offset == 7) week else {
+        val startDay = startDateTime.plusDays(offset)
+        buildDay(offset + 1, 
+          week ++ List(SamplePeriod(offset, offset.toString, startDay, startDay.plusDays(1))))
+      }
+    }
+    buildDay(0, List())
+  }
+
+  // get a transit system for each day of the representative week
+  def buildSystems(days: Seq[SamplePeriod]): Seq[TransitSystem] =
+    days.map(day => builder.systemBetween(day.start, day.end))
+}

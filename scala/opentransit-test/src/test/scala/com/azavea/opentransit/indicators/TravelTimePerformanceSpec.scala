@@ -20,11 +20,13 @@ class TravelTimePerformanceSpec
 
   val observedMapping = new ObservedStopTimeSpecParams {}
 
-  // Noise with a mean value of 7.5 minutes was introduced to create this simulated observational data
-  it should "calculate travel time performance for SEPTA" in {
+  // Noise with a mean value of 7.5 minutes was introduced to create this simulated
+  // observational data - the result of 5.08 is quite close to 5.0 (which was verified manually
+  // in through numpy to be the dwell time)
+  it should "calculate on time performance for SEPTA" in {
     val calculation = new TravelTimePerformance(observedMapping).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
-    bySystem.get should be (0.125 +- 1e-2)
+    bySystem.get should be (5.0 +- 1e-1)
   }
 
 }

@@ -30,7 +30,8 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
     // Import the files into the database to do the reprojection.
     db withSession { implicit session =>
-      GtfsIngest(TestFiles.septaPath)
+      val records = GtfsRecords.fromFiles(TestFiles.septaPath)
+      GtfsIngest(records)
       GtfsRecords.fromDatabase(dbGeomNameUtm).force
     }
   }
@@ -68,11 +69,11 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
     }.toMap
   val observedSystems =
     periods.map { period =>
-      (period, observedSystemBuilder.systemBetween(period.start, period.end))
+      (period, observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false))
     }.toMap
   val period = periods.head
   val system = systemBuilder.systemBetween(period.start, period.end)
-  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end)
+  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false)
 
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work
@@ -105,7 +106,8 @@ trait StopBuffersSpec {this: IndicatorSpec =>
     StopBuffers(systems, 500, db)
   }
   trait StopBuffersSpecParams extends StopBuffers {
-    def bufferForStop(stop: Stop): Polygon = stopBuffers.bufferForStop(stop)
+    def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
+    def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
     def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] = stopBuffers.bufferForPeriod(period)
   }
 }
@@ -130,9 +132,29 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
     observedTrips
   }
 
+  val observedPeriodTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
+    val scheduledTrips = system.routes.map(_.trips).flatten
+    val observedTripsById = observedStopTimes(period)
+    scheduledTrips.map { trip =>
+      (trip.id -> {
+        val schedStops: Map[String, ScheduledStop] =
+          trip.schedule.map(sst => sst.stop.id -> sst).toMap
+        val obsvdStops: Map[String, ScheduledStop] =
+          observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
+        for (s <- trip.schedule)
+          yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
+      }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
+    }.toMap
+    
+  }
+
   trait ObservedStopTimeSpecParams extends ObservedStopTimes {
     def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
       observedStopTimes(period)(scheduledTripId)
+
+    // Testing, so just return the same period every time.
+    def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+      observedPeriodTrips
   }
 }
 

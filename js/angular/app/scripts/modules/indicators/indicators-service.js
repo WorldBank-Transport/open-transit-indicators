@@ -21,7 +21,13 @@ angular.module('transitIndicators')
     /**
      * Resource for indicator jobs
      */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {});
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {
+        search: {
+            method: 'GET',
+            isArray: true,
+            url: '/api/indicator-jobs/'
+        }
+    });
 
     /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
@@ -133,6 +139,17 @@ angular.module('transitIndicators')
         }).error(function (error) {
             console.error('OTIIndicatorService.getSamplePeriodTypes', error);
             dfd.resolve({});
+        });
+        return dfd.promise;
+    };
+
+    otiIndicatorsService.getRouteTypes = function () {
+        var dfd = $q.defer();
+        $http.get('/api/gtfs-route-types/').success(function (data) {
+            dfd.resolve(data);
+        }).error(function (error) {
+            console.error('getRouteTypes Error: ', error);
+            dfd.resolve([]);
         });
         return dfd.promise;
     };

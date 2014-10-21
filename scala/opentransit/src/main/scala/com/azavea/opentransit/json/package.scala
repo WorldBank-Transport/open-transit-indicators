@@ -2,6 +2,7 @@
 package com.azavea.opentransit
 
 import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.scenarios._
 import com.azavea.opentransit.service._
 
 import com.azavea.gtfs._
@@ -13,6 +14,14 @@ import geotrellis.vector.json._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
+
+object JobStatus extends Enumeration {
+  type JobStatus = Value
+  val Submitted = Value("queued")
+  val Processing = Value("processing")
+  val Complete = Value("complete")
+  val Failed = Value("error")
+}
 
 package object json {
   // TODO: Find if we need the DateTime part of the string for this.
@@ -49,7 +58,32 @@ package object json {
       }
   }
 
+  implicit object RequirementsJsonProtocol extends RootJsonFormat[Requirements] {
+    def write(r: Requirements): JsObject = JsObject(
+      "demographics" -> JsBoolean(r.demographics),
+      "osm" -> JsBoolean(r.osm),
+      "observed" -> JsBoolean(r.observed),
+      "city_bounds" -> JsBoolean(r.cityBounds),
+      "region_bounds" -> JsBoolean(r.regionBounds)
+    )
+
+    def read(v: JsValue): Requirements =
+      v.asJsObject.getFields(
+        "demographics",
+        "osm",
+        "observed",
+        "city_bounds",
+        "region_bounds"
+      ) match {
+        case Seq(JsBoolean(demographics), JsBoolean(osm), JsBoolean(observed),
+                 JsBoolean(cityBounds), JsBoolean(regionBounds)) =>
+          Requirements(demographics, osm, observed, cityBounds, regionBounds)
+        case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
+      }
+  }
+
   implicit object IndicatorCalculationRequestFormat extends RootJsonFormat[IndicatorCalculationRequest] {
+    import RequirementsJsonProtocol._
     def write(request: IndicatorCalculationRequest) =
       JsObject(
         "token" -> JsString(request.token),
@@ -61,7 +95,8 @@ package object json {
         "city_boundary_id" -> JsNumber(request.cityBoundaryId),
         "region_boundary_id" -> JsNumber(request.regionBoundaryId),
         "avg_fare" -> JsNumber(request.averageFare),
-        "sample_periods" -> request.samplePeriods.toJson
+        "sample_periods" -> request.samplePeriods.toJson,
+        "params_requirements" -> request.paramsRequirements.toJson
       )
 
     def read(value: JsValue): IndicatorCalculationRequest =
@@ -76,18 +111,42 @@ package object json {
         "region_boundary_id",
         "avg_fare",
         "sample_periods",
-        "run_accessibility"
+        "params_requirements"
       ) match {
         case Seq(JsString(token), JsString(version), JsNumber(povertyLine), JsNumber(nearbyBufferDistance),
                  JsNumber(maxCommuteTime), JsNumber(maxWalkTime), JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
-                 JsNumber(averageFare), samplePeriodsJson, JsBoolean(runAccessibility)) =>
+                 JsNumber(averageFare), samplePeriodsJson, paramsRequirementsJson) =>
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
+          val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
             token, version, povertyLine.toDouble, nearbyBufferDistance.toDouble,
             maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
-            averageFare.toDouble, samplePeriods, runAccessibility
+            averageFare.toDouble, samplePeriods, paramsRequirements
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
+      }
+  }
+
+  implicit object ScenarioCreationRequestFormat extends RootJsonFormat[ScenarioCreationRequest] {
+    def write(request: ScenarioCreationRequest) =
+      JsObject(
+        "token" -> JsString(request.token),
+        "db_name" -> JsString(request.dbName),
+        "base_db_name" -> JsString(request.baseDbName),
+        "sample_period" -> request.samplePeriod.toJson
+      )
+
+    def read(value: JsValue): ScenarioCreationRequest =
+      value.asJsObject.getFields(
+        "token",
+        "db_name",
+        "base_db_name",
+        "sample_period"
+      ) match {
+        case Seq(JsString(token), JsString(dbName), JsString(baseDbName), samplePeriodJson) =>
+          val samplePeriod = samplePeriodJson.convertTo[SamplePeriod]
+          ScenarioCreationRequest(token, dbName, baseDbName, samplePeriod)
+        case _ => throw new DeserializationException("ScenarioCreationRequest expected.")
       }
   }
 
@@ -143,10 +202,29 @@ package object json {
   }
 
   implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
-    def write(job: IndicatorJob) =
+    def write(job: IndicatorJob) = {
+      // A job is complete if nothing is processing or submitted
+      val isComplete = job.status.forall(s =>
+        s._2 != JobStatus.Processing && s._2 != JobStatus.Submitted)
+      val jobStatus = if (isComplete) (
+        if (job.status.forall(s => s._2 != JobStatus.Failed)) JobStatus.Complete else JobStatus.Failed)
+        else JobStatus.Processing
+      val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
+
       JsObject(
         "version" -> JsString(job.version),
-        "job_status" -> JsString(job.status)
+        "job_status" -> JsString(jobStatus.toString),
+        "calculation_status" -> JsString(calculationStatus.toJson.toString)
       )
+    }
+  }
+
+  implicit object ScenarioWriter extends RootJsonWriter[Scenario] {
+    def write(scenario: Scenario) = {
+      JsObject(
+        "db_name" -> JsString(scenario.dbName),
+        "job_status" -> JsString(scenario.jobStatus.toString)
+      )
+    }
   }
 }

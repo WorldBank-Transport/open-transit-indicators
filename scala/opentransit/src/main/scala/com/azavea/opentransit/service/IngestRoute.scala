@@ -1,5 +1,6 @@
 package com.azavea.opentransit.service
 
+import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
 
 import com.azavea.opentransit._
@@ -29,18 +30,21 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
               val routeCount =
                 db withSession { implicit session =>
                   try {
-                    timedTask("Ingested GTFS") { GtfsIngest(gtfsDir) }
-                    } catch {
-                      case e: Exception =>
-                        println("Error parsing GTFS!")
-                        println(e.getMessage)
-                        println(e.getStackTrace.mkString("\n"))
-                        err = JsObject(
-                          "success" -> JsBoolean(false),
-                          "message" -> JsString("Error parsing GTFS.\n" + 
-                                                e.getMessage.replace("\"", "'"))
-                        )
+                    timedTask("Ingested GTFS") {
+                      val records = GtfsRecords.fromFiles(gtfsDir)
+                      GtfsIngest(records)
                     }
+                  } catch {
+                    case e: Exception =>
+                      println("Error parsing GTFS!")
+                      println(e.getMessage)
+                      println(e.getStackTrace.mkString("\n"))
+                      err = JsObject(
+                        "success" -> JsBoolean(false),
+                        "message" -> JsString("Error parsing GTFS.\n" +
+                          e.getMessage.replace("\"", "'"))
+                      )
+                  }
                 }
 
               if (err == null)
