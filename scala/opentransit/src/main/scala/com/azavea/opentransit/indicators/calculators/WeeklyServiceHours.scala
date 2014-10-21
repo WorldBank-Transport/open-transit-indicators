@@ -3,8 +3,8 @@ package com.azavea.opentransit.indicators
 import scala.annotation.tailrec
 
 import com.azavea.gtfs._
-import com.azavea.opentransit.CalculationStatus
-import com.azavea.opentransit.CalculationStatus._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
@@ -24,7 +24,7 @@ object WeeklyServiceHours {
 
   def apply(periods: Seq[SamplePeriod], builder: TransitSystemBuilder, 
     overallGeometries: SystemGeometries, statusManager: CalculationStatusManager, 
-    trackStatus:(String, CalculationStatus) => Unit): Unit = {
+    trackStatus:(String, JobStatus) => Unit): Unit = {
 
     try {
       val weeklyHours = new WeeklyServiceHours(periods, builder)
@@ -35,20 +35,20 @@ object WeeklyServiceHours {
       })
 
       println("Representative weekday found; going to calculate weekly service hours.")
-      trackStatus(name, CalculationStatus.Processing)
+      trackStatus(name, JobStatus.Processing)
 
       val overallResults = weeklyHours.calculate(firstDay)
       val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
         name, overallResults, overallGeometries)
       statusManager.indicatorFinished(results)
       
-      trackStatus(name, CalculationStatus.Complete)
+      trackStatus(name, JobStatus.Complete)
       println("Done processing weekly service hours!")
     } catch {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          statusManager.statusChanged(Map(name -> CalculationStatus.Failed))
+          statusManager.statusChanged(Map(name -> JobStatus.Failed))
         }
     }
   }
