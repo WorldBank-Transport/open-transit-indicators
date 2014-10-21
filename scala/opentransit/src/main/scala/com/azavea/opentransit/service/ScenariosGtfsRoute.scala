@@ -5,7 +5,8 @@ import com.azavea.gtfs._
 import com.azavea.opentransit.DatabaseInstance
 import com.sun.xml.internal.ws.encoding.soap.DeserializationException
 import geotrellis.slick.Projected
-import geotrellis.vector.Point
+import geotrellis.vector.{Line, Point}
+import geotrellis.vector.json.GeoJsonSupport
 import org.joda.time._
 import org.joda.time.format.PeriodFormatterBuilder
 import spray.http._
@@ -15,7 +16,11 @@ import spray.httpx.SprayJsonSupport
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.global
 
-case class TripTuple(trip: TripRecord, stopTimes: Seq[(StopTimeRecord, Stop)], frequencies: Seq[FrequencyRecord])
+case class TripTuple(trip: TripRecord,
+                     stopTimes: Seq[(StopTimeRecord, Stop)],
+                     frequencies: Seq[FrequencyRecord],
+                     shape: Option[TripShape])
+
 
 trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstance =>
 
@@ -84,9 +89,12 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
     )
     val frequencies = tables.frequencyRecordsTable.filter(_.trip_id === trip.id).list
 
-    val shape = trip.tripShapeId map { shapeId => tables.tripShapesTable.filter(_.id === shapeId)}
+    val shape = for {
+      shapeId <- trip.tripShapeId
+      shape <- tables.tripShapesTable.filter(_.id === shapeId).firstOption
+    } yield shape
 
-    TripTuple(trip, stops, frequencies)
+    TripTuple(trip, stops, frequencies, shape)
   }
 
 
@@ -166,8 +174,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
     }
 }
 
-object ScenariosGtfsRouteJsonProtocol{
-  import DefaultJsonProtocol._
+object ScenariosGtfsRouteJsonProtocol extends GeoJsonSupport with DefaultJsonProtocol {
 
   /** We use this prefix when to generate stop names when saving from a POST request */
   final val STOP_PREFIX = "TEMP"
@@ -264,14 +271,29 @@ object ScenariosGtfsRouteJsonProtocol{
     }
   }
 
-   val tripTupleFormat = new RootJsonFormat[TripTuple] {
+  implicit object shapeFormat extends JsonWriter[Option[TripShape]]{
+    def write(obj: Option[TripShape]): JsValue =
+      obj match {
+        case Some(shape) => shape.line.geom.toJson
+        case None => JsNull
+      }
+
+    def read(json: JsValue)(tripId: String): Option[TripShape] = json match {
+      case _: JsObject => Some(TripShape("${STOP_PREFIX}-${tripId}", Projected(json.convertTo[Line], 4326)))
+      case JsNull => None
+      case _ => throw new DeserializationException("Shape line expected")
+    }
+  }
+
+  val tripTupleFormat = new RootJsonFormat[TripTuple] {
     def read(json: JsValue): TripTuple =
-      json.asJsObject.getFields("trip_id", "route_id", "headsign", "stop_times", "frequencies") match {
-        case Seq(JsString(tripId), JsString(routeId), headsign, JsArray(stopTimesJson) , JsArray(freqsJson)) =>
+      json.asJsObject.getFields("trip_id", "route_id", "headsign", "stop_times", "frequencies", "shape") match {
+        case Seq(JsString(tripId), JsString(routeId), headsign, JsArray(stopTimesJson) , JsArray(freqsJson), shapeJson) =>
           val stopTimes = stopTimesJson map { js => stopTimeFormat.read(js)(tripId) }
           val freqs = freqsJson map { js => frequencyFormat.read(js)(tripId) }
           val trip = TripRecord(tripId, TRIP_SERVICE_ID, routeId, headsign.convertTo[Option[String]])
-          TripTuple(trip, stopTimes, freqs)
+          val shape = shapeFormat.read(shapeJson)(tripId)
+          TripTuple(trip, stopTimes, freqs, shape)
         case _ =>  throw new DeserializationException("TripTuple expected")
       }
 
@@ -280,7 +302,8 @@ object ScenariosGtfsRouteJsonProtocol{
       "route_id" -> JsString(obj.trip.routeId),
       "headsign" -> JsString(obj.trip.headsign.getOrElse("")),
       "stop_times" -> JsArray(obj.stopTimes map (_.toJson): _*),
-      "frequencies" -> JsArray( obj.frequencies map (_.toJson):_*)
+      "frequencies" -> JsArray( obj.frequencies map (_.toJson):_*),
+      "shape" -> obj.shape.toJson
     )
   }
 }
