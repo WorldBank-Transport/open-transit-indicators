@@ -5,9 +5,8 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 import requests
 
-from datasources.models import (DemographicDataSource, DemographicDataFeature,
-                                RealTime, OSMData, SamplePeriod)
-from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig
+from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
+from transit_indicators.models import IndicatorJob, OTIIndicatorsConfig, SamplePeriod
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
