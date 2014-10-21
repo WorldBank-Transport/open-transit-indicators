@@ -2,15 +2,32 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsDataService',
-        [
-        function () {
+        ['OTIIndicatorsService',
+        function (OTIIndicatorsService) {
+
+    var routeTypes = {};
+    OTIIndicatorsService.getRouteTypes().then(function (data) {
+        _.each(data, function (routeType) {
+            routeTypes[routeType.route_type] = routeType.description;
+        });
+    });
+
+    var getRouteTypeLabel = function (routeType) {
+        if (!routeTypes) {
+            return routeType;
+        }
+
+        var label = routeTypes[routeType] || routeType;
+        return label;
+
+    };
 
     var otiDataService = {};
 
     /// DEFAULT CHART FUNCTIONS
     var defaultTooltipFunction = function () {
         return function (key, x, y) {
-            return '<h3>' + key + '</h3><p>' + y.formatted_value + '</p>';
+            return '<h3>' + getRouteTypeLabel(key) + '</h3><p>' + y + '</p>';
         };
     };
     var defaultXFunctionMode = function () {
@@ -80,7 +97,11 @@ angular.module('transitIndicators')
             xFunctionMode: defaultXFunctionMode,
             xFunctionRoute: defaultXFunctionRoute,
             yFunction: defaultYFunction,
-            tooltipFunction: defaultTooltipFunction,
+            tooltipFunction: function () {
+                return function (key, x, y) {
+                    return '<h3>' + getRouteTypeLabel(key) + '</h3><p>' + y.value + '</p>';
+                };
+            },
             filterFunction: function (citydata, aggregation) {
                 if (citydata && citydata[aggregation]) {
                     return citydata[aggregation][0].values;
@@ -99,6 +120,15 @@ angular.module('transitIndicators')
             yFunction: defaultYFunction,
             forceYFunction: defaultForceYFunction,
             filterFunction: defaultFilterFunction,
+            xAxisTickFormatFunction: function () {
+                return function (x) {
+                    var label = getRouteTypeLabel(x);
+                    if (label.length > 6) {
+                        label = label.substr(0, 6) + '...';
+                    }
+                    return label;
+                };
+            },
             colorFunction: function () {
                 return function (data) {
                     return otiDataService.Colors[data.route_type] || defaultColor;
@@ -116,12 +146,7 @@ angular.module('transitIndicators')
                 };
             },
             filterFunction: multiBarFilterFunction,
-            tooltipFunction: function () {
-                return function (key, x, y) {
-                    return '<h3>' + key + '</h3><p>' + y + '</p>';
-                };
-
-            }
+            tooltipFunction: defaultTooltipFunction
         },
         horizontal: {
             xFunctionMode: xFunctionZero,
@@ -134,11 +159,7 @@ angular.module('transitIndicators')
                     return otiDataService.Colors[data.key] || defaultColor;
                 };
             },
-            tooltipFunction: function () {
-                return function (key, x, y) {
-                    return '<h3>' + key + '</h3><p>' + y + '</p>';
-                };
-            }
+            tooltipFunction: defaultTooltipFunction
         }
     };
 
