@@ -49,9 +49,6 @@ class FileDataSource(DataSource):
     source_file = models.FileField()
     status = models.CharField(max_length=16, default=Statuses.PENDING,
                               choices=Statuses.CHOICES)
-    def is_complete(self):
-        """Returns the completion status of a resource as bool"""
-        return self.status == self.Statuses.COMPLETE
 
     class Meta(object):
         abstract = True
