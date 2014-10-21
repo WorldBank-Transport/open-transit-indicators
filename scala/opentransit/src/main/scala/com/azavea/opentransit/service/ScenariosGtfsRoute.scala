@@ -58,7 +58,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
     //Delete stops created through this service, if they exist for this trip
     val stopIds = { tables.stopTimeRecordsTable filter (_.trip_id === tripId) map (_.stop_id) }
     ( tables.stopsTable
-      filter ( stop => stop.id.like(s"${ScenariosJsonProtocol.STOP_PREFIX}-${tripId}%") && stop.id.in(stopIds))
+      filter ( stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%") && stop.id.in(stopIds))
       delete
     )
 
@@ -91,8 +91,8 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
 
 
   /** This seems weird, but scalac will NOT find this implicit with simple import */
-  implicit val tripPatternFormat = ScenariosJsonProtocol.tripTupleFormat
-  implicit val routeFormat = ScenariosJsonProtocol.routeFormat
+  implicit val tripPatternFormat = ScenariosGtfsRouteJsonProtocol.tripTupleFormat
+  implicit val routeFormat = ScenariosGtfsRouteJsonProtocol.routeFormat
   import DefaultJsonProtocol._ // this handles arrays and futures
 
   def scenariosRoute =
@@ -166,7 +166,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
     }
 }
 
-object ScenariosJsonProtocol{
+object ScenariosGtfsRouteJsonProtocol{
   import DefaultJsonProtocol._
 
   /** We use this prefix when to generate stop names when saving from a POST request */
