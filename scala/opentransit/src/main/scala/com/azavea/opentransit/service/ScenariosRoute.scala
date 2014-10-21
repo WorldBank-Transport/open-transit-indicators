@@ -133,7 +133,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
               post {
                 entity(as[TripTuple]) { pattern =>
                   complete {
-                    db withSession { implicit s =>
+                    db withTransaction { implicit s =>
                       val bins = fetchTripBins(routeId)
                       for {
                         bin <- bins.find(_.contains(pattern.trip.id))
@@ -149,7 +149,7 @@ trait ScenariosRoute extends Route with SprayJsonSupport { self: DatabaseInstanc
               /** Delete all traces of the trip */
               delete {
                 complete {
-                  db withSession { implicit s =>
+                  db withTransaction { implicit s =>
                     trip.firstOption
                       .map { _ =>
                       deleteTrip(tripId)
@@ -265,7 +265,7 @@ object ScenariosJsonProtocol{
 
    val tripTupleFormat = new RootJsonFormat[TripTuple] {
     def read(json: JsValue): TripTuple =
-      json.asJsObject.getFields("trip_id", "headsign", "stop_times", "frequencies") match {
+      json.asJsObject.getFields("trip_id", "route_id", "headsign", "stop_times", "frequencies") match {
         case Seq(JsString(tripId), JsString(routeId), headsign, JsArray(stopTimesJson) , JsArray(freqsJson)) =>
           val stopTimes = stopTimesJson map { js => stopTimeFormat.read(js)(tripId) }
           val freqs = freqsJson map { js => frequencyFormat.read(js)(tripId) }
