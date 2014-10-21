@@ -52,10 +52,12 @@ def run_indicator_calculation(indicator_job):
     scenario = indicator_job.scenario
     if scenario:
         sample_periods = [scenario.sample_period]
-        gtfs_db_name = default_db_name
-        aux_db_name = scenario.db_name
+        gtfs_db_name = scenario.db_name
+        aux_db_name = default_db_name
     else:
-        sample_periods = SamplePeriod.objects.exclude(type=SamplePeriod.SamplePeriodTypes.ALLTIME)
+        # No longer exclude the alltime period here.
+        # It is now use by the scala code in order to signal that alltime needs to be calculated.
+        sample_periods = SamplePeriod.objects.all()
         gtfs_db_name = default_db_name
         aux_db_name = default_db_name
 

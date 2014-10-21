@@ -56,7 +56,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
               try {
                 // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
                 val gtfsRecords =
-                  db withSession { implicit session =>
+                  dbByName(request.gtfsDbName) withSession { implicit session =>
                     GtfsRecords.fromDatabase(dbGeomNameUtm)
                   }
 

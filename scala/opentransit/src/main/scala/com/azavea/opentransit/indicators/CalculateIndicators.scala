@@ -29,7 +29,11 @@ object CalculateIndicators {
     */
   def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords, db: DatabaseDef,
     statusManager: CalculationStatusManager): Unit = {
-    val periods = request.samplePeriods
+    // The alltime period needs special handling. If it's requested, process it separately.
+    val periods = request.samplePeriods.filter(_.periodType != "alltime")
+    val calculateAllTime = request.samplePeriods.length != periods.length
+    println(s"""Calculating indicators ${if (calculateAllTime) "with" else "without" } alltime.""")
+
     val builder = TransitSystemBuilder(gtfsRecords)
     val systemsByPeriod =
       periods.map { period =>
@@ -53,7 +57,9 @@ object CalculateIndicators {
       period -> SystemGeometries(systemsByPeriod(period))
     }.toMap
 
-    val overallGeometries: SystemGeometries = SystemGeometries.merge(periodGeometries.values.toSeq)
+    // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
+    lazy val overallGeometries: SystemGeometries =
+      SystemGeometries.merge(periodGeometries.values.toSeq)
 
     for(indicator <- Indicators.list(params)) {
       try {
@@ -64,34 +70,37 @@ object CalculateIndicators {
           val periodResults =
             periods
               .map { period =>
-              val calculation =
-                indicator.calculation(period)
+              val calculation = indicator.calculation(period)
               val transitSystem = systemsByPeriod(period)
               val results = calculation(transitSystem)
               (period, results)
             }
             .toMap
 
-          val overallResults: AggregatedResults = PeriodResultAggregator(periodResults)
-
           val periodIndicatorResults: Seq[ContainerGenerator] =
             periods
               .map { period =>
-              val (results, geometries) = (periodResults(period), periodGeometries(period))
-              PeriodIndicatorResult.createContainerGenerators(indicator.name,
-                period,
-                results,
-                geometries)
+                val (results, geometries) = (periodResults(period), periodGeometries(period))
+                PeriodIndicatorResult.createContainerGenerators(indicator.name,
+                                                                period,
+                                                                results,
+                                                                geometries)
             }
             .toSeq
             .flatten
 
-          val overallIndicatorResults: Seq[ContainerGenerator] =
-            OverallIndicatorResult.createContainerGenerators(indicator.name,
-              overallResults,
-              overallGeometries)
+          if (!calculateAllTime) {
+            statusManager.indicatorFinished(periodIndicatorResults)
+          } else {
+            val overallResults: AggregatedResults = PeriodResultAggregator(periodResults)
+            val overallIndicatorResults: Seq[ContainerGenerator] =
+              OverallIndicatorResult.createContainerGenerators(indicator.name,
+                                                               overallResults,
+                                                               overallGeometries)
 
-          statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
+            statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
+          }
+
           trackStatus(indicator.name, JobStatus.Complete)
         }
       } catch {
@@ -103,9 +112,12 @@ object CalculateIndicators {
       }
     }
 
-    println("Done processing periodic indicators; going to calculate weekly service hours...")
-    timedTask("Processed indicator: hours_service") {
-      WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
-    println("Done processing indicators in CalculateIndicators")
+    // This indicator only needs to be calculated when there's a full set of sample periods
+    if (calculateAllTime) {
+      println("Done processing periodic indicators; going to calculate weekly service hours...")
+      timedTask("Processed indicator: hours_service") {
+        WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
+      println("Done processing indicators in CalculateIndicators")
+    }
   }
 }
