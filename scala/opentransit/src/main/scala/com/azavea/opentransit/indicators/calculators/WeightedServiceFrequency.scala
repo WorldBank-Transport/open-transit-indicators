@@ -73,7 +73,7 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
             .sum
 
       // Return the weighted average
-      freqsForPop / allStopPop / 60 / 60
+      if (allStopPop > 0) freqsForPop / allStopPop / 60 / 60 else 0
     }
 
     perRouteCalculation(map, reduce)

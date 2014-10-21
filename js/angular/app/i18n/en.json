@@ -179,6 +179,7 @@
         "ratio_suburban_lines": "",
         "regularity_headways" : "",
         "service_freq_weighted" : "",
+        "service_freq_weighted_low" : "",
         "stops_route_length" : "",
         "suburban_lines" : "",
         "system_access" : "",
