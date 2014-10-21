@@ -325,7 +325,7 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m'),
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
             FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low income pop within 500m')
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
