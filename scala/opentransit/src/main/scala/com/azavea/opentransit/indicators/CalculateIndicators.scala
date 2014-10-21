@@ -4,8 +4,11 @@ import scala.collection.mutable
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
+import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
+import com.azavea.opentransit.indicators.parameters._
+import com.azavea.opentransit.indicators.WeeklyServiceHours._
 import geotrellis.vector._
 import com.azavea.opentransit.indicators.parameters._
 
@@ -41,8 +44,8 @@ object CalculateIndicators {
       val status = mutable.Map[String, JobStatus]() ++
         Indicators.list(params).map(indicator => (indicator.name, JobStatus.Submitted))
 
-      (indicator: Indicator, newStatus: JobStatus) => {
-        status(indicator.name) = newStatus
+      (indicatorName: String, newStatus: JobStatus) => {
+        status(indicatorName) = newStatus
         statusManager.statusChanged(status.toMap)
       }
     }
@@ -51,49 +54,59 @@ object CalculateIndicators {
       period -> SystemGeometries(systemsByPeriod(period))
     }.toMap
 
-    val overallGeometries: SystemGeometries =
-      SystemGeometries.merge(periodGeometries.values.toSeq)
+    val overallGeometries: SystemGeometries = SystemGeometries.merge(periodGeometries.values.toSeq)
 
     for(indicator <- Indicators.list(params)) {
       try {
-        println(s"Calculating indicator: ${indicator.name}")
-        trackStatus(indicator, JobStatus.Processing)
+      	timedTask(s"Processed indicator: ${indicator.name}") {
+	        println(s"Calculating indicator: ${indicator.name}")
+	        trackStatus(indicator.name, JobStatus.Processing)
 
-        val periodResults =
-          periods
-            .map { period =>
-              val calculation =
-                indicator.calculation(period)
-              val transitSystem = systemsByPeriod(period)
-              val results = calculation(transitSystem)
-              (period, results)
-            }
-            .toMap
+	        val periodResults =
+	          periods
+	            .map { period =>
+	              val calculation =
+	                indicator.calculation(period)
+	              val transitSystem = systemsByPeriod(period)
+	              val results = calculation(transitSystem)
+	              (period, results)
+	            }
+	            .toMap
 
-        val overallResults: AggregatedResults =
-          PeriodResultAggregator(periodResults)
+	        val overallResults: AggregatedResults = PeriodResultAggregator(periodResults)
 
-        val periodIndicatorResults: Seq[ContainerGenerator] =
-          periods
-            .map { period =>
-              val (results, geometries) = (periodResults(period), periodGeometries(period))
-              PeriodIndicatorResult.createContainerGenerators(indicator.name, period, results, geometries)
-            }
-            .toSeq
-            .flatten
+	        val periodIndicatorResults: Seq[ContainerGenerator] =
+	          periods
+	            .map { period =>
+	              val (results, geometries) = (periodResults(period), periodGeometries(period))
+	              PeriodIndicatorResult.createContainerGenerators(indicator.name, 
+                                                                period, 
+                                                                results, 
+                                                                geometries)
+	            }
+	            .toSeq
+	            .flatten
 
-        val overallIndicatorResults: Seq[ContainerGenerator] =
-          OverallIndicatorResult.createContainerGenerators(indicator.name, overallResults, overallGeometries)
+	        val overallIndicatorResults: Seq[ContainerGenerator] =
+	          OverallIndicatorResult.createContainerGenerators(indicator.name, 
+                                                             overallResults, 
+                                                             overallGeometries)
 
-        statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
-        trackStatus(indicator, JobStatus.Complete)
+	        statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
+	        trackStatus(indicator.name, JobStatus.Complete)
+	      }
       } catch {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          trackStatus(indicator, JobStatus.Failed)
+          trackStatus(indicator.name, JobStatus.Failed)
         }
       }
     }
+
+    println("Done processing periodic indicators; going to calculate weekly service hours...")
+    timedTask("Processed indicator: hours_service") { 
+      WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
+    println("Done processing indicators in CalculateIndicators")
   }
 }
