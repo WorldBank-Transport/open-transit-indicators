@@ -332,7 +332,7 @@ class Indicator(models.Model):
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
             KM_PER_AREA = _(u'transit length/km²')
-            LOW_INCOME_POP_PER_STOP = _(u'percent low-income population served by a stop')
+            LOW_INCOME_POP_PER_STOP = _(u'low-income pop served by stop')
             POP_PER_STOP = _(u'percent population served by a stop')
             PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
             STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
