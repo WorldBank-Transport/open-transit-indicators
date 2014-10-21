@@ -325,21 +325,22 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
-            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low income pop within 500m')
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop served')
+            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low-income pop served')
+            SECONDS = _(u'secs')
+            MINUTES = _(u'mins')
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
-            KM_PER_AREA = _(u'km/km²')
-            LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
-            MINUTES = _(u'min')
-            POP_PER_500_METERS = _(u'population within 500m of a stop')
-            STOPS_PER_500_METERS = _(u'stops/500m radius')
-            STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+            KM_PER_AREA = _(u'transit length/km²')
+            LOW_INCOME_POP_PER_STOP = _(u'percent low-income population served by a stop')
+            POP_PER_STOP = _(u'percent population served by a stop')
+            PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
+            STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
-                            AVG_SERVICE_FREQ: Units.HOURS,
-                            COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
+                            AVG_SERVICE_FREQ: Units.MINUTES,
+                            COVERAGE_STOPS: Units.PERCENT_STOP_COVERAGE,
                             DISTANCE_STOPS: Units.KILOMETERS,
                             DWELL_TIME: Units.AVG_DWELL_DEVIATION,
                             HOURS_SERVICE: Units.HOURS,
@@ -350,12 +351,12 @@ class Indicator(models.Model):
                             SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
                             SERVICE_FREQ_WEIGHTED_LOW: Units.FREQ_WEIGHTED_BY_LOW_POP,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
-                            SYSTEM_ACCESS: Units.POP_PER_500_METERS,
-                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
-                            TIME_TRAVELED_STOPS: Units.HOURS,
-                            TRAVEL_TIME: Units.HOURS,
+                            SYSTEM_ACCESS: Units.POP_PER_STOP,
+                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_STOP,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
-                            WEEKDAY_END_FREQ: Units.HOURS
+                            TRAVEL_TIME: Units.MINUTES,
+                            TIME_TRAVELED_STOPS: Units.MINUTES,
+                            WEEKDAY_END_FREQ: Units.MINUTES
         }
 
         # indicators to display on the map

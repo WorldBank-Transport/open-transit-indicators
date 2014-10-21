@@ -51,7 +51,7 @@ object AverageServiceFrequency extends Indicator
           .flatten
           .foldLeft((0.0,0)) { case ((total, count), diff) =>
             (total + diff, count + 1) }
-      if (count > 0) (total / 60 / 60) / count else 0.0
+      if (count > 0) (total / 60) / count else 0.0
     }
     perRouteCalculation(map, reduce)
   }
