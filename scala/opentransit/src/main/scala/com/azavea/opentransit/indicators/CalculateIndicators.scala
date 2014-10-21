@@ -27,8 +27,9 @@ object CalculateIndicators {
     * CalculationStatusManager object. The CalculationStatusManager methods should
     * be thread safe.
     */
-  def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords, db: DatabaseDef,
-    statusManager: CalculationStatusManager): Unit = {
+  def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords,
+    dbByName: String => Database, statusManager: CalculationStatusManager): Unit = {
+
     // The alltime period needs special handling. If it's requested, process it separately.
     val periods = request.samplePeriods.filter(_.periodType != "alltime")
     val calculateAllTime = request.samplePeriods.length != periods.length
@@ -40,7 +41,7 @@ object CalculateIndicators {
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
-    val params = IndicatorParams(request, systemsByPeriod, db)
+    val params = IndicatorParams(request, systemsByPeriod, dbByName)
 
     // Helper for tracking indicator calculation status
     val trackStatus = {

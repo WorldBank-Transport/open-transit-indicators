@@ -54,14 +54,15 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
           complete {
             TaskQueue.execute {
               try {
-                // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
+                // Load GTFS records from the GTFS database.
+                // Load it with UTM projection (column 'geom' in the database).
                 val gtfsRecords =
                   dbByName(request.gtfsDbName) withSession { implicit session =>
                     GtfsRecords.fromDatabase(dbGeomNameUtm)
                   }
 
                 // Perform all indicator calculations, store results and statuses
-                CalculateIndicators(request, gtfsRecords, db, new CalculationStatusManager {
+                CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
                   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
                     val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
                     DjangoClient.postIndicators(request.token, indicatorResultContainers)
