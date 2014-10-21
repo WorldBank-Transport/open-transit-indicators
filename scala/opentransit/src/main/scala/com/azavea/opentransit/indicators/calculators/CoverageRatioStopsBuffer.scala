@@ -22,7 +22,7 @@ class CoverageRatioStopsBuffer(params: Boundaries with StopBuffers)
       val cityBoundary = params.cityBoundary
       val coverage = params.bufferForPeriod(period)
       val systemResult =
-        ((cityBoundary & coverage) match {
+        ((cityBoundary & coverage) match { // & is an infix for intersection
                 case MultiPolygonResult(mp) => mp.area
                 case PolygonResult(p) => p.area
                 case _ => 0.0
