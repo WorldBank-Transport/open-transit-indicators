@@ -86,17 +86,6 @@ angular.module('transitIndicators')
         // the proper legend in the child state
 
         $scope.leaflet.legend = {};
-
-        if (fromState.parent.name === "scenarios") {
-            leafletData.getMap().then(function(map) { // remove layers from the scenario
-                map.eachLayer(function (layer) {      // prototype
-                    if(layer.isScenarioLayer) {
-                        map.removeLayer(layer);
-                    }
-                });
-            });
-        }
-
     });
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
