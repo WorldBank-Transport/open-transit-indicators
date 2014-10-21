@@ -58,7 +58,6 @@ def load_stop_times(real_time, error_factory):
             val = default
         row[key] = val
 
-    line = 0
     imported = 0
     with open(real_time.source_file.path, 'r') as stop_times_file:
         dict_reader = csv.DictReader(stop_times_file)
@@ -82,6 +81,12 @@ def load_stop_times(real_time, error_factory):
                 error_factory.warn(key, errmsg)
 
             if line % BATCH_SIZE == 0:
+                try:
+                    RealStopTime.objects.bulk_create(stop_time_objects)
+                    stop_time_objects = []
+                except Exception:
+                    pass  # stop_time_objects will just fill up and
+                          # get handled below
                 logger.debug('Imported objects %i of %i', imported, line)
 
     try:
