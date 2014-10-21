@@ -59,38 +59,34 @@ def load_stop_times(real_time, error_factory):
         row[key] = val
 
     imported = 0
-    with open(real_time.source_file.path, 'r') as stop_times_file:
-        dict_reader = csv.DictReader(stop_times_file)
-        stop_time_objects = []
-        for line, row in enumerate(dict_reader, start=1):
-            try:
-                # Ensure optionals have proper defaults
-                ensure_row_key(row, 'pickup_type', 0)
-                ensure_row_key(row, 'drop_off_type', 0)
-                ensure_row_key(row, 'shape_dist_traveled')
-
-                stop_time_object = RealStopTime(datasource=real_time, **row)
-                stop_time_object.clean_fields()  # validate
-                stop_time_objects.append(stop_time_object)
-                imported += 1
-            except ValidationError as e:
-                logger.debug('Row %d error: %s', line, e)
-                key = 'Row %i' % line
-                errmsg = ' - '.join([f + ': ' + ' '.join(errs) for
-                                     f, errs in e.message_dict.items()])
-                error_factory.warn(key, errmsg)
-
-            if line % BATCH_SIZE == 0:
+    try:
+        with open(real_time.source_file.path, 'r') as stop_times_file:
+            dict_reader = csv.DictReader(stop_times_file)
+            stop_time_objects = []
+            for line, row in enumerate(dict_reader, start=1):
                 try:
+                    # Ensure optionals have proper defaults
+                    ensure_row_key(row, 'pickup_type', 0)
+                    ensure_row_key(row, 'drop_off_type', 0)
+                    ensure_row_key(row, 'shape_dist_traveled')
+
+                    stop_time_object = RealStopTime(datasource=real_time, **row)
+                    stop_time_object.clean_fields()  # validate
+                    stop_time_objects.append(stop_time_object)
+                    imported += 1
+                except ValidationError as e:
+                    logger.debug('Row %d error: %s', line, e)
+                    key = 'Row %i' % line
+                    errmsg = ' - '.join([f + ': ' + ' '.join(errs) for
+                                         f, errs in e.message_dict.items()])
+                    error_factory.warn(key, errmsg)
+
+                if line % BATCH_SIZE == 0:
                     RealStopTime.objects.bulk_create(stop_time_objects)
                     stop_time_objects = []
-                except Exception:
-                    pass  # stop_time_objects will just fill up and
-                          # get handled below
-                logger.debug('Imported objects %i of %i', imported, line)
+                    logger.debug('Imported objects %i of %i', imported, line)
 
-    try:
-        RealStopTime.objects.bulk_create(stop_time_objects)
+            RealStopTime.objects.bulk_create(stop_time_objects)
     except Exception as e:
         error_factory.error('Import failed', e.message)
         imported = 0
