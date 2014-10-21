@@ -52,6 +52,28 @@ angular.module('transitIndicators')
         7: '#3288bd'
     };
 
+    var multiBarFilterFunction = function (citydata, aggregation) {
+        if (!(citydata && citydata[aggregation])) {
+            return null;
+        }
+        var tempdata = {};
+        _.each(citydata[aggregation][0].values, function (value) {
+            if (!tempdata[value.route_type]) {
+                tempdata[value.route_type] = [];
+            }
+            tempdata[value.route_type].push(_.extend({}, value));
+        });
+
+        var transformed = [];
+        _.each(tempdata, function (value, key) {
+            transformed.push({
+                key: key,
+                values: value
+            });
+        });
+        return transformed;
+    };
+
     // Chart configuration
     otiDataService.Charts = {
         pie: {
@@ -93,36 +115,32 @@ angular.module('transitIndicators')
                     return otiDataService.Colors[data.key] || defaultColor;
                 };
             },
-            filterFunction: function (citydata, aggregation) {
-                if (!(citydata && citydata[aggregation])) {
-                    return null;
-                }
-                var tempdata = {};
-                _.each(citydata[aggregation][0].values, function (value) {
-                    if (!tempdata[value.route_type]) {
-                        tempdata[value.route_type] = [];
-                    }
-                    tempdata[value.route_type].push(_.extend({}, value));
-                });
-
-                var transformed = [];
-                _.each(tempdata, function (value, key) {
-                    transformed.push({
-                        key: key,
-                        values: value
-                    });
-                });
-                return transformed;
-            },
+            filterFunction: multiBarFilterFunction,
             tooltipFunction: function () {
                 return function (key, x, y) {
                     return '<h3>' + key + '</h3><p>' + y + '</p>';
                 };
 
             }
+        },
+        horizontal: {
+            xFunctionMode: xFunctionZero,
+            xFunctionRoute: xFunctionZero,
+            yFunction: defaultYFunction,
+            forceYFunction: defaultForceYFunction,
+            filterFunction: multiBarFilterFunction,
+            colorFunction: function () {
+                return function (data) {
+                    return otiDataService.Colors[data.key] || defaultColor;
+                };
+            },
+            tooltipFunction: function () {
+                return function (key, x, y) {
+                    return '<h3>' + key + '</h3><p>' + y + '</p>';
+                };
+            }
         }
     };
-
 
     otiDataService.IndicatorConfig = {
         'affordability': {
@@ -149,7 +167,7 @@ angular.module('transitIndicators')
             'system': 'number'
         },
         'length': {
-            'mode': 'stacked',
+            'mode': 'horizontal',
             'system': 'number'
         },
         'line_network_density': {
