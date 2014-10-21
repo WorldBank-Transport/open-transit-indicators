@@ -325,7 +325,8 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m'),
+            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low income pop within 500m')
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
             KM_PER_AREA = _(u'km/km²')
@@ -347,6 +348,7 @@ class Indicator(models.Model):
                             ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
                             REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
                             SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
+                            SERVICE_FREQ_WEIGHTED_LOW: Units.FREQ_WEIGHTED_BY_LOW_POP,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
                             SYSTEM_ACCESS: Units.POP_PER_500_METERS,
                             SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
@@ -391,6 +393,7 @@ class Indicator(models.Model):
             (ON_TIME_PERF, _(u'On-Time Performance')),
             (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
             (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (SERVICE_FREQ_WEIGHTED_LOW, _(u'Service frequency weighted by served low-income population')),
             (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
             (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
             (SYSTEM_ACCESS, _(u'System accessibility')),
