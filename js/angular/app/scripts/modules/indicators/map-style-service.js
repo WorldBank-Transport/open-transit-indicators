@@ -41,7 +41,10 @@ angular.module('transitIndicators')
      */
     // TODO: Return color ramps depending on indicator type
     otiMapStyleService.getColorRampForIndicator = function (indicatorType) {
-        return ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'];
+        // All blue color ramp, light to dark
+        //return ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'];
+        // Divergent color ramp, similar to the one used for route types
+        return ['#d7191c', '#fdae61', '#ffffbf', '#abdda4', '#2b83ba'];
     };
 
     otiMapStyleService.routeTypeColorRamp = function () {
