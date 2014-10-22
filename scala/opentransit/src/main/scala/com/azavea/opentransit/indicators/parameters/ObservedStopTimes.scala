@@ -17,8 +17,6 @@ import grizzled.slf4j.Logging
  * Trait used to populate parameters with data from 'real time' GTFS
   */
 trait ObservedStopTimes {
-  // real-time data corresponding to scheduled trip
-  def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip
   // Map of Trip IDs to Sequence of tuples of (scheduled, observed)
   def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]]
 }
@@ -73,20 +71,11 @@ object ObservedStopTimes {
 
     if (hasObserved) {
       new ObservedStopTimes {
-        def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-          observedTrips(period)(scheduledTripId)
-
         def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
           observedPeriodTrips(period)
       }
     } else {
       new ObservedStopTimes {
-        def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-            scheduledSystems(period)
-              .routes
-              .flatMap(_.trips)
-              .head
-
         def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
           Map()
       }
