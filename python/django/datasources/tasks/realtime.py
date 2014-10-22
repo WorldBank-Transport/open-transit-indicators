@@ -9,6 +9,7 @@ from celery.utils.log import get_task_logger
 
 from django.conf import settings
 from django.db import connection, transaction
+from django.core.exceptions import ValidationError
 
 from datasources.models import RealTime, RealTimeProblem
 from datasources.tasks.shapefile import ErrorFactory
@@ -57,34 +58,38 @@ def load_stop_times(real_time, error_factory):
             val = default
         row[key] = val
 
-    line = 0
     imported = 0
-    with open(real_time.source_file.path, 'r') as stop_times_file:
-        dict_reader = csv.DictReader(stop_times_file)
-        stop_time_objects = []
-        for row in dict_reader:
-            try:
-                # Ensure optionals have proper defaults
-                ensure_row_key(row, 'pickup_type', 0)
-                ensure_row_key(row, 'drop_off_type', 0)
-                ensure_row_key(row, 'shape_dist_traveled')
+    try:
+        with open(real_time.source_file.path, 'r') as stop_times_file:
+            dict_reader = csv.DictReader(stop_times_file)
+            stop_time_objects = []
+            for line, row in enumerate(dict_reader, start=1):
+                try:
+                    # Ensure optionals have proper defaults
+                    ensure_row_key(row, 'pickup_type', 0)
+                    ensure_row_key(row, 'drop_off_type', 0)
+                    ensure_row_key(row, 'shape_dist_traveled')
 
-                real_stop_time = RealStopTime(datasource=real_time, **row)
-                # TODO: Speed up with bulk_create?
-                #       5 mb file takes ~4 min
-                #       Would require more strict error checking of params because
-                #       a single insert failure in a bulk_create cancels all inserts
-                real_stop_time.save()
-                imported += 1
-            except Exception as e:
-                logger.debug('Row %d error: %s', line, e.message)
-                key = 'Row %i' % line
-                error_factory.warn(key, e.message)
+                    stop_time_object = RealStopTime(datasource=real_time, **row)
+                    stop_time_object.clean_fields()  # validate
+                    stop_time_objects.append(stop_time_object)
+                    imported += 1
+                except ValidationError as e:
+                    logger.debug('Row %d error: %s', line, e)
+                    key = 'Row %i' % line
+                    errmsg = ' - '.join([f + ': ' + ' '.join(errs) for
+                                         f, errs in e.message_dict.items()])
+                    error_factory.warn(key, errmsg)
 
-            line += 1
+                if line % BATCH_SIZE == 0:
+                    RealStopTime.objects.bulk_create(stop_time_objects)
+                    stop_time_objects = []
+                    logger.debug('Imported objects %i of %i', imported, line)
 
-            if line % BATCH_SIZE == 0:
-                logger.debug('Imported objects %i of %i', imported, line)
+            RealStopTime.objects.bulk_create(stop_time_objects)
+    except Exception as e:
+        error_factory.error('Import failed', e.message)
+        imported = 0
 
     if imported > 0:
         # Delete all other stop times not of this import
