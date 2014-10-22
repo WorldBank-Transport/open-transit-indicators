@@ -27,7 +27,7 @@ class CoverageRatioStopsBuffer(params: Boundaries with StopBuffers)
                 case PolygonResult(p) => p.area
                 case _ => 0.0
         }) / cityBoundary.area
-      AggregatedResults.systemOnly(systemResult * 100)
+      AggregatedResults.systemOnly(systemResult * 100) // *100 for percent
     }
 
     perSystemCalculation(calculate)

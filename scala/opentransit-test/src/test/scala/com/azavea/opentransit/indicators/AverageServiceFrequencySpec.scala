@@ -14,6 +14,6 @@ class AdHocAverageServiceFrequencySpec extends AdHocSystemIndicatorSpec {
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(systemSunday)
     implicit val routeMap = byRoute // Use this implicit to DRY out your tests
 
-    routeById("EastWest") should be (0.5)
+    routeById("EastWest") should be (30) // 30 minutes
   }
 }
