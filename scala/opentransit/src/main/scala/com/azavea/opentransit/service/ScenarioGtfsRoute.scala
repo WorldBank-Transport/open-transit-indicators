@@ -35,12 +35,14 @@ trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
   def scenarioGtfsRoute(scenarioDB: Database) =
     pathPrefix("routes") {
       pathEnd {
-        complete { future {
-          scenarioDB withSession { implicit s =>
-            val routes: List[RouteRecord] = tables.routeRecordsTable.list
-            routes
-          }
-        } }
+        get {
+          complete { future {
+            scenarioDB withSession { implicit s =>
+              val routes: List[RouteRecord] = tables.routeRecordsTable.list
+              routes
+            }
+          }}
+        }
       } ~
       pathPrefix(Segment) { routeId =>
         pathPrefix("trips") { tripEndpoint(scenarioDB, routeId) }
