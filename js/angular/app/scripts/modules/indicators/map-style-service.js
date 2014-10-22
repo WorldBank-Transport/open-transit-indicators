@@ -5,6 +5,18 @@ angular.module('transitIndicators')
         [
         function () {
 
+    var defaultColor = '#ffffbf';
+    var gtfsRouteTypeColorRamp = [
+        '#a6cee3',
+        '#1f78b4',
+        '#b2df8a',
+        '#33a02c',
+        '#fb9a99',
+        '#e31a1c',
+        '#fdbf6f',
+        '#ff7f00'
+    ];
+
     var otiMapStyleService = {};
 
     // Helper function to create labels for a given indicator color ramp
@@ -31,6 +43,12 @@ angular.module('transitIndicators')
     otiMapStyleService.getColorRampForIndicator = function (indicatorType) {
         return ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'];
     };
+
+    otiMapStyleService.routeTypeColorRamp = function () {
+        return gtfsRouteTypeColorRamp;
+    };
+
+    otiMapStyleService.defaultColor = defaultColor;
 
     /**
      * Return a leaflet legend object customized for the passed indicator type and data

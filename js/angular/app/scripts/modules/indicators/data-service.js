@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsDataService',
-        ['OTIIndicatorsService',
-        function (OTIIndicatorsService) {
+        ['OTIIndicatorsService', 'OTIMapStyleService',
+        function (OTIIndicatorsService, OTIMapStyleService) {
 
     var routeTypes = {};
     OTIIndicatorsService.getRouteTypes().then(function (data) {
@@ -21,6 +21,9 @@ angular.module('transitIndicators')
         return label;
 
     };
+
+    var routeTypeColorRamp = OTIMapStyleService.routeTypeColorRamp();
+    var defaultColor = OTIMapStyleService.defaultColor;
 
     var otiDataService = {};
 
@@ -55,18 +58,6 @@ angular.module('transitIndicators')
     };
     var defaultForceYFunction = function (data, type, aggregation) {
         return Math.ceil(data[type][aggregation].max);
-    };
-
-    var defaultColor = '#ffffbf';
-    otiDataService.Colors = {
-        0: '#f46d43',
-        1: '#d53e4f',
-        2: '#fdae61',
-        3: '#fee08b',
-        4: '#e6f598',
-        5: '#abdda4',
-        6: '#66c2a5',
-        7: '#3288bd'
     };
 
     var multiBarFilterFunction = function (citydata, aggregation) {
@@ -110,7 +101,7 @@ angular.module('transitIndicators')
             },
             colorFunction: function () {
                 return function (data) {
-                    return otiDataService.Colors[data.data.route_type] || defaultColor;
+                    return routeTypeColorRamp[data.data.route_type] || defaultColor;
                 };
             }
         },
@@ -131,7 +122,7 @@ angular.module('transitIndicators')
             },
             colorFunction: function () {
                 return function (data) {
-                    return otiDataService.Colors[data.route_type] || defaultColor;
+                    return routeTypeColorRamp[data.route_type] || defaultColor;
                 };
             }
         },
@@ -142,7 +133,7 @@ angular.module('transitIndicators')
             forceYFunction: defaultForceYFunction,
             colorFunction: function () {
                 return function (data) {
-                    return otiDataService.Colors[data.key] || defaultColor;
+                    return routeTypeColorRamp[data.key] || defaultColor;
                 };
             },
             filterFunction: multiBarFilterFunction,
@@ -156,7 +147,7 @@ angular.module('transitIndicators')
             filterFunction: multiBarFilterFunction,
             colorFunction: function () {
                 return function (data) {
-                    return otiDataService.Colors[data.key] || defaultColor;
+                    return routeTypeColorRamp[data.key] || defaultColor;
                 };
             },
             tooltipFunction: defaultTooltipFunction
