@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
+            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
 
     var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
         version: 0,
@@ -43,7 +43,7 @@ angular.module('transitIndicators')
     var updateLegend = function () {
         OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
             var legend = {
-                colors: config.gtfsRouteTypeColors,
+                colors: OTIMapStyleService.routeTypeColorRamp(),
                 labels: labels
             };
             $rootScope.cache.transitLegend = legend;

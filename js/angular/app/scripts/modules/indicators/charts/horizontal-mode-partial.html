@@ -1,0 +1,12 @@
+<nvd3-multi-bar-horizontal-chart
+    data="chartData[type][cityname]"
+    id="{{ type }}-{{ $index }}-mode-stacked-chart"
+    height="170"
+    showYAxis="true"
+    x="charts.horizontal.xFunctionMode()"
+    y="charts.horizontal.yFunction()"
+    tooltips="true"
+    tooltipcontent="charts.horizontal.tooltipFunction()"
+    color="charts.horizontal.colorFunction()"
+    forcey="[0, {{ charts.horizontal.forceYFunction(indicatorData, type, 'mode') }}]">
+</nvd3-multi-bar-horizontal-chart>

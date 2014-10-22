@@ -89,7 +89,6 @@ angular.module('transitIndicators')
     });
 
     $scope.$on(OTIEvents.Indicators.CitiesUpdated, function () {
-        cache = {};
         getIndicatorData();
     });
 
