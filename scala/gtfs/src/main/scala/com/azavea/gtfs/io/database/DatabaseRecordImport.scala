@@ -14,7 +14,9 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
   import profile.simple._
 
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {
-    table.forceInsertAll(records:_*)
+    session.withTransaction {
+      table.forceInsertAll(records:_*)
+    }
   }
 
   private def deleteAll(): Unit = {
@@ -39,7 +41,6 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
     }
 
     timedTask("loaded agencies") { load(records.agencies, agenciesTable) }
-    timedTask("loaded stops") { load(records.stops, stopsTable) }
     timedTask("loaded calendar dates") {
       load(records.calendarDateRecords, calendarDateRecordsTable)
     }
@@ -51,5 +52,6 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
     }
     timedTask("loaded frequencies") { load(records.frequencyRecords, frequencyRecordsTable) }
     timedTask("loaded trip shapes") { load(records.tripShapes, tripShapesTable) }
+    timedTask("loaded stops") { load(records.stops, stopsTable) }
   }
 }
