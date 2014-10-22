@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width">
     <meta charset="utf-8">      <!-- required by d3.js -->
     <link rel="stylesheet" href="bower_components/angular/angular-csp.css" />
+    <link rel="stylesheet" href="bower_components/pace/themes/blue/pace-theme-minimal.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -26,6 +27,7 @@
     <link rel="stylesheet" href="scripts/prototype/leaflet.draw.css" />
   </head>
   <body ng-app="transitIndicators">
+    <paceprogress ng-non-bindable></paceprogress>
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -75,6 +77,7 @@
     <script src="bower_components/nvd3/nv.d3.js"></script>
     <script src="bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
     <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <script src="bower_components/pace/pace.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
     <script type="text/javascript" src="scripts/prototype/leaflet.draw.js"></script>
