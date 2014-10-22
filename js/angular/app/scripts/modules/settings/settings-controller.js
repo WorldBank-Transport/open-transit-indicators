@@ -25,7 +25,6 @@ angular.module('transitIndicators')
 
 
     $scope.init = function() {
-        console.log('settingsController.init()');
         /**
          * FIXME: Use of these functions is not fully utilized.
                   Due to time constraints, switched tasks before fixing.
@@ -45,7 +44,7 @@ angular.module('transitIndicators')
         // GTFS
         $scope.gtfsData = gtfsData.$promise.then(function(response) {
             var validGtfs = _.filter(response, function(upload) {
-                return upload.is_processed && upload.is_valid;
+                return upload.status == 'complete';
             });
             $scope.checkmarks['upload'] = validGtfs.length > 0;
             return response[0];
@@ -68,15 +67,15 @@ angular.module('transitIndicators')
 
         // REALTIME
         $scope.realtimeData = realtimeData.$promise.then(function(response){
-            var validRealtime = _.filter(response[2], function(upload) {
-                return upload.is_processed && upload.is_valid;
+            var validRealtime = _.filter(response, function(upload) {
+                return upload.status == 'complete';
             });
             $scope.checkmarks['realtime'] = validRealtime.length > 0;
             return response[0];
         });
 
         // BOUNDARY
-        $scope.configData = boundaryData.$promise.then(function(response) {
+        $scope.configData = configData.$promise.then(function(response) {
             var cityId = response[0].city_boundary;
             var regId = response[0].region_boundary;
             $scope.checkmarks['boundary'] = typeof(cityId) === "number" && typeof(regId) === "number";
