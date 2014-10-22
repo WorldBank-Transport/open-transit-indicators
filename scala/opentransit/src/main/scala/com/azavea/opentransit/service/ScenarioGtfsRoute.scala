@@ -2,7 +2,7 @@ package com.azavea.opentransit.service
 
 import com.azavea.gtfs.io.database.{DatabaseRecordImport, DefaultProfile, GtfsTables}
 import com.azavea.gtfs._
-import com.azavea.opentransit.DatabaseInstance
+import com.azavea.opentransit.{TaskQueue, DatabaseInstance}
 import com.sun.xml.internal.ws.encoding.soap.DeserializationException
 import geotrellis.slick.Projected
 import geotrellis.vector.{Line, Point}
@@ -35,16 +35,45 @@ trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
   def scenarioGtfsRoute(scenarioDB: Database) =
     pathPrefix("routes") {
       pathEnd {
-        get {
+        get { /** Get route list */
           complete { future {
             scenarioDB withSession { implicit s =>
               val routes: List[RouteRecord] = tables.routeRecordsTable.list
               routes
             }
           }}
+        } ~
+        post { /** Insert new Route Record */
+          entity(as[RouteRecord]) { route =>
+            complete {
+              future {
+                scenarioDB withTransaction { implicit s =>
+                  tables.routeRecordsTable.insert(route)
+                }
+                StatusCodes.Created
+              }
+            }
+          }
         }
       } ~
       pathPrefix(Segment) { routeId =>
+        pathEnd {
+          get { /** Get single RouteRecord */
+            complete { future {
+              scenarioDB withSession { implicit s =>
+                tables.routeRecordsTable.filter(_.id === routeId).firstOption
+              }
+            }}
+          } ~
+          delete { /** Delete RouteRecord and all it's trips */
+            complete { future {
+              scenarioDB withTransaction { implicit s =>
+                deleteRoute(routeId)
+              }
+              StatusCodes.OK
+            }}
+          }
+        } ~
         pathPrefix("trips") { tripEndpoint(scenarioDB, routeId) }
       }
     }
@@ -65,8 +94,7 @@ trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
     pathPrefix(Segment) { tripId =>
       val trip = tables.tripRecordsTable.filter(trip => trip.id === tripId && trip.route_id === routeId)
 
-      /** Fetch specific trip by id */
-      get {
+      get { /** Fetch specific trip by id */
         complete {
           future {
             db withSession { implicit s =>
@@ -75,18 +103,16 @@ trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
           }
         }
       } ~
-      /** Accept a trip pattern, use it as a basis for creating new TripRecord, StopTimesRecords and Stops. */
-      post {
+      post { /** Accept a trip pattern, use it as a basis for creating new TripRecord, StopTimesRecords and Stops. */
         entity(as[TripTuple]) { pattern =>
           complete {
-            future {
+            TaskQueue.execute {
               db withTransaction { implicit s =>
                 val bins = fetchTripBins(routeId)
                 for {
                   bin <- bins.find(_.contains(pattern.trip.id))
                   tripId <- bin // delete all trips that are in the same bin as our parameter
                 } deleteTrip(tripId)
-
                 saveTripPattern(pattern)
                 StatusCodes.Created
               }
@@ -94,8 +120,7 @@ trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
           }
         }
       } ~
-      /** Delete all traces of the trip */
-      delete {
+      delete { /** Delete all traces of the single named trip */
         complete {
           future {
             db withTransaction { implicit s =>
@@ -150,12 +175,11 @@ object ScenarioGtfsRoute {
 
   private def deleteTrip(tripId: String)(implicit s: Session): Unit = {
     //Delete stops created through this service, if they exist for this trip
-    val stopIds = { tables.stopTimeRecordsTable filter (_.trip_id === tripId) map (_.stop_id) }
+    //val stopIds = { tables.stopTimeRecordsTable filter (_.trip_id === tripId) map (_.stop_id) }
     ( tables.stopsTable
-      filter ( stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%") && stop.id.in(stopIds))
+      filter ( stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%"))
       delete
     )
-
     tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
     tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
     tables.tripRecordsTable.filter(_.id === tripId).delete
@@ -164,10 +188,11 @@ object ScenarioGtfsRoute {
 
   private def saveTripPattern(pattern: TripTuple)(implicit s: Session): Unit = {
     tables.tripRecordsTable.insert(pattern.trip)
-    pattern.shape map { tables.tripShapesTable.insert }
     tables.frequencyRecordsTable.insertAll(pattern.frequencies:_*)
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
+    pattern.stopTimes.map{_._2}.foreach(println)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
+    pattern.shape map { tables.tripShapesTable.insert }
   }
 
   private def buildTripPattern(trip: TripRecord)(implicit s: Session): TripTuple = {
@@ -186,6 +211,12 @@ object ScenarioGtfsRoute {
     } yield shape
 
     TripTuple(trip, stops, frequencies, shape)
+  }
+
+  private def deleteRoute(routeId: RouteId)(implicit s: Session): Unit = {
+    val tripIds = tables.tripRecordsTable.filter(_.route_id === routeId).map(_.id).list
+    tripIds foreach {deleteTrip}
+    tables.routeRecordsTable.filter(_.id === routeId).delete
   }
 }
 
