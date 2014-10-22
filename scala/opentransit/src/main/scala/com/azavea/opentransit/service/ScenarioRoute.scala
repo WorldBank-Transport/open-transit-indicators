@@ -48,7 +48,7 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: D
       }
     } ~
     pathPrefix(Segment)  { scenarioId =>
-      if (scenarioId == "postgres")
+      if (scenarioId == "transit_indicators")
         complete(StatusCodes.InternalServerError -> "This database is not for you")
       else {
         val scenarioDB = dbByName(scenarioId)
