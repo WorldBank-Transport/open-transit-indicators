@@ -10,7 +10,6 @@ angular.module('transitIndicators')
             warnings: [],
             errors: []
         };
-        $scope.setSidebarCheckmark('realtime', false);
     };
 
     var setUpload = function (upload) {
