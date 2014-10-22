@@ -175,7 +175,6 @@ object ScenarioGtfsRoute {
 
   private def deleteTrip(tripId: String)(implicit s: Session): Unit = {
     //Delete stops created through this service, if they exist for this trip
-    //val stopIds = { tables.stopTimeRecordsTable filter (_.trip_id === tripId) map (_.stop_id) }
     ( tables.stopsTable
       filter ( stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%"))
       delete
