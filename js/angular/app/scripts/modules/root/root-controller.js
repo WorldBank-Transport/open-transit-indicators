@@ -1,8 +1,16 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
-            function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
+            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
+
+    var invalidateMapDiv = function () {
+        leafletData.getMap().then(function (map) {
+            $timeout(function () {
+                map.invalidateSize();
+            });
+        });
+    };
 
     var mapStates = ['map', 'transit', 'scenarios'];
     // Add all scenario views to map states
@@ -91,6 +99,13 @@ angular.module('transitIndicators')
     $scope.$on('$stateChangeSuccess', function (event, toState) {
 
         $scope.mapActive = _.find(mapStates, function (state) { return state === toState.name; }) ? true : false;
+        if ($scope.mapActive) {
+            // When we go to the map we want to update the map div. It changes height based on which
+            //  view we were last viewing.
+            invalidateMapDiv();
+            zoomToDataExtent();
+        }
+
         $scope.mapClassNav2 = false;
 
         var activeState = toState.name;
@@ -106,5 +121,4 @@ angular.module('transitIndicators')
     });
 
     $scope.init();
-
 }]);
