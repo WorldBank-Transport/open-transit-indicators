@@ -183,14 +183,13 @@ object ScenarioGtfsRoute {
     tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
     tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
     tables.tripRecordsTable.filter(_.id === tripId).delete
-    tables.tripShapesTable.filter(_.id === "${STOP_PREFIX}-${tripId}").delete
+    tables.tripShapesTable.filter(_.id === s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}").delete
   }
 
   private def saveTripPattern(pattern: TripTuple)(implicit s: Session): Unit = {
     tables.tripRecordsTable.insert(pattern.trip)
     tables.frequencyRecordsTable.insertAll(pattern.frequencies:_*)
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
-    pattern.stopTimes.map{_._2}.foreach(println)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
     pattern.shape map { tables.tripShapesTable.insert }
   }
@@ -325,7 +324,7 @@ object ScenariosGtfsRouteJsonProtocol extends GeoJsonSupport with DefaultJsonPro
       }
 
     def read(json: JsValue)(tripId: String): Option[TripShape] = json match {
-      case _: JsObject => Some(TripShape("${STOP_PREFIX}-${tripId}", Projected(json.convertTo[Line], 4326)))
+      case _: JsObject => Some(TripShape(s"${STOP_PREFIX}-${tripId}", Projected(json.convertTo[Line], 4326)))
       case JsNull => None
       case _ => throw new DeserializationException("Shape line expected")
     }
@@ -337,8 +336,8 @@ object ScenariosGtfsRouteJsonProtocol extends GeoJsonSupport with DefaultJsonPro
         case Seq(JsString(tripId), JsString(routeId), headsign, JsArray(stopTimesJson) , JsArray(freqsJson), shapeJson) =>
           val stopTimes = stopTimesJson map { js => stopTimeFormat.read(js)(tripId) }
           val freqs = freqsJson map { js => frequencyFormat.read(js)(tripId) }
-          val trip = TripRecord(tripId, TRIP_SERVICE_ID, routeId, headsign.convertTo[Option[String]])
           val shape = shapeFormat.read(shapeJson)(tripId)
+          val trip = TripRecord(tripId, TRIP_SERVICE_ID, routeId, headsign.convertTo[Option[String]], shape.map(_.id))
           TripTuple(trip, stopTimes, freqs, shape)
         case _ =>  throw new DeserializationException("TripTuple expected")
       }
