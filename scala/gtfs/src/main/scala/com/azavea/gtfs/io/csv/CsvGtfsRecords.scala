@@ -49,9 +49,6 @@ class CsvGtfsRecords(dir: String) extends GtfsRecords {
   def agencies: Seq[Agency] =
     parse(AgencyFile)
 
-  def stops: Seq[Stop] =
-    parse(StopsFile)
-
   def routeRecords: Seq[RouteRecord] = 
     parse(RoutesFile)
 
@@ -72,4 +69,7 @@ class CsvGtfsRecords(dir: String) extends GtfsRecords {
 
   def frequencyRecords: Seq[FrequencyRecord] = 
     parse(FrequenciesFile)
+
+  def stops: Seq[Stop] =
+    parse(StopsFile)
 }
