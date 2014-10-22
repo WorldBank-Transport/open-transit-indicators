@@ -71,12 +71,12 @@ object CalculateIndicators {
           val periodResults =
             periods
               .map { period =>
-              val calculation = indicator.calculation(period)
-              val transitSystem = systemsByPeriod(period)
-              val results = calculation(transitSystem)
-              (period, results)
-            }
-            .toMap
+                val calculation = indicator.calculation(period)
+                val transitSystem = systemsByPeriod(period)
+                val results = calculation(transitSystem)
+                (period, results)
+              }
+              .toMap
 
           val periodIndicatorResults: Seq[ContainerGenerator] =
             periods
