@@ -29,7 +29,6 @@ object CalculateIndicators {
     */
   def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords, db: DatabaseDef,
     statusManager: CalculationStatusManager): Unit = {
-
     val periods = request.samplePeriods
     val builder = TransitSystemBuilder(gtfsRecords)
     val systemsByPeriod =

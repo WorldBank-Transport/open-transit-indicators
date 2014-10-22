@@ -22,6 +22,6 @@ class CoverageRatioStopsBufferSpec
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.isDefined should be (true)
     // The value calculated manually in QGIS is ~0.09060, which is pretty close.
-    bySystem.value should be (0.09364 +- 1e-5)
+    bySystem.value should be (9.36412 +- 1e-5)
   }
 }

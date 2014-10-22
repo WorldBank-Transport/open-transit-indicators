@@ -65,8 +65,8 @@ class TravelTimePerformance(params: ObservedStopTimes)
           .foldLeft((0.0, 0)) { case ((total, count), diff) =>
             (total + diff, count + 1) // fold for the following average operation
           }
-      if (count > 0) (total / count) / 60 else 0.0
-    }
+      if (count > 0) (total / count) / 60 else 0.0 // div60 for minutes
+     }
     perTripCalculation(map, reduce)
   }
 
