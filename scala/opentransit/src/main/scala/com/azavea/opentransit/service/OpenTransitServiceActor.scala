@@ -16,8 +16,8 @@ class OpenTransitServiceActor extends Actor
                                  with HttpService
                                  with IngestRoute
                                  with IndicatorsRoute
-                                 with ScenariosRoute
-                                 with ScenariosGtfsRoute
+                                 with ScenarioRoute
+                                 with ScenarioGtfsRoute
                                  with MapInfoRoute
                                  with ServiceDateRangeRoute
                                  with ProductionDatabaseInstance {
@@ -33,8 +33,9 @@ class OpenTransitServiceActor extends Actor
     pathPrefix("gt") {
       ingestRoute ~
       indicatorsRoute ~
-      scenariosRoute ~
-      scenarioGtfsRoute ~
+      pathPrefix("scenarios") {
+        scenariosRoute
+      } ~
       mapInfoRoute ~
       serviceDateRangeRoute
     }

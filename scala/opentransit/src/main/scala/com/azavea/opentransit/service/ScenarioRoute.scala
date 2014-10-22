@@ -25,16 +25,17 @@ case class Scenario(
   jobStatus: JobStatus
 )
 
-trait ScenariosRoute extends Route with Logging { self: DatabaseInstance =>
+trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: DatabaseInstance =>
   // Endpoint for creating a new scenario
   def scenariosRoute = {
-    path("scenarios") {
+    /** Create Scenario DB and prepare it's transactions */
+    pathEnd {
       post {
         entity(as[ScenarioCreationRequest]) { request =>
           complete {
             TaskQueue.execute {
               CreateScenario(request, dbByName)
-            }.onComplete{
+            }.onComplete {
               case Success(_) =>
                 DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
               case Failure(ex) =>
@@ -44,6 +45,14 @@ trait ScenariosRoute extends Route with Logging { self: DatabaseInstance =>
             StatusCodes.Accepted -> successMessage("Scenario creation started.")
           }
         }
+      }
+    } ~
+    pathPrefix(Segment)  { scenarioId =>
+      if (scenarioId == "postgres")
+        complete(StatusCodes.InternalServerError -> "This database is not for you")
+      else {
+        val scenarioDB = dbByName(scenarioId)
+        scenarioGtfsRoute(scenarioDB)
       }
     }
   }

@@ -23,8 +23,94 @@ case class TripTuple(trip: TripRecord,
                      shape: Option[TripShape])
 
 
-trait ScenariosGtfsRoute extends Route with SprayJsonSupport { self: DatabaseInstance =>
+trait ScenarioGtfsRoute extends Route with SprayJsonSupport {
+  import ScenarioGtfsRoute._
+  import tables.profile.simple._
 
+  /** This seems weird, but scalac will NOT find this implicit with simple import */
+  implicit val tripPatternFormat = ScenariosGtfsRouteJsonProtocol.tripTupleFormat
+  implicit val routeFormat = ScenariosGtfsRouteJsonProtocol.routeFormat
+  import DefaultJsonProtocol._ // this handles arrays and futures
+
+  def scenarioGtfsRoute(scenarioDB: Database) =
+    pathPrefix("routes") {
+      pathEnd {
+        complete { future {
+          scenarioDB withSession { implicit s =>
+            val routes: List[RouteRecord] = tables.routeRecordsTable.list
+            routes
+          }
+        } }
+      } ~
+      pathPrefix(Segment) { routeId =>
+        pathPrefix("trips") { tripEndpoint(scenarioDB, routeId) }
+      }
+    }
+
+  def tripEndpoint(db: Database, routeId: RouteId) = 
+    pathEnd {
+      /** List all trip_ids in the route and bin them by their path */
+      get {
+        complete {
+          future {
+            db withSession { implicit s =>
+              fetchTripBins(routeId)
+            }
+          }
+        }
+      }
+    } ~
+    pathPrefix(Segment) { tripId =>
+      val trip = tables.tripRecordsTable.filter(trip => trip.id === tripId && trip.route_id === routeId)
+
+      /** Fetch specific trip by id */
+      get {
+        complete {
+          future {
+            db withSession { implicit s =>
+              trip.firstOption.map(buildTripPattern)
+            }
+          }
+        }
+      } ~
+      /** Accept a trip pattern, use it as a basis for creating new TripRecord, StopTimesRecords and Stops. */
+      post {
+        entity(as[TripTuple]) { pattern =>
+          complete {
+            future {
+              db withTransaction { implicit s =>
+                val bins = fetchTripBins(routeId)
+                for {
+                  bin <- bins.find(_.contains(pattern.trip.id))
+                  tripId <- bin // delete all trips that are in the same bin as our parameter
+                } deleteTrip(tripId)
+
+                saveTripPattern(pattern)
+                StatusCodes.Created
+              }
+            }
+          }
+        }
+      } ~
+      /** Delete all traces of the trip */
+      delete {
+        complete {
+          future {
+            db withTransaction { implicit s =>
+              trip.firstOption
+                .map { _ =>
+                deleteTrip(tripId)
+                StatusCodes.OK
+              }
+            }
+          }
+        }
+      }
+    }
+
+}
+
+object ScenarioGtfsRoute {
   private val tables = new GtfsTables with DefaultProfile
   import tables.profile.simple._
 
@@ -71,10 +157,12 @@ trait ScenariosGtfsRoute extends Route with SprayJsonSupport { self: DatabaseIns
     tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
     tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
     tables.tripRecordsTable.filter(_.id === tripId).delete
+    tables.tripShapesTable.filter(_.id === "${STOP_PREFIX}-${tripId}").delete
   }
 
   private def saveTripPattern(pattern: TripTuple)(implicit s: Session): Unit = {
     tables.tripRecordsTable.insert(pattern.trip)
+    pattern.shape map { tables.tripShapesTable.insert }
     tables.frequencyRecordsTable.insertAll(pattern.frequencies:_*)
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
@@ -87,7 +175,7 @@ trait ScenariosGtfsRoute extends Route with SprayJsonSupport { self: DatabaseIns
         join tables.stopsTable on (_.stop_id === _.id)
         sortBy { case (st, _) => st.stop_sequence }
         list
-    )
+      )
     val frequencies = tables.frequencyRecordsTable.filter(_.trip_id === trip.id).list
 
     val shape = for {
@@ -97,82 +185,6 @@ trait ScenariosGtfsRoute extends Route with SprayJsonSupport { self: DatabaseIns
 
     TripTuple(trip, stops, frequencies, shape)
   }
-
-
-  /** This seems weird, but scalac will NOT find this implicit with simple import */
-  implicit val tripPatternFormat = ScenariosGtfsRouteJsonProtocol.tripTupleFormat
-  implicit val routeFormat = ScenariosGtfsRouteJsonProtocol.routeFormat
-  import DefaultJsonProtocol._ // this handles arrays and futures
-
-  def scenarioGtfsRoute =
-    pathPrefix("scenarios" / Segment) { scenarioSlug =>
-      //val db = ??? // TODO get the scenario database connection
-      pathPrefix("routes") {
-        pathEnd {
-          complete { future {
-            db withSession { implicit s =>
-              val routes: List[RouteRecord] = tables.routeRecordsTable.list
-              routes
-            }
-          } }
-        } ~
-        pathPrefix(Segment) { routeId =>
-          pathPrefix("trips") {
-            pathEnd {
-              /** List all trip_ids in the route and bin them by their path */
-              get {
-                complete { future {
-                  db withSession { implicit s =>
-                    fetchTripBins(routeId)
-                  }
-                } }
-              }
-            } ~
-            pathPrefix(Segment) { tripId =>
-              val trip = tables.tripRecordsTable.filter(trip => trip.id === tripId && trip.route_id === routeId)
-
-              /** Fetch specific trip by id */
-              get {
-                complete { future {
-                  db withSession { implicit s =>
-                    trip.firstOption.map(buildTripPattern)
-                  }
-                } }
-              } ~
-              /** Accept a trip pattern, use it as a basis for creating new TripRecord, StopTimesRecords and Stops. */
-              post {
-                entity(as[TripTuple]) { pattern =>
-                  complete { future {
-                    db withTransaction { implicit s =>
-                      val bins = fetchTripBins(routeId)
-                      for {
-                        bin <- bins.find(_.contains(pattern.trip.id))
-                        tripId <- bin // delete all trips that are in the same bin as our parameter
-                      } deleteTrip(tripId)
-
-                      saveTripPattern(pattern)
-                      StatusCodes.Created
-                    }
-                  } }
-                }
-              } ~
-              /** Delete all traces of the trip */
-              delete {
-                complete { future {
-                  db withTransaction { implicit s =>
-                    trip.firstOption
-                      .map { _ =>
-                      deleteTrip(tripId)
-                      StatusCodes.OK
-                    }
-                  }
-                } }
-              }
-            }
-          }
-        }
-      }
-    }
 }
 
 object ScenariosGtfsRouteJsonProtocol extends GeoJsonSupport with DefaultJsonProtocol {
