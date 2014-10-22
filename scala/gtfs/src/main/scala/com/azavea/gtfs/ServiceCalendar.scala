@@ -9,7 +9,7 @@ import scala.collection.mutable
  * Source: calendar.txt, calendar_dates.txt
  */
 object ServiceCalendar {
-  def apply(dates: Seq[LocalDate], calendarRecords: Seq[CalendarRecord], calendarDateRecords: Seq[CalendarDateRecord]): Map[LocalDate, String => Boolean] = {
+  def apply(dates: Seq[LocalDate], calendarRecords: Seq[CalendarRecord], calendarDateRecords: Seq[CalendarDateRecord]): Map[LocalDate, ServiceId => Boolean] = {
     dates
       .map { date =>
         // Represents what services are active or not on this date.

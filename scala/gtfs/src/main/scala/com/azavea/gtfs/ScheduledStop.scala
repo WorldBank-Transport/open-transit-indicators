@@ -10,7 +10,7 @@ trait ScheduledStop {
 }
 
 object ScheduledStop {
-  def apply(record: StopTimeRecord, midnight: LocalDateTime, stops: Map[String, Stop]): ScheduledStop =
+  def apply(record: StopTimeRecord, midnight: LocalDateTime, stops: StopId => Stop): ScheduledStop =
     new ScheduledStop {
       val stop = stops(record.stopId)
       val arrivalTime = midnight + record.arrivalTime
@@ -21,7 +21,7 @@ object ScheduledStop {
   /** Create a ScheduledStop with this startTime and offset, where offset is the first arrival time
     * of the StopRecord in a sequence. This is used for generating ScheduledStops from FrequencyRecords.
     */
-  def apply(record: StopTimeRecord, startTime: LocalDateTime, offset: Period, stops: Map[String, Stop]): ScheduledStop =
+  def apply(record: StopTimeRecord, startTime: LocalDateTime, offset: Period, stops: StopId => Stop): ScheduledStop =
     new ScheduledStop {
       val stop = stops(record.stopId)
       val arrivalTime = startTime + record.arrivalTime - offset
