@@ -58,9 +58,6 @@ object IndicatorParams {
     }
 
     new IndicatorParams {
-      def observedForTrip(period: SamplePeriod, tripId: String) =
-        observedStopTimes.observedForTrip(period, tripId)
-
       def observedStopsByTrip(period: SamplePeriod) =
         observedStopTimes.observedStopsByTrip(period)
 

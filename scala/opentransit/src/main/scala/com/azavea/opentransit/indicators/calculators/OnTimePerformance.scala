@@ -19,27 +19,23 @@ class OnTimePerformance(params: ObservedStopTimes)
   val name = "on_time_perf"
 
   def calculation(period: SamplePeriod) = {
-      def map(trip: Trip): Seq[Double] = {
-        val obsTrip = params.observedForTrip(period, trip.id)
-        val schedStopIds = trip.schedule map (_.stop.id)
-        for {
-          id <- schedStopIds
-          schedStop <- trip.schedule if schedStop.stop.id == id
-          schedStopTime = schedStop.arrivalTime
-          obsStop <- obsTrip.schedule if obsStop.stop.id == id
-          obsStopTime = obsStop.arrivalTime
-        } yield Seconds.secondsBetween(schedStopTime, obsStopTime)
-          .getSeconds
-          .toDouble
-      }
+    val zippedStopsByTrip: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+      params.observedStopsByTrip(period)
 
-      def reduce(timeDeltas: Seq[Seq[Double]]): Double = {
-        val (total, count) =
-          timeDeltas.flatten.foldLeft((0.0, 0)) { case ((total, count), diff) =>
-            (total + diff, count + 1)
-          }
-        if (count > 0) (total /count) / 60 else 0.0 // div60 for minutes
-      }
-      perTripCalculation(map, reduce)
+    def map(trip: Trip): Seq[Double] =
+      for {
+        (sched, obs) <- zippedStopsByTrip(trip.id)
+        deviation = Seconds.secondsBetween(sched.arrivalTime, obs.arrivalTime).getSeconds
+      } yield deviation.abs.toDouble
+
+    def reduce(timeDeltas: Seq[Seq[Double]]): Double = {
+      val (total, count) =
+        timeDeltas.flatten.foldLeft((0.0, 0)) { case ((total, count), diff) =>
+          (total + diff, count + 1)
+        }
+      if (count > 0) (total /count) / 60 else 0.0 // div60 for minutes
     }
+    perTripCalculation(map, reduce)
   }
+}
+
