@@ -1,10 +1,24 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
+
+    var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
+        version: 0,
+        type: 'num_stops',
+        sample_period: 'morning',
+        aggregation: 'route'
+    });
 
     var overlays = {
+        boundary: {
+            name: 'Boundary',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            visible: true,
+            layerOptions: boundaryIndicator
+        },
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
