@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('transit_indicators', '0033_add_create_and_modify_dts_to_scenario'),
+        ('transit_indicators', '0035_remove_indicatorjob_sample_periods'),
     ]
 
     operations = [
