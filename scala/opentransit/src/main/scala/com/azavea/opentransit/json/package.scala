@@ -7,6 +7,7 @@ import com.azavea.opentransit.service._
 
 import com.azavea.gtfs._
 
+import scala.util.{Try, Success, Failure}
 import spray.json._
 import DefaultJsonProtocol._
 
@@ -40,6 +41,16 @@ package object json {
   }
 
   implicit object SamplePeriodFormat extends RootJsonFormat[SamplePeriod] {
+    // Converts a JsValue to a LocalDateTime, and if it fails, uses the default.
+    // This error-handling is needed, because the alltime indicator comes across
+    // with start/end times that the convertTo function cannot parse successfully.
+    def toLocalDateTime(dt: JsValue): LocalDateTime = {
+      Try(dt.convertTo[LocalDateTime]) match {
+        case Success(v) => v
+        case Failure(_) => new LocalDateTime
+      }
+    }
+
     def write(samplePeriod: SamplePeriod) =
       JsObject(
         "id" -> JsNumber(samplePeriod.id),
@@ -51,8 +62,8 @@ package object json {
     def read(value: JsValue): SamplePeriod =
       value.asJsObject.getFields("id", "type", "period_start", "period_end") match {
         case Seq(JsNumber(id), JsString(periodType), startJson, endJson) =>
-          val start = startJson.convertTo[LocalDateTime]
-          val end = endJson.convertTo[LocalDateTime]
+          val start = toLocalDateTime(startJson)
+          val end = toLocalDateTime(endJson)
           SamplePeriod(id.toInt, periodType, start, end)
         case _ => throw new DeserializationException("SamplePeriod expected.")
       }
@@ -95,6 +106,8 @@ package object json {
         "city_boundary_id" -> JsNumber(request.cityBoundaryId),
         "region_boundary_id" -> JsNumber(request.regionBoundaryId),
         "avg_fare" -> JsNumber(request.averageFare),
+        "gtfs_db_name" -> JsString(request.gtfsDbName),
+        "aux_db_name" -> JsString(request.auxDbName),
         "sample_periods" -> request.samplePeriods.toJson,
         "params_requirements" -> request.paramsRequirements.toJson
       )
@@ -110,18 +123,22 @@ package object json {
         "city_boundary_id",
         "region_boundary_id",
         "avg_fare",
+        "gtfs_db_name",
+        "aux_db_name",
         "sample_periods",
         "params_requirements"
       ) match {
-        case Seq(JsString(token), JsString(version), JsNumber(povertyLine), JsNumber(nearbyBufferDistance),
-                 JsNumber(maxCommuteTime), JsNumber(maxWalkTime), JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
-                 JsNumber(averageFare), samplePeriodsJson, paramsRequirementsJson) =>
+        case Seq(JsString(token), JsString(version), JsNumber(povertyLine),
+                 JsNumber(nearbyBufferDistance), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
+                 JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
+                 JsNumber(averageFare), JsString(gtfsDbName), JsString(auxDbName),
+                 samplePeriodsJson, paramsRequirementsJson) =>
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
             token, version, povertyLine.toDouble, nearbyBufferDistance.toDouble,
             maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
-            averageFare.toDouble, samplePeriods, paramsRequirements
+            averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
       }

@@ -44,9 +44,6 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
-        if not attrs.get("sample_periods"):
-            attrs["sample_periods"] = SamplePeriod.objects.exclude(type="alltime")
-
         if not attrs.get("job_status"):
             attrs["job_status"] = IndicatorJob.StatusChoices.QUEUED
 
@@ -57,8 +54,7 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'sample_periods', 'version',
-                            'created_by')
+        read_only_fields = ('id', 'version', 'created_by')
 
 class ScenarioSerializer(serializers.ModelSerializer):
     """Serializer for Scenarios"""

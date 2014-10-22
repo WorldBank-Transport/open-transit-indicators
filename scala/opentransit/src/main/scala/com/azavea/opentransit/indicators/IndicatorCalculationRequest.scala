@@ -27,6 +27,8 @@ case class IndicatorCalculationRequest(
   cityBoundaryId: Int,
   regionBoundaryId: Int,
   averageFare: Double,
+  gtfsDbName: String,
+  auxDbName: String,
   samplePeriods: List[SamplePeriod],
   paramsRequirements: Requirements
 ) extends Logging
