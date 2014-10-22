@@ -24,14 +24,19 @@ trait ObservedStopTimes {
 }
 
 object ObservedStopTimes {
-  def apply(scheduledSystems: Map[SamplePeriod, TransitSystem], hasObserved: Boolean)(implicit session: Session): ObservedStopTimes = {
+  def apply(
+    scheduledSystems: Map[SamplePeriod, TransitSystem],
+    db: DatabaseDef,
+    hasObserved: Boolean): ObservedStopTimes = {
     // This is ugly: a thousand sorries. it also is apparently necessary -
     // we have to index on SamplePeriod and again on trip id
     val periods = scheduledSystems.keys
     lazy val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
       val observedGtfsRecords =
-        new DatabaseGtfsRecords with DefaultProfile {
-          override val stopTimesTableName = "gtfs_stop_times_real"
+        db withSession { implicit session =>
+          new DatabaseGtfsRecords with DefaultProfile {
+            override val stopTimesTableName = "gtfs_stop_times_real"
+          }
         }
       val builder = TransitSystemBuilder(observedGtfsRecords)
       val observedSystemsMap = periods.map { period =>

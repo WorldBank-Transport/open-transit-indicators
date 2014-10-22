@@ -24,14 +24,14 @@ class WeightedServiceFrequencySpec
     val calculation = new AllWeightedServiceFrequency(demographicsAndBuffers).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.isDefined should be (true)
-    bySystem.get should be (0.30 +- 1e-2)
+    bySystem.get should be (17.87 +- 1e-2) // minutes
   }
 
   it should "calculate service frequency weighted by low income population served for SEPTA" in {
     val calculation = new LowIncomeWeightedServiceFrequency(demographicsAndBuffers).calculation(period)
     val AggregatedResults(byRoute, byRouteType, bySystem) = calculation(system)
     bySystem.isDefined should be (true)
-    bySystem.get should be (0.31 +- 1e-2)
+    bySystem.get should be (18.61 +- 1e-2) // minutes
   }
 }
 

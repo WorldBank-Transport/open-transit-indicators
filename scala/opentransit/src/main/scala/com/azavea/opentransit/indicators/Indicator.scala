@@ -17,10 +17,6 @@ object Indicators {
         Requires()
       ),
       (
-        DistanceStops,
-        Requires()
-      ),
-      (
         Length,
         Requires()
       ),

@@ -132,35 +132,6 @@ class SamplePeriod(models.Model):
     period_end = models.DateTimeField()
 
 
-class IndicatorJob(models.Model):
-    """Stores processing status of an indicator job"""
-
-    class StatusChoices(object):
-        QUEUED = 'queued'
-        PROCESSING = 'processing'
-        ERROR = 'error'
-        TIMEDOUT = 'timedout'
-        COMPLETE = 'complete'
-        CHOICES = (
-            (QUEUED, _(u'Job queued for processing')),
-            (PROCESSING, _(u'Indicators being processed and calculated')),
-            (ERROR, _(u'Error calculating indicators')),
-            (COMPLETE, _(u'Completed indicator calculation')),
-        )
-
-    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
-    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
-    is_latest_version = models.BooleanField(default=False)
-    sample_periods = models.ManyToManyField(SamplePeriod)
-    created_by = models.ForeignKey(OTIUser)
-    # A city name used to differentiate indicator sets
-    # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
-
-    # json string map of indicator name to status
-    calculation_status = models.TextField(default='{}')
-
-
 class Scenario(models.Model):
     """Stores metadata about a scenario"""
 
@@ -189,6 +160,39 @@ class Scenario(models.Model):
     created_by = models.ForeignKey(OTIUser)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True, null=True)
+
+
+class IndicatorJob(models.Model):
+    """Stores processing status of an indicator job"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        TIMEDOUT = 'timedout'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Job queued for processing')),
+            (PROCESSING, _(u'Indicators being processed and calculated')),
+            (ERROR, _(u'Error calculating indicators')),
+            (COMPLETE, _(u'Completed indicator calculation')),
+        )
+
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+    is_latest_version = models.BooleanField(default=False)
+    created_by = models.ForeignKey(OTIUser)
+
+    # Optional scenario to calculate indicators for.
+    # If a scenario isn't provided, the base data will be used.
+    scenario = models.ForeignKey(Scenario, blank=True, null=True)
+
+    # A city name used to differentiate indicator sets
+    # external imports must provide a city name as part of the upload
+    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
+
+    # json string map of indicator name to status
+    calculation_status = models.TextField(default='{}')
 
 
 class Indicator(models.Model):
@@ -325,20 +329,22 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
+            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop served')
+            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low-income pop served')
+            SECONDS = _(u'secs')
+            MINUTES = _(u'mins')
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
-            KM_PER_AREA = _(u'km/km²')
-            LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
-            MINUTES = _(u'min')
-            POP_PER_500_METERS = _(u'population within 500m of a stop')
-            STOPS_PER_500_METERS = _(u'stops/500m radius')
-            STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+            KM_PER_AREA = _(u'transit length/km²')
+            LOW_INCOME_POP_PER_STOP = _(u'low-income pop served by stop')
+            POP_PER_STOP = _(u'percent population served by a stop')
+            PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
+            STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
-                            AVG_SERVICE_FREQ: Units.HOURS,
-                            COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
+                            AVG_SERVICE_FREQ: Units.MINUTES,
+                            COVERAGE_STOPS: Units.PERCENT_STOP_COVERAGE,
                             DISTANCE_STOPS: Units.KILOMETERS,
                             DWELL_TIME: Units.AVG_DWELL_DEVIATION,
                             HOURS_SERVICE: Units.HOURS,
@@ -347,13 +353,14 @@ class Indicator(models.Model):
                             ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
                             REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
                             SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
+                            SERVICE_FREQ_WEIGHTED_LOW: Units.FREQ_WEIGHTED_BY_LOW_POP,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
-                            SYSTEM_ACCESS: Units.POP_PER_500_METERS,
-                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
-                            TIME_TRAVELED_STOPS: Units.HOURS,
-                            TRAVEL_TIME: Units.HOURS,
+                            SYSTEM_ACCESS: Units.POP_PER_STOP,
+                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_STOP,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
-                            WEEKDAY_END_FREQ: Units.HOURS
+                            TRAVEL_TIME: Units.MINUTES,
+                            TIME_TRAVELED_STOPS: Units.MINUTES,
+                            WEEKDAY_END_FREQ: Units.MINUTES
         }
 
         # indicators to display on the map
@@ -391,6 +398,7 @@ class Indicator(models.Model):
             (ON_TIME_PERF, _(u'On-Time Performance')),
             (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
             (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (SERVICE_FREQ_WEIGHTED_LOW, _(u'Service frequency weighted by served low-income population')),
             (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
             (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
             (SYSTEM_ACCESS, _(u'System accessibility')),

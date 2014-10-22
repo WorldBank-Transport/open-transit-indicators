@@ -38,46 +38,61 @@ trait IndicatorParams extends Boundaries
                          with ObservedStopTimes
 
 object IndicatorParams {
-  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem], db: DatabaseDef): IndicatorParams =
-    db withSession { implicit session =>
-      val stopBuffers = StopBuffers(systems, request.nearbyBufferDistance, db)
-      val demographics = Demographics(db)
-      val observedStopTimes =
-        ObservedStopTimes(systems, request.paramsRequirements.observed)
+  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem],
+    dbByName: String => Database): IndicatorParams = {
 
-      new IndicatorParams {
-        def observedForTrip(period: SamplePeriod, tripId: String) =
-          observedStopTimes.observedForTrip(period, tripId)
-        def observedStopsByTrip(period: SamplePeriod) =
-          observedStopTimes.observedStopsByTrip(period)
+    // Grab references to each of the databases, so they can be used as needed
+    val gtfsDb = dbByName(request.gtfsDbName)
+    val auxDb = dbByName(request.auxDbName)
+
+    // Stop buffers are based on stops, which are in the gtfs db
+    val stopBuffers = gtfsDb withSession { implicit session =>
+      StopBuffers(systems, request.nearbyBufferDistance, gtfsDb)
+    }
+
+    // Observed data and demographics are in the aux db
+    val (observedStopTimes, demographics) = auxDb withSession { implicit session =>
+      val observed = ObservedStopTimes(systems, auxDb, request.paramsRequirements.observed)
+      val demographics = Demographics(auxDb)
+      (observed, demographics)
+    }
+
+    new IndicatorParams {
+      def observedForTrip(period: SamplePeriod, tripId: String) =
+        observedStopTimes.observedForTrip(period, tripId)
+
+      def observedStopsByTrip(period: SamplePeriod) =
+        observedStopTimes.observedStopsByTrip(period)
+
+      def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
+      def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
+      def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
+        stopBuffers.bufferForPeriod(period)
 
 
-        def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
-        def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
-        def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
-          stopBuffers.bufferForPeriod(period)
+      def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
+        demographics.populationMetricForBuffer(buffer, columnName)
 
+      val settings =
+        IndicatorSettings(
+          request.povertyLine,
+          request.nearbyBufferDistance,
+          request.maxCommuteTime,
+          request.maxWalkTime,
+          request.averageFare,
+          hasDemographics = request.paramsRequirements.demographics,
+          hasOsm = request.paramsRequirements.osm,
+          hasObserved = request.paramsRequirements.observed,
+          hasCityBounds = request.paramsRequirements.cityBounds,
+          hasRegionBounds = request.paramsRequirements.regionBounds
+        )
 
-        def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
-          demographics.populationMetricForBuffer(buffer, columnName)
-
-        val settings =
-          IndicatorSettings(
-            request.povertyLine,
-            request.nearbyBufferDistance,
-            request.maxCommuteTime,
-            request.maxWalkTime,
-            request.averageFare,
-            hasDemographics = request.paramsRequirements.demographics,
-            hasOsm = request.paramsRequirements.osm,
-            hasObserved = request.paramsRequirements.observed,
-            hasCityBounds = request.paramsRequirements.cityBounds,
-            hasRegionBounds = request.paramsRequirements.regionBounds
-          )
-        val cityBoundary = Boundaries.cityBoundary(request.cityBoundaryId)
-        val regionBoundary = Boundaries.cityBoundary(request.regionBoundaryId)
-
-        val totalRoadLength = RoadLength.totalRoadLength
+      // Boundaries and OSM data -- all in the aux db
+      val (cityBoundary, regionBoundary, totalRoadLength) = auxDb withSession { implicit session =>
+        (Boundaries.cityBoundary(request.cityBoundaryId),
+          Boundaries.cityBoundary(request.regionBoundaryId),
+          RoadLength.totalRoadLength)
       }
     }
+  }
 }

@@ -25,3 +25,26 @@ class AdHocInterstopDistanceSpec extends AdHocSystemIndicatorSpec {
     routeById("WestBus") should be (0.0)
   }
 }
+
+// these values are very close to the slightly less accurate byRoute results which were removed
+class InterstopDistanceSpec extends FlatSpec with Matchers with IndicatorSpec {
+  it should "calcuate overall distance_between_stops by route for SEPTA" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(InterstopDistance)
+
+    byRouteType(Rail) should be (3.51069 +- 1e-5)
+  }
+
+  it should "calcuate distance_between_stops by route for SEPTA" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(InterstopDistance)
+
+    getResultByRouteId(byRoute, "AIR") should be (2.46497 +- 1e-5)
+    getResultByRouteId(byRoute, "CHE") should be (1.28437 +- 1e-5)
+  }
+
+  it should "calcuate overall distance_between_stops by system for SEPTA" in {
+    val AggregatedResults(byRoute, byRouteType, bySystem) = septaOverall(InterstopDistance)
+
+    bySystem.get should be (3.51069 +- 1e-5)
+  }
+}
+

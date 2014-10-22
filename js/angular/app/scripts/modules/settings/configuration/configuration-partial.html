@@ -24,7 +24,7 @@
                        ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
                        min="serviceStart" max="serviceEnd"
-                       date-disabled="disableWeekend(date, mode)" name="weekdayDate" 
+                       date-disabled="disableWeekend(date, mode)" name="weekdayDate"
                        ng-change="validateWeekday()" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="openWeekdayPicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
@@ -142,7 +142,7 @@
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
-                    <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
+                    <input type="number" step="0.01" name="avg_fare" ng-model="config.avg_fare" min="0">
                 </div>
             </div>
         </div>

@@ -28,11 +28,12 @@ class DwellTimePerformance(params: ObservedStopTimes) extends Indicator with Agg
       val (sum, count) =
         deviations
           .flatten
-          .foldLeft((0.0,0.0)) { case ((sum, count), minutes) =>
+          .foldLeft((0.0, 0)) { case ((sum, count), minutes) =>
             (sum + minutes, count + 1)
            }
-      if (count > 0) sum / count / 60 else 0.0
+      if (count > 0) (sum / count) / 60 else 0.0 // div60 for minutes
     }
+
     perTripCalculation(map, reduce)
   }
 
