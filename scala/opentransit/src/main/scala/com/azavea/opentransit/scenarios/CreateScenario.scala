@@ -1,13 +1,13 @@
 package com.azavea.opentransit.scenarios
 
+import com.azavea.gtfs.Timer._
+import com.azavea.gtfs.io.database.{GtfsTables, DefaultProfile}
 import grizzled.slf4j.Logging
 
 import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.sys.process._
 import com.azavea.gtfs._
-import com.azavea.opentransit.JobStatus
-import com.azavea.opentransit.JobStatus._
-import com.azavea.opentransit._
+import com.azavea.gtfs.op._
 import com.azavea.opentransit.io._
 import com.typesafe.config.{ConfigFactory,Config}
 
@@ -30,9 +30,20 @@ object CreateScenario extends Logging {
     val gtfsRecords = dbByName(request.baseDbName) withSession { implicit session =>
       GtfsRecords.fromDatabase
     }
-    // TODO: as an optimization, the sample period may be used here to filter out irrelevant data
+
     logger.info(s"Pushing gtfs records to new database: ${request.dbName}")
-    dbByName(request.dbName) withSession { implicit session => GtfsIngest(gtfsRecords) }
+
+    val tables = new GtfsTables with DefaultProfile
+    dbByName(request.dbName) withSession { implicit session =>
+      import tables.profile.simple._
+      val start = request.samplePeriod.start
+      val end = request.samplePeriod.end
+      val filtered = timedTask("Filtering GTFS records for scenario") {gtfsRecords.filter(start, end)}
+      GtfsIngest(filtered)
+
+      tables.calendarRecordsTable insert
+        CalendarRecord("ALWAYS",start.toLocalDate, end.toLocalDate, Array.fill(7)(true))
+    }
     logger.info(s"Scenario creation complete: '${request.dbName}'")
   }
 }
