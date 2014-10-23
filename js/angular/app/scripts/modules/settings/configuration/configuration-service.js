@@ -60,7 +60,7 @@ angular.module('transitIndicators')
            return dt;
         },
         
-        ServiceDates: $resource('/gt/service-dates', {}, {}),
+        ServiceDates: $resource('/gt/utils/service-dates', {}, {}),
         
         SamplePeriodTypes: ['morning', 'midday', 'evening', 'night', 'weekend']
     };
