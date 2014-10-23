@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
 from transit_indicators.models import (OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod,
-                                       Indicator, IndicatorJob, Scenario)
+                                       Indicator, IndicatorJob, Scenario, OTICityName)
 from userdata.models import OTIUser
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
@@ -229,3 +229,8 @@ class OTIDemographicConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OTIDemographicConfig
+
+
+class OTICityNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTICityName

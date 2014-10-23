@@ -33,6 +33,13 @@ angular.module('transitIndicators')
     ['$scope', '$rootScope', '$timeout', '$upload', 'OTIUploadService', 'OTIEvents',
     function ($scope, $rootScope, $timeout, $upload, OTIUploadService, OTIEvents) {
 
+    $scope.cityName = null;
+
+    $scope.saveCityNameButton = {
+        text: 'STATUS.SAVE',
+        enabled: false // enable save button once city name has been changed
+    };
+
     /**
      * Clears the uploadProblems dict
      */
@@ -204,6 +211,36 @@ angular.module('transitIndicators')
         $rootScope.$broadcast(OTIEvents.Settings.Upload.GTFSDelete);
     });
 
+    $scope.saveCityName = function () {
+        $scope.saveCityNameButton.enabled = false;
+        $scope.saveCityNameButton.text = 'STATUS.SAVING';
+        OTIUploadService.cityName.save({'city_name': $scope.cityName}, function () {
+            $scope.saveCityNameButton.enabled = true;
+            $scope.saveCityNameButton.text = 'STATUS.SAVE';
+        }, function (error) {
+            $scope.saveCityNameButton.enabled = true;
+            $scope.saveCityNameButton.text = 'STATUS.SAVE';
+
+            // ignore error if attempt to save unchanged city name
+            if (error.data.city_name && error.data.city_name[0].indexOf('already exists') === -1) {
+                $scope.cityNameError = true;
+            } else {
+                console.log('error saving city name:');
+                console.log(error.data);
+            }
+            
+        });
+    };
+
+    // disable save button is city name field is empty
+    $scope.checkCityName = function () {
+        if ($scope.cityName) {
+            $scope.saveCityNameButton.enabled = true;
+        } else {
+            $scope.saveCityNameButton.enabled = false;
+        }
+    };
+
     // Set initial scope variables and constants
     $scope.gtfsUpload = {};
     $scope.gtfsOptions = {
@@ -227,6 +264,10 @@ angular.module('transitIndicators')
                     checkOSMImport($scope.gtfsUpload);
                 }
             }
+        });
+
+        OTIUploadService.cityName.get({}, function (data) {
+            $scope.cityName = data.city_name;
         });
     };
 }]);

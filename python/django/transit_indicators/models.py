@@ -27,6 +27,15 @@ class GTFSRouteType(models.Model):
     class Meta(object):
         db_table = 'gtfs_route_types'
 
+class OTICityName(models.Model):
+    """ User-configurable name for their city; set with GTFS upload.
+        There should only be a single entry in this table at any time.
+    """
+    city_name = models.CharField(blank=False, max_length=255, primary_key=True)
+
+    def __unicode__(self):
+        return self.city_name
+
 
 class GTFSRoute(models.Model):
     route_id = models.TextField(primary_key=True)
@@ -178,6 +187,16 @@ class Scenario(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
 
 
+""" Helper method to find the city name set for the database.
+"""
+def get_city_name():
+    try:
+        city_name = OTICityName.objects.get().city_name
+    except OTICityName.DoesNotExist:
+        city_name = settings.OTI_CITY_NAME
+    return city_name
+
+
 class IndicatorJob(models.Model):
     """Stores processing status of an indicator job"""
 
@@ -205,7 +224,7 @@ class IndicatorJob(models.Model):
 
     # A city name used to differentiate indicator sets
     # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
+    city_name = models.CharField(max_length=255, default=get_city_name)
 
     # json string map of indicator name to status
     calculation_status = models.TextField(default='{}')
