@@ -77,9 +77,7 @@ class DatabaseTests extends FunSuite with DatabaseTestFixture with Matchers {
     )
 
     // Create the scenario
-    CreateScenario(request, dbByName) { status =>
-      status should be (JobStatus.Complete)
-    }
+    CreateScenario(request, dbByName)
 
     // Load the scenario and verify data is present
     dbByName(scenarioDbName) withSession { implicit session: Session =>
