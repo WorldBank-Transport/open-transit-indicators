@@ -16,7 +16,7 @@ class HeadwayRegularity(params: ObservedStopTimes)
       with AggregatesByAll {
   type Intermediate = Double
 
-  val name = "headway_regularity"
+  val name = "regularity_headways"
 
   def calculation(period: SamplePeriod) = {
     val observedTrips: Map[String, Trip] = params.observedTripById(period)
@@ -43,8 +43,8 @@ class HeadwayRegularity(params: ObservedStopTimes)
         trip.schedule
           .groupBy(_.stop.id).toMap
       }.combineMaps
-        .flatMap { case (k, scheduledStops) =>
-          scheduledStops.zip(scheduledStops.tail).map { case (a, b) =>
+        .flatMap { case (k, groupedStops) =>
+          groupedStops.zip(groupedStops.tail).map { case (a, b) =>
             Seconds.secondsBetween(a.arrivalTime, b.arrivalTime).getSeconds.toDouble
           }
         }.toSeq
