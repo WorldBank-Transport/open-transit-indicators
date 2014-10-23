@@ -36,19 +36,11 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
               }
             }.onComplete {
               case Success(routeCount: Int) =>
-                JsObject(
-                  "success" -> JsBoolean(true),
-                  "message" -> JsString(s"Imported $routeCount routes")
-                )
+                println("GTFS fully ingested")
               case Failure(e) =>
-                  println("Error parsing GTFS!")
-                  println(e.getMessage)
-                  println(e.getStackTrace.mkString("\n"))
-                  JsObject(
-                    "success" -> JsBoolean(false),
-                    "message" -> JsString("Error parsing GTFS.\n" +
-                      e.getMessage.replace("\"", "'"))
-                  )
+                println("Error parsing GTFS!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
             }
             JsObject(
               "success" -> JsBoolean(true),

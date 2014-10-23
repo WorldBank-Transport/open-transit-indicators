@@ -50,7 +50,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
   //   in a table, and calculations will be run one (or more) at a time
   //   in the background via an Actor.
   def indicatorsRoute = {
-    path("calculation") {
+    pathEnd {
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
