@@ -14,7 +14,8 @@ from models import (OTIIndicatorsConfig,
                     Indicator,
                     IndicatorJob,
                     Scenario,
-                    GTFSRouteType)
+                    GTFSRouteType,
+                    GTFSRoute)
 from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
                          SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
@@ -263,6 +264,12 @@ class GTFSRouteTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
+        def is_used(route_type):
+            routes = GTFSRoute.objects.all()
+            if len(routes.filter(route_type=route_type)[:1]) == 1:
+                return True
+            return False
+
         get_extended = request.QUERY_PARAMS.get('extended', None)
         route_types = None
         if get_extended:
@@ -272,7 +279,8 @@ class GTFSRouteTypes(APIView):
             route_types = GTFSRouteType.objects.filter(route_type__lt=10)
         route_types = route_types.order_by('route_type')
 
-        response = [{'route_type': rt.route_type, 'description': rt.get_route_type_display()} for rt in route_types]
+        response = [{'route_type': rt.route_type, 'description': rt.get_route_type_display(),
+                     'is_used': is_used(rt.route_type)} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
 
 
