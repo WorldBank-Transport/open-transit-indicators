@@ -25,15 +25,24 @@ Legend can either have one of two styles:
 */
 
 angular.module('transitIndicators')
+.filter('legendValue', function () {
+    return function (value) {
+        var floatValue = parseFloat(value);
+        return isNaN(floatValue) ? value : floatValue.toFixed(2);
+    };
+})
 .directive('otiLegend', [function () {
 
     var template = [
 
-        '<div ng-show="visible" class="legend" ng-class="{ \'legend-flat\': style === \'flat\', \'legend-stacked\': style !== \'flat\',  }">',
+        '<div ng-show="visible" class="legend" ng-class="{ \'legend-flat\': style === \'flat\', \'legend-stacked\': style === \'stacked\',  }">',
         '<div ng-if="title" class="legend-title">{{ title }}</div>',
         '<div class="legend-scale">',
             '<ul class="legend-labels">',
-                '<li ng-repeat="color in colors"><span style="background:{{ color }};"></span>{{ labels[$index] }}</li>',
+                '<li ng-repeat="color in colors">',
+                    '<span style="background:{{ color }};"></span>',
+                    '{{ labels[$index] | legendValue }}',
+                '</li>',
             '</ul>',
         '</div>',
         '<div ng-if="source" class="legend-source">Source: <a href="{{ source.link }}">{{ source.text }}</a></div>',
