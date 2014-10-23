@@ -126,29 +126,28 @@ angular.module('transitIndicators')
         var promises = [];
         var SamplePeriod = OTIConfigurationService.SamplePeriod;
 
-        var date = new Date(2014, 0, 1);
         var morning = new SamplePeriod({type: 'morning'});
-        morning.period_start = createWeekdayDateTime(date, 7);
-        morning.period_end = createWeekdayDateTime(date, 9);
+        morning.period_start = createWeekdayDateTime($scope.weekdayDate, 7);
+        morning.period_end = createWeekdayDateTime($scope.weekdayDate, 9);
         promises.push(morning.$update());
 
         var midday = new SamplePeriod({type: 'midday'});
-        midday.period_start = createWeekdayDateTime(date, 9);
-        midday.period_end = createWeekdayDateTime(date, 16);
+        midday.period_start = createWeekdayDateTime($scope.weekdayDate, 9);
+        midday.period_end = createWeekdayDateTime($scope.weekdayDate, 16);
         promises.push(midday.$update());
 
         var evening = new SamplePeriod({type: 'evening'});
-        evening.period_start = createWeekdayDateTime(date, 16);
-        evening.period_end = createWeekdayDateTime(date, 18);
+        evening.period_start = createWeekdayDateTime($scope.weekdayDate, 16);
+        evening.period_end = createWeekdayDateTime($scope.weekdayDate, 18);
         promises.push(evening.$update());
 
         var night = new SamplePeriod({type: 'night'});
-        night.period_start = createWeekdayDateTime(date, 18);
-        night.period_end = createWeekdayDateTime(date, 24 + 7);
+        night.period_start = createWeekdayDateTime($scope.weekdayDate, 18);
+        night.period_end = createWeekdayDateTime($scope.weekdayDate, 24 + 7);
         promises.push(night.$update());
 
         var weekend = new SamplePeriod({type: 'weekend'});
-        var weekendDates = createWeekendDateTimes(new Date(2014, 0, 4));
+        var weekendDates = createWeekendDateTimes($scope.weekendDate);
         weekend.period_start = weekendDates[0];
         weekend.period_end = weekendDates[1];
         promises.push(weekend.$update());
@@ -342,17 +341,20 @@ angular.module('transitIndicators')
     };
     
     /**
-     * Get the start and end dates for the feed's service from the query response object
+     * Get the start and end dates for the feed's service from the query response object.
+     * Once it returns, use it to set default sample period to date within range.
+     * Also used by datepicker popup to filter selectable date range.
      */
     var setServiceDateRange = function (obj) {
         var serviceDates = obj.serviceDates;
         if (serviceDates !== null) {
             $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
             $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
+            var nextDay = null;
             
             // if dates have not been chosen yet, default to first valid date in range
             if (!$scope.weekdayDate) {
-                var nextDay = new Date($scope.serviceStart);
+                nextDay = new Date($scope.serviceStart);
                 while (!OTIConfigurationService.isWeekday(nextDay)) {
                   nextDay.setDate(nextDay.getDate() + 1);
                 }
@@ -360,16 +362,16 @@ angular.module('transitIndicators')
             }
             
             if (!$scope.weekendDate) {
-                var nextDay = new Date($scope.serviceStart);
+                nextDay = new Date($scope.serviceStart);
                 while (!OTIConfigurationService.isWeekend(nextDay)) {
                   nextDay.setDate(nextDay.getDate() + 1);
                 }
                 $scope.weekendDate = nextDay;
             }
         } else {
-            var error = obj['error'];
+            var error = obj.error;
             if (error !== null) {
-                console.log("Server returned error fetching feed service dates:");
+                console.log('Server returned error fetching feed service dates:');
                 console.log(error);
             } else {
                 // No service dates found; GTFS probably isn't loaded yet.
@@ -396,14 +398,15 @@ angular.module('transitIndicators')
             $scope.configLoadError = true;
         });
         
+        // resolve these two promises with all() so we will only set the
+        // default sample period after service date range found
+        var initPromises = [];
         // get service date range
-        OTIConfigurationService.ServiceDates.get({}, function (data) {
+        initPromises.push(OTIConfigurationService.ServiceDates.get({}, function (data) {
             setServiceDateRange(data);
-        }, function () {
-          console.log("Error fetching feed service dates!");
-        });
+        }));
 
-        OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
+        initPromises.push(OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
             // Configs exist, set UI
             OTIConfigurationService.SamplePeriod.query(function (data) {
                 setSamplePeriods(data);
@@ -424,6 +427,8 @@ angular.module('transitIndicators')
                 $scope.samplePeriodsLoadError = true;
                 $scope.samplePeriods = {};
             });
-        });
+        }));
+
+        $q.all(initPromises);
     };
 }]);

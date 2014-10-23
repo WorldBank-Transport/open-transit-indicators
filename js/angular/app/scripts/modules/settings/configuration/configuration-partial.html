@@ -23,7 +23,7 @@
                 <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
                        ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
-                       min="serviceStart" max="serviceEnd"
+                       min="serviceStart" max="serviceEnd" init-date="{{Date.now()}}"
                        date-disabled="disableWeekend(date, mode)" name="weekdayDate"
                        ng-change="validateWeekday()" />
                 <span class="input-group-btn">
@@ -45,7 +45,7 @@
                        ng-model="weekendDate" is-open="weekendPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
                        min="serviceStart" max="serviceEnd" date-disabled="disableWeekday(date, mode)"
-                       name="weekendDate" ng-change="validateWeekend()" />
+                       name="weekendDate" ng-change="validateWeekend()" init-date="{{Date.now()}}" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default"
                             ng-click="openWeekendPicker($event)">
