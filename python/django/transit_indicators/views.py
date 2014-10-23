@@ -199,6 +199,7 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         """
         delete_filter_fields = {'city_name': 'version__city_name'}
+        delete_indicatorjobs_filter_fields = {'city_name': 'city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
@@ -206,9 +207,14 @@ class IndicatorViewSet(OTIAdminViewSet):
 
         if filters:
             indicators = Indicator.objects.all()
+            indicatorjobs = IndicatorJob.objects.all()
             for field in filters:
-                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicators = indicators.filter(**{
+                    delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicatorjobs = indicatorjobs.filter(**{
+                    delete_indicatorjobs_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
+            indicatorjobs.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
