@@ -41,6 +41,10 @@ object Indicators {
         Requires()
       ),
       (
+        new RoadLengthRatio(params),
+        Requires()
+      ),
+      (
         new CoverageRatioStopsBuffer(params),
         Requires(settings.hasCityBounds)
       ),
@@ -59,6 +63,10 @@ object Indicators {
       (
         new DwellTimePerformance(params),
         Requires(settings.hasObserved)
+      ),
+      (
+        new RatioSuburbanLines(params),
+        Requires(settings.hasCityBounds)
       ),
       (
         new AllWeightedServiceFrequency(params),
