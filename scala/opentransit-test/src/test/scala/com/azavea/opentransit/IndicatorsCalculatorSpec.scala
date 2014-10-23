@@ -113,44 +113,39 @@ trait StopBuffersSpec {this: IndicatorSpec =>
 }
 
 trait ObservedStopTimeSpec { this: IndicatorSpec =>
-  val observedStopTimes = {
-    val observedTrips: Map[SamplePeriod, Map[String, Trip]] = {
-      observedSystems.map { case (period, sys) =>
-        period -> {
-          sys.routes.map { route =>
-            route.trips.map { trip =>
-              (trip.id -> trip)
-            }
+  lazy val observedTripMapping: Map[SamplePeriod, Map[String, Trip]] = {
+    observedSystems.map { case (period, sys) =>
+      period -> {
+        sys.routes.map { route =>
+          route.trips.map { trip =>
+            (trip.id -> trip)
           }
-          .flatten
-          .toMap
         }
+        .flatten
+        .toMap
       }
-      .toMap
     }
-
-    observedTrips
+    .toMap
   }
 
-  val observedPeriodTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
+  lazy val observedPeriodTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
     val scheduledTrips = system.routes.map(_.trips).flatten
-    val observedTripsById = observedStopTimes(period)
+    val observedTrips = observedTripMapping(period)
     scheduledTrips.map { trip =>
       (trip.id -> {
         val schedStops: Map[String, ScheduledStop] =
           trip.schedule.map(sst => sst.stop.id -> sst).toMap
         val obsvdStops: Map[String, ScheduledStop] =
-          observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
+          observedTrips(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
         for (s <- trip.schedule)
           yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
       }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
     }.toMap
-    
   }
 
   trait ObservedStopTimeSpecParams extends ObservedStopTimes {
-    def observedForTrip(period: SamplePeriod, scheduledTripId: String): Trip =
-      observedStopTimes(period)(scheduledTripId)
+    def observedTripById(period: SamplePeriod): Map[String, Trip] =
+      observedTripMapping(period)
 
     // Testing, so just return the same period every time.
     def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =

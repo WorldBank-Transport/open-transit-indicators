@@ -31,11 +31,11 @@ class OpenTransitServiceActor extends Actor
 
   def receive = handleTimeouts orElse runRoute {
     pathPrefix("gt") {
-      ingestRoute ~
       indicatorsRoute ~
       pathPrefix("scenarios") {
         scenariosRoute
       } ~
+      ingestRoute ~
       mapInfoRoute ~
       serviceDateRangeRoute
     }
