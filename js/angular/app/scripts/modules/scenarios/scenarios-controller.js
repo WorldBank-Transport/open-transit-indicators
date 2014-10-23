@@ -33,11 +33,7 @@ angular.module('transitIndicators')
             $scope.leaflet.legend = $rootScope.cache.transitLegend;
             return;
         }
-        OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
-            var legend = {
-                colors: config.gtfsRouteTypeColors,
-                labels: labels
-            };
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });

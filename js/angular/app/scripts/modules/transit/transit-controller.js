@@ -41,12 +41,8 @@ angular.module('transitIndicators')
     };
 
     var updateLegend = function () {
-        OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
-            var legend = {
-                colors: OTIMapStyleService.routeTypeColorRamp(),
-                labels: labels,
-                style: 'stacked'
-            };
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+            legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });
