@@ -2,6 +2,28 @@
     <h1>{{'VIEW.upload' | translate}}</h1>
     <p>{{'SETTINGS.UPLOAD_DESCRIPTION' | translate}}</p>
 
+    <form ng-submit="saveCityName()" name="cityNameForm" ng-show="true" autocomplete="off">
+        <div class="settingsmodal-fieldgroup">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-9">
+                            <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.CITY_NAME' | translate }}"
+                                class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.CITY_NAME' | translate}}</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="cityName" ng-model="cityName" required="true" ng-change="checkCityName()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button ng-disabled="!saveCityNameButton.enabled" class="btn" 
+            ng-class="{'btn-primary': saveCityNameButton.enabled}">{{saveCityNameButton.text | translate}}</button>
+        <span ng-show="cityNameError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+    </form><br />
+
     <polling-upload url="/api/gtfs-feeds/" upload="gtfsUpload" resource="GTFSUploads" options="gtfsOptions">
     </polling-upload>
 
@@ -23,7 +45,9 @@
     </div>
 
     <div class="dropzone error" ng-if="Status.isError(osmImport.status)">
-      <div class="h4">{{'SETTINGS.OSM_IMPORT_ERROR' | translate}} <span class="h5 pull-right"><button class="btn btn-danger" ng-click="retryOSMImport()">{{'STATUS.RETRY' | translate}}</button></span></div>
+        <div class="h4">{{'SETTINGS.OSM_IMPORT_ERROR' | translate}} <span class="h5 pull-right">
+            <button class="btn btn-danger" ng-click="retryOSMImport()">{{'STATUS.RETRY' | translate}}</button></span>
+        </div>
     </div>
 
     <div class="dropzone inprogress" ng-show="Status.isPolling(osmImport.status)">

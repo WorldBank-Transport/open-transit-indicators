@@ -221,6 +221,7 @@
         },
         "TOOLTIP": {
             "CITY": "关注区域的边界将被用于定义所服务公交系统区域的一个分区，如某个商业区或城市中心。",
+            "CITY_NAME": "The name that will be displayed for identifying calculations made from this feed.",
             "REGION": "本边界应代表公交系统所服务的总区域。",
             "REPRESENTATIVE_WEEKDAY": "请选择一个系统按计划正常服务的平常日。",
             "REPRESENTATIVE_WEEKEND": "请选择一个系统按计划正常服务的周末日。",
@@ -236,6 +237,7 @@
     "SETTINGS": {
         "BOUNDARY_DESCRIPTION": "请上传两个边界文件（压缩Shapefile（SHP）格式文件）。应用程序将利用这些边界计算您的GTFS数据的可达性和性能度量指标。其中一个文件将突出显示某个关注区域，如城市中心或存在就业中心的区域。第二个边界应包容公交系统所服务的整个地区。",
         "CITY": "关注区域",
+        "CITY_NAME": "City Name",
         "CITY_ERRORS": "关注区域错误",
         "CITY_WARNINGS": "关注区域警告",
         "REGION": "地区",

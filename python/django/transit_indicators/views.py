@@ -1,5 +1,7 @@
 import django_filters
 
+from django.conf import settings
+
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
@@ -10,6 +12,7 @@ from rest_framework_csv.renderers import CSVRenderer
 from viewsets import OTIAdminViewSet
 from models import (OTIIndicatorsConfig,
                     OTIDemographicConfig,
+                    OTICityName,
                     SamplePeriod,
                     Indicator,
                     IndicatorJob,
@@ -18,7 +21,31 @@ from models import (OTIIndicatorsConfig,
 from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
                          SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
-                         ScenarioSerializer)
+                         ScenarioSerializer, OTICityNameSerializer)
+
+
+class OTICityNameView(APIView):
+    """ Endpoint to GET or POST the user-configured city name.
+    """
+    model = OTICityName
+    serializer_class = OTICityNameSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            city_name = OTICityName.objects.get().city_name
+        except OTICityName.DoesNotExist:
+            city_name = settings.OTI_CITY_NAME
+        except OTICityName.MultipleObjectsReturned:
+            return Response({'error': 'There cannot be multiple city names set!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'city_name': city_name}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = OTICityNameSerializer(data=request.DATA)
+        if serializer.is_valid():
+            OTICityName.objects.all().delete() # delete any existing city names first
+            serializer.save() # save the new one
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -284,3 +311,4 @@ indicator_cities = IndicatorCities.as_view()
 sample_period_types = SamplePeriodTypes.as_view()
 scenarios = ScenarioViewSet.as_view()
 gtfs_route_types = GTFSRouteTypes.as_view()
+city_name = OTICityNameView.as_view()
