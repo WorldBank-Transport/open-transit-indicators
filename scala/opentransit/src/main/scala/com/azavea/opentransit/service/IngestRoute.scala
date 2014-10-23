@@ -13,6 +13,8 @@ import spray.json._
 import spray.httpx.SprayJsonSupport._
 import DefaultJsonProtocol._
 
+import scala.util.{Success, Failure}
+
 import scala.concurrent._
 
 trait IngestRoute extends Route { self: DatabaseInstance =>
@@ -24,38 +26,37 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
       post {
         parameter('gtfsDir.as[String]) { gtfsDir =>
           complete {
-            var err: JsObject = null
             TaskQueue.execute {
               println(s"parsing GTFS data from: $gtfsDir")
-              val routeCount =
-                db withSession { implicit session =>
-                  try {
-                    timedTask("Ingested GTFS") {
-                      val records = GtfsRecords.fromFiles(gtfsDir)
-                      GtfsIngest(records)
-                    }
-                  } catch {
-                    case e: Exception =>
-                      println("Error parsing GTFS!")
-                      println(e.getMessage)
-                      println(e.getStackTrace.mkString("\n"))
-                      err = JsObject(
-                        "success" -> JsBoolean(false),
-                        "message" -> JsString("Error parsing GTFS.\n" +
-                          e.getMessage.replace("\"", "'"))
-                      )
-                  }
+              db withSession { implicit session =>
+                timedTask("Ingested GTFS") {
+                  val records = GtfsRecords.fromFiles(gtfsDir)
+                  GtfsIngest(records)
                 }
-
-              if (err == null)
+              }
+            }.onComplete {
+              case Success(routeCount: Int) =>
                 JsObject(
                   "success" -> JsBoolean(true),
                   "message" -> JsString(s"Imported $routeCount routes")
                 )
-              else err
+              case Failure(e) =>
+                  println("Error parsing GTFS!")
+                  println(e.getMessage)
+                  println(e.getStackTrace.mkString("\n"))
+                  JsObject(
+                    "success" -> JsBoolean(false),
+                    "message" -> JsString("Error parsing GTFS.\n" +
+                      e.getMessage.replace("\"", "'"))
+                  )
             }
+            JsObject(
+              "success" -> JsBoolean(true),
+              "message" -> JsString(s"Import started")
+            )
           }
         }
       }
     }
 }
+
