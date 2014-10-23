@@ -26,9 +26,7 @@ angular.module('transitIndicators')
     // City controls
 
     $scope.remove = function (city) {
-        OTIIndicatorsService.query('DELETE', {
-            city_name: city
-        }).then(function () {
+        OTIIndicatorsService.deleteCity(city).then(function () {
             var index = $scope.cities.indexOf(city);
             $scope.cities.splice(index, 1);
             $rootScope.$broadcast(OTIEvents.Indicators.CitiesUpdated, $scope.cities);

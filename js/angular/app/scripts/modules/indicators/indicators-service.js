@@ -88,6 +88,24 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Delete a chosen city
+     */
+    otiIndicatorsService.deleteCity = function (cityname) {
+        var dfd = $q.defer();
+        $http.delete('/api/indicator-cities/', {
+            params: {
+                city_name: cityname
+            }
+        }).success(function (data) {
+            dfd.resolve();
+        }).error(function (error) {
+            console.error('OTIIndicatorService.deleteCity:', error);
+            dfd.reject();
+        });
+        return dfd.promise;
+    };
+
+    /**
      * Get the current indicator version
      *
      * @param callback: function to call after request is made, has a single argument 'version'
