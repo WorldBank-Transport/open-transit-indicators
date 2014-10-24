@@ -55,12 +55,21 @@ object CalculateIndicators {
     }
 
     val periodGeometries = periods.map { period =>
-      period -> SystemGeometries(systemsByPeriod(period))
+      println(s"Creating System Geometries for period ${period.periodType}...")
+      val systemGeometries = 
+        timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+          SystemGeometries(systemsByPeriod(period))
+        }
+      period -> systemGeometries
     }.toMap
 
     // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
-    lazy val overallGeometries: SystemGeometries =
-      SystemGeometries.merge(periodGeometries.values.toSeq)
+    lazy val overallGeometries: SystemGeometries = {
+      println("Calculating overall system geometries...")
+      timedTask("Calculated overall system geometries.") {
+        SystemGeometries.merge(periodGeometries.values.toSeq)
+      }
+    }
 
     for(indicator <- Indicators.list(params)) {
       try {

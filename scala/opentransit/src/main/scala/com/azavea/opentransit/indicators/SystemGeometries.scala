@@ -3,6 +3,8 @@ package com.azavea.opentransit.indicators
 import scala.util.{Try, Success, Failure}
 import com.azavea.gtfs._
 import geotrellis.vector._
+import geotrellis.vector.json._
+import spray.json._
 
 // TODO: Move this out of indicators
 
@@ -16,42 +18,51 @@ class SystemGeometries(geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Ma
     geomsByRouteType.getOrElse(routeType, MultiLine.EMPTY)
 
   def bySystem = geomForSystem
+
+  // Memoize the Json serialization so it only happens once per instance.
+  lazy val byRouteGeoJson: Map[Route, JsValue] = 
+    Timer.timedTask("Created byRoute GeoJson") {
+      geomsByRoute.map { case (route, ml) => (route, ml.toJson) }.toMap
+    }
+
+  lazy val byRouteTypeGeoJson: Map[RouteType, JsValue] = 
+    Timer.timedTask("Created byRouteType GeoJson") {
+      geomsByRouteType.map { case (routeType, ml) => (routeType, ml.toJson) }.toMap
+    }
+
+  lazy val bySystemGeoJson: JsValue =
+    Timer.timedTask("Created bySystem GeoJson") {
+      geomForSystem.toJson
+    }
 }
 
 object SystemGeometries {
-  // We always want a MultiLine from a MultiLine.union() call
-  implicit def multiLineResultToMultiLine(result: MultiLineMultiLineUnionResult): MultiLine =
-    result match {
-      case MultiLineResult(ml) => ml
-      case LineResult(l) => MultiLine(l)
-      case NoResult => MultiLine()
-    }
-
-  // TODO: *IMPORTANT* merge in fix for geotrellis' wrapper of JTS so that geometries can be used
   def apply(geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine): SystemGeometries =
     new SystemGeometries(geomsByRoute, geomsByRouteType, geomForSystem)
+
   def apply(transitSystem: TransitSystem): SystemGeometries = {
     val byRoute: Map[Route, MultiLine] =
       transitSystem.routes
         .map { route =>
-          val lines = List[Line]() // THIS LINE IS *ONLY* ACCEPTABLE AS A PLACEHOLDER UNTIL GEOMETRY CALCULATION THROUGH JTS IS FIXED
-           /* route.trips
+          val lines = 
+            route.trips
               .map { trip => trip.tripShape.map(_.line.geom) }
-              .flatten*/
-          val multiLine: MultiLine = MultiLine(lines).union
-          (route, multiLine)
+              .flatten
+              .dissolve
+
+          (route, MultiLine(lines))
         }.toMap
 
     def byRouteType: Map[RouteType, MultiLine] =
       byRoute
         .groupBy { case (route, multiLine) => route.routeType }
         .map { case(routeType, seq) =>
-          val lines = seq.values.map(_.lines).flatten.toSeq
-          (routeType, MultiLine(lines).union: MultiLine)
+          val lines = seq.values.map(_.lines).flatten.dissolve
+          (routeType, MultiLine(lines))
         }.toMap
 
     def bySystem: MultiLine =
-      MultiLine(byRouteType.values.map(_.lines).flatten.toSeq).union
+      MultiLine(byRouteType.values.map(_.lines).flatten.dissolve)
 
     SystemGeometries(byRoute, byRouteType, bySystem)
   }
@@ -66,16 +77,16 @@ object SystemGeometries {
       byRoutes
         .combineMaps
         .map { case(route, multiLines) =>
-          val lines = multiLines.map(_.lines).flatten
-          (route, MultiLine(lines.toSeq).union: MultiLine)
+          val lines = multiLines.map(_.lines).flatten.dissolve
+          (route, MultiLine(lines))
          }
 
       val mergedRouteTypeGeom =
         byRouteTypes
           .combineMaps
           .map { case(routeType, multiLines) =>
-            val lines = multiLines.map(_.lines).flatten
-            (routeType, MultiLine(lines.toSeq).union: MultiLine)
+            val lines = multiLines.map(_.lines).flatten.dissolve
+            (routeType, MultiLine(lines))
            }
 
       val mergedSystemGeom: MultiLine =
@@ -83,7 +94,8 @@ object SystemGeometries {
           bySystems
             .map(_.lines)
             .flatten
-        ).union
+            .dissolve
+        )
 
       SystemGeometries(mergedRouteGeom, mergedRouteTypeGeom, mergedSystemGeom)
   }

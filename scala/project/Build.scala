@@ -105,6 +105,7 @@ object Build extends Build {
       .settings(
         name := "opentransit-test",
         organization := "com.azavea",
+        fork := true,
         version := "0.1-SNAPSHOT",
         scalaVersion := "2.10.3",
         scalacOptions ++=
