@@ -221,6 +221,7 @@
         },
         "TOOLTIP": {
             "CITY": "!The Area of Interest boundary will be used to define a subregion of the transit system area served, such as a business district or city center.",
+            "CITY_NAME": "The name that will be displayed for identifying calculations made from this feed.",
             "REGION": "!This boundary should represent the total area served by the transit system.",
             "REPRESENTATIVE_WEEKDAY": "!Please choose a weekday during which the system is scheduled for normal service.",
             "REPRESENTATIVE_WEEKEND": "!Please choose a weekend day during which the system is scheduled for normal service.",
@@ -236,6 +237,7 @@
     "SETTINGS": {
         "BOUNDARY_DESCRIPTION": "!Please upload two boundary files as zipped Shapefiles (SHP). The application will use these boundaries to calculate accessibility and performance metrics about your GTFS data. One of the files would highlight an area of interest such as a city center, or area of job centers, for example. The second boundary should encompass the overall region served by the transit system.",
         "CITY": "!Area of Interest",
+        "CITY_NAME": "City Name",
         "CITY_ERRORS": "!Area of Interest Errors",
         "CITY_WARNINGS": "!Area of Interest Warnings",
         "REGION": "!Region",

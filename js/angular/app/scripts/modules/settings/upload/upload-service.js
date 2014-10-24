@@ -16,6 +16,14 @@ angular.module('transitIndicators')
         }
     });
 
+    // OTI city name
+    otiuploadservice.cityName = $resource('/api/city-name/ ', {}, {
+        'save': {
+            method: 'POST',
+            url: '/api/city-name/ '
+        }
+    });
+
     // OTI data problems
     otiuploadservice.gtfsProblems = $resource('/api/gtfs-feed-problems/:id');
 
