@@ -4,6 +4,8 @@ import com.azavea.gtfs._
 
 import geotrellis.vector._
 
+import spray.json._
+
 object IndicatorResultContainer {
   final val OVERALL_KEY = "alltime"
 }
@@ -16,7 +18,7 @@ case class IndicatorResultContainer(
   samplePeriodType: String,
   aggregation: Aggregate,
   value: Double,
-  geom: Geometry,
+  geom: JsValue,
   version: String,
   routeId: String = "",
   routeType: Option[RouteType] = None,

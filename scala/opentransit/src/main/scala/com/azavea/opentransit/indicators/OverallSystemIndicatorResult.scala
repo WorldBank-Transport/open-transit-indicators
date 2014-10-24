@@ -4,6 +4,8 @@ import com.azavea.gtfs._
 
 import geotrellis.vector._
 
+import spray.json._
+
 object OverallIndicatorResult {
   def apply(indicatorId: String, value: Double): OverallIndicatorResult =
     new OverallIndicatorResult(indicatorId, value)
@@ -13,18 +15,18 @@ object OverallIndicatorResult {
 
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
-        OverallIndicatorResult(name, value).forRoute(route, geometries.byRoute(route))
+        OverallIndicatorResult(name, value).forRoute(route, geometries.byRouteGeoJson(route))
       }
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteType(routeType))
+        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteTypeGeoJson(routeType))
       }
 
     val containerForSystem: Seq[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystem))
+          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystemGeoJson))
         case None =>
           Seq()
       }
@@ -34,7 +36,7 @@ object OverallIndicatorResult {
 }
 
 class OverallIndicatorResult(indicatorId: String, value: Double) {
-  def forRoute(route: Route, ml: MultiLine) =
+  def forRoute(route: Route, geoJson: JsValue) =
     new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -42,13 +44,13 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           RouteAggregate,
           value,
-          ml,
+          geoJson,
           version,
           routeId = route.id
         )
     }
 
-  def forRouteType(routeType: RouteType, ml: MultiLine) =
+  def forRouteType(routeType: RouteType, geoJson: JsValue) =
     new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -56,13 +58,13 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           RouteTypeAggregate,
           value,
-          ml,
+          geoJson,
           version,
           routeType = Some(routeType)
         )
     }
 
-  def forSystem(ml: MultiLine) =
+  def forSystem(geoJson: JsValue) =
     new ContainerGenerator {
       def toContainer(version: String): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -70,7 +72,7 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           SystemAggregate,
           value,
-          ml,
+          geoJson,
           version
         )
     }
