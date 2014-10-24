@@ -2,6 +2,7 @@ import json
 import time
 
 from rest_framework import serializers
+from django.contrib.gis.geos.collections import GEOSGeometry
 
 from datasources.models import DemographicDataFieldName
 from transit_indicators.models import (OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod,
@@ -116,6 +117,12 @@ class IndicatorSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Mode aggregation should not have route_id')
             if 'route_type' not in attrs:
                 raise serializers.ValidationError('Mode aggregation requires route_type')
+
+        # Convert the geometry from geojson to GEOS format for db insertion.
+        # This may not be the most correct place to perform this conversion,
+        # but it is by far the quickest/simplest.
+        if attrs.get("the_geom"):
+            attrs["the_geom"] = GEOSGeometry(json.dumps(attrs.get("the_geom")))
 
         return attrs
 

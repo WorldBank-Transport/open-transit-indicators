@@ -205,7 +205,7 @@ package object json {
         "sample_period" -> JsString(container.samplePeriodType),
         "aggregation" -> container.aggregation.toJson,
         "value" -> JsNumber(container.value),
-        "geom" -> container.geom,
+        "the_geom" -> container.geom,
         "version" -> JsString(container.version),
         "route_id" -> JsString(container.routeId),
         ("route_type",
