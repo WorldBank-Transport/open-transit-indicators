@@ -53,6 +53,10 @@ object Indicators {
         Requires(settings.hasRegionBounds)
       ),
       (
+        new HeadwayRegularity(params),
+        Requires(settings.hasObserved)
+      ),
+      (
         new TravelTimePerformance(params),
         Requires(settings.hasObserved)
       ),

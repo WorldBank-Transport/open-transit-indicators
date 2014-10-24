@@ -60,6 +60,8 @@ object IndicatorParams {
     new IndicatorParams {
       def observedStopsByTrip(period: SamplePeriod) =
         observedStopTimes.observedStopsByTrip(period)
+      def observedTripById(period: SamplePeriod) =
+        observedStopTimes.observedTripById(period)
 
       def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
       def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)

@@ -36,6 +36,7 @@ class OpenTransitServiceActor extends Actor
       pathPrefix("scenarios") {
         scenariosRoute
       } ~
+      ingestRoute ~
       mapInfoRoute ~
       serviceDateRangeRoute
     }
