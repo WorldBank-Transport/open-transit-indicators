@@ -266,9 +266,7 @@ class GTFSRouteTypes(APIView):
     def get(self, request, *args, **kwargs):
         def is_used(route_type):
             routes = GTFSRoute.objects.all()
-            if len(routes.filter(route_type=route_type)[:1]) == 1:
-                return True
-            return False
+            return routes.filter(route_type=route_type).exists()
 
         get_extended = request.QUERY_PARAMS.get('extended', None)
         route_types = None
