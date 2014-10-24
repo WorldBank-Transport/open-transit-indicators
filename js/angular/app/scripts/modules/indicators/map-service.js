@@ -30,6 +30,11 @@ angular.module('transitIndicators')
         return dfd.promise;
     };
 
+    /**
+     * Return a legend object in the format expected by the
+     * oti-legend directive
+     * .style must be set after it returns
+     */
     otiMapService.getLegendData = function () {
         return otiMapService.getRouteTypes().then(function (routetypes) {
             var colors = [];

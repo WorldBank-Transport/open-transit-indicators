@@ -84,8 +84,10 @@ angular.module('transitIndicators')
         zoomToDataExtent();
     });
 
-    // zoom out to world view when data deleted
+    // zoom out to world view and clear legend when data deleted
     $scope.$on(OTIEvents.Settings.Upload.GTFSDelete, function() {
+        $scope.cache.transitLegend = undefined;
+        $scope.leaflet.legend = {};
         $scope.leaflet.bounds = config.worldExtent;
     });
 

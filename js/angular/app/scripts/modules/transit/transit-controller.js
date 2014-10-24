@@ -83,4 +83,15 @@ angular.module('transitIndicators')
     $rootScope.$on('$translateChangeSuccess', function() {
         updateLegend();
     });
+
+    // This may not be the best place to update the legend on GTFS
+    // update, but most of the other legend updating code was here
+    $rootScope.$on(OTIEvents.Settings.Upload.GTFSDone, function () {
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+            $rootScope.cache.transitLegend = legend;
+            $rootScope.cache.transitLegend.style = 'stacked';
+            // only update cache so we don't show legend on the
+            // settings view
+        });
+    });
 }]);
