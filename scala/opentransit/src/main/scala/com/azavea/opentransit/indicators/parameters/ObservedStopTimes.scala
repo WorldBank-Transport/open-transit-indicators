@@ -29,9 +29,9 @@ object ObservedStopTimes {
     hasObserved: Boolean): ObservedStopTimes = {
     // This is ugly: a thousand sorries. it also is apparently necessary -
     // we have to index on SamplePeriod and again on trip id
-    val periods = scheduledSystems.keys
+    lazy val periods = scheduledSystems.keys
 
-    val observedSystemsMap = {
+    lazy val observedSystemsMap = {
       val observedGtfsRecords =
         db withSession { implicit session =>
           new DatabaseGtfsRecords with DefaultProfile {
