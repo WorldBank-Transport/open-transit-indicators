@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsMapService',
-        ['$q', '$http', '$resource', '$location', 'windshaftConfig',
-        function ($q, $http, $resource, $location, windshaftConfig) {
+        ['$q', '$http', '$resource', '$location', 'windshaftConfig', 'OTIMapStyleService',
+        function ($q, $http, $resource, $location, windshaftConfig, OTIMapStyleService) {
 
     var otiMapService = {};
 
@@ -19,15 +19,38 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Get the route type labels from the API and return in order as an array
+     * Get the route types from the API and return
      */
-    otiMapService.getRouteTypeLabels = function () {
+    otiMapService.getRouteTypes = function () {
         var r = $resource('/api/gtfs-route-types/');
         var dfd = $q.defer();
         var result = r.query({}, function () {
-            dfd.resolve(_.pluck(result, 'description'));
+            dfd.resolve(result);
         });
         return dfd.promise;
+    };
+
+    /**
+     * Return a legend object in the format expected by the
+     * oti-legend directive
+     * .style must be set after it returns
+     */
+    otiMapService.getLegendData = function () {
+        return otiMapService.getRouteTypes().then(function (routetypes) {
+            var colors = [];
+            var labels = [];
+            var colorRamp = OTIMapStyleService.routeTypeColorRamp();
+            _.chain(routetypes)
+                .filter(function(route) { return route.is_used; })
+                .each(function(route) {
+                    colors.push(colorRamp[route.route_type]);
+                    labels.push(route.description);
+                });
+            return {
+                colors: colors,
+                labels: labels,
+            };
+        });
     };
 
     /**

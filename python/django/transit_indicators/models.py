@@ -28,6 +28,22 @@ class GTFSRouteType(models.Model):
         db_table = 'gtfs_route_types'
 
 
+class GTFSRoute(models.Model):
+    route_id = models.TextField(primary_key=True)
+    agency_id = models.TextField(blank=True)
+    route_short_name = models.TextField(blank=True)
+    route_long_name = models.TextField(blank=True)
+    route_desc = models.TextField(blank=True)
+    route_type = models.IntegerField(blank=True, null=True)
+    route_url = models.TextField(blank=True)
+    route_color = models.TextField(blank=True)
+    route_text_color = models.TextField(blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'gtfs_routes'
+
+
 class OTIIndicatorsConfig(models.Model):
     """ Global configuration for indicator calculation. """
     # Suffixes denote database units; the UI may convert to other units for
