@@ -112,6 +112,18 @@ trait StopBuffersSpec {this: IndicatorSpec =>
   }
 }
 
+trait RoadLengthSpec { this: IndicatorSpec =>
+  val testRoadLength = db withSession { implicit session =>
+    RoadLength.totalRoadLength
+  }
+  trait RoadLengthSpecParams extends RoadLength {
+    def totalRoadLength = testRoadLength
+  }
+}
+
+
+
+
 trait ObservedStopTimeSpec { this: IndicatorSpec =>
   lazy val observedTripMapping: Map[SamplePeriod, Map[String, Trip]] = {
     observedSystems.map { case (period, sys) =>

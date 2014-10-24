@@ -41,8 +41,8 @@ object Indicators {
         Requires()
       ),
       (
-        new RoadLengthRatio(params),
-        Requires()
+        new RatioLinesRoads(params),
+        Requires(settings.hasOsm)
       ),
       (
         new CoverageRatioStopsBuffer(params),
