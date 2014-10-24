@@ -2,14 +2,12 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource',
-        function ($q, $http, $resource) {
+        ['$q', '$http', '$resource', 'OTIUploadService',
+        function ($q, $http, $resource, OTIUploadService) {
 
     var otiIndicatorsService = {};
     var nullVersion = 0;
-    // TODO: Replace this with call to get user-defined city name once implemented
-    // Should equal django.conf.settings.OTI_CITY_NAME
-    otiIndicatorsService.selfCityName = 'My City';
+    otiIndicatorsService.selfCityName = null;
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
@@ -95,7 +93,12 @@ angular.module('transitIndicators')
      * @param callback: function to call after request is made, has a single argument 'version'
      */
     otiIndicatorsService.getIndicatorVersion = function (callback) {
-        $http.get('/api/indicator-version/').success(function (data) {
+        var promises = []; // get the city name before using it to filter indicator versions
+        promises.push(OTIUploadService.cityName.get({}, function (data) {
+            otiIndicatorsService.selfCityName = data.city_name;
+        }));
+
+        promises.push($http.get('/api/indicator-version/').success(function (data) {
             var version = nullVersion;
             if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
                 var versionObj = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName});
@@ -107,7 +110,9 @@ angular.module('transitIndicators')
         }).error(function (error) {
             console.error('getIndicatorVersion:', error);
             callback(nullVersion);
-        });
+        }));
+
+        $q.all(promises);
     };
 
     otiIndicatorsService.getIndicatorTypes = function () {

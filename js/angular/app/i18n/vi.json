@@ -221,6 +221,7 @@
         },
         "TOOLTIP": {
             "CITY": "Phạm vi giới hạn khu vực cần phân tích sẽ được sử dụng để thể hiện một phân vùng trong hệ thống như khu thương mai, trung tâm thành phố",
+            "CITY_NAME": "The name that will be displayed for identifying calculations made from this feed.",
             "REGION": "Phạm vi giới hạn thể hiện toàn bộ phạm vi phục vụ của hệ thống",
             "REPRESENTATIVE_WEEKDAY": "Chọn một ngày trong tuần với chế độ phục vụ bình thường",
             "REPRESENTATIVE_WEEKEND": "Chọn ngày cuối tuần với chế độ phục vụ bình thường",
@@ -236,6 +237,7 @@
     "SETTINGS": {
         "BOUNDARY_DESCRIPTION": "Chọn tải lên 2 tệp tin giới hạn phạm vi hoạt động dưới định dạng nén như Shapefiles (SHP ). Chương trình sẽ sử dụng các giới hạn này để tính toán khả năng rời cập bến và thể hiện các số liệu thống kê từ dữ liệu GTFS. Một trong các tệp tin sẽ đánh dấu một khu vực cần phân tích, ví dụ như là một trung tâm thành phố hay một trung tâm tập trung nhiều người lao động hay khu công nghiệp. Tệp tin thứ hai sẽ chứa khu vực tổng thể được phục vụ bởi hệ thống giao thông.",
         "CITY": "Khu vực cần phân tích",
+        "CITY_NAME": "City Name",
         "CITY_ERRORS": "Lỗi thuộc khu vực cần phân tích",
         "CITY_WARNINGS": "Cảnh báo thuộc khu vực cần phân tích",
         "REGION": "Khu vực tổng thể",
