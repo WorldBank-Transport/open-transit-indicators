@@ -6,6 +6,7 @@ import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit._
 import com.azavea.opentransit.io.GtfsIngest
 
+import spray.http.StatusCodes.Accepted
 import spray.routing._
 import spray.routing.HttpService
 
@@ -42,13 +43,10 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
             }
-            JsObject(
-              "success" -> JsBoolean(true),
-              "message" -> JsString(s"Import started")
-            )
+
+            Accepted -> successMessage("Import started")
           }
         }
       }
     }
 }
-
