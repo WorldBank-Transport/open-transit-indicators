@@ -69,6 +69,22 @@ class OSMDataViewSet(FileDataSourceViewSet):
             import_osm_data.apply_async(args=[self.object.id], queue='datasources')
         return response
 
+    def update(self, request, pk=None):
+        """Override update to re-import OSMData"""
+        response = super(OSMDataViewSet, self).update(request, pk)
+
+        # Reset processing status since osm needs reimportation
+        status = OSMData.Statuses.PENDING
+        self.object.status = status
+        self.object.save()
+        response.data['status'] = status
+
+        # Delete existing problems since it will be revalidated
+        self.obj.osmdataproblem_set.all().delete()
+
+        import_osm_data.apply_async(args=[self.object.id], queue='datasources')
+        return response
+
 
 class OSMDataProblemsViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for OSM data"""
