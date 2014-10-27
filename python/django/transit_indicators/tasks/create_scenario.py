@@ -3,7 +3,7 @@ from time import sleep
 
 from celery.utils.log import get_task_logger
 from django.conf import settings
-import httplib
+from rest_framework import status
 import requests
 
 from transit_indicators.models import Scenario
@@ -41,7 +41,7 @@ def run_scenario_creation(scenario):
     logger.debug('Payload JSON: %s ', payload)
     response = requests.post(settings.SCALA_ENDPOINTS['SCENARIOS'], data=payload, headers=headers)
 
-    if response.status_code != httplib.ACCEPTED:
+    if response.status_code != status.HTTP_202_ACCEPTED:
         logger.error('%d encountered', response.status_code)
         logger.error(response.text)
         scenario.job_status = Scenario.StatusChoices.ERROR
