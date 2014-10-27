@@ -1,6 +1,6 @@
 package com.azavea.opentransit
 
-import com.azavea.opentransit.service.{ IndicatorJob, Scenario }
+import com.azavea.opentransit.service.{ GtfsFeed, IndicatorJob, Scenario }
 import com.azavea.opentransit.indicators.IndicatorResultContainer
 import com.azavea.opentransit.json._
 
@@ -50,6 +50,11 @@ object DjangoClient {
   // Send a PATCH to update processing status for scenario creation
   def updateScenario(token: String, scenario: Scenario) =
     sendRequest(token, Patch(s"$BASE_URI/scenarios/${scenario.dbName}/", scenario))
+
+  // Send a PATCH to update processing status for GTFS feed
+  def updateGtfsFeed(token: String, gtfsFeed: GtfsFeed) = {
+    sendRequest(token, Patch(s"$BASE_URI/gtfs-feeds/${gtfsFeed.id}/", gtfsFeed))
+  }
 
   // Sends a POST request to the indicators endpoint
   def postIndicators(token: String, indicators: Seq[IndicatorResultContainer]) =

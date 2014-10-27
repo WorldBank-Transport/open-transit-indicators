@@ -4,8 +4,11 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
 
 import com.azavea.opentransit._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.io.GtfsIngest
 
+import spray.http.StatusCodes.Accepted
 import spray.routing._
 import spray.routing.HttpService
 
@@ -17,14 +20,17 @@ import scala.util.{Success, Failure}
 
 import scala.concurrent._
 
-trait IngestRoute extends Route { self: DatabaseInstance =>
-  implicit val dispatcher: ExecutionContext
+case class GtfsFeed(
+  id: Int = 0,
+  jobStatus: JobStatus
+)
 
+trait IngestRoute extends Route { self: DatabaseInstance =>
   // Endpoint for uploading a GTFS file
   def ingestRoute =
     path("gtfs") {
       post {
-        parameter('gtfsDir.as[String]) { gtfsDir =>
+        parameters('gtfsDir.as[String], 'token.as[String], 'id.as[Int]) { (gtfsDir, token, id) =>
           complete {
             TaskQueue.execute {
               println(s"parsing GTFS data from: $gtfsDir")
@@ -35,20 +41,18 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
                 }
               }
             }.onComplete {
-              case Success(routeCount: Int) =>
-                println("GTFS fully ingested")
+              case Success(_) =>
+                DjangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Complete))
               case Failure(e) =>
                 println("Error parsing GTFS!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
+                DjangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Failed))
             }
-            JsObject(
-              "success" -> JsBoolean(true),
-              "message" -> JsString(s"Import started")
-            )
+
+            Accepted -> successMessage("Import started")
           }
         }
       }
     }
 }
-

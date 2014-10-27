@@ -20,7 +20,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.slick.jdbc.meta.MTable
 
 import spray.http.MediaTypes
-import spray.http.StatusCodes.{Created, InternalServerError}
+import spray.http.StatusCodes.{Accepted, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 import scala.concurrent._
@@ -84,7 +84,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                     println("Failed to set failure status for indicator calculation job!")
                 }
             }
-            Created -> JsObject(
+            Accepted -> JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Calculations started (version ${request.version})")
             )
