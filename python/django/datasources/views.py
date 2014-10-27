@@ -31,22 +31,6 @@ class GTFSFeedViewSet(FileDataSourceViewSet):
             validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
         return response
 
-    def update(self, request, pk=None):
-        """Override update to re-validate GTFS"""
-        response = super(GTFSFeedViewSet, self).update(request, pk)
-
-        # Reset processing status since GTFS needs revalidation
-        pending = GTFSFeed.Statuses.PENDING
-        self.object.status = pending
-        self.object.save()
-        response.data['status'] = pending
-
-        # Delete existing problems since it will be revalidated
-        self.obj.gtfsfeedproblem_set.all().delete()
-
-        validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
-        return response
-
 
 class GTFSFeedProblemViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for GTFS data"""
@@ -83,22 +67,6 @@ class OSMDataViewSet(FileDataSourceViewSet):
         response = super(OSMDataViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             import_osm_data.apply_async(args=[self.object.id], queue='datasources')
-        return response
-
-    def update(self, request, pk=None):
-        """Override update to re-import OSMData"""
-        response = super(OSMDataViewSet, self).update(request, pk)
-
-        # Reset processing status since osm needs reimportation
-        status = OSMData.Statuses.PENDING
-        self.object.status = status
-        self.object.save()
-        response.data['status'] = status
-
-        # Delete existing problems since it will be revalidated
-        self.obj.osmdataproblem_set.all().delete()
-
-        import_osm_data.apply_async(args=[self.object.id], queue='datasources')
         return response
 
 
