@@ -43,8 +43,8 @@ class DatabaseTests extends FunSuite with DatabaseTestFixture with Matchers {
     }
   }
 
-  // TODO: this test is ignored, because it causes Travis to have a high percentage of DB errors
-  ignore("Create new scenarios") {
+  // This test does not seem to be the culprit of Travis DB errors
+  test("Create new scenarios") {
     val config = ConfigFactory.load
     val dbUser = config.getString("database.user")
     val dbPassword = config.getString("database.password")
@@ -58,10 +58,8 @@ class DatabaseTests extends FunSuite with DatabaseTestFixture with Matchers {
     }
 
     // Create the base db
-    dbByName("postgres") withSession { implicit session: Session =>
-      s"sudo -u postgres ../deployment/setup_db.sh $baseDbName $dbUser $dbPassword ..".!!
-      s"sudo -u postgres testkit/data/populate_db.sh $baseDbName $dbUser $dbPassword ..".!!
-    }
+    s"sudo -u postgres ../deployment/setup_db.sh $baseDbName $dbUser $dbPassword ..".!!
+    s"sudo -u postgres testkit/data/populate_db.sh $baseDbName $dbUser $dbPassword ..".!!
 
     // Load GTFS data into the base db
     dbByName(baseDbName) withSession { implicit session: Session =>
@@ -97,6 +95,7 @@ class DatabaseTests extends FunSuite with DatabaseTestFixture with Matchers {
       } catch {
         case _: Throwable =>
           // TODO: figure out why sometimes these temp dbs have trouble being deleted
+          println("Unable to delete test database")
       }
     }
   }
