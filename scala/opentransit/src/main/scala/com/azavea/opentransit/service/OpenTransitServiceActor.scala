@@ -29,29 +29,6 @@ class OpenTransitServiceActor extends Actor
   // to the enclosing actor or test.
   def actorRefFactory = context
 
-  def receive = handleTimeouts orElse runRoute {
-    pathPrefix("gt") {
-      ingestRoute ~
-      indicatorsRoute ~
-      pathPrefix("scenarios") {
-        scenariosRoute
-      } ~
-      ingestRoute ~
-      mapInfoRoute ~
-      serviceDateRangeRoute
-    }
-  }
-
-  // timeout handling, from here:
-  // http://spray.io/documentation/1.1-SNAPSHOT/spray-routing/key-concepts/timeout-handling/
-  // return JSON message instead of default string message:
-  // The server was not able to produce a timely response to your request.
-  def handleTimeouts: Receive = {
-    case Timedout(x: HttpRequest) =>
-      sender ! HttpResponse(InternalServerError,
-                            """{ "success": false, "message": "Spray timeout encountered" }""")
-  }
-
   // This will be picked up by the runRoute(_) and used to intercept Exceptions
   implicit def OpenTransitGeoTrellisExceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler {
@@ -67,4 +44,31 @@ class OpenTransitServiceActor extends Actor
           complete(future(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" ))
         }
     }
+
+  def receive = handleTimeouts orElse runRoute {
+    pathPrefix("gt") {
+      pathPrefix("utils") {
+        ingestRoute ~
+        mapInfoRoute ~
+        serviceDateRangeRoute
+      } ~
+      pathPrefix("indicators") {
+        indicatorsRoute
+      } ~
+      pathPrefix("scenarios") {
+        scenariosRoute
+      }
+    }
+  }
+
+  // timeout handling, from here:
+  // http://spray.io/documentation/1.1-SNAPSHOT/spray-routing/key-concepts/timeout-handling/
+  // return JSON message instead of default string message:
+  // The server was not able to produce a timely response to your request.
+  def handleTimeouts: Receive = {
+    case Timedout(x: HttpRequest) =>
+      sender ! HttpResponse(InternalServerError,
+                            """{ "success": false, "message": "Spray timeout encountered" }""")
+  }
 }
+

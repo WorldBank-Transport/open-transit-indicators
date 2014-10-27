@@ -9,7 +9,7 @@ angular.module('transitIndicators')
 
     // retrieves map information from the server
     otiMapService.getMapInfo = function() {
-        var r = $resource('/gt/map-info');
+        var r = $resource('/gt/utils/map-info');
         var dfd = $q.defer();
 
         var result = r.get({}, function() {

@@ -190,7 +190,7 @@ def send_to_geotrellis(gtfs_file):
 
     try:
         params = {'gtfsDir': zip_dir}
-        response = requests.post('http://localhost/gt/gtfs?%s' % urlencode(params))
+        response = requests.post('http://localhost/gt/utils/gtfs?%s' % urlencode(params))
         logger.debug('GeoTrellis response: %s', response.text)
         data = response.json()
         gtfs_response = data
