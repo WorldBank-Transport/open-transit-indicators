@@ -9,6 +9,7 @@ class RatioSuburbanLines(params: Boundaries)
     extends Indicator
        with AggregatesByAll {
   type Intermediate = Boolean
+
   val name = "ratio_suburban_lines"
 
   val cityBounds = params.cityBoundary
@@ -20,7 +21,7 @@ class RatioSuburbanLines(params: Boundaries)
           case Some(tripShape) => !(cityBounds.contains(tripShape.line))
           case None => false
         }
-                  }
+      }
     }
 
     def reduce(designations: Seq[Boolean]): Double = {
@@ -29,7 +30,7 @@ class RatioSuburbanLines(params: Boundaries)
       .foldLeft((0, 0)) { case ((suburbanCount, cityCount), isSuburban) =>
         if(isSuburban) (suburbanCount + 1, cityCount)
         else (suburbanCount, cityCount + 1)
-                       }
+      }
 
       suburbanCount.toDouble / (cityCount + suburbanCount)
     }
