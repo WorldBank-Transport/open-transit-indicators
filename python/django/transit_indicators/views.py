@@ -207,7 +207,8 @@ class IndicatorViewSet(OTIAdminViewSet):
         if filters:
             indicators = Indicator.objects.all()
             for field in filters:
-                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicators = indicators.filter(**{
+                    delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -261,15 +262,46 @@ class IndicatorAggregationTypes(APIView):
 
 
 class IndicatorCities(APIView):
-    """ Indicator Cities GET endpoint
+    """ Indicator Cities GET and DELETE endpoint
 
     Returns a list of city names that have indicators loaded
+    Deletes Indicators and IndicatorJobs for a given city
 
     """
     def get(self, request, *args, **kwargs):
         response = IndicatorJob.objects.values_list('city_name', flat=True).filter(
                                                  city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        """ Bulk delete of indicators and indicator jobs based on a filter field
+
+        Return 400 BAD REQUEST if no filter fields provided or all filter fields provided are
+        not in delete_filter_fields
+        e.g. We do not want to allow someone to delete all the indicators with a DELETE to this
+        endpoint with no params
+
+        """
+        delete_filter_fields = {'city_name': 'version__city_name'}
+        delete_indicatorjobs_filter_fields = {'city_name': 'city_name'}
+        filters = []
+        for field in request.QUERY_PARAMS:
+            if field in delete_filter_fields:
+                filters.append(field)
+
+        if filters:
+            indicators = Indicator.objects.all()
+            indicatorjobs = IndicatorJob.objects.all()
+            for field in filters:
+                indicators = indicators.filter(**{
+                    delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicatorjobs = indicatorjobs.filter(**{
+                    delete_indicatorjobs_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+            indicators.delete()
+            indicatorjobs.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SamplePeriodTypes(APIView):
