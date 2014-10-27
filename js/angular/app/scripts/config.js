@@ -140,10 +140,18 @@ angular.module('transitIndicators').constant('config', {
             minZoom: 3,
             maxZoom: 16,
             zoomControl: true,
+            zoomControlPosition: 'bottomleft',
             doubleClickZoom: true,
             scrollWheelZoom: true,
             keyboard: true,
-            dragging: true
+            dragging: true,
+            controls: {
+                layers: {
+                    collapsed: true,
+                    position: 'bottomleft',
+                    visible: true
+                }
+            }
         },
         events: {
             layers: {

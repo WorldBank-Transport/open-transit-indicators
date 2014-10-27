@@ -75,17 +75,35 @@ var styles = {
     }
 };
 
+/*
+ * Escape for SQL
+ */
+function sqle(value, type) {
+    if (!type) {
+        type = 'text';
+    }
+    return "convert_from(decode('" + Buffer(value).toString('base64') +
+            "','base64'), getdatabaseencoding())::"+type;
+}
+
 /**
  * Encapsulates windshaft display logic for the
  * gtfs_shapes table
  */
 var GTFSShapes = function () {};
 
-GTFSShapes.prototype.getSql = function () {
+GTFSShapes.prototype.getSql = function (modes) {
+    var modestr = '';
+    if (modes) {
+        modestr = 'and r.route_type in (';
+        modestr += _.map(modes.split(','), function(m) { return sqle(m,'int'); }).join();
+        modestr += ')';
+    }
     var sqlString =
         "(SELECT distinct r.route_id, r.route_type, s.shape_id, s.the_geom as the_geom " +
         "FROM gtfs_shape_geoms AS s LEFT JOIN gtfs_trips t ON s.shape_id = t.shape_id " +
-        "LEFT JOIN gtfs_routes r ON r.route_id = t.route_id WHERE r.route_id IS NOT NULL) " +
+        "LEFT JOIN gtfs_routes r ON r.route_id = t.route_id WHERE r.route_id IS NOT NULL " +
+        modestr + ") " +
         "AS " + result_tablename;
     return sqlString;
 };
@@ -100,10 +118,20 @@ GTFSShapes.prototype.getStyle = function () {
  */
 var GTFSStops = function () {};
 
-GTFSStops.prototype.getSql = function (filetype) {
+GTFSStops.prototype.getSql = function (filetype, modes) {
+    var modestr = '';
+    if (modes) {
+        modestr = 'WHERE r.route_type in (';
+        modestr += modes;
+        modestr += ')';
+    }
     var table = filetype === 'utfgrid' ? 'gtfs_stops_info' : 'gtfs_stops';
     var sqlString =
-        "(SELECT * FROM " + table + ") " +
+        "(SELECT * " +
+        "FROM " + table + " AS s " +
+        "LEFT JOIN gtfs_stops_routes_join j ON s.stop_id = j.stop_id "+
+        "LEFT JOIN gtfs_routes r on r.route_id = j.route_id " +
+        modestr + ") " +
         "AS " + result_tablename;
     return sqlString;
 };
@@ -194,9 +222,9 @@ Indicator.prototype.getSql = function () {
         "ntile(" + this.options.ntiles + ") over (order by value) as ntiles_bin, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +
-        "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
-        "AND calculation_job_id='" + this.calculation_job + "' AND sample_period_id=" +
-        "(SELECT id from transit_indicators_sampleperiod WHERE type='" + this.sample_period + "')" +
+        "WHERE type=" + sqle(this.type) + " AND aggregation=" + sqle(this.aggregation) + " " +
+        "AND calculation_job_id=" + sqle(this.calculation_job) + " AND sample_period_id=" +
+        "(SELECT id from transit_indicators_sampleperiod WHERE type=" + sqle(this.sample_period) + ")" +
         ") as " + result_tablename;
     return sqlString;
 };

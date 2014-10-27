@@ -53,6 +53,13 @@ angular.module('transitIndicators')
         });
     };
 
+    var enabledmodes;
+
+    otiMapService.setModes = function (modes) {
+        enabledmodes = modes;
+
+    };
+
     /**
      * Create windshaft urls for leaflet map
      *
@@ -72,7 +79,7 @@ angular.module('transitIndicators')
      */
     otiMapService.getGTFSShapesUrl = function () {
         var url = otiMapService.getWindshaftHost();
-        url += '/tiles/transit_indicators/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png';
+        url += '/tiles/transit_indicators/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png?modes={modes}';
         return url;
     };
 
@@ -86,7 +93,8 @@ angular.module('transitIndicators')
     otiMapService.getGTFSStopsUrl = function (filetype) {
         var url = otiMapService.getWindshaftHost();
         url += '/tiles/transit_indicators/0/gtfs_stops/morning/route/{z}/{x}/{y}';
-        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=stop_routes' : '.png';
+        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=stop_routes&modes={modes}'
+                : '.png?modes={modes}';
         return url;
     };
 
