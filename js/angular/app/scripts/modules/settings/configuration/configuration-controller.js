@@ -398,37 +398,33 @@ angular.module('transitIndicators')
             $scope.configLoadError = true;
         });
         
-        // resolve these two promises with all() so we will only set the
-        // default sample period after service date range found
-        var initPromises = [];
         // get service date range
-        initPromises.push(OTIConfigurationService.ServiceDates.get({}, function (data) {
+        OTIConfigurationService.ServiceDates.get({}, function (data) {
             setServiceDateRange(data);
-        }));
 
-        initPromises.push(OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
-            // Configs exist, set UI
-            OTIConfigurationService.SamplePeriod.query(function (data) {
-                setSamplePeriods(data);
+            // do not attempt to set default sample period until service date range found
+            OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
+                // Configs exist, set UI
+                OTIConfigurationService.SamplePeriod.query(function (data) {
+                    setSamplePeriods(data);
+                }, function () {
+                    // Unable to make web request, so hide the samplePeriods form and show
+                    //  static error message
+                    $scope.samplePeriodsLoadError = true;
+                    $scope.samplePeriods = {};
+                });
             }, function () {
-                // Unable to make web request, so hide the samplePeriods form and show
-                //  static error message
-                $scope.samplePeriodsLoadError = true;
-                $scope.samplePeriods = {};
+                // No configs exist, so create sensible defaults,
+                //  then set the UI
+                // TODO: Move to service?
+                createDefaultPeriods().then(function (data) {
+                    setSamplePeriods(data);
+                }, function () {
+                    // Hide the samplePeriods form and show static error message
+                    $scope.samplePeriodsLoadError = true;
+                    $scope.samplePeriods = {};
+                });
             });
-        }, function () {
-            // No configs exist, so create sensible defaults,
-            //  then set the UI
-            // TODO: Move to service?
-            createDefaultPeriods().then(function (data) {
-                setSamplePeriods(data);
-            }, function () {
-                // Hide the samplePeriods form and show static error message
-                $scope.samplePeriodsLoadError = true;
-                $scope.samplePeriods = {};
-            });
-        }));
-
-        $q.all(initPromises);
+        });
     };
 }]);
