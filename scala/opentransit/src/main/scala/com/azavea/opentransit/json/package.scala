@@ -244,4 +244,13 @@ package object json {
       )
     }
   }
+
+  implicit object GtfsFeedWriter extends RootJsonWriter[GtfsFeed] {
+    def write(gtfsFeed: GtfsFeed) = {
+      JsObject(
+        "id" -> JsNumber(gtfsFeed.id),
+        "status" -> JsString(gtfsFeed.jobStatus.toString)
+      )
+    }
+  }
 }

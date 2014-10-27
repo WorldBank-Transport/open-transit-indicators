@@ -38,7 +38,10 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: D
             }.onComplete {
               case Success(_) =>
                 DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
-              case Failure(ex) =>
+              case Failure(e) =>
+                println("Error creating scenario!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
                 DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Failed))
             }
 
