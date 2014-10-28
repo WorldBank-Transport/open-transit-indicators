@@ -18,7 +18,7 @@ class ScenarioGtfsRouteSpec extends FunSuite  with ScalatestRouteTest
   import com.azavea.opentransit.service.json.ScenariosGtfsRouteJsonProtocol._
 
   // we're just going to run the tests against the main DB, as they should be equivalent
-  val root = scenarioGtfsRoute(db)
+  val root = sealRoute(scenarioGtfsRoute(db))
 
   test("lists the routes") {
     Get("/routes") ~> root ~> check {
