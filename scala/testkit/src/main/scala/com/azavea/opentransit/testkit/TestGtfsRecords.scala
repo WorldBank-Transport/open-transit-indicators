@@ -160,7 +160,7 @@ class TestGtfsRecords extends GtfsRecords {
             Array.fill(i)(every).foldLeft(0.minute: Period)(_ + _) + 
             Array.fill(i)(wait).foldLeft(0.minute: Period)(_ + _)
 
-          StopTimeRecord(stop.id, trip.id, i + 1, arrive, arrive + wait)
+          StopTimeRecord(stop.id, trip.id, i + 1, arrive.normalizedStandard(), (arrive + wait).normalizedStandard())
         }
     }
 
