@@ -52,13 +52,16 @@ trait OpenTransitService
 
   def openTransitRoute =
     pathPrefix("gt") {
-      ingestRoute ~
-      indicatorsRoute ~
+      pathPrefix("utils") {
+        ingestRoute ~
+          mapInfoRoute ~
+          serviceDateRangeRoute
+      } ~
+      pathPrefix("indicators") {
+        indicatorsRoute
+      } ~
       pathPrefix("scenarios") {
         scenariosRoute
-      } ~
-      ingestRoute ~
-      mapInfoRoute ~
-      serviceDateRangeRoute
+      }
     }
 }

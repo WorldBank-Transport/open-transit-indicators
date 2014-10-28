@@ -20,7 +20,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.slick.jdbc.meta.MTable
 
 import spray.http.MediaTypes
-import spray.http.StatusCodes.{Created, InternalServerError}
+import spray.http.StatusCodes.{Accepted, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 import scala.concurrent._
@@ -30,6 +30,8 @@ import spray.json._
 import spray.httpx.SprayJsonSupport
 import SprayJsonSupport._
 import DefaultJsonProtocol._
+
+import scala.util.{Success, Failure}
 
 import com.typesafe.config.{ConfigFactory, Config}
 
@@ -48,36 +50,32 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
   //   in a table, and calculations will be run one (or more) at a time
   //   in the background via an Actor.
   def indicatorsRoute = {
-    path("indicators") {
+    pathEnd {
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
-            TaskQueue.execute {
-              try {
-                // Load GTFS records from the GTFS database.
-                // Load it with UTM projection (column 'geom' in the database).
-                val gtfsRecords =
-                  dbByName(request.gtfsDbName) withSession { implicit session =>
-                    GtfsRecords.fromDatabase(dbGeomNameUtm)
-                  }
-
-                // Perform all indicator calculations, store results and statuses
+            TaskQueue.execute { // async
+              val gtfsRecords =
+                dbByName(request.gtfsDbName) withSession { implicit session =>
+                  GtfsRecords.fromDatabase(dbGeomNameUtm)
+                }
                 CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
                   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
                     val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
                     djangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
-
                   def statusChanged(status: Map[String, JobStatus]) = {
                     djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })
-              } catch { case e: Exception =>
+
+            }.onComplete { // TaskQueue callback for result handling
+              case Success(_) =>
+                println(s"TaskQueue successfully completed - indicator finished")
+              case Failure(e) =>
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
-
-                // update status to indicate indicator calculation failure
                 try {
                   djangoClient.updateIndicatorJob(request.token,
                     IndicatorJob(request.version, Map("alltime" -> JobStatus.Failed)))
@@ -85,11 +83,8 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                   case ex: Exception =>
                     println("Failed to set failure status for indicator calculation job!")
                 }
-              }
             }
-
-            // return a 201 created
-            Created -> JsObject(
+            Accepted -> JsObject(
                 "success" -> JsBoolean(true),
                 "message" -> JsString(s"Calculations started (version ${request.version})")
             )

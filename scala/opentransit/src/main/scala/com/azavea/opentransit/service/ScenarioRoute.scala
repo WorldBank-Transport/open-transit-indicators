@@ -8,7 +8,7 @@ import com.azavea.opentransit.scenarios._
 import grizzled.slf4j.Logging
 
 import spray.http.MediaTypes
-import spray.http.StatusCodes
+import spray.http.StatusCodes.{Accepted, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 import scala.concurrent._
@@ -40,18 +40,21 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging {
             }.onComplete {
               case Success(_) =>
                 djangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
-              case Failure(ex) =>
+              case Failure(e) =>
+                println("Error creating scenario!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
                 djangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Failed))
             }
 
-            StatusCodes.Accepted -> successMessage("Scenario creation started.")
+            Accepted -> successMessage("Scenario creation started.")
           }
         }
       }
     } ~
     pathPrefix(Segment)  { scenarioId =>
       if (scenarioId == "transit_indicators")
-        complete(StatusCodes.InternalServerError -> "This database is not for you")
+        complete(InternalServerError -> "This database is not for you")
       else {
         val scenarioDB = dbByName(scenarioId)
         scenarioGtfsRoute(scenarioDB)

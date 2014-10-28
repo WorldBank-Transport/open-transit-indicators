@@ -14,11 +14,11 @@ var styles = {
         var cartocss = '#' + result_tablename + ' { ' +
             'line-color: #EFF3FF; ' +
             'line-width: 5; ' +
-            '[ ntiles_bin > 0 ] { line-color: #c6dbef; } ' +
-            '[ ntiles_bin > 1 ] { line-color: #9ecae1; } ' +
-            '[ ntiles_bin > 2 ] { line-color: #6baed6; } ' +
-            '[ ntiles_bin > 3 ] { line-color: #3182bd; } ' +
-            '[ ntiles_bin > 4 ] { line-color: #08519c; } ' +
+            '[ ntiles_bin > 0 ] { line-color: #d7191c; } ' +
+            '[ ntiles_bin > 1 ] { line-color: #fdae61; } ' +
+            '[ ntiles_bin > 2 ] { line-color: #ffffbf; } ' +
+            '[ ntiles_bin > 3 ] { line-color: #abdda4; } ' +
+            '[ ntiles_bin > 4 ] { line-color: #2b83ba; } ' +
             '} ';
         return cartocss;
     },

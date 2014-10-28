@@ -39,10 +39,11 @@ trait ScenarioGtfsRoute extends Route {
       pathEnd {
         get { /** Get route list */
           complete { future {
-            scenarioDB withSession { implicit s =>
-              val routes: List[RouteRecord] = tables.routeRecordsTable.list
-              routes
+            val routes: List[RouteRecord] =
+              scenarioDB withSession { implicit s =>
+                tables.routeRecordsTable.list
             }
+            routes
           }}
         } ~
         post { /** Insert new Route Record */
@@ -219,5 +220,3 @@ object ScenarioGtfsRoute {
     tables.routeRecordsTable.filter(_.id === routeId).delete
   }
 }
-
-
