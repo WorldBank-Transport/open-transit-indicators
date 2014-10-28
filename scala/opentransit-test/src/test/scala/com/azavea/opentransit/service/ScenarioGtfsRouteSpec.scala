@@ -1,12 +1,11 @@
-package com.azavea.opentransit
+package com.azavea.opentransit.service
 
 import com.azavea.gtfs.RouteRecord
-import com.azavea.opentransit.service.ScenarioGtfsRoute
-import org.scalatest.{FunSuite, Outcome, Matchers, FunSpec}
-import spray.http.StatusCodes
-import spray.json._
-import spray.testkit.ScalatestRouteTest
 import com.azavea.opentransit.service.json.ScenariosGtfsRouteJsonProtocol
+import com.azavea.opentransit.util.TestDatabaseFixture
+import org.scalatest.{FunSuite, Matchers}
+import spray.http.StatusCodes
+import spray.testkit.ScalatestRouteTest
 
 class ScenarioGtfsRouteSpec extends FunSuite  with ScalatestRouteTest
   with Matchers
@@ -16,8 +15,7 @@ class ScenarioGtfsRouteSpec extends FunSuite  with ScalatestRouteTest
   def actorRefFactory = system
   implicit val dispatcher = actorRefFactory.dispatcher
 
-  import ScenariosGtfsRouteJsonProtocol._
-  import spray.httpx.SprayJsonSupport._
+  import com.azavea.opentransit.service.json.ScenariosGtfsRouteJsonProtocol._
 
   // we're just going to run the tests against the main DB, as they should be equivalent
   val root = scenarioGtfsRoute(db)

@@ -1,15 +1,13 @@
-package com.azavea.opentransit
+package com.azavea.opentransit.util
 
-import com.azavea.gtfs.GtfsRecords
+import com.azavea.opentransit.DatabaseInstance
 import com.azavea.opentransit.io.GtfsIngest
-import com.azavea.opentransit.testkit.{TestGtfsRecords, TestFiles, TestDatabase, DatabaseTestFixture}
-
-
-import com.typesafe.config.{ConfigFactory,Config}
+import com.azavea.opentransit.testkit.TestGtfsRecords
+import com.typesafe.config.ConfigFactory
 import org.scalatest._
-import spray.http.CacheDirectives.public
-import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+
 import scala.slick.jdbc.JdbcBackend.{Database, Session}
+import scala.slick.jdbc.{StaticQuery => Q}
 import scala.sys.process._
 
 /**
@@ -67,8 +65,8 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
   }
 
   abstract override protected def afterAll(): Unit = {
-    live.foreach(deleteDatabase)
     super.afterAll()
+    live.foreach(deleteDatabase)
   }
 }
 

@@ -15,7 +15,10 @@ import scala.concurrent._
 class OpenTransitServiceActor extends Actor
   with OpenTransitService
   with ProductionDatabaseInstance
+  with DjangoClientComponent
 {
+  val djangoClient = new ProductionDjangoClient {}
+
   // This is the execution context to use for this Actor
   implicit val dispatcher = context.dispatcher
 
@@ -45,7 +48,7 @@ trait OpenTransitService
   with ScenarioGtfsRoute
   with MapInfoRoute
   with ServiceDateRangeRoute
-{ self: DatabaseInstance =>
+{ self: DatabaseInstance with DjangoClientComponent =>
 
   def openTransitRoute =
     pathPrefix("gt") {

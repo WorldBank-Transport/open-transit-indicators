@@ -38,7 +38,7 @@ case class IndicatorJob(
   status: Map[String, JobStatus]
 )
 
-trait IndicatorsRoute extends Route { self: DatabaseInstance =>
+trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
   val config = ConfigFactory.load
   val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
@@ -65,11 +65,11 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
                 CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
                   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
                     val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                    DjangoClient.postIndicators(request.token, indicatorResultContainers)
+                    djangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
 
                   def statusChanged(status: Map[String, JobStatus]) = {
-                    DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
+                    djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
                   }
                 })
               } catch { case e: Exception =>
@@ -79,7 +79,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
 
                 // update status to indicate indicator calculation failure
                 try {
-                  DjangoClient.updateIndicatorJob(request.token,
+                  djangoClient.updateIndicatorJob(request.token,
                     IndicatorJob(request.version, Map("alltime" -> JobStatus.Failed)))
                 } catch {
                   case ex: Exception =>

@@ -25,7 +25,9 @@ case class Scenario(
   jobStatus: JobStatus
 )
 
-trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: DatabaseInstance =>
+trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging {
+  self: DatabaseInstance with DjangoClientComponent =>
+
   // Endpoint for creating a new scenario
   def scenariosRoute = {
     /** Create Scenario DB and prepare it's transactions */
@@ -37,9 +39,9 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: D
               CreateScenario(request, dbByName, createDatabase)
             }.onComplete {
               case Success(_) =>
-                DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
+                djangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
               case Failure(ex) =>
-                DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Failed))
+                djangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Failed))
             }
 
             StatusCodes.Accepted -> successMessage("Scenario creation started.")
