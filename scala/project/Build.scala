@@ -118,7 +118,8 @@ object Build extends Build {
             "-language:existentials",
             "-feature"),
         libraryDependencies ++= Seq(
-          "org.scalatest" %% "scalatest" % "2.1.5"
+          "org.scalatest" %% "scalatest" % "2.1.5",
+          "io.spray" % "spray-testkit" % "1.2.0"
         )
        )
       .dependsOn(opentransit, testkit)
