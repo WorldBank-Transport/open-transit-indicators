@@ -8,9 +8,12 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
 from transit_indicators.tests import OTIAPIClient
+from userdata.models import OTIUser
+
 from datasources.models import GTFSFeedProblem, RealTimeProblem
 
 @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
@@ -24,6 +27,10 @@ class GTFSFeedTestCase(TestCase):
         self.url = reverse('gtfsfeed-list', {})
         self.file_directory = os.path.dirname(os.path.abspath(__file__))
         self.test_gtfs_fh = open(self.file_directory + '/tests/test-gtfs.zip', 'rb')
+
+        # Some tasks such as GTFS imports require an oti-admin user (with a token) to exist
+        self.admin = OTIUser.objects.create_user('oti-admin', password='secret', email='a@test.com')
+        Token.objects.get_or_create(user=self.admin)
 
     def tearDown(self):
         self.test_gtfs_fh.close()
