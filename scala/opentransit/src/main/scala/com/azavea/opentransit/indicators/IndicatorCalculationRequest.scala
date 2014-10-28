@@ -19,7 +19,7 @@ case class Requirements(
 // Calculation request parameters
 case class IndicatorCalculationRequest(
   token: String,
-  version: String,
+  id: Int,
   povertyLine: Double,
   nearbyBufferDistance: Double,
   maxCommuteTime: Int,

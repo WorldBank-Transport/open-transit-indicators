@@ -19,12 +19,12 @@ case class IndicatorResultContainer(
   aggregation: Aggregate,
   value: Double,
   geom: JsValue,
-  version: String,
+  calculationJob: Int,
   routeId: String = "",
   routeType: Option[RouteType] = None,
   cityBounded: Boolean = false
 )
 
 trait ContainerGenerator {
-  def toContainer(version: String): IndicatorResultContainer
+  def toContainer(id: Int): IndicatorResultContainer
 }

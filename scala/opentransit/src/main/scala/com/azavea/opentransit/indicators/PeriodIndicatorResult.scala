@@ -39,42 +39,42 @@ object PeriodIndicatorResult {
 class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Double) {
   def forRoute(route: Route, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           RouteAggregate,
           value,
           geoJson,
-          version,
+          calculationJob,
           routeId = route.id
         )
     }
 
   def forRouteType(routeType: RouteType, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           RouteTypeAggregate,
           value,
           geoJson,
-          version,
+          calculationJob,
           routeType = Some(routeType)
         )
     }
 
   def forSystem(geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           SystemAggregate,
           value,
           geoJson,
-          version = version
+          calculationJob// = calculationJob
         )
     }
 }

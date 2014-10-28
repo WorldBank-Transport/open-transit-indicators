@@ -36,7 +36,7 @@ import scala.util.{Success, Failure}
 import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
-  version: String = "",
+  id: Int,
   status: Map[String, JobStatus]
 )
 
@@ -61,11 +61,11 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 }
                 CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
                   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
-                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
                     djangoClient.postIndicators(request.token, indicatorResultContainers)
                   }
                   def statusChanged(status: Map[String, JobStatus]) = {
-                    djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, status))
+                    djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
                   }
                 })
 
@@ -78,7 +78,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 println(e.getStackTrace.mkString("\n"))
                 try {
                   djangoClient.updateIndicatorJob(request.token,
-                    IndicatorJob(request.version, Map("alltime" -> JobStatus.Failed)))
+                    IndicatorJob(request.id, Map("alltime" -> JobStatus.Failed)))
                 } catch {
                   case ex: Exception =>
                     println("Failed to set failure status for indicator calculation job!")
@@ -86,7 +86,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
             }
             Accepted -> JsObject(
                 "success" -> JsBoolean(true),
-                "message" -> JsString(s"Calculations started (version ${request.version})")
+                "message" -> JsString(s"Calculations started (id: ${request.id})")
             )
           }
         }
