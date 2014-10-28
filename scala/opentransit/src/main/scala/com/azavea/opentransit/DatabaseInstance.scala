@@ -34,7 +34,7 @@ trait ProductionDatabaseInstance extends DatabaseInstance {
   }
 
   def createDatabase(name: String) = {
-    s"""sudo -u $dbSudo ../deployment/setup_db.sh $name "$dbUser" "$dbPassword" ..""".!!
+    s"""sudo -u $dbSudo ../deployment/setup_db.sh $name $dbUser "$dbPassword" ..""".!!
   }
 
   def deleteDatabase(name: String) = {
