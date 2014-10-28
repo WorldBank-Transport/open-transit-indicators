@@ -34,7 +34,7 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging { self: D
         entity(as[ScenarioCreationRequest]) { request =>
           complete {
             TaskQueue.execute {
-              CreateScenario(request, dbByName)
+              CreateScenario(request, dbByName, createDatabase)
             }.onComplete {
               case Success(_) =>
                 DjangoClient.updateScenario(request.token, Scenario(request.dbName, JobStatus.Complete))
