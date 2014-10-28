@@ -127,9 +127,6 @@ def run_validate_gtfs(gtfsfeed_id):
     # delete any uploaded shapefiles that aren't for this GTFS' city
     delete_other_city_uploads(gtfsfeed.city_name)
 
-    # invalidate last set of indicators calculated for this city (need to re-run them for this GTFS)
-    IndicatorJob.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
-
     # send to GeoTrellis
     logger.debug('going to send gtfs to geotrellis')
     response = send_to_geotrellis(gtfsfeed.source_file, gtfsfeed_id)

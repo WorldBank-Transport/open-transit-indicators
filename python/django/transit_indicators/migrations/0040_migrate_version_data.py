@@ -16,7 +16,7 @@ def copy_column(apps, schema_editor):
     """This function copies a column into another column"""
     Indicator = apps.get_model('transit_indicators', 'Indicator')
     for indicator in Indicator.objects.all():
-        indicator.version = indicator.temp
+        indicator.calculation_job = indicator.temp
         indicator.save()
 
 class Migration(migrations.Migration):
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='indicator',
-            name='version',
+            name='calculation_job',
             field=models.ForeignKey(to='transit_indicators.IndicatorJob')
         ),
         migrations.RunPython(

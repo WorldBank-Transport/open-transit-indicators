@@ -73,7 +73,7 @@ def run_indicator_calculation(indicator_job):
     token = OTIUser.objects.get(username='oti-admin').auth_token.key
     payload = json.dumps({
         'token': token,
-        'version': indicator_job.version,
+        'id': indicator_job.id,
         'avg_fare': config.avg_fare,
         'nearby_buffer_distance_m': config.nearby_buffer_distance_m,
         'poverty_line': config.poverty_line,
@@ -112,7 +112,7 @@ def run_indicator_calculation(indicator_job):
         response.raise_for_status()
     else:
         logger.info('Response: %s ', response.json())
-        logger.info('Calculations triggered for version: %s', indicator_job.version)
+        logger.info('Calculation job %s triggered', indicator_job.id)
 
     # re-query to get object status
     indicator_job = IndicatorJob.objects.get(pk=indicator_job.pk)
@@ -124,15 +124,13 @@ def run_indicator_calculation(indicator_job):
         # re-query to get object status
         indicator_job = IndicatorJob.objects.get(pk=indicator_job.pk)
         status = indicator_job.job_status
-        logger.info('Checking job status for indicator job version: %s', indicator_job.version)
+        logger.info('Checking job status for indicator job %s', indicator_job.id)
 
     # Update current indicator version on successful completion
     if status == IndicatorJob.StatusChoices.COMPLETE:
-        logger.info('Job completed successfully; updating current indicator version to %s',
+        logger.info('Indicator job %s completed successfully.',
                     indicator_job.version)
         # invalidate previous indicator calculations for city
-        IndicatorJob.objects.filter(city_name=indicator_job.city_name).update(is_latest_version=False)
-        indicator_job.is_latest_version = True
         indicator_job.save()
     else:
         logger.error('Indicator calculation job failed with status: %s', status)

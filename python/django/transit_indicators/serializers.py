@@ -40,7 +40,6 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
     # Fields needs to not be required to allow setting default values
     job_status = serializers.ChoiceField(choices=IndicatorJob.StatusChoices.CHOICES,
                                          required=False)
-    is_latest_version = serializers.BooleanField(required=False)
     calculation_status = serializers.CharField(required=False)
 
     def validate(self, attrs):
@@ -55,7 +54,7 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'version', 'created_by')
+        read_only_fields = ('id', 'created_by')
 
 
 class ScenarioSerializer(serializers.ModelSerializer):
@@ -89,11 +88,11 @@ class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
-    version = serializers.SlugRelatedField(slug_field='version')
+    calculation_job = serializers.SlugRelatedField(slug_field='calculation_job')
     city_name = serializers.SerializerMethodField('get_city_name')
 
     def get_city_name(self, obj):
-        return obj.version.city_name
+        return obj.calculation_job.city_name
 
     def validate(self, attrs):
         """Validate indicator fields"""
@@ -131,7 +130,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type',
-                  'city_bounded', 'value', 'formatted_value', 'version', 'city_name', 'the_geom')
+                  'city_bounded', 'value', 'formatted_value', 'calculation_job', 'city_name', 'the_geom')
         read_only_fields = ('id', 'formatted_value')
         write_only_fields = ('the_geom',)
 

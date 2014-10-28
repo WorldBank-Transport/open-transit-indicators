@@ -214,8 +214,6 @@ class IndicatorJob(models.Model):
         )
 
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
-    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
-    is_latest_version = models.BooleanField(default=False)
     created_by = models.ForeignKey(OTIUser)
 
     # Optional scenario to calculate indicators for.
@@ -234,7 +232,7 @@ class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
     field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
-                   'sample_period', 'type', 'value', 'version']
+                   'sample_period', 'type', 'value', 'calculation_job']
 
     class LoadStatus(object):
         """Stores status of the load class method"""
@@ -273,11 +271,6 @@ class Indicator(models.Model):
             response.success = False
             return response
         try:
-            # first, invalidate previous indicator calculations uploaded for this city
-            IndicatorJob.objects.filter(city_name=city_name).update(is_latest_version=False)
-            # create new job for this import, so the version number may be set
-            # Always has is_latest_version true to indicate that these indicators are available
-            # for display
             import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                       created_by=user, city_name=city_name)
             num_saved = 0
@@ -291,10 +284,7 @@ class Indicator(models.Model):
                     if this_city != city_name:
                         continue
                     sp_type = row.pop('sample_period', None)
-                    version = row.pop('version', None)
-                    if not import_job.version:
-                        import_job.version = version
-                        import_job.save()
+                    calculation_job = row.pop('version', None)
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
@@ -304,13 +294,12 @@ class Indicator(models.Model):
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
                     value = float(row.pop('value'))
-                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)
+                    indicator = cls(sample_period=sample_period, calculation_job=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
                 response.success = True
                 import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
-                import_job.is_latest_version = True
                 import_job.save()
 
         except Exception as e:
@@ -463,10 +452,8 @@ class Indicator(models.Model):
     # Whether or not this calculation is contained within the defined city boundaries
     city_bounded = models.BooleanField(default=False)
 
-    # Version of data this indicator was calculated against. For the moment, this field
-    # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
-    # will need to be added to the the GTFS (and other data) rows.
-    version = models.ForeignKey(IndicatorJob, to_field='version')
+    # The job that calculated this indicator
+    calculation_job = models.ForeignKey(IndicatorJob)
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
@@ -482,4 +469,4 @@ class Indicator(models.Model):
     class Meta(object):
         # An indicators uniqueness is determined by all of these things together
         # Note that route_id and route_type can be null.
-        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type", "version"),)
+        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type", "calculation_job"),)
