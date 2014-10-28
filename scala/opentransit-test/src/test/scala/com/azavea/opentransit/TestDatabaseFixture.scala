@@ -45,9 +45,10 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
 
 
   def createDatabase(name: String) = {
-    val dbName = s"$mainDbName-$name"
+    val dbName = if (name == mainDbName) name else s"$mainDbName-$name"
+
     val logger = ProcessLogger(println, println);
-    s"""sudo -u $dbSudo ../../deployment/setup_db.sh $name "$dbUser" "$dbPassword" ../..""".!!(logger)
+    s"""sudo -u $dbSudo ../../deployment/setup_db.sh $dbName "$dbUser" "$dbPassword" ../..""".!!(logger)
     live += dbName
   }
 
