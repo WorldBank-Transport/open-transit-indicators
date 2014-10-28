@@ -116,7 +116,7 @@ angular.module('transitIndicators')
             otiIndicatorsService.selfCityName = data.city_name;
         }));
 
-        promises.push($http.get('/api/indicator-version/').success(function () {
+        promises.push($http.get('/api/indicator-calculation-job/').success(function () {
         }).error(function (error) {
             console.error('getIndicatorVersion:', error);
             callback(nullVersion);

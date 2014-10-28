@@ -217,7 +217,11 @@ class IndicatorCalcJob(APIView):
     """
     def get(self, request, *args, **kwargs):
         """ Return the current calculations of indicators """
-        current_ver = IndicatorJob.objects.latest('id').id
+        try:
+            current_ver = IndicatorJob.objects.latest('id').id
+        except IndicatorJob.DoesNotExist:
+            return Response({'current_jobs': []}, status=status.HTTP_200_OK)
+
         current_indicators = Indicator.objects.filter(calculation_job__exact=current_ver).values(
                 'calculation_job', 'calculation_job__city_name').annotate()
         return Response({'current_jobs': current_indicators}, status=status.HTTP_200_OK)

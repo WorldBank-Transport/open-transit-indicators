@@ -88,7 +88,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
-    calculation_job = serializers.SlugRelatedField(slug_field='calculation_job')
+    calculation_job = serializers.SlugRelatedField(slug_field='id')
     city_name = serializers.SerializerMethodField('get_city_name')
 
     def get_city_name(self, obj):
