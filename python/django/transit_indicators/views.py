@@ -107,10 +107,16 @@ class IndicatorJobViewSet(OTIAdminViewSet):
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
 
+
 class LatestCalculationJob(APIView):
     def get(self, request, format=None):
         try:
-            latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
+            this_city = OTICityName.objects.all()[0].city_name
+        except IndexError:
+            this_city = 'My City'
+
+        try:
+            latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE, city_name=this_city).order_by('-id')[0]
         except IndexError:
             return Response(None, status=status.HTTP_200_OK)
 
@@ -232,6 +238,8 @@ class IndicatorCalcJob(APIView):
         current_indicators = Indicator.objects.filter(calculation_job__exact=current_ver).values(
                 'calculation_job', 'calculation_job__city_name').annotate()
         return Response({'current_jobs': current_indicators}, status=status.HTTP_200_OK)
+
+        latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
 
 
 class IndicatorTypes(APIView):

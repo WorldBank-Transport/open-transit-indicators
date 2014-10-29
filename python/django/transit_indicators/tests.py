@@ -236,7 +236,7 @@ class IndicatorsTestCase(TestCase):
         """Ensure that a valid Indicator can be created."""
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        id=self.indicator_job.id,
+                                                        calculation_job=self.indicator_job,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -252,7 +252,7 @@ class IndicatorsTestCase(TestCase):
         """ Ensure a valid indicator can be deleted """
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        id=self.indicator_job.id,
+                                                        calculation_job=self.indicator_job,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -262,7 +262,7 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             id=self.indicator_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator.save()
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
@@ -300,7 +300,7 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             id=self.indicator_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator.save()
 
@@ -309,7 +309,7 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             id=self.rivendell_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator2.save()
 
@@ -324,7 +324,7 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             id=self.indicator_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator.save()
         # On get requests, format parameter gets passed to the data object,
@@ -385,7 +385,7 @@ class IndicatorsTestCase(TestCase):
         # Good: a route aggregation with a route_id and no route_type
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        id=self.indicator_job.id,
+                                                        calculation_job=self.indicator_job,
                                                         aggregation='route',
                                                         route_id='ABC',
                                                         value=100),
@@ -418,7 +418,7 @@ class IndicatorsTestCase(TestCase):
                                                         type='num_stops',
                                                         aggregation='mode',
                                                         route_type=1,
-                                                        id=self.indicator_job.id,
+                                                        calculation_job=self.indicator_job,
                                                         value=100),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
