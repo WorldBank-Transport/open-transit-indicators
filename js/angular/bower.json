@@ -45,6 +45,7 @@
     "angular-scenario": "1.2.15"
   },
   "resolutions": {
-    "d3": "~3.4.1"
+    "d3": "~3.4.1",
+    "angular": "1.2.15"
   }
 }
