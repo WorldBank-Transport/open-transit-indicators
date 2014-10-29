@@ -50,7 +50,11 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
     timedTask("loaded stop times") {
       // This exception handling is an effort to appease Travis. This is the problematic line.
       try {
-        load(records.stopTimeRecords.view.map(ensureNoNullPeriods), stopTimeRecordsTable)
+        val nonNullStopTimes = records.stopTimeRecords.view.map(ensureNoNullPeriods)
+        // Doesn't make any sense, but I'm noticing a Schrodinger effect where I don't see the
+        // error in Travis when I inspect the value. May just be coincidence.
+        println(s"nonNullStopTimes: $nonNullStopTimes")
+        load(nonNullStopTimes, stopTimeRecordsTable)
       } catch {
         case e: Exception => {
           println(e.getMessage)
