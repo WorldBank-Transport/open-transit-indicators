@@ -8,8 +8,8 @@ var settings  = require('./settings.json');
 var oti       = require('./oti-indicator.js');
 
 var config = {
-    base_url: '/tiles/:dbname/:version/:type/:sample_period/:aggregation',
-    base_url_notable: '/tiles/:dbname/:version/:type/:sample_period/:aggregation',
+    base_url: '/tiles/:dbname/:calculation_job/:type/:sample_period/:aggregation',
+    base_url_notable: '/tiles/:dbname/:calculation_job/:type/:sample_period/:aggregation',
     grainstore: {
                  datasource: {
                     user: settings.db_user,
@@ -25,7 +25,7 @@ var config = {
     req2params: function(req, callback){
 
         // Custom actions for the blank routes/stops tables
-        // version, sample_period, aggregation can all be 0 for these requests
+        // calculation_job, sample_period, aggregation can all be 0 for these requests
         if (req.params.type === 'gtfs_shapes') {
             var gtfsShapes = new oti.GTFSShapes();
             req.params.sql = gtfsShapes.getSql();

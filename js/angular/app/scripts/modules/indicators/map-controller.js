@@ -6,7 +6,7 @@ angular.module('transitIndicators')
         function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
-        version: 0,
+        calculation_job: 0,
         type: 'num_stops',
         sample_period: 'morning',
         aggregation: 'route'

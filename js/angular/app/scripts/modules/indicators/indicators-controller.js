@@ -16,9 +16,9 @@ angular.module('transitIndicators')
     $scope.cities = cities;
     $scope.showingState = 'data';
 
-    var setIndicatorVersion = function (version) {
-        $scope.indicatorVersion = version;
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorVersionUpdated, version);
+    var setIndicatorVersion = function (calcJob) {
+        $scope.indicatorVersion = calcJob;
+        $scope.$broadcast(OTIEvents.Indicators.IndicatorVersionUpdated, calcJob);
     };
 
     OTIIndicatorsService.getIndicatorTypes().then(function (data) {
@@ -75,8 +75,8 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
-        OTIIndicatorsService.getIndicatorVersion(function (version) {
-            setIndicatorVersion(version);
+        OTIIndicatorsService.getIndicatorVersion(function (calcJob) {
+            setIndicatorVersion(calcJob);
         });
     };
     $scope.init();
