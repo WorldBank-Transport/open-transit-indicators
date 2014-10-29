@@ -25,7 +25,7 @@ case class GtfsFeed(
   jobStatus: JobStatus
 )
 
-trait IngestRoute extends Route { self: DatabaseInstance =>
+trait IngestRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
   // Endpoint for uploading a GTFS file
   def ingestRoute =
     path("gtfs") {
@@ -42,12 +42,12 @@ trait IngestRoute extends Route { self: DatabaseInstance =>
               }
             }.onComplete {
               case Success(_) =>
-                DjangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Complete))
+                djangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Complete))
               case Failure(e) =>
                 println("Error parsing GTFS!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
-                DjangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Failed))
+                djangoClient.updateGtfsFeed(token, GtfsFeed(id, JobStatus.Failed))
             }
 
             Accepted -> successMessage("Import started")

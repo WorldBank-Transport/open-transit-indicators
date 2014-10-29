@@ -17,7 +17,13 @@ trait Route extends HttpService with SprayJsonSupport {
   def successMessage(msg: String) =
     JsObject(
       "success" -> JsBoolean(true),
-      "message" -> JsString(msg)
+      "message" -> JsString(msg.replace("\"", "'"))
+    )
+
+  def failureMessage(msg: String) =
+    JsObject(
+      "success" -> JsBoolean(false),
+      "message" -> JsString(msg.replace("\"", "'"))
     )
 
   implicit def myExceptionHandler(implicit log: LoggingContext) =
@@ -26,10 +32,14 @@ trait Route extends HttpService with SprayJsonSupport {
         requestUri { uri =>
           import spray.json.DefaultJsonProtocol._
           log.warning("Request to {} could not be handled normally", uri)
-          complete(StatusCodes.InternalServerError -> JsObject(
-            "success" -> JsBoolean(false),
-            "message" -> JsString(e.getMessage)
-          ))
+
+          println("In OpenTransitGeoTrellisExceptionHandler:")
+          println(e.getMessage)
+          println(e.getStackTrace.mkString("\n"))
+
+          complete {
+            StatusCodes.InternalServerError -> failureMessage(e.getMessage)
+          }
         }
     }
 }

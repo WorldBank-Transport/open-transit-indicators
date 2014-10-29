@@ -13,14 +13,12 @@ import spray.routing.{ExceptionHandler, HttpService}
 import scala.concurrent._
 
 class OpenTransitServiceActor extends Actor
-                                 with HttpService
-                                 with IngestRoute
-                                 with IndicatorsRoute
-                                 with ScenarioRoute
-                                 with ScenarioGtfsRoute
-                                 with MapInfoRoute
-                                 with ServiceDateRangeRoute
-                                 with ProductionDatabaseInstance {
+  with OpenTransitService
+  with ProductionDatabaseInstance
+  with DjangoClientComponent
+{
+  val djangoClient = new ProductionDjangoClient {}
+
   // This is the execution context to use for this Actor
   implicit val dispatcher = context.dispatcher
 
@@ -29,28 +27,35 @@ class OpenTransitServiceActor extends Actor
   // to the enclosing actor or test.
   def actorRefFactory = context
 
-  // This will be picked up by the runRoute(_) and used to intercept Exceptions
-  implicit def OpenTransitGeoTrellisExceptionHandler(implicit log: LoggingContext) =
-    ExceptionHandler {
-      case e: Exception =>
-        requestUri { uri =>
-          // print error message and stack trace to console so we dont have to go a-hunting
-          // in the celery job logs
-          println("In OpenTransitGeoTrellisExceptionHandler:")
-          println(e.getMessage)
-          println(e.getStackTrace.mkString("\n"))
-          // replace double quotes with single so our message is more json safe
-          val jsonMessage = e.getMessage.replace("\"", "'")
-          complete(future(InternalServerError, s"""{ "success": false, "message": "${jsonMessage}" }""" ))
-        }
-    }
+  // timeout handling, from here:
+  // http://spray.io/documentation/1.1-SNAPSHOT/spray-routing/key-concepts/timeout-handling/
+  // return JSON message instead of default string message:
+  // The server was not able to produce a timely response to your request.
+  def handleTimeouts: Receive = {
+    case Timedout(x: HttpRequest) =>
+      sender ! HttpResponse(InternalServerError,
+        """{ "success": false, "message": "Spray timeout encountered" }""")
+  }
 
-  def receive = handleTimeouts orElse runRoute {
+  def receive = runRoute(handleTimeouts orElse runRoute(openTransitRoute))
+}
+
+trait OpenTransitService
+  extends Route
+  with IngestRoute
+  with IndicatorsRoute
+  with ScenarioRoute
+  with ScenarioGtfsRoute
+  with MapInfoRoute
+  with ServiceDateRangeRoute
+{ self: DatabaseInstance with DjangoClientComponent =>
+
+  def openTransitRoute =
     pathPrefix("gt") {
       pathPrefix("utils") {
         ingestRoute ~
-        mapInfoRoute ~
-        serviceDateRangeRoute
+          mapInfoRoute ~
+          serviceDateRangeRoute
       } ~
       pathPrefix("indicators") {
         indicatorsRoute
@@ -59,16 +64,4 @@ class OpenTransitServiceActor extends Actor
         scenariosRoute
       }
     }
-  }
-
-  // timeout handling, from here:
-  // http://spray.io/documentation/1.1-SNAPSHOT/spray-routing/key-concepts/timeout-handling/
-  // return JSON message instead of default string message:
-  // The server was not able to produce a timely response to your request.
-  def handleTimeouts: Receive = {
-    case Timedout(x: HttpRequest) =>
-      sender ! HttpResponse(InternalServerError,
-                            """{ "success": false, "message": "Spray timeout encountered" }""")
-  }
 }
-

@@ -52,22 +52,22 @@ class TestGtfsRecords extends GtfsRecords {
   )
 
   val stops = List(
-    Stop("ST1", "CENTER STATION", Some("Center Station, has bus, and subway"), stopCenter.withSRID(0)),
+    Stop("ST1", "CENTER STATION", Some("Center Station, has bus, and subway"), stopCenter.withSRID(4326)),
 
-    Stop("ST2", "WEST STATION", Some("West Station, has subway and rail"), stopWest.withSRID(0)),
-    Stop("ST3", "EAST STATION", Some("East Station, has subway and rail"), stopEast.withSRID(0)),
-    Stop("ST4", "NORTH STATION", Some("North Station, has subway"), stopNorth.withSRID(0)),
-    Stop("ST5", "SOUTH STATION", Some("South Station, has subway"), stopSouth.withSRID(0)),
+    Stop("ST2", "WEST STATION", Some("West Station, has subway and rail"), stopWest.withSRID(4326)),
+    Stop("ST3", "EAST STATION", Some("East Station, has subway and rail"), stopEast.withSRID(4326)),
+    Stop("ST4", "NORTH STATION", Some("North Station, has subway"), stopNorth.withSRID(4326)),
+    Stop("ST5", "SOUTH STATION", Some("South Station, has subway"), stopSouth.withSRID(4326)),
 
-    Stop("ST6", "NW STREET", Some("NorthWest Street, has bus and rail"), Point(-5,5).withSRID(0)),
-    Stop("ST7", "SW STREET", Some("SoutWest Street, has bus"), Point(-5,-5).withSRID(0)),
-    Stop("ST8", "NE STREET", Some("NorthEast Street, has bus and rail"), Point(5, 5).withSRID(0)),
-    Stop("ST9", "SE STREET", Some("SouthEast Street, has bus"), Point(5, -5).withSRID(0)),
+    Stop("ST6", "NW STREET", Some("NorthWest Street, has bus and rail"), Point(-5,5).withSRID(4326)),
+    Stop("ST7", "SW STREET", Some("SoutWest Street, has bus"), Point(-5,-5).withSRID(4326)),
+    Stop("ST8", "NE STREET", Some("NorthEast Street, has bus and rail"), Point(5, 5).withSRID(4326)),
+    Stop("ST9", "SE STREET", Some("SouthEast Street, has bus"), Point(5, -5).withSRID(4326)),
 
-    Stop("ST10", "NORTH COUNTY", Some("North County, has rail"), Point(0,20).withSRID(0)),
-    Stop("ST11", "WEST COUNTY", Some("West County, has rail"), Point(-20,0).withSRID(0)),
-    Stop("ST12", "SOUTH COUNTY", Some("South County, has rail"), Point(0, -20).withSRID(0)),
-    Stop("ST13", "EAST COUNTY", Some("East County, has rail"), Point(20, 0).withSRID(0))
+    Stop("ST10", "NORTH COUNTY", Some("North County, has rail"), Point(0,20).withSRID(4326)),
+    Stop("ST11", "WEST COUNTY", Some("West County, has rail"), Point(-20,0).withSRID(4326)),
+    Stop("ST12", "SOUTH COUNTY", Some("South County, has rail"), Point(0, -20).withSRID(4326)),
+    Stop("ST13", "EAST COUNTY", Some("East County, has rail"), Point(20, 0).withSRID(4326))
   )
 
   val stopsByName = stops.map { stop => (stop.name, stop) }.toMap
@@ -160,7 +160,7 @@ class TestGtfsRecords extends GtfsRecords {
             Array.fill(i)(every).foldLeft(0.minute: Period)(_ + _) + 
             Array.fill(i)(wait).foldLeft(0.minute: Period)(_ + _)
 
-          StopTimeRecord(stop.id, trip.id, i + 1, arrive, arrive + wait)
+          StopTimeRecord(stop.id, trip.id, i + 1, arrive.normalizedStandard(), (arrive + wait).normalizedStandard())
         }
     }
 
@@ -281,7 +281,7 @@ class TestGtfsRecords extends GtfsRecords {
   )
 
   def tripShapes: Seq[TripShape] = List(
-    TripShape("SUB_EastWest_SHAPE", Line(List(stopWest, stopCenter, stopEast)).withSRID(0)),
-    TripShape("SUB_NorthSouth_SHAPE", Line(List(stopNorth, stopCenter, stopSouth)).withSRID(0))
+    TripShape("SUB_EastWest_SHAPE", Line(List(stopWest, stopCenter, stopEast)).withSRID(4326)),
+    TripShape("SUB_NorthSouth_SHAPE", Line(List(stopNorth, stopCenter, stopSouth)).withSRID(4326))
   )
 }
