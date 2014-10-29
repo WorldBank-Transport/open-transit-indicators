@@ -6,7 +6,7 @@ angular.module('transitIndicators')
             function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, cities) {
 
     $scope.dropdown_sample_period_open = false;
-    $scope.indicatorVersion = 0;
+    $scope.indicatorCalcJob = 0;
 
     $scope.aggregations = {};
     $scope.types = {};
@@ -16,9 +16,9 @@ angular.module('transitIndicators')
     $scope.cities = cities;
     $scope.showingState = 'data';
 
-    var setIndicatorVersion = function (calcJob) {
-        $scope.indicatorVersion = calcJob;
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorVersionUpdated, calcJob);
+    var setIndicatorCalcJob = function (calcJob) {
+        $scope.indicatorCalcJob = calcJob;
+        $scope.$broadcast(OTIEvents.Indicators.IndicatorCalcJobUpdated, calcJob);
     };
 
     OTIIndicatorsService.getIndicatorTypes().then(function (data) {
@@ -75,8 +75,8 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
-        OTIIndicatorsService.getIndicatorVersion(function (calcJob) {
-            setIndicatorVersion(calcJob);
+        OTIIndicatorsService.getIndicatorCalcJob(function (calcJob) {
+            setIndicatorCalcJob(calcJob);
         });
     };
     $scope.init();

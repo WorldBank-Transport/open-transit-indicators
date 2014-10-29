@@ -88,7 +88,7 @@ angular.module('transitIndicators')
         });
     };
 
-    // TODO: Update this method to allow changes on aggregation, version, sample_period
+    // TODO: Update this method to allow changes on aggregation, calculation_job, sample_period
     $scope.setIndicator = function (type) {
         $scope.indicator.type = type;
         $scope.updateIndicatorLayers($scope.indicator);
@@ -147,8 +147,8 @@ angular.module('transitIndicators')
         setIndicator({sample_period: sample_period});
     });
 
-    $scope.$on(OTIEvents.Indicators.IndicatorVersionUpdated, function (event, version) {
-        setIndicator({version: version});
+    $scope.$on(OTIEvents.Indicators.IndicatorCalcJobUpdated, function (event, calculation_job) {
+        setIndicator({calculation_job: calculation_job});
     });
 
     $scope.init = function () {

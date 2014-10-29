@@ -62,7 +62,7 @@ angular.module('transitIndicators')
      */
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing.
-        // If there isn't one, instead use the job with the latest version.
+        // If there isn't one, instead use the latest calculation job.
         OTIIndicatorsService.IndicatorJob.search({ job_status: 'processing' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {

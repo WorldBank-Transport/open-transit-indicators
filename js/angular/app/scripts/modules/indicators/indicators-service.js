@@ -108,17 +108,17 @@ angular.module('transitIndicators')
     /**
      * Get the current indicator calculation job
      *
-     * @param callback: function to call after request is made, has a single argument 'version'
+     * @param callback: function to call after request is made, has a single argument 'calculation_job'
      */
-    otiIndicatorsService.getIndicatorVersion = function (callback) {
-        var promises = []; // get the city name before using it to filter indicator versions
+    otiIndicatorsService.getIndicatorCalcJob = function (callback) {
+        var promises = []; // get the city name before using it to filter indicator CalcJobs
         promises.push(OTIUploadService.cityName.get({}, function (data) {
             otiIndicatorsService.selfCityName = data.city_name;
         }));
 
         promises.push($http.get('/api/indicator-calculation-job/').success(function () {
         }).error(function (error) {
-            console.error('getIndicatorVersion:', error);
+            console.error('getIndicatorCalcJob:', error);
             callback(nullJob);
         }));
 
@@ -126,7 +126,7 @@ angular.module('transitIndicators')
             var job = nullJob;
             // flatter is better - the following (very long) line just ensures the existence of
             // certain nodes which are operated on in the flow
-            if (data && data[1] && data[1].data &&data[1].data.current_jobs &&
+            if (data && data[1] && data[1].data && data[1].data.current_jobs &&
                 !_.isEmpty(data[1].data.current_jobs) &&
                 _.findWhere(data[1].data.current_jobs, {calculation_job__city_name: otiIndicatorsService.selfCityName})) {
                 var jobs = data[1].data;
@@ -137,7 +137,7 @@ angular.module('transitIndicators')
             }
             callback(nullJob);
         }, function (error) {
-            console.log('otiIndicatorsService.getIndicatorVersion error:');
+            console.log('otiIndicatorsService.getIndicatorCalcJob error:');
             console.log(error);
         });
     };

@@ -60,7 +60,7 @@ angular.module('transitIndicators')
      */
     otiMapService.getIndicatorUrl = function (filetype) {
         var url = otiMapService.getWindshaftHost();
-        url += '/tiles/transit_indicators/{version}/{type}/{sample_period}/{aggregation}' +
+        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
         return url;
@@ -68,7 +68,7 @@ angular.module('transitIndicators')
 
     /**
      * Create windshaft url for gtfs shapes overlay -- always png
-     * The version, sample_period, aggregation do not matter
+     * The calculation_job, sample_period, aggregation do not matter
      */
     otiMapService.getGTFSShapesUrl = function () {
         var url = otiMapService.getWindshaftHost();
@@ -78,7 +78,7 @@ angular.module('transitIndicators')
 
     /**
      * Create windshaft url for gtfs stops overlay
-     * The version, sample_period, aggregation do not matter
+     * The calculation_job, sample_period, aggregation do not matter
      * Uses the stop_routes column for utfgrid interactivity
      *
      * @param filetype: String either png or utfgrid

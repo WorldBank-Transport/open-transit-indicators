@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
+from rest_framework.decorators import list_route
 
 from viewsets import OTIAdminViewSet
 from models import (OTIIndicatorsConfig,
@@ -106,6 +107,17 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         if response.status_code == status.HTTP_201_CREATED:
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
+
+    @list_route()
+    def latest(self, request, *args, **kwargs):
+        try:
+            latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
+        except IndexError:
+            return Response(None, status=status.HTTP_200_OK)
+
+        serial_job = IndicatorJobSerializer(latest_job)
+        return Response(serial_job.data, status=status.HTTP_200_OK)
+
 
 
 class ScenarioViewSet(OTIAdminViewSet):
@@ -258,6 +270,8 @@ class IndicatorAggregationTypes(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+
+
 class IndicatorCities(APIView):
     """ Indicator Cities GET and DELETE endpoint
 
@@ -336,7 +350,6 @@ class GTFSRouteTypes(APIView):
         response = [{'route_type': rt.route_type, 'description': rt.get_route_type_display(),
                      'is_used': is_used(rt.route_type)} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
-
 
 indicator_calculation_job = IndicatorCalcJob.as_view()
 indicator_types = IndicatorTypes.as_view()
