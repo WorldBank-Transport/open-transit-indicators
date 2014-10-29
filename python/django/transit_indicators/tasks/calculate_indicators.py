@@ -3,7 +3,7 @@ from time import sleep
 
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status as status_codes
 import requests
 
 from datasources.models import DemographicDataSource, DemographicDataFeature, RealTime, OSMData
@@ -12,6 +12,7 @@ from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
 
+
 def is_complete(file_data_source_instance):
     """Abstraction to check on completion of file data sources"""
     if file_data_source_instance:
@@ -19,11 +20,13 @@ def is_complete(file_data_source_instance):
     else:
         return False
 
+
 def run_realtime_indicators():
     """Helper function that returns True if indicators which depend upon realtime
     data can be run"""
     realtime_datasource = RealTime.objects.filter().first()
     return is_complete(realtime_datasource)
+
 
 def run_osm_indicators():
     """Helper function that returns True if indicators which depend upon osm
@@ -31,11 +34,13 @@ def run_osm_indicators():
     osm_datasource = OSMData.objects.filter().first()
     return is_complete(osm_datasource)
 
+
 def run_demographics_indicators():
     """Helper function that returns True if accessibility calculators can be run"""
     demographic_datasource = DemographicDataSource.objects.filter().first()
     has_features = DemographicDataFeature.objects.filter().count() > 0
     return is_complete(demographic_datasource) and has_features
+
 
 def run_indicator_calculation(indicator_job):
     """Initiate celery job which tells scala to calculate indicators"""
@@ -99,7 +104,7 @@ def run_indicator_calculation(indicator_job):
     logger.debug('Payload JSON: %s ', payload)
     response = requests.post(settings.SCALA_ENDPOINTS['INDICATORS'], data=payload, headers=headers)
 
-    if response.status_code != status.HTTP_202_ACCEPTED:
+    if response.status_code != status_codes.HTTP_202_ACCEPTED:
         logger.error('%d encountered', response.status_code)
         logger.error(response.text)
         indicator_job.job_status = IndicatorJob.StatusChoices.ERROR
