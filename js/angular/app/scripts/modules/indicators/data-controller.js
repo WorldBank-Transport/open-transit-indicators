@@ -25,11 +25,11 @@ angular.module('transitIndicators')
         var period = $scope.sample_period;
         if (period) {
 
-            OTIIndicatorsService.getIndicatorVersion(function (version) {
+            OTIIndicatorsService.getIndicatorCalcJob(function (calcJob) {
                 var params = {
                     sample_period: period,
                     aggregation: 'mode,system',
-                    version: version
+                    calculation_job: calcJob
                 };
                 OTIIndicatorsService.query('GET', params).then(function (data) {
                     // If there is no indicator data, ask to redirect to the calculation status page
