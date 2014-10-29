@@ -1,10 +1,18 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods', 'samplePeriodI18N', 'routeTypes',
-            function (config, $scope, $rootScope, $state, $stateParams, OTIEvents, OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods, samplePeriodI18N, routeTypes) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
+             'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods',
+             'samplePeriodI18N', 'routeTypes',
+             function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
+                       OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods,
+                       samplePeriodI18N, routeTypes)
+{
 
     // PRIVATE
+
+    // Number of scenarios to list at any given time
+    var pageSize = 5;
 
     var overlays = {
         gtfs_shapes: {
@@ -39,6 +47,28 @@ angular.module('transitIndicators')
         });
     };
 
+    // Function that gets scenarios for a user
+    var getMyScenarios = function () {
+        OTIScenariosService.getScenarios($scope.user.id).then(function(results) {
+            $scope.myScenarios = _.chain(results).groupBy(function(element, index) {
+                return Math.floor(index/pageSize);
+            }).toArray().value();
+            $scope.$broadcast('updateHeight');
+        });
+    };
+
+    // Function that gets scenarios for colleagues
+    var getColleagueScenarios = function () {
+        OTIScenariosService.getScenarios().then(function(results) {
+            var filteredResults = _.filter(results, function (scenario) {
+		return scenario.created_by != $scope.user.username;
+	    });
+            $scope.colleagueScenarios = _.chain(filteredResults).groupBy(function(element, index) {
+                return Math.floor(index/pageSize);
+            }).toArray().value();
+            $scope.$broadcast('updateHeight');
+        });
+    };
 
     // EVENTS
 
@@ -57,17 +87,25 @@ angular.module('transitIndicators')
         //       is not defined
     });
 
-
     // INIT
 
     $scope.height = 0;
-    $scope.scenarios = scenarios;
+
     $scope.samplePeriods = samplePeriods;
     $scope.samplePeriodI18N = samplePeriodI18N;
     $scope.routeTypes = routeTypes;
     $scope.page = '';
 
     $scope.updateLeafletOverlays(overlays);
+
+    $scope.myScenarios = null;
+    $scope.colleagueScenarios = null;
+
+    $scope.colleagueScenarioPage = 0;
+    $scope.myScenarioPage = 0;
+
+    getMyScenarios();
+    getColleagueScenarios();
     setLegend();
 
 }]);

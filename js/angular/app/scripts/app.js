@@ -10,7 +10,8 @@ angular.module('transitIndicators', [
     'leaflet-directive',
     'ui.bootstrap',
     'ui.utils',
-    'nvd3ChartDirectives'
+    'nvd3ChartDirectives',
+    'angular-spinkit'
 ]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
         function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
 
