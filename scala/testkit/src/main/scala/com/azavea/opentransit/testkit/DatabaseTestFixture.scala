@@ -13,10 +13,14 @@ trait DatabaseTestFixture extends TestDatabase with BeforeAndAfterAll { self: Su
     // drop the test database if it exists -- we want a fresh one for each spec
     Q.updateNA(s"DROP DATABASE IF EXISTS $dbName").execute
 
+    // Base is different depending on whether or not the process is forked in SBT
+    lazy val base = if (new java.io.File("testkit").exists) ".." else "../.."
+    lazy val baseTk = if (new java.io.File("testkit").exists) "testkit" else "../testkit"
+
     // initialize the test database via the setup_db script
-    s"sudo -u postgres ../../deployment/setup_db.sh $dbName $dbUser $dbPassword ../..".!!
-    s"sudo -u postgres ../testkit/data/populate_db.sh $dbName $dbUser $dbPassword ../..".!!
-    s"sudo -u postgres psql -d $dbName -f ../testkit/data/philly_demographics/demographics.sql".!!
+    s"sudo -u postgres $base/deployment/setup_db.sh $dbName $dbUser $dbPassword $base".!!
+    s"sudo -u postgres $baseTk/data/populate_db.sh $dbName $dbUser $dbPassword $base".!!
+    s"sudo -u postgres psql -d $dbName -f $baseTk/data/philly_demographics/demographics.sql".!!
   }
 
   // after all tests have been run in the spec, drop the test database
