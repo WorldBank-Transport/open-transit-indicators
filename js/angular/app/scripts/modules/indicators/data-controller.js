@@ -24,48 +24,51 @@ angular.module('transitIndicators')
         $scope.updating = true;
         var period = $scope.sample_period;
         if (period) {
-            var params = {
-                sample_period: period,
-                aggregation: 'mode,system'
-            };
 
-            OTIIndicatorsService.query('GET', params).then(function (data) {
-                // If there is no indicator data, ask to redirect to the calculation status page
-                if (!data.length) {
-                    $modal.open({
-                        templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
-                        controller: 'OTIYesNoModalController',
-                        windowClass: 'yes-no-modal-window',
-                        resolve: {
-                            getMessage: function() {
-                                return 'CALCULATION.REDIRECT';
+            OTIIndicatorsService.getIndicatorVersion(function (version) {
+                var params = {
+                    sample_period: period,
+                    aggregation: 'mode,system',
+                    version: version
+                };
+                OTIIndicatorsService.query('GET', params).then(function (data) {
+                    // If there is no indicator data, ask to redirect to the calculation status page
+                    if (!data.length) {
+                        $modal.open({
+                            templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                            controller: 'OTIYesNoModalController',
+                            windowClass: 'yes-no-modal-window',
+                            resolve: {
+                                getMessage: function() {
+                                    return 'CALCULATION.REDIRECT';
+                                }
                             }
-                        }
-                    }).result.then(function() {
-                        $state.go('calculation');
-                    });
-                }
+                        }).result.then(function() {
+                            $state.go('calculation');
+                        });
+                    }
 
-                var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
-                $scope.indicatorData = null;
-                $scope.chartData = {};
-                // Populate $scope.chartData, because filterDataForChartType
-                // can't be called inside the view
-                for (var indicator in indicators) {
-                    if (!$scope.chartData[indicator]) {
-                        $scope.chartData[indicator] = {};
+                    var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
+                    $scope.indicatorData = null;
+                    $scope.chartData = {};
+                    // Populate $scope.chartData, because filterDataForChartType
+                    // can't be called inside the view
+                    for (var indicator in indicators) {
+                        if (!$scope.chartData[indicator]) {
+                            $scope.chartData[indicator] = {};
+                        }
+                        for(var city in indicators[indicator].cities) {
+                            $scope.chartData[indicator][city] =
+                                filterDataForChartType(
+                                    indicators[indicator].cities[city], indicator, 'mode');
+                        }
                     }
-                    for(var city in indicators[indicator].cities) {
-                        $scope.chartData[indicator][city] =
-                            filterDataForChartType(
-                                indicators[indicator].cities[city], indicator, 'mode');
-                    }
-                }
-                $scope.indicatorData = indicators;
-                $scope.updating = false;
-            }, function (error) {
-                console.error('Error getting indicator data:', error);
-                $scope.updating = false;
+                    $scope.indicatorData = indicators;
+                    $scope.updating = false;
+                }, function (error) {
+                    console.error('Error getting indicator data:', error);
+                    $scope.updating = false;
+                });
             });
         }
     };
