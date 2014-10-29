@@ -38,42 +38,42 @@ object OverallIndicatorResult {
 class OverallIndicatorResult(indicatorId: String, value: Double) {
   def forRoute(route: Route, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           IndicatorResultContainer.OVERALL_KEY,
           RouteAggregate,
           value,
           geoJson,
-          version,
+          calculationJob,
           routeId = route.id
         )
     }
 
   def forRouteType(routeType: RouteType, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           IndicatorResultContainer.OVERALL_KEY,
           RouteTypeAggregate,
           value,
           geoJson,
-          version,
+          calculationJob,
           routeType = Some(routeType)
         )
     }
 
   def forSystem(geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           IndicatorResultContainer.OVERALL_KEY,
           SystemAggregate,
           value,
           geoJson,
-          version
+          calculationJob
         )
     }
 }

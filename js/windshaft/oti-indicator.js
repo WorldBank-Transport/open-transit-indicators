@@ -165,7 +165,7 @@ var IndicatorDefaults = {
  * TODO: Allow ntiles other than 5
  */
 var Indicator = function (options) {
-    this.version = options.version;
+    this.calculation_job = options.calculation_job;
     this.type = options.type;
     this.aggregation = options.aggregation;
     this.sample_period = options.sample_period;
@@ -184,7 +184,7 @@ Indicator.prototype.getSql = function () {
         "the_geom " +
         "FROM transit_indicators_indicator " +
         "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
-        "AND version_id='" + this.version + "' AND sample_period_id=" +
+        "AND calculation_job_id='" + this.calculation_job + "' AND sample_period_id=" +
         "(SELECT id from transit_indicators_sampleperiod WHERE type='" + this.sample_period + "')" +
         ") as " + result_tablename;
     return sqlString;

@@ -58,8 +58,8 @@ angular.module('transitIndicators')
      *
      *  @param indicatorType String The indicator type , e.g. 'num_stops'
      *  @param indicatorData Array[Indicator] Array of indicator objects for the indicatorType,
-     *                                        filtered by aggregation, sample_period, version.
-     *                                        Used to get min/max values to display on legend
+     *                                    filtered by aggregation, sample_period, calculation_job.
+     *                                    Used to get min/max values to display on legend
      */
     otiMapStyleService.getLegend = function (indicatorType, indicatorData) {
         var legend = {};

@@ -5,7 +5,7 @@ angular.module('transitIndicators')
             function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
 
     var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
-        version: 0,
+        calculation_job: 0,
         type: 'num_stops',
         sample_period: 'morning',
         aggregation: 'route'

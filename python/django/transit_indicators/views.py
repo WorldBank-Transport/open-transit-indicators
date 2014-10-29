@@ -82,38 +82,46 @@ def aggregation_filter(queryset, values):
 
 
 class IndicatorFilter(django_filters.FilterSet):
-    """Custom filter for indicator
-
-    For is_latest_version must pass pythons boolean, True|False as the value:
-    e.g. indicators?is_latest_version=True
-
-    TODO: Filter all but the most recent version for each city in the sent response
-
-    """
+    """Custom filter for indicator"""
 
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
-    is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
-    city_name = django_filters.CharFilter(name="version__city_name")
+    city_name = django_filters.CharFilter(name="calculation_job__city_name")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name', 'is_latest_version']
+                  'route_type', 'city_bounded', 'calculation_job', 'city_name']
 
 
 class IndicatorJobViewSet(OTIAdminViewSet):
     """Viewset for IndicatorJobs"""
     model = IndicatorJob
-    lookup_field = 'version'
+    lookup_field = 'id'
     serializer_class = IndicatorJobSerializer
-    filter_fields = ('job_status', 'is_latest_version',)
+    filter_fields = ('job_status',)
     def create(self, request):
         """Override request to handle kicking off celery task"""
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
+
+
+class LatestCalculationJob(APIView):
+    def get(self, request, format=None):
+        try:
+            this_city = OTICityName.objects.all()[0].city_name
+        except IndexError:
+            this_city = 'My City'
+
+        try:
+            latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE, city_name=this_city).order_by('-id')[0]
+        except IndexError:
+            return Response(None, status=status.HTTP_200_OK)
+
+        serial_job = IndicatorJobSerializer(latest_job)
+        return Response(serial_job.data, status=status.HTTP_200_OK)
 
 
 class ScenarioViewSet(OTIAdminViewSet):
@@ -172,13 +180,10 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Fall through to JSON if no form data is present
 
         # If this is a post with many indicators, process as many
-        if isinstance(request.DATA, list):
-            many = True
-        else:
-            many = False
+        is_many = isinstance(request.DATA, list)
 
         # Continue through normal serializer save process
-        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=many)
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=is_many)
         if serializer.is_valid():
             self.pre_save(serializer.object)
             self.object = serializer.save(force_insert=True)
@@ -198,7 +203,7 @@ class IndicatorViewSet(OTIAdminViewSet):
         endpoint with no params
 
         """
-        delete_filter_fields = {'city_name': 'version__city_name'}
+        delete_filter_fields = {'city_name': 'calculation_job__city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
@@ -215,19 +220,26 @@ class IndicatorViewSet(OTIAdminViewSet):
         return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class IndicatorVersion(APIView):
-    """ Indicator versioning endpoint
+class IndicatorCalcJob(APIView):
+    """ Indicator job id endpoint
 
-    Returns currently valid indicator versions and associated city_name. Valid defined as:
-        - IndicatorJob.version has at least one indicator in the Indicator table
-        - IndicatorJob.is_latest_version = True
+    Returns currently valid indicator calculation jobs and associated city_name.
+    Valid, here, is defined as:
+        - IndicatorJob.id has at least one indicator in the Indicator table
 
     """
     def get(self, request, *args, **kwargs):
-        """ Return the current versions of the indicators """
-        versions = Indicator.objects.filter(version__is_latest_version=True).values('version',
-                                            'version__city_name').annotate()
-        return Response({'current_versions': versions}, status=status.HTTP_200_OK)
+        """ Return the current calculations of indicators """
+        try:
+            current_ver = IndicatorJob.objects.latest('id').id
+        except IndicatorJob.DoesNotExist:
+            return Response({'current_jobs': []}, status=status.HTTP_200_OK)
+
+        current_indicators = Indicator.objects.filter(calculation_job__exact=current_ver).values(
+                'calculation_job', 'calculation_job__city_name').annotate()
+        return Response({'current_jobs': current_indicators}, status=status.HTTP_200_OK)
+
+        latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
 
 
 class IndicatorTypes(APIView):
@@ -261,6 +273,8 @@ class IndicatorAggregationTypes(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+
+
 class IndicatorCities(APIView):
     """ Indicator Cities GET and DELETE endpoint
 
@@ -282,7 +296,7 @@ class IndicatorCities(APIView):
         endpoint with no params
 
         """
-        delete_filter_fields = {'city_name': 'version__city_name'}
+        delete_filter_fields = {'city_name': 'calculation_job__city_name'}
         delete_indicatorjobs_filter_fields = {'city_name': 'city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
@@ -340,8 +354,8 @@ class GTFSRouteTypes(APIView):
                      'is_used': is_used(rt.route_type)} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
 
-
-indicator_version = IndicatorVersion.as_view()
+latest_calculation = LatestCalculationJob.as_view()
+indicator_calculation_job = IndicatorCalcJob.as_view()
 indicator_types = IndicatorTypes.as_view()
 indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()

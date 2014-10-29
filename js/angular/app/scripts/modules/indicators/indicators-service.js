@@ -6,7 +6,7 @@ angular.module('transitIndicators')
         function ($q, $http, $resource, OTIUploadService) {
 
     var otiIndicatorsService = {};
-    var nullVersion = 0;
+    var nullJob = 0;
     otiIndicatorsService.selfCityName = null;
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
@@ -24,7 +24,13 @@ angular.module('transitIndicators')
             method: 'GET',
             isArray: true,
             url: '/api/indicator-jobs/'
+        },
+        latest: {
+            method: 'GET',
+            idArray: false,
+            url: '/api/latest-calculation-job/'
         }
+
     });
 
     /**
@@ -53,7 +59,7 @@ angular.module('transitIndicators')
      * Thin wrapper for Indicator used in the controller for setting the map properties
      */
     otiIndicatorsService.IndicatorConfig = function (config) {
-        this.version = config.version || nullVersion;
+        this.calculation_job = config.calculation_job || nullJob;
         this.type = config.type;
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
@@ -67,7 +73,7 @@ angular.module('transitIndicators')
      */
     otiIndicatorsService.getIndicatorUrl = function (filetype) {
         var url = otiIndicatorsService.getWindshaftHost();
-        url += '/tiles/transit_indicators/{version}/{type}/{sample_period}/{aggregation}' +
+        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
         return url;
@@ -106,38 +112,38 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Get the current indicator version
+     * Get the current indicator calculation job
      *
-     * @param callback: function to call after request is made, has a single argument 'version'
+     * @param callback: function to call after request is made, has a single argument 'calculation_job'
      */
-    otiIndicatorsService.getIndicatorVersion = function (callback) {
-        var promises = []; // get the city name before using it to filter indicator versions
+    otiIndicatorsService.getIndicatorCalcJob = function (callback) {
+        var promises = []; // get the city name before using it to filter indicator CalcJobs
         promises.push(OTIUploadService.cityName.get({}, function (data) {
             otiIndicatorsService.selfCityName = data.city_name;
         }));
 
-        promises.push($http.get('/api/indicator-version/').success(function () {
+        promises.push($http.get('/api/indicator-calculation-job/').success(function () {
         }).error(function (error) {
-            console.error('getIndicatorVersion:', error);
-            callback(nullVersion);
+            console.error('getIndicatorCalcJob:', error);
+            callback(nullJob);
         }));
 
         $q.all(promises).then(function (data) {
-            var version = nullVersion;
-            if (data && data[1] && data[1].data) {
-                var versions = data[1].data;
-                if (versions.current_versions && !_.isEmpty(versions.current_versions)) {
-                    var versionObj = _.findWhere(versions.current_versions, {version__city_name: otiIndicatorsService.selfCityName});
-                    if (versionObj) {
-                        version = versionObj.version;
-                        callback(version);
-                        return; // otherwise fall through to set null version
-                    }
-                }
+            var job = nullJob;
+            // flatter is better - the following (very long) line just ensures the existence of
+            // certain nodes which are operated on in the flow
+            if (data && data[1] && data[1].data && data[1].data.current_jobs &&
+                !_.isEmpty(data[1].data.current_jobs) &&
+                _.findWhere(data[1].data.current_jobs, {calculation_job__city_name: otiIndicatorsService.selfCityName})) {
+                var jobs = data[1].data;
+                var jobObj = _.findWhere(jobs.current_jobs, {calculation_job__city_name: otiIndicatorsService.selfCityName});
+                job = jobObj.calculation_job;
+                callback(job);
+                return; // otherwise fall through to set null job
             }
-            callback(nullVersion);
+            callback(nullJob);
         }, function (error) {
-            console.log('otiIndicatorsService.getIndicatorVersion error:');
+            console.log('otiIndicatorsService.getIndicatorCalcJob error:');
             console.log(error);
         });
     };

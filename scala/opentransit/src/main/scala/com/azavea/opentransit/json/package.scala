@@ -98,7 +98,7 @@ package object json {
     def write(request: IndicatorCalculationRequest) =
       JsObject(
         "token" -> JsString(request.token),
-        "version" -> JsString(request.version),
+        "id" -> JsNumber(request.id),
         "poverty_line" -> JsNumber(request.povertyLine),
         "nearby_buffer_distance_m" -> JsNumber(request.nearbyBufferDistance),
         "max_commute_time_s" -> JsNumber(request.maxCommuteTime),
@@ -115,7 +115,7 @@ package object json {
     def read(value: JsValue): IndicatorCalculationRequest =
       value.asJsObject.getFields(
         "token",
-        "version",
+        "id",
         "poverty_line",
         "nearby_buffer_distance_m",
         "max_commute_time_s",
@@ -128,7 +128,7 @@ package object json {
         "sample_periods",
         "params_requirements"
       ) match {
-        case Seq(JsString(token), JsString(version), JsNumber(povertyLine),
+        case Seq(JsString(token), JsNumber(id), JsNumber(povertyLine),
                  JsNumber(nearbyBufferDistance), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
                  JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
                  JsNumber(averageFare), JsString(gtfsDbName), JsString(auxDbName),
@@ -136,7 +136,7 @@ package object json {
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
-            token, version, povertyLine.toDouble, nearbyBufferDistance.toDouble,
+            token, id.toInt, povertyLine.toDouble, nearbyBufferDistance.toDouble,
             maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
             averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements
           )
@@ -206,7 +206,7 @@ package object json {
         "aggregation" -> container.aggregation.toJson,
         "value" -> JsNumber(container.value),
         "the_geom" -> container.geom,
-        "version" -> JsString(container.version),
+        "calculation_job" -> JsNumber(container.calculationJob),
         "route_id" -> JsString(container.routeId),
         ("route_type",
           container.routeType match {
@@ -229,7 +229,7 @@ package object json {
       val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
 
       JsObject(
-        "version" -> JsString(job.version),
+        "id" -> JsNumber(job.id),
         "job_status" -> JsString(jobStatus.toString),
         "calculation_status" -> JsString(calculationStatus.toJson.toString)
       )

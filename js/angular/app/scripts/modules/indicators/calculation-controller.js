@@ -62,7 +62,7 @@ angular.module('transitIndicators')
      */
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing.
-        // If there isn't one, instead use the job with the latest version.
+        // If there isn't one, instead use the latest calculation job.
         OTIIndicatorsService.IndicatorJob.search({ job_status: 'processing' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
@@ -75,10 +75,10 @@ angular.module('transitIndicators')
                 } else {
                     // filtering DRF booleans requires a ~capitalized~ string:
                     // http://www.django-rest-framework.org/api-guide/filtering
-                    OTIIndicatorsService.IndicatorJob.search({ is_latest_version: 'True' })
+                    OTIIndicatorsService.IndicatorJob.latest()
                         .$promise.then(function(latestData) {
-                            if (latestData.length) {
-                                setCurrentJob(latestData);
+                            if (latestData) {
+                                setCurrentJob([latestData]);
                             } else {
                                 OTIIndicatorsService.IndicatorJob.search({ job_status: 'error' })
                                     .$promise.then(function(errorData) {
