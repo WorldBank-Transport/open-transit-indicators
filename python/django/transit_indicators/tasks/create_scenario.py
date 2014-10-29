@@ -3,13 +3,14 @@ from time import sleep
 
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status as status_codes
 import requests
 
 from transit_indicators.models import Scenario
 from userdata.models import OTIUser
 
 logger = get_task_logger(__name__)
+
 
 def run_scenario_creation(scenario):
     period = scenario.sample_period
@@ -21,7 +22,7 @@ def run_scenario_creation(scenario):
 
     # A base scenario is optional. If one isn't defined, use the default database name
     default_db_name = settings.DATABASES['default']['NAME']
-    base_db_name = scenario.base_scenario.name if scenario.base_scenario else 'transit_indicators'
+    base_db_name = scenario.base_scenario.name if scenario.base_scenario else default_db_name
 
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
     token = OTIUser.objects.get(username='oti-admin').auth_token.key
@@ -41,7 +42,7 @@ def run_scenario_creation(scenario):
     logger.debug('Payload JSON: %s ', payload)
     response = requests.post(settings.SCALA_ENDPOINTS['SCENARIOS'], data=payload, headers=headers)
 
-    if response.status_code != status.HTTP_202_ACCEPTED:
+    if response.status_code != status_codes.HTTP_202_ACCEPTED:
         logger.error('%d encountered', response.status_code)
         logger.error(response.text)
         scenario.job_status = Scenario.StatusChoices.ERROR
