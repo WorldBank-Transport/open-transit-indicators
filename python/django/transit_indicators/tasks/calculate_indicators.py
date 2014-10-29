@@ -129,7 +129,7 @@ def run_indicator_calculation(indicator_job):
     # Update current indicator version on successful completion
     if status == IndicatorJob.StatusChoices.COMPLETE:
         logger.info('Indicator job %s completed successfully.',
-                    indicator_job.version)
+                    indicator_job.id)
         # invalidate previous indicator calculations for city
         indicator_job.save()
     else:

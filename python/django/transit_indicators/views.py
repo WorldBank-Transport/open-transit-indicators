@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
-from rest_framework.decorators import list_route
 
 from viewsets import OTIAdminViewSet
 from models import (OTIIndicatorsConfig,
@@ -108,8 +107,8 @@ class IndicatorJobViewSet(OTIAdminViewSet):
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
 
-    @list_route()
-    def latest(self, request, *args, **kwargs):
+class LatestCalculationJob(APIView):
+    def get(self, request, format=None):
         try:
             latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
         except IndexError:
@@ -117,7 +116,6 @@ class IndicatorJobViewSet(OTIAdminViewSet):
 
         serial_job = IndicatorJobSerializer(latest_job)
         return Response(serial_job.data, status=status.HTTP_200_OK)
-
 
 
 class ScenarioViewSet(OTIAdminViewSet):
@@ -176,13 +174,10 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Fall through to JSON if no form data is present
 
         # If this is a post with many indicators, process as many
-        if isinstance(request.DATA, list):
-            many = True
-        else:
-            many = False
+        is_many = isinstance(request.DATA, list)
 
         # Continue through normal serializer save process
-        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=many)
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=is_many)
         if serializer.is_valid():
             self.pre_save(serializer.object)
             self.object = serializer.save(force_insert=True)
@@ -351,6 +346,7 @@ class GTFSRouteTypes(APIView):
                      'is_used': is_used(rt.route_type)} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
 
+latest_calculation = LatestCalculationJob.as_view()
 indicator_calculation_job = IndicatorCalcJob.as_view()
 indicator_types = IndicatorTypes.as_view()
 indicator_jobs = IndicatorJobViewSet.as_view()

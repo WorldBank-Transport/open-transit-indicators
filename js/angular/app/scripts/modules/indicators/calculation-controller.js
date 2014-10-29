@@ -75,10 +75,10 @@ angular.module('transitIndicators')
                 } else {
                     // filtering DRF booleans requires a ~capitalized~ string:
                     // http://www.django-rest-framework.org/api-guide/filtering
-                    OTIIndicatorsService.IndicatorJob.search({ is_latest_version: 'True' })
+                    OTIIndicatorsService.IndicatorJob.latest()
                         .$promise.then(function(latestData) {
-                            if (latestData.length) {
-                                setCurrentJob(latestData);
+                            if (latestData) {
+                                setCurrentJob([latestData]);
                             } else {
                                 OTIIndicatorsService.IndicatorJob.search({ job_status: 'error' })
                                     .$promise.then(function(errorData) {

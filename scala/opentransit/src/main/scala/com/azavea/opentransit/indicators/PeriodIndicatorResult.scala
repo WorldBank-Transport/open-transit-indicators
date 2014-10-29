@@ -74,7 +74,7 @@ class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Do
           SystemAggregate,
           value,
           geoJson,
-          calculationJob// = calculationJob
+          calculationJob = calculationJob
         )
     }
 }

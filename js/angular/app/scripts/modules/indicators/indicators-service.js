@@ -24,7 +24,13 @@ angular.module('transitIndicators')
             method: 'GET',
             isArray: true,
             url: '/api/indicator-jobs/'
+        },
+        latest: {
+            method: 'GET',
+            idArray: false,
+            url: '/api/latest-calculation-job/'
         }
+
     });
 
     /**

@@ -30,6 +30,7 @@ urlpatterns = patterns('',  # NOQA
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', 'userdata.views.obtain_auth_token'),
+    url(r'^api/latest-calculation-job/', 'transit_indicators.views.latest_calculation'),
     url(r'^api/indicator-calculation-job/', 'transit_indicators.views.indicator_calculation_job'),
     url(r'^api/indicator-types/', 'transit_indicators.views.indicator_types'),
     url(r'^api/indicator-aggregation-types/', 'transit_indicators.views.indicator_aggregation_types'),
