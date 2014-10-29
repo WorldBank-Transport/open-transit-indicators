@@ -2,7 +2,8 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosListController',
             ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService) {
+             function (config, $scope, $state, $stateParams, OTIScenariosService)
+{
 
     OTIScenariosService.otiScenario = {};
 
@@ -11,8 +12,8 @@ angular.module('transitIndicators')
         $state.go('new');
     };
 
-    $scope.edit = function (index) {
-        OTIScenariosService.otiScenario = $scope.scenarios[index];
+    $scope.edit = function (scenario) {
+        OTIScenariosService.otiScenario = scenario;
         $state.go('new');
     };
 }]);

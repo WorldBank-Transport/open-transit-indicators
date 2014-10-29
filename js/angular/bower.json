@@ -38,7 +38,8 @@
     "leaflet-tilelayer-geojson": "glenrobertson/leaflet-tilelayer-geojson",
     "angularjs-nvd3-directives": "~0.0.7",
     "angular-leaflet-directive": "~0.7.8",
-    "pace": "~1.0.1"
+    "pace": "~1.0.1",
+    "angular-spinkit": "~0.3.3"
   },
   "devDependencies": {
     "angular-mocks": "1.2.15",

@@ -2,8 +2,9 @@
 
 angular.module('transitIndicators')
 .factory('OTIScenariosService',
-        ['config',
-        function (config) {
+         ['config', '$resource', '$q',
+          function (config, $resource, $q)
+{
 
     // Temp function to create uuids, remove when STUBS are complete
     var createUUID = function () {
@@ -115,10 +116,16 @@ angular.module('transitIndicators')
 
     otiScenariosService.otiRoute = {};
 
-    otiScenariosService.getScenarios = function () {
-        // STUB
-        // TODO: Replace with resource call
-        return scenarios;
+    otiScenariosService.getScenarios = function (userId) {
+        var queryParams = {};
+        if (userId) {
+            queryParams.created_by = userId;
+        }
+        var dfd = $q.defer();
+	var result = otiScenariosService.Scenario.query(queryParams,function (result) {
+            dfd.resolve(result);
+	});
+        return dfd.promise;
     };
 
     otiScenariosService.getRoutes = function () {
@@ -151,14 +158,7 @@ angular.module('transitIndicators')
         }
     };
 
-    otiScenariosService.Scenario = function () {
-
-        this.id = createUUID();
-        this.name = '';
-        this.description = '';
-        this.samplePeriod = '';
-        this.routes = [];
-    };
+    otiScenariosService.Scenario = $resource('/api/scenarios/:id/', {version: '@id'});
 
     otiScenariosService.Route = function () {
         this.routeId = createUUID();

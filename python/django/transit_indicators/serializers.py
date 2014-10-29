@@ -57,11 +57,13 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
         model = IndicatorJob
         read_only_fields = ('id', 'version', 'created_by')
 
+
 class ScenarioSerializer(serializers.ModelSerializer):
     """Serializer for Scenarios"""
 
     job_status = serializers.ChoiceField(choices=Scenario.StatusChoices.CHOICES,
                                          required=False)
+    created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
@@ -80,7 +82,7 @@ class ScenarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Scenario
-        read_only_fields = ('id', 'created_by', 'db_name')
+        read_only_fields = ('id', 'db_name')
 
 
 class IndicatorSerializer(serializers.ModelSerializer):

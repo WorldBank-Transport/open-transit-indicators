@@ -121,7 +121,7 @@ class ScenarioViewSet(OTIAdminViewSet):
     model = Scenario
     lookup_field = 'db_name'
     serializer_class = ScenarioSerializer
-    filter_fields = ('job_status',)
+    filter_fields = ('job_status', 'created_by')
 
     def create(self, request):
         """Override request to handle kicking off celery task"""
