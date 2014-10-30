@@ -17,7 +17,7 @@ object StopsToLength extends Indicator
       val stops: Seq[Stop] = trip.schedule.map(_.stop)
       trip.tripShape match {
         case Some(shape) =>
-          stops.size / shape.line.length
+          stops.size / (shape.line.length / 1000)
         case None =>
           0.0
       }
@@ -29,7 +29,7 @@ object StopsToLength extends Indicator
       .foldLeft((0.0, 0)) { case ((headVal, count), tailVal) =>
         (headVal + tailVal, count + 1)
                          }
-      if (count > 0) total / count / 1000 else 0.0
+      if (count > 0) total / count else 0.0
     }
     perTripCalculation(map, reduce)
   }
