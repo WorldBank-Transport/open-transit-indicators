@@ -219,11 +219,9 @@ class IndicatorsTestCase(TestCase):
 
         self.user = OTIUser.objects.create_user('test', 'test@testing.com')
         self.indicator_job = IndicatorJob.objects.create(job_status='complete',
-                                                         id="1",
                                                          created_by=self.user)
-        
+
         self.rivendell_job = IndicatorJob.objects.create(job_status='complete',
-                                                         id="2",
                                                          created_by=self.user,
                                                          city_name='Rivendell')
         # initialize a sample_period
@@ -234,9 +232,10 @@ class IndicatorsTestCase(TestCase):
 
     def test_crud(self):
         """Ensure that a valid Indicator can be created."""
+
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        calculation_job=self.indicator_job,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -252,7 +251,7 @@ class IndicatorsTestCase(TestCase):
         """ Ensure a valid indicator can be deleted """
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        calculation_job=self.indicator_job,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -262,21 +261,21 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             calculation_job=self.indicator_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator.save()
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             id=self.rivendell_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator2.save()
         indicator3 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.MODE,
                                              city_bounded=True,
-                                             id=self.rivendell_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator3.save()
 
@@ -330,7 +329,7 @@ class IndicatorsTestCase(TestCase):
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,calculation_job\r\nsystem,True,My City,42.0,5,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
+        csv_response = 'aggregation,calculation_job,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value\r\nsystem,9,True,My City,42.0,5,,,morning,num_routes,42.0\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
@@ -343,7 +342,7 @@ class IndicatorsTestCase(TestCase):
         test_csv = open(file_directory + '/tests/test_indicators.csv', 'rb')
         self.sample_period.save()
 
-        response = self.client.post(self.list_url, {'city_name': 'Rivendell', 'source_file': test_csv})
+        response = self.client.post(self.list_url, {'city_name': 'My City', 'source_file': test_csv})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -385,7 +384,7 @@ class IndicatorsTestCase(TestCase):
         # Good: a route aggregation with a route_id and no route_type
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        calculation_job=self.indicator_job,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='route',
                                                         route_id='ABC',
                                                         value=100),
@@ -418,7 +417,7 @@ class IndicatorsTestCase(TestCase):
                                                         type='num_stops',
                                                         aggregation='mode',
                                                         route_type=1,
-                                                        calculation_job=self.indicator_job,
+                                                        calculation_job=self.rivendell_job.id,
                                                         value=100),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

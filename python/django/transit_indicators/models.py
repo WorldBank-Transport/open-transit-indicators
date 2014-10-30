@@ -271,7 +271,7 @@ class Indicator(models.Model):
             response.success = False
             return response
         try:
-            import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+            import_job = IndicatorJob.objects.create(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                       created_by=user, city_name=city_name)
             num_saved = 0
             dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
@@ -294,6 +294,10 @@ class Indicator(models.Model):
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
                     value = float(row.pop('value'))
+                    # We are going to ignore the csv's calculation_job field because that depends
+                    # upon the database in which the indicators are originally stored rather than
+                    # the database that we're now uploading to
+                    row.pop('calculation_job')
                     indicator = cls(sample_period=sample_period, calculation_job=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
