@@ -15,18 +15,18 @@ object OverallIndicatorResult {
 
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
-        OverallIndicatorResult(name, value).forRoute(route, geometries.byRouteGeoJson(route))
+        OverallIndicatorResult(name, value).forRoute(route, geometries.byRouteWkb(route))
       }
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteTypeGeoJson(routeType))
+        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteTypeWkb(routeType))
       }
 
     val containerForSystem: Seq[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystemGeoJson))
+          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystemWkb))
         case None =>
           Seq()
       }

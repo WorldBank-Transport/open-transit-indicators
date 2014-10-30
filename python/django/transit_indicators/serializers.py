@@ -119,12 +119,6 @@ class IndicatorSerializer(serializers.ModelSerializer):
             if 'route_type' not in attrs:
                 raise serializers.ValidationError('Mode aggregation requires route_type')
 
-        # Convert the geometry from geojson to GEOS format for db insertion.
-        # This may not be the most correct place to perform this conversion,
-        # but it is by far the quickest/simplest.
-        if attrs.get("the_geom"):
-            attrs["the_geom"] = GEOSGeometry(json.dumps(attrs.get("the_geom")))
-
         return attrs
 
     class Meta:
