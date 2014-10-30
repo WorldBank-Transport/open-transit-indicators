@@ -16,19 +16,19 @@ object PeriodIndicatorResult {
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
         PeriodIndicatorResult(name, period, value)
-          .forRoute(route, geometries.byRouteGeoJson(route))
+          .forRoute(route, geometries.byRouteWkb(route))
       }
 
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteTypeGeoJson(routeType))
+        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteTypeWkb(routeType))
       }
 
     val containerForSystem: Iterable[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystemGeoJson))
+          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystemWkb))
         case None =>
           Seq()
       }

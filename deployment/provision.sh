@@ -89,8 +89,9 @@ APP_EMAIL="$APP_USERNAME@azavea.com"
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
-GUNICORN_WORKERS=3
-GUNICORN_TIMEOUT=300
+GUNICORN_WORKERS=8
+GUNICORN_CONNECTIONS=500
+GUNICORN_TIMEOUT=600
 
 # Create logs directory
 mkdir -p $LOG_ROOT
@@ -100,7 +101,7 @@ case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
+        GUNICORN_MAX_REQUESTS="--max-requests 100" # force gunicorn to reload code
         WEB_USER="vagrant"
         ;;
     "production")
@@ -583,6 +584,9 @@ database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
 spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
+spray.can.client.idle-timeout = 1260 s
+spray.can.client.request-timeout = 1200 s
+spray.can.client.connecting-timeout = 1200 s
 "
 
 pushd $SCALA_OTI_ROOT/src/main/resources/
@@ -597,7 +601,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $SCALA_ROOT
-    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB run
+    exec nice -n 18 ./sbt 'project opentransit' -mem $SBT_MEM_MB run
 end script
 
 pre-stop script
@@ -621,7 +625,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
+exec /usr/bin/gunicorn -k gevent --worker-connections $GUNICORN_CONNECTIONS --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -667,7 +671,8 @@ nginx_conf="server {
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
         proxy_read_timeout 600s;
-        client_max_body_size 100M;
+        proxy_connect_timeout 75s;
+        client_max_body_size 200M;
     }
 
     location /tiles {

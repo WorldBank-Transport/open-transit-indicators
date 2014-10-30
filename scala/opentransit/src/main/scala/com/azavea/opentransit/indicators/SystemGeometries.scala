@@ -2,15 +2,21 @@ package com.azavea.opentransit.indicators
 
 import scala.util.{Try, Success, Failure}
 import com.azavea.gtfs._
+import com.vividsolutions.jts.io.WKBWriter;
 import geotrellis.vector._
 import geotrellis.vector.json._
 import geotrellis.vector.reproject._
 import geotrellis.proj4._
 import spray.json._
 
-// TODO: Move this out of indicators
-
 class SystemGeometries private (geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine) {
+
+  // For writing Well Known Binary
+  lazy val wkbWriter = new WKBWriter
+  def toWkb(ml: MultiLine) = {
+    JsString(WKBWriter.toHex(wkbWriter.write(ml.jtsGeom)))
+  }
+
   def toTuple = (geomsByRoute, geomsByRouteType, geomForSystem)
 
   def byRoute(route: Route): MultiLine =
@@ -22,19 +28,19 @@ class SystemGeometries private (geomsByRoute: Map[Route, MultiLine], geomsByRout
   def bySystem = geomForSystem
 
   // Memoize the Json serialization so it only happens once per instance.
-  lazy val byRouteGeoJson: Map[Route, JsValue] =
-    Timer.timedTask("Created byRoute GeoJson") {
-      geomsByRoute.map { case (route, ml) => (route, ml.toJson) }.toMap
+  lazy val byRouteWkb: Map[Route, JsValue] =
+    Timer.timedTask("Created byRoute Wkb") {
+      geomsByRoute.map { case (route, ml) => (route, toWkb(ml))}.toMap
     }
 
-  lazy val byRouteTypeGeoJson: Map[RouteType, JsValue] =
-    Timer.timedTask("Created byRouteType GeoJson") {
-      geomsByRouteType.map { case (routeType, ml) => (routeType, ml.toJson) }.toMap
+  lazy val byRouteTypeWkb: Map[RouteType, JsValue] =
+    Timer.timedTask("Created byRouteType Wkb") {
+      geomsByRouteType.map { case (routeType, ml) => (routeType, toWkb(ml))}.toMap
     }
 
-  lazy val bySystemGeoJson: JsValue =
-    Timer.timedTask("Created bySystem GeoJson") {
-      geomForSystem.toJson
+  lazy val bySystemWkb: JsValue =
+    Timer.timedTask("Created bySystem Wkb") {
+      toWkb(geomForSystem)
     }
 }
 
