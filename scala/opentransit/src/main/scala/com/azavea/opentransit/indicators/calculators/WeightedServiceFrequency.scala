@@ -7,6 +7,8 @@ import geotrellis.vector._
 import com.github.nscala_time.time.Imports._
 import org.joda.time._
 
+import scala.collection.concurrent
+
 /** Average service frequency.
   * This abstract indicator calculates the frequency of a mode of public transit
   * arriving at a stop in a route. and weights it according to the population served
@@ -19,6 +21,9 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
 
   val name: String
   val demographicsColumnName: String
+  // This allows us to cache the return values from the DB to limit queries
+  val popMap: concurrent.Map[Stop, Double] = new concurrent.TrieMap()
+
 
   def calculation(period: SamplePeriod) = {
     /** For each trip, return a Map of stops to trip arrival times at said stops */
@@ -50,11 +55,15 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
         stopSchedules
           .combineMaps
           .map { case (stop, schedules) =>
-            val thisStopBuffer = params.bufferForStop(stop)
-            val popInBuffer = params.populationMetricForBuffer(
-                thisStopBuffer,
-                demographicsColumnName
-            )
+            if (!popMap.contains(stop))
+              popMap(stop) = {
+                val thisStopBuffer = params.bufferForStop(stop)
+                params.populationMetricForBuffer(
+                  thisStopBuffer,
+                  demographicsColumnName
+                )
+              }
+            val popInBuffer = popMap(stop)
 
             val orderedArrivalTimes = schedules.sorted
             // Zip using indexes: (i1, i2), (i2, i3), etc.
