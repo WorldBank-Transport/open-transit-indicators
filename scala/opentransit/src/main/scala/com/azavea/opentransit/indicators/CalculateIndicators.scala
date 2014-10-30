@@ -8,8 +8,10 @@ import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.indicators.parameters._
+import com.azavea.opentransit.indicators.calculators._
 import com.azavea.opentransit.indicators.WeeklyServiceHours._
 import geotrellis.vector._
+import geotrellis.slick._
 import com.azavea.opentransit.indicators.parameters._
 
 import com.github.nscala_time.time.Imports._
@@ -56,18 +58,34 @@ object CalculateIndicators {
 
     val periodGeometries = periods.map { period =>
       println(s"Creating System Geometries for period ${period.periodType}...")
-      val systemGeometries = 
+      val systemGeometries =
         timedTask(s"Calculated system geometries for period ${period.periodType}.") {
-          SystemGeometries(systemsByPeriod(period))
+          SystemLineGeometries(systemsByPeriod(period))
         }
       period -> systemGeometries
     }.toMap
 
+    val periodBuffers = periods.map { period =>
+      println(s"Creating stop buffer geometries for period ${period.periodType}...")
+      val systemBuffers : Projected[MultiPolygon] =
+        timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+          params.bufferForPeriod(period)
+        }
+      period -> SystemBufferGeometries(systemsByPeriod(period), systemBuffers)
+    }.toMap
+
     // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
-    lazy val overallGeometries: SystemGeometries = {
+    lazy val overallLineGeometries = {
       println("Calculating overall system geometries...")
       timedTask("Calculated overall system geometries.") {
-        SystemGeometries.merge(periodGeometries.values.toSeq)
+        SystemLineGeometries.merge(periodGeometries.values.toSeq)
+      }
+    }
+
+    lazy val overallBufferGeometries = {
+      println("Calculating overall buffer geometries...")
+      timedTask("Calculated overall system buffer geometries") {
+        SystemBufferGeometries.merge(periodBuffers.values.toSeq)
       }
     }
 
@@ -90,7 +108,10 @@ object CalculateIndicators {
           val periodIndicatorResults: Seq[ContainerGenerator] =
             periods
               .map { period =>
-                val (results, geometries) = (periodResults(period), periodGeometries(period))
+                val (results, geometries) = (periodResults(period), indicator match {
+                  case (_:CoverageRatioStopsBuffer | _:WeightedServiceFrequency | _:Accessibility) => periodBuffers(period)
+                  case _ => periodGeometries(period)
+                })
                 PeriodIndicatorResult.createContainerGenerators(indicator.name,
                                                                 period,
                                                                 results,
@@ -106,7 +127,7 @@ object CalculateIndicators {
             val overallIndicatorResults: Seq[ContainerGenerator] =
               OverallIndicatorResult.createContainerGenerators(indicator.name,
                                                                overallResults,
-                                                               overallGeometries)
+                                                               overallLineGeometries)
 
             statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
           }
@@ -126,7 +147,7 @@ object CalculateIndicators {
     if (calculateAllTime) {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
-        WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
+        WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
       println("Done processing indicators in CalculateIndicators")
     }
   }

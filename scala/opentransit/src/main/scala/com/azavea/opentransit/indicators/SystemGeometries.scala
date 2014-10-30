@@ -3,48 +3,70 @@ package com.azavea.opentransit.indicators
 import scala.util.{Try, Success, Failure}
 import com.azavea.gtfs._
 import com.vividsolutions.jts.io.WKBWriter;
+import geotrellis.slick._
 import geotrellis.vector._
 import geotrellis.vector.json._
 import geotrellis.vector.reproject._
 import geotrellis.proj4._
 import spray.json._
 
-class SystemGeometries private (geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine) {
+import com.vividsolutions.jts.geom.{MultiPolygon => JTSMultiPolygon, Polygon => JTSPolygon}
+import com.vividsolutions.jts.operation.union._
+
+import scala.collection.JavaConversions._
+
+trait SystemGeometries {
+  type G <: Geometry
 
   // For writing Well Known Binary
   lazy val wkbWriter = new WKBWriter
-  def toWkb(ml: MultiLine) = {
-    JsString(WKBWriter.toHex(wkbWriter.write(ml.jtsGeom)))
+  def toWkb(g: G) = {
+    JsString(WKBWriter.toHex(wkbWriter.write(g.jtsGeom)))
   }
+
+  def byRoute(route: Route): Option[G]
+  def byRouteType(routeType: RouteType): Option[G]
+  def bySystem: G
+
+  val byRouteWkb: Map[Route, JsValue]
+  val byRouteTypeWkb: Map[RouteType, JsValue]
+  val bySystemWkb: JsValue
+
+}
+
+class SystemLineGeometries (geomsByRoute: Map[Route, MultiLine], geomsByRouteType: Map[RouteType, MultiLine], geomForSystem: MultiLine) extends SystemGeometries {
+  type G = MultiLine
 
   def toTuple = (geomsByRoute, geomsByRouteType, geomForSystem)
 
-  def byRoute(route: Route): MultiLine =
-    geomsByRoute.getOrElse(route, MultiLine.EMPTY)
+  def byRoute(route: Route): Option[MultiLine] =
+    geomsByRoute.get(route)
 
-  def byRouteType(routeType: RouteType): MultiLine =
-    geomsByRouteType.getOrElse(routeType, MultiLine.EMPTY)
+  def byRouteType(routeType: RouteType): Option[MultiLine] =
+    geomsByRouteType.get(routeType)
 
-  def bySystem = geomForSystem
+  def bySystem: MultiLine =
+    geomForSystem
 
   // Memoize the Json serialization so it only happens once per instance.
   lazy val byRouteWkb: Map[Route, JsValue] =
     Timer.timedTask("Created byRoute Wkb") {
-      geomsByRoute.map { case (route, ml) => (route, toWkb(ml))}.toMap
+      geomsByRoute.map { case (route, g) => (route, toWkb(g))}.toMap
     }
 
   lazy val byRouteTypeWkb: Map[RouteType, JsValue] =
     Timer.timedTask("Created byRouteType Wkb") {
-      geomsByRouteType.map { case (routeType, ml) => (routeType, toWkb(ml))}.toMap
+      geomsByRouteType.map { case (routeType, g) => (routeType, toWkb(g))}.toMap
     }
 
   lazy val bySystemWkb: JsValue =
     Timer.timedTask("Created bySystem Wkb") {
       toWkb(geomForSystem)
     }
+
 }
 
-object SystemGeometries {
+object SystemLineGeometries {
   /** Find the transform for a transit system to LatLng. Creating the transform only once speeds things up a lot. */
   private def findTransform(transitSystem: TransitSystem): Transform = {
     val srid =
@@ -54,14 +76,14 @@ object SystemGeometries {
         tripShape <- trip.tripShape
       ) yield { tripShape.line.srid }) match {
         case Some(i) => i
-        case None => sys.error(s"Transit system is requried to have an SRID")
+        case None => sys.error(s"Transit system is required to have an SRID")
       }
 
     val crs = CRS.fromName(s"EPSG:${srid}")
     Transform(crs, LatLng)
   }
 
-  def apply(transitSystem: TransitSystem): SystemGeometries = {
+  def apply(transitSystem: TransitSystem): SystemLineGeometries = {
     val transform = findTransform(transitSystem)
 
     val byRoute: Map[Route, MultiLine] =
@@ -87,10 +109,10 @@ object SystemGeometries {
     def bySystem: MultiLine =
       MultiLine(byRouteType.values.map(_.lines).flatten.dissolve)
 
-    new SystemGeometries(byRoute, byRouteType, bySystem)
+    new SystemLineGeometries(byRoute, byRouteType, bySystem)
   }
 
-  def merge(geometries: Seq[SystemGeometries]): SystemGeometries = {
+  def merge(geometries: Seq[SystemLineGeometries]): SystemLineGeometries = {
     val (byRoutes, byRouteTypes, bySystems) =
       geometries
         .map(_.toTuple)
@@ -113,12 +135,67 @@ object SystemGeometries {
         }
 
     val mergedSystemGeom: MultiLine =
-      MultiLine(
-        bySystems
-          .map(_.lines)
+        bySystems.map(_.lines)
           .flatten
           .dissolve
-      )
-    new SystemGeometries(mergedRouteGeom, mergedRouteTypeGeom, mergedSystemGeom)
+
+    new SystemLineGeometries(mergedRouteGeom, mergedRouteTypeGeom, mergedSystemGeom)
+  }
+}
+
+class SystemBufferGeometries (geomForSystem: MultiPolygon) extends SystemGeometries {
+  type G = MultiPolygon
+
+  def byRoute(route: Route): Option[MultiPolygon] =
+    None
+
+  def byRouteType(routeType: RouteType): Option[MultiPolygon] =
+    None
+
+  def bySystem: MultiPolygon =
+    geomForSystem
+
+  // Memoize the Json serialization so it only happens once per instance.
+  lazy val byRouteWkb: Map[Route, JsValue] = Map()
+
+  lazy val byRouteTypeWkb: Map[RouteType, JsValue] = Map()
+
+  lazy val bySystemWkb: JsValue =
+    Timer.timedTask("Created bySystem Wkb") {
+      toWkb(geomForSystem)
+    }
+}
+
+object SystemBufferGeometries {
+  /** Find the transform for a transit system to LatLng. Creating the transform only once speeds things up a lot. */
+   // TODO: Find a way to avoid copy-pasting this while still making sure it's calculated
+   // only once and is still private to SystemGeometries
+  private def findTransform(transitSystem: TransitSystem): Transform = {
+    val srid =
+      (for(
+        route <- transitSystem.routes.headOption;
+        trip <- route.trips.headOption;
+        tripShape <- trip.tripShape
+      ) yield { tripShape.line.srid }) match {
+        case Some(i) => i
+        case None => sys.error(s"Transit system is required to have an SRID")
+      }
+
+    val crs = CRS.fromName(s"EPSG:${srid}")
+    Transform(crs, LatLng)
+  }
+
+  def apply(transitSystem: TransitSystem, buffer: Projected[MultiPolygon]): SystemBufferGeometries = {
+    val transform = findTransform(transitSystem)
+    val systemBufferGeom = Projected(buffer.geom.reproject(transform), 4326)
+    new SystemBufferGeometries(systemBufferGeom)
+  }
+
+  def merge(geometries: Seq[SystemBufferGeometries]): SystemBufferGeometries = {
+    val union = new CascadedPolygonUnion(geometries.map(_.bySystem.jtsGeom))
+    val mergedBufferGeom = union.union() match {
+      case p: JTSPolygon => MultiPolygon(Polygon(p))
+    }
+    new SystemBufferGeometries(mergedBufferGeom)
   }
 }
