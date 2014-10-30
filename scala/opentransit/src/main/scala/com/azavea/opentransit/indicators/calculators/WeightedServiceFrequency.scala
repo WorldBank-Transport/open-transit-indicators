@@ -38,18 +38,15 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
      */
     def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
       // Average all the headways between each stop with weight.
-      // Total population over which our weighting will be averaged
-      val allStopBuffers = params.bufferForStops {
-        stopSchedules.map { mapping => mapping.keys }
-          .flatten
-          .distinct
-      }
-      val allStopPop = params.populationMetricForBuffer(
-        allStopBuffers,
-        demographicsColumnName
-      )
 
-      val freqsForPop =
+      /* A "Headway-person" in the code below is a unit of time
+       * multiplied by an amount of people.
+       * A "stop-person" is 1 stop visit multiplied by an amount of
+       * people.
+       * Divide HeadwayPersons / StopPersons and you are left with
+       * a weighted time per stop.
+       */
+      val (totalHeadwayPersons, totalStopPersons) =
         stopSchedules
           .combineMaps
           .map { case (stop, schedules) =>
@@ -61,19 +58,21 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
 
             val orderedArrivalTimes = schedules.sorted
             // Zip using indexes: (i1, i2), (i2, i3), etc.
-            val (total, count) =
+            val (seconds, count) =
               orderedArrivalTimes.zip(orderedArrivalTimes.tail)
                 .map { case (i1, i2) => Seconds.secondsBetween(i1, i2).getSeconds }
-                .foldLeft((0.0, 0)) { case ((total, count), diff) =>
+                .foldLeft((0.0, 0.0)) { case ((total, count), diff) =>
                   ((total + diff), count+1)
                 }
-            // Calculate the average for each stop in this aggregation
-            if (count > 0) (total / count) * popInBuffer else 0.0
-            }
-            .sum
+            // Return headway-persons and stop-persons
+            if (count > 0) (seconds * popInBuffer, count * popInBuffer) else (0.0, 0.0)
+          }
+          .foldLeft(0.0, 0.0) { case((total, totalPop), (headwayPersons, stopPersons)) =>
+            (total + headwayPersons, totalPop + stopPersons)
+          }
 
       // Return the weighted average
-      if (allStopPop > 0) (freqsForPop / allStopPop) / 60 else 0 // div60 for minutes
+      if (totalStopPersons > 0) (totalHeadwayPersons / totalStopPersons) / 60 else 0 // div60 for minutes
     }
 
     perRouteCalculation(map, reduce)

@@ -357,8 +357,6 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop served')
-            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low-income pop served')
             SECONDS = _(u'secs')
             MINUTES = _(u'mins')
             HOURS = _(u'hrs')
@@ -380,8 +378,8 @@ class Indicator(models.Model):
                             LINE_NETWORK_DENSITY: Units.KM_PER_AREA,
                             ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
                             REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
-                            SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
-                            SERVICE_FREQ_WEIGHTED_LOW: Units.FREQ_WEIGHTED_BY_LOW_POP,
+                            SERVICE_FREQ_WEIGHTED: Units.MINUTES,
+                            SERVICE_FREQ_WEIGHTED_LOW: Units.MINUTES,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
                             SYSTEM_ACCESS: Units.POP_PER_STOP,
                             SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_STOP,
