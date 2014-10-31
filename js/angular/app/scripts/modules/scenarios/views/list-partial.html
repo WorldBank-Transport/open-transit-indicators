@@ -31,7 +31,7 @@
     </div>
     <h3>{{'SCENARIO.COLLEAGUE_SCENARIOS'|translate}}</h3>
     <div class="block">
-        <div class="row" ng-hide="colleagueScenarios">
+        <div class="row" ng-hide="colleagueScenarios.length >= 0">
             <wave-spinner></wave-spinner>
             <div class="text-center">{{'SCENARIO.LOADING_COLLEAGUE_SCENARIOS'|translate}}</div>
         </div>
