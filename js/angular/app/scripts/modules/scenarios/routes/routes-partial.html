@@ -12,7 +12,7 @@
     <div class="block">
         <div class="row">
             <div class="col-xs-9">
-                <select ng-model="selectedRouteId" ng-options="r.id as r.shortName for r in filteredRoutes"></select>
+                <select ng-model="selectedRouteId" ng-options="r.id as r.longName for r in filteredRoutes"></select>
             </div>
             <div class="col-xs-3">
             <a class="button--small" ng-click="editRoute(selectedRouteId, selectedRouteType)">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>

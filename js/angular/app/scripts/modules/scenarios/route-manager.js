@@ -34,6 +34,12 @@ angular.module('transitIndicators')
         });
     };
 
+    module.findById = function (routeId) {
+        return _.find(routes, function (r) {
+            return r.routeId === routeId;
+        });
+    };
+
     module.list = function (queryParams) {
         var dfd = $q.defer();
         OTIRouteModel.query(queryParams,function (result) {

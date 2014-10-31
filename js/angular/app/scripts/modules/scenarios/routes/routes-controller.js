@@ -6,9 +6,8 @@ angular.module('transitIndicators')
 
     $scope.filteredRoutes = [];
     $scope.scenario = OTIScenarioManager.get();
-    $scope.routes = [];
     OTIRouteManager.list({db_name: $scope.scenario.db_name}).then(function (routes) {
-        $scope.routes = routes;
+        $scope.filteredRoutes = routes;
     });
 
     $scope.selectedRouteId = '';
@@ -21,9 +20,7 @@ angular.module('transitIndicators')
         if (!routeId) {
             return;
         }
-        var route = _.find($scope.routes, function (r) {
-            return r.routeId === routeId;
-        });
+        var route = OTIRouteManager.findById(routeId);
         OTIRouteManager.set(route);
         $state.go('route-edit');
     };
