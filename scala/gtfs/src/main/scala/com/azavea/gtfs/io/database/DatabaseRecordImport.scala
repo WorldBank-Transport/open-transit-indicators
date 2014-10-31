@@ -3,6 +3,7 @@ package com.azavea.gtfs.io.database
 import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
 
+import scala.slick.jdbc.StaticQuery
 import scala.slick.jdbc.JdbcBackend.Session
 
 object DatabaseRecordImport {
@@ -16,6 +17,13 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {
     session.withTransaction {
       table.forceInsertAll(records:_*)
+    }
+  }
+
+  // Run function to populate routes served by each stop
+  private def populateRoutesServed(): Unit = {
+    session.withTransaction {
+      StaticQuery.updateNA("""SELECT stops_routes();""").execute
     }
   }
 
@@ -53,5 +61,6 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
     timedTask("loaded frequencies") { load(records.frequencyRecords, frequencyRecordsTable) }
     timedTask("loaded trip shapes") { load(records.tripShapes, tripShapesTable) }
     timedTask("loaded stops") { load(records.stops, stopsTable) }
+    timedTask("populated routes served by each stop") { populateRoutesServed }
   }
 }

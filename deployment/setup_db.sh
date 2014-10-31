@@ -48,10 +48,3 @@ if [ 0 -ne $has_spatial_db ]; then
 else
     echo 'Spatial database already exists; skipping.'
 fi
-
-# Temporary hack to fix performance problems on GTFS imports. This trigger was the
-# bottleneck as it was being run on each insert to the stops table. Removing it here
-# allows GTFS imports to complete in a reasonable amount of time, but at the expense
-# of not being able to view a stop's served routes in the UI. This functionality will
-# be added back when we come up with a quicker calculation mechanism.
-psql -d $DB_NAME -c "DROP TRIGGER IF EXISTS stops_routes ON gtfs_stops;"
