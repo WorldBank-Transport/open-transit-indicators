@@ -33,7 +33,7 @@ angular.module('transitIndicators')
      * @return none
      */
     var pollForAssignments = function () {
-        var ASSIGNMENT_TIMEOUT_MS = 30 * 1000;
+        var ASSIGNMENT_TIMEOUT_MS = 60 * 1000;
         var POLLING_TIMEOUT_MS = 2 * 1000;
         var startDatetime = new Date();
         var checkAssignments = function () {
