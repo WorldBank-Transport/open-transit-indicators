@@ -76,7 +76,7 @@ OTI_CATALOG="$OTI_ROOT/data/catalog.json"
 SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
-TRANSITFEED_VERSION=1.2.12
+TRANSITFEED_VERSION=1.2.13
 
 # TODO: Change user emails?
 APP_SU_USERNAME="oti-admin"
@@ -321,16 +321,16 @@ popd
 #########################
 # This is installed manually due to a problem where the newest version
 # isn't able to be installed via pip on Travis.
-# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+# docs here:  https://github.com/google/transitfeed/wiki/FeedValidator
 if ! $(python -c "import transitfeed" &> /dev/null); then
     echo 'Setting up transitfeed'
     pushd $TEMP_ROOT
-        wget https://googletransitdatafeed.googlecode.com/files/transitfeed-$TRANSITFEED_VERSION.tar.gz
-        tar xzf transitfeed-$TRANSITFEED_VERSION.tar.gz
+        wget https://github.com/google/transitfeed/archive/$TRANSITFEED_VERSION.tar.gz
+        tar xzf $TRANSITFEED_VERSION.tar.gz
         pushd transitfeed-$TRANSITFEED_VERSION
             sudo python setup.py install
         popd
-        rm -rf transitfeed-$TRANSITFEED_VERSION transitfeed-$TRANSITFEED_VERSION.tar.gz
+        rm -rf transitfeed-$TRANSITFEED_VERSION $TRANSITFEED_VERSION.tar.gz
     popd
 fi
 
