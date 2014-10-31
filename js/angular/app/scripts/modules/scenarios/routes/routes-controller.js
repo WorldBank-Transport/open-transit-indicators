@@ -1,21 +1,15 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosRoutesController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService) {
+            ['$scope', '$state', 'OTIScenarioManager', 'OTIRouteManager',
+            function ($scope, $state, OTIScenarioManager, OTIRouteManager) {
 
-    var filterRoutes = function (routes, filterValue) {
-        if (filterValue === -1) {
-            return routes;
-        }
-        return _.filter(routes, function (r) {
-            return r.routeType === filterValue;
-        });
-    };
-
-    $scope.routes = OTIScenariosService.getRoutes();
     $scope.filteredRoutes = [];
-    $scope.scenario = OTIScenariosService.otiScenario;
+    $scope.scenario = OTIScenarioManager.get();
+    $scope.routes = [];
+    OTIRouteManager.list({db_name: $scope.scenario.db_name}).then(function (routes) {
+        $scope.routes = routes;
+    });
 
     $scope.selectedRouteId = '';
     $scope.routeType = {
@@ -27,23 +21,24 @@ angular.module('transitIndicators')
         if (!routeId) {
             return;
         }
-        OTIScenariosService.otiRoute = _.find($scope.routes, function (r) {
+        var route = _.find($scope.routes, function (r) {
             return r.routeId === routeId;
         });
+        OTIRouteManager.set(route);
         $state.go('route-edit');
     };
 
     $scope.newRoute = function () {
-        OTIScenariosService.otiRoute = new OTIScenariosService.Route();
+        OTIRouteManager.create();
         $state.go('route-edit');
     };
 
     $scope.back = function () {
-        $scope.scenario = {};
+        OTIRouteManager.clear();
         $state.go('new-success');
     };
 
     $scope.$watch('routeType.selected', function (newValue) {
-        $scope.filteredRoutes = filterRoutes($scope.routes, newValue);
+        $scope.filteredRoutes = OTIRouteManager.filter(newValue);
     });
 }]);

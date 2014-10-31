@@ -1,10 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosNewsuccessController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService) {
+            ['config', '$scope', '$state', 'OTIScenarioManager',
+            function (config, $scope, $state, OTIScenarioManager) {
 
-    $scope.scenario = OTIScenariosService.otiScenario;
+    $scope.scenario = OTIScenarioManager.get();
 
     $scope.routes = function () {
         $state.go('routes');
@@ -15,7 +15,7 @@ angular.module('transitIndicators')
     };
 
     $scope.back = function () {
-        $state.go('new');
+        $state.go('list');
     };
 
 }]);
