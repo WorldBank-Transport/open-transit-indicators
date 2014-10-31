@@ -12,12 +12,12 @@ describe('Service: Indicators', function () {
     describe('IndicatorsConfig tests', function () {
         it('should have version, sample_period, type, aggregation properties', function () {
             var indicator = new indicatorsService.IndicatorConfig({
-                version: 0,
+                calculation_job: 42,
                 type: 'test',
                 aggregation: 'system',
                 sample_period: 'morning'
             });
-            expect(indicator.version).toBeDefined();
+            expect(indicator.calculation_job).toBeDefined();
             expect(indicator.type).toBeDefined();
             expect(indicator.aggregation).toBeDefined();
             expect(indicator.sample_period).toBeDefined();
@@ -25,7 +25,7 @@ describe('Service: Indicators', function () {
 
         it('should fail to initialize with an empty object', function () {
             var indicator = new indicatorsService.IndicatorConfig({});
-            expect(indicator.version).toBe(0);
+            expect(indicator.calculation_job).toBe(0);
             expect(indicator.type).not.toBeDefined();
             expect(indicator.aggregation).not.toBeDefined();
             expect(indicator.sample_period).not.toBeDefined();
