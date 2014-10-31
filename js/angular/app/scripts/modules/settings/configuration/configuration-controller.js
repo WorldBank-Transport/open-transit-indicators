@@ -352,9 +352,10 @@ angular.module('transitIndicators')
             $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
             var nextDay = null;
             
-            // if dates have not been chosen yet, default to first valid date in range
+            // if dates have not been chosen yet, default to second valid date in range
             if (!$scope.weekdayDate) {
                 nextDay = new Date($scope.serviceStart);
+                nextDay.setDate(nextDay.getDate() + 1);
                 while (!OTIConfigurationService.isWeekday(nextDay)) {
                   nextDay.setDate(nextDay.getDate() + 1);
                 }
@@ -363,6 +364,7 @@ angular.module('transitIndicators')
             
             if (!$scope.weekendDate) {
                 nextDay = new Date($scope.serviceStart);
+                nextDay.setDate(nextDay.getDate() + 1);
                 while (!OTIConfigurationService.isWeekend(nextDay)) {
                   nextDay.setDate(nextDay.getDate() + 1);
                 }
