@@ -9,7 +9,13 @@ angular.module('transitIndicators')
     var module = {};
 
     module.create = function () {
-        scenario = new OTIScenarioModel();
+        var newScenario = new OTIScenarioModel();
+        newScenario.name = '';
+        newScenario.description = '';
+        newScenario.sample_period = null;
+        newScenario.job_status = null;
+        newScenario.base_scenario = null;
+        scenario = newScenario;
     };
 
     module.get = function() {
