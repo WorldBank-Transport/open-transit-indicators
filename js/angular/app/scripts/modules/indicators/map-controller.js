@@ -76,6 +76,7 @@ angular.module('transitIndicators')
     };
 
     var setIndicator = function (indicator) {
+        indicator.dbname = 'transit_indicators';
         angular.extend($scope.indicator, indicator);
         $cookieStore.put('indicator', $scope.indicator);
         $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
@@ -107,7 +108,8 @@ angular.module('transitIndicators')
      */
     $scope.updateIndicatorLayers = function (indicator) {
         $scope.indicator.modes = OTIMapService.getTransitModes();
-        $cookieStore.put('indicator', $scope.indicator);
+        indicator.dbname = 'transit_indicators';
+        $cookieStore.put("indicator", $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
