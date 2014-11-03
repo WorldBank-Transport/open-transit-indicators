@@ -63,6 +63,7 @@ class ScenarioSerializer(serializers.ModelSerializer):
     job_status = serializers.ChoiceField(choices=Scenario.StatusChoices.CHOICES,
                                          required=False)
     created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    sample_period = serializers.SlugRelatedField(slug_field='type')
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""

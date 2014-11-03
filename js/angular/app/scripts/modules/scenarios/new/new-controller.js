@@ -6,6 +6,8 @@ angular.module('transitIndicators')
 
     $scope.scenario = OTIScenarioManager.get();
 
+    $scope.isEditing = !!($scope.scenario.sample_period);
+
     $scope.create = function () {
         // TODO: UI feedback for validation -- all fields are required
         if ($scope.newScenario.$valid) {
