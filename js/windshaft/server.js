@@ -51,7 +51,7 @@ var config = {
 
             // Set style/sql based on indicator config
             req.params.style = indicator.getStyle();
-            req.params.sql = indicator.getSql();
+            req.params.sql = indicator.getSql(req.query.modes);
         }
 
         // Interactivity column comes through in our get params since it's optional

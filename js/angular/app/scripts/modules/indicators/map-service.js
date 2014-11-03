@@ -39,25 +39,24 @@ angular.module('transitIndicators')
         return otiMapService.getRouteTypes().then(function (routetypes) {
             var colors = [];
             var labels = [];
+            var modes = [];
             var colorRamp = OTIMapStyleService.routeTypeColorRamp();
             _.chain(routetypes)
                 .filter(function(route) { return route.is_used; })
                 .each(function(route) {
                     colors.push(colorRamp[route.route_type]);
                     labels.push(route.description);
+                    modes.push({
+                        id: route.route_type,
+                        name: route.description
+                    });
                 });
+            otiMapService.modes = modes;
             return {
                 colors: colors,
-                labels: labels,
+                labels: labels
             };
         });
-    };
-
-    var enabledmodes;
-
-    otiMapService.setModes = function (modes) {
-        enabledmodes = modes;
-
     };
 
     /**
@@ -69,7 +68,7 @@ angular.module('transitIndicators')
         var url = otiMapService.getWindshaftHost();
         url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
-        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
+        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value&modes={modes}' : '.png?modes={modes}';
         return url;
     };
 

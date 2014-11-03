@@ -26,21 +26,22 @@ angular.module('transitIndicators')
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSShapesUrl(),
             visible: true,
-            layerOptions: { modes: $scope.modes }
+            layerParams: { modes: '' }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
             visible: true,
-            layerOptions: { modes: $scope.modes }
+            layerParams: { modes: '' }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
             visible: true,
-            pluginOptions: { 'useJsonP': false }
+            pluginOptions: { 'useJsonP': false },
+            layerParams: { modes: '' }
         }
     };
 
@@ -48,6 +49,8 @@ angular.module('transitIndicators')
         OTIIndicatorsMapService.getLegendData().then(function (legend) {
             legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
+            $rootScope.$broadcast('OTIEvent:Root:AvailableModesUpdated',
+                OTIIndicatorsMapService.modes);
             $scope.leaflet.legend = legend;
         });
     };

@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
-            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', '$rootScope',
+            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData, $rootScope) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -121,6 +121,34 @@ angular.module('transitIndicators')
         }
         setActiveState(activeState);
     });
+
+    $scope.modes = [];
+
+    $scope.setMapModes = function (modes) {
+        $rootScope.visibleModes = modes;
+        //_.each($scope.leaflet.layers.overlays, function(overlay) {
+        //    overlay.layerParams = {modes: modes};
+        //    console.log(overlay);
+        //});
+        leafletData.getLayers().then(function (layers) {
+            _.each(layers, function(layer) {
+                _.each(layer, function(sublayer) {
+                    if(sublayer.options.modes !== undefined) {
+                        sublayer.options.modes = modes;
+                        sublayer.redraw();
+                    }
+                });
+            });
+        });
+    };
+
+    $scope.$on('OTIEvent:Root:AvailableModesUpdated', function(event, modes) {
+        $scope.modes = modes;
+    });
+
+    $scope.setModes = function(modes) {
+        $scope.modes = modes;
+    };
 
     $scope.init();
 }]);
