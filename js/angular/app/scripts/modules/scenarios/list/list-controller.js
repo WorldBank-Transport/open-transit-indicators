@@ -14,7 +14,7 @@ angular.module('transitIndicators')
             $scope.myScenarios = _.chain(results).groupBy(function(element, index) {
                 return Math.floor(index/pageSize);
             }).toArray().value();
-            $scope.$broadcast('updateHeight');
+            $scope.$emit('updateHeight');
         });
     };
 
@@ -27,7 +27,7 @@ angular.module('transitIndicators')
             $scope.colleagueScenarios = _.chain(filteredResults).groupBy(function(element, index) {
                 return Math.floor(index/pageSize);
             }).toArray().value();
-            $scope.$broadcast('updateHeight');
+            $scope.$emit('updateHeight');
         });
     };
 
