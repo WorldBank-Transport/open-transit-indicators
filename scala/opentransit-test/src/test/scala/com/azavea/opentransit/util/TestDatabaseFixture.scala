@@ -1,5 +1,6 @@
 package com.azavea.opentransit.util
 
+import grizzled.slf4j.Logging
 import com.azavea.opentransit.DatabaseInstance
 import com.azavea.opentransit.io.GtfsIngest
 import com.azavea.opentransit.testkit.TestGtfsRecords
@@ -15,7 +16,7 @@ import scala.sys.process._
  * Any database asked by name will be created with the test class name as prefix.
  * All databases created during the run-time of this test will be dropped at the end.
  */
-trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { self: Suite =>
+trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll with Logging { self: Suite =>
   var live: Set[String] = Set.empty // set of databases that we have created for this test
 
   def mainDbName: String = getClass.getSimpleName.toLowerCase
@@ -45,9 +46,17 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
   def createDatabase(name: String) = {
     val dbName = if (name == mainDbName) name else s"$mainDbName-$name"
 
-    val logger = ProcessLogger(println, println);
-    s"""sudo -u $dbSudo ../../deployment/setup_db.sh $dbName $dbUser "$dbPassword" ../..""".!!(logger)
+    val processLogger = ProcessLogger(println, println);
+    logger.info(s"TEST STRING")
+    s"""sudo -u $dbSudo ../../deployment/setup_db.sh $dbName $dbUser "$dbPassword" ../..""".!!(processLogger)
+    s"""sudo -u $dbSudo psql -d $dbName -f ../../deployment/stops_routes_function.sql""".!!(processLogger)
     live += dbName
+  }
+
+  def createFunctions(name: String) = {
+    val dbName = if (name == mainDbName) name else s"$mainDbName-$name"
+
+    val logger = ProcessLogger(println, println);
   }
 
   def deleteDatabase(name: String) = {
@@ -58,6 +67,7 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
 
   abstract override protected def beforeAll(): Unit = {
     createDatabase(mainDbName)
+    //createFunctions(mainDbName)
     live += mainDbName
     dbByName(mainDbName) withSession { implicit session: Session =>
       GtfsIngest(TestGtfsRecords())

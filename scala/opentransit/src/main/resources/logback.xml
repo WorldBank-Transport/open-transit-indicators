@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.azavea.opentransit" level="debug" additivity="false">
+    <logger name="com.azavea.opentransit" level="info" additivity="false">
         <appender-ref ref="console" />
     </logger>
 
@@ -20,7 +20,7 @@
         <appender-ref ref="console" />
     </logger>
 
-    <root level="info">
+    <root level="info"
         <appender-ref ref="console"/>
     </root>
 

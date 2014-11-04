@@ -39,7 +39,7 @@ trait ProductionDatabaseInstance extends DatabaseInstance {
   }
 
   def createFunctions(name: String) = {
-    s"""sudo -u postgres psql -d $name -f ../deployment/stops_routes_function.sql""".!!
+    s"""sudo -u $dbSudo psql -d $name -f ../deployment/stops_routes_function.sql""".!!
   }
 
   def deleteDatabase(name: String) = {
