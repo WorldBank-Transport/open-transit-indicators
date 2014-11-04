@@ -1,22 +1,24 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosNewController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService) {
+            ['config', '$scope', '$state', '$stateParams', 'OTIScenarioManager',
+            function (config, $scope, $state, $stateParams, OTIScenarioManager) {
 
-    $scope.scenario = OTIScenariosService.otiScenario;
+    $scope.scenario = OTIScenarioManager.get();
+
+    $scope.isEditing = !!($scope.scenario.sample_period);
 
     $scope.create = function () {
         // TODO: UI feedback for validation -- all fields are required
         if ($scope.newScenario.$valid) {
             // TODO: Save scenario
-            OTIScenariosService.upsertScenario($scope.scenario);
+            OTIScenarioManager.set($scope.scenario);
             $state.go('new-success');
         }
     };
 
     $scope.back = function () {
-        $scope.scenario = {};
+        OTIScenarioManager.clear();
         $state.go('list');
     };
 }]);

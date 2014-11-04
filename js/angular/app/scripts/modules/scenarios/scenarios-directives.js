@@ -26,7 +26,7 @@ angular.module('transitIndicators')
                     element.css({
                         'height': height
                     });
-                });
+                }, 100);
             };
 
             updateScenarioHeight();
