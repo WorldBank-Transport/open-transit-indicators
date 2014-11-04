@@ -107,6 +107,8 @@
         "CREATING_SCENARIO": "Creating your scenario. This may take a few minutes.",
         "CREATE_ERROR": "There was an error creating your scenario. Please try again.",
         "NAME": "Name",
+        "SHORT_NAME": "Short Name",
+        "LONG_NAME": "Long Name",
         "DESCRIPTION": "Description",
         "INCOMPLETE_FORM": "Incomplete Form",
         "DATE_AND_TIME_RANGE": "Date and Time Range",

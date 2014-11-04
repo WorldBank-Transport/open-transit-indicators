@@ -2,7 +2,9 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosNewsuccessController',
             ['config', '$scope', '$state', '$timeout', 'OTIScenarioManager', 'OTIScenarioModel',
-            function (config, $scope, $state, $timeout, OTIScenarioManager, OTIScenarioModel) {
+             'OTITripManager',
+            function (config, $scope, $state, $timeout, OTIScenarioManager, OTIScenarioModel,
+                      OTITripManager) {
 
     var checkScenarioCreate = function (scenario) {
 
@@ -21,6 +23,8 @@ angular.module('transitIndicators')
                         $scope.scenario.job_status = 'error';
                     });
                 }, POLLING_TIMEOUT_MS);
+            } else if ($scope.scenario.isComplete()) {
+                OTITripManager.setScenarioDbName($scope.scenario.db_name);
             }
             $scope.$emit('updateHeight');
         };
