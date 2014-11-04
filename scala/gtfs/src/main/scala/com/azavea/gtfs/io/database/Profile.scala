@@ -10,6 +10,15 @@ import geotrellis.slick.PostGisProjectionSupport
 
 object Profile {
   val defaultGeomColumnName = "the_geom"
+  val defaultAgencyTableName = "gtfs_agency"
+  val defaultDatesTableName = "gtfs_calendar_dates"
+  val defaultCalendarTableName = "gtfs_calendar"
+  val defaultFrequencyTableName = "gtfs_frequencies"
+  val defaultRoutesTableName = "gtfs_routes"
+  val defaultStopsTableName = "gtfs_stops"
+  val defaultStopTimesTableName = "gtfs_stop_times"
+  val defaultTripRecordsTableName = "gtfs_trips"
+  val defaultTripShapesTableName = "gtfs_shape_geoms"
 }
 
 trait Profile {
@@ -18,6 +27,15 @@ trait Profile {
   val gis = new PostGisProjectionSupport(profile)
 
   val geomColumnName: String
+  val agencyTableName: String
+  val datesTableName: String
+  val calendarTableName: String
+  val frequencyTableName: String
+  val routesTableName: String
+  val stopsTableName: String
+  val stopTimesTableName: String
+  val tripRecordsTableName: String
+  val tripShapesTableName: String
 
   import profile.simple._
 
@@ -52,4 +70,13 @@ trait Profile {
 
 trait DefaultProfile extends Profile {
   val geomColumnName = Profile.defaultGeomColumnName
+  val agencyTableName = Profile.defaultAgencyTableName
+  val datesTableName = Profile.defaultDatesTableName
+  val calendarTableName = Profile.defaultCalendarTableName
+  val frequencyTableName = Profile.defaultFrequencyTableName
+  val routesTableName = Profile.defaultRoutesTableName
+  val stopsTableName = Profile.defaultStopsTableName
+  val stopTimesTableName = Profile.defaultStopTimesTableName
+  val tripRecordsTableName = Profile.defaultTripRecordsTableName
+  val tripShapesTableName = Profile.defaultTripShapesTableName
 }

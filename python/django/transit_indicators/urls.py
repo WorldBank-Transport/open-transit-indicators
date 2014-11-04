@@ -24,16 +24,19 @@ router.register(r'config-demographic', indicatorviews.OTIDemographicConfigViewSe
 router.register(r'sample-periods', indicatorviews.SamplePeriodViewSet, base_name='sample-periods')
 router.register(r'indicators', indicatorviews.IndicatorViewSet)
 router.register(r'indicator-jobs', indicatorviews.IndicatorJobViewSet, base_name='indicator-jobs')
+router.register(r'scenarios', indicatorviews.ScenarioViewSet)
 
 urlpatterns = patterns('',  # NOQA
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', 'userdata.views.obtain_auth_token'),
-    url(r'^api/indicator-version/', 'transit_indicators.views.indicator_version'),
+    url(r'^api/latest-calculation-job/', 'transit_indicators.views.latest_calculation'),
+    url(r'^api/indicator-calculation-job/', 'transit_indicators.views.indicator_calculation_job'),
     url(r'^api/indicator-types/', 'transit_indicators.views.indicator_types'),
     url(r'^api/indicator-aggregation-types/', 'transit_indicators.views.indicator_aggregation_types'),
     url(r'^api/indicator-cities/', 'transit_indicators.views.indicator_cities'),
+    url(r'^api/city-name/', 'transit_indicators.views.city_name'),
     url(r'^api/sample-period-types/', 'transit_indicators.views.sample_period_types'),
     url(r'^api/gtfs-route-types/', 'transit_indicators.views.gtfs_route_types'),
-    url(r'^api/upload-statuses/', 'datasources.views.upload_status_choices'),
+    url(r'^api/upload-statuses/', 'datasources.views.upload_status_choices')
 )

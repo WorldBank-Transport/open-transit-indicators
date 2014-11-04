@@ -1,12 +1,12 @@
 <nvd3-pie-chart
-    data="data.mode"
+    data="chartData[type][cityname]"
     id="{{ type }}-{{ $index }}-mode-pie-chart"
     height="170"
     margin="{left:0,top:10,bottom:0,right:0}"
     x="charts.pie.xFunctionMode()"
     y="charts.pie.yFunction()"
-    tooltips="true"
-    showLabels="true"
-    labelType="percent">
+    color="charts.pie.colorFunction()"
+    tooltipcontent="charts.pie.tooltipFunction()"
+    tooltips="true">
     <svg></svg>
 </nvd3-pie-chart>

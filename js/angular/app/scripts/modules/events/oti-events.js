@@ -18,7 +18,7 @@ angular.module('transitIndicators')
     };
 
     otiEvents.Indicators = {
-        IndicatorVersionUpdated: 'OTIIndicatorsService:IndicatorVersionUpdated',
+        IndicatorCalcJobUpdated: 'OTIIndicatorsService:IndicatorCalcJobUpdated',
         IndicatorUpdated: 'OTIIndicatorsService:IndicatorUpdated',
         SamplePeriodUpdated: 'OTIIndicatorsService:SamplePeriodUpdated',
         CitiesUpdated: 'OTIIndicatorsService:CitiesUpdated'

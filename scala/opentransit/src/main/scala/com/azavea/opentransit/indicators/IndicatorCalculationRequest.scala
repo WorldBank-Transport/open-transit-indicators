@@ -1,5 +1,6 @@
 package com.azavea.opentransit.indicators
 
+import spray.json._
 import geotrellis.vector._
 
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable }
@@ -7,10 +8,29 @@ import scala.slick.jdbc.JdbcBackend.Session
 
 import grizzled.slf4j.Logging
 
+case class Requirements(
+  demographics: Boolean,
+  osm: Boolean,
+  observed: Boolean,
+  cityBounds: Boolean,
+  regionBounds: Boolean,
+  jobDemographics: Boolean
+)
+
+// Change startTime to arriveByTime
+case class TravelshedRequest(
+  /** Resolution of the travelshed raster, in meters */
+  resolution: Double,
+  /** What time you would start travelling, in seconds from midnight */
+  startTime: Int,
+  /** Maximum travel duration, in seconds */
+  duration: Int
+)
+
 // Calculation request parameters
 case class IndicatorCalculationRequest(
   token: String,
-  version: String,
+  id: Int,
   povertyLine: Double,
   nearbyBufferDistance: Double,
   maxCommuteTime: Int,
@@ -18,53 +38,9 @@ case class IndicatorCalculationRequest(
   cityBoundaryId: Int,
   regionBoundaryId: Int,
   averageFare: Double,
-  samplePeriods: List[SamplePeriod]
-) extends Logging {
-  // There's probably a better place for these database fetches. Especially if
-  // the info is used between various requests and some indicators that could
-  // start calculation will have to wait on this to happen. But we can do them here
-  // and that keeps the database from having to be injected into the Indicators,
-  // which is a big win for modularity. Global state objects like this are icky.
-  // There's surely a better way to get the information that any one Indicator needs
-  // to it without having to pass everything to everyone.
-  def toParams(implicit session: Session) = {
-    // Get boundary
-    val cityBoundary = BoundariesTable.boundary(cityBoundaryId)
-    val regionBoundary = BoundariesTable.boundary(regionBoundaryId)
-    val totalRoadLength = {
-      debug("Fetching Roads")
-      val roadLines: List[Line] = RoadsTable.allRoads
-      val distinctRoadLines: Array[Line] =
-        (MultiLine(roadLines: _*).union match {
-          case MultiLineResult(ml) => ml
-          case LineResult(l) => MultiLine(l)
-          case NoResult => MultiLine.EMPTY
-        }).lines
-      val len = distinctRoadLines.map(x => x.length).sum / 1000
-      debug(s"Length of roadlines: $len")
-      len
-    }
-
-    IndicatorCalculationParams(
-      povertyLine,
-      nearbyBufferDistance,
-      maxCommuteTime,
-      maxWalkTime,
-      cityBoundary,
-      regionBoundary,
-      averageFare,
-      totalRoadLength
-    )
-  }
-}
-
-case class IndicatorCalculationParams(
-  povertyLine: Double,
-  nearbyBufferDistance: Double,
-  maxCommuteTime: Int,
-  maxWalkTime: Int,
-  cityBoundary: MultiPolygon,
-  regionBoundary: MultiPolygon,
-  averageFare: Double,
-  totalRoadLength: Double
-)
+  gtfsDbName: String,
+  auxDbName: String,
+  samplePeriods: List[SamplePeriod],
+  paramsRequirements: Requirements,
+  travelshed: TravelshedRequest
+) extends Logging

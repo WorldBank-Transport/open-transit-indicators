@@ -45,7 +45,23 @@ angular.module('transitIndicators')
                 url: '/api/sample-periods/:type/ '
             }
         }),
-
+        
+        createDateFromISO: function (str) {
+            if (!str) {
+                return null;
+            }
+            
+           var dt = new Date(str);
+           
+           // explicitly set time part for local time zone
+           dt.setHours(0);
+           dt.setMinutes(0);
+           dt.setSeconds(0);
+           return dt;
+        },
+        
+        ServiceDates: $resource('/gt/utils/service-dates', {}, {}),
+        
         SamplePeriodTypes: ['morning', 'midday', 'evening', 'night', 'weekend']
     };
 }]);

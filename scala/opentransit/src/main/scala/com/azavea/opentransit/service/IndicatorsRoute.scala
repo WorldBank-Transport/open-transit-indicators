@@ -1,6 +1,8 @@
 package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
+import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
 
@@ -18,7 +20,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 import scala.slick.jdbc.meta.MTable
 
 import spray.http.MediaTypes
-import spray.http.StatusCodes.{Created, InternalServerError}
+import spray.http.StatusCodes.{Accepted, InternalServerError}
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 import scala.concurrent._
@@ -29,14 +31,16 @@ import spray.httpx.SprayJsonSupport
 import SprayJsonSupport._
 import DefaultJsonProtocol._
 
+import scala.util.{Success, Failure}
+
 import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
-  version: String = "",
-  status: String = "processing"
+  id: Int,
+  status: Map[String, JobStatus]
 )
 
-trait IndicatorsRoute extends Route { self: DatabaseInstance =>
+trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
   val config = ConfigFactory.load
   val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
@@ -46,43 +50,44 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance =>
   //   in a table, and calculations will be run one (or more) at a time
   //   in the background via an Actor.
   def indicatorsRoute = {
-    path("indicators") {
+    pathEnd {
       post {
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
-            try {
-              TaskQueue.execute {
-                // Load Gtfs records from the database. Load it with UTM projection (column 'geom' in the database)
-                val gtfsRecords =
-                  db withSession { implicit session =>
-                    GtfsRecords.fromDatabase(dbGeomNameUtm)
-                  }
-
-                // Get parameters, hitting the database for any necessary info now.
-                val params =
-                  db withSession { implicit session =>
-                    request.toParams
-                  }
-                CalculateIndicators(request.samplePeriods, params, gtfsRecords) { containerGenerators =>
-                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.version))
-                  DjangoClient.postIndicators(request.token, indicatorResultContainers)
+            TaskQueue.execute { // async
+              val gtfsRecords =
+                dbByName(request.gtfsDbName) withSession { implicit session =>
+                  GtfsRecords.fromDatabase(dbGeomNameUtm)
                 }
+                CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
+                  def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
+                    djangoClient.postIndicators(request.token, indicatorResultContainers)
+                  }
+                  def statusChanged(status: Map[String, JobStatus]) = {
+                    djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
+                  }
+                })
 
-                DjangoClient.updateIndicatorJob(request.token, IndicatorJob(request.version, "complete"))
-              }
-
-              // return a 201 created
-              Created -> JsObject(
-                "success" -> JsBoolean(true),
-                "message" -> JsString(s"Calculations started (version ${request.version})")
-              )
-            } catch {
-              case _: Exception =>
-                JsObject(
-                  "success" -> JsBoolean(false),
-                  "message" -> JsString("No GTFS data")
-                )
+            }.onComplete { // TaskQueue callback for result handling
+              case Success(_) =>
+                println(s"TaskQueue successfully completed - indicator finished")
+              case Failure(e) =>
+                println("Error calculating indicators!")
+                println(e.getMessage)
+                println(e.getStackTrace.mkString("\n"))
+                try {
+                  djangoClient.updateIndicatorJob(request.token,
+                    IndicatorJob(request.id, Map("alltime" -> JobStatus.Failed)))
+                } catch {
+                  case ex: Exception =>
+                    println("Failed to set failure status for indicator calculation job!")
+                }
             }
+            Accepted -> JsObject(
+                "success" -> JsBoolean(true),
+                "message" -> JsString(s"Calculations started (id: ${request.id})")
+            )
           }
         }
       }

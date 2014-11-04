@@ -23,7 +23,7 @@ trait MapInfoRoute extends Route { self: DatabaseInstance =>
     path("map-info") {
       get {
         complete {
-          future {
+          TaskQueue.execute {
             db withSession { implicit session: Session =>
               // use the stops to find the extent, since they are required
               val q = Q.queryNA[Extent]("""

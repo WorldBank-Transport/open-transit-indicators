@@ -12,9 +12,17 @@ trait Route {
   def textColor: Option[String]
 
   def routeType: RouteType
-  def agency: Agency
+  def agency: Option[Agency]
 
   def trips: Seq[Trip]
+
+  // override equals and hashCode so route id is used for comparison
+  override def equals(o: Any) = o match {
+    case that: Route => that.id.equalsIgnoreCase(this.id)
+    case _ => false
+  }
+
+  override def hashCode = id.hashCode
 }
 
 object Route {
@@ -30,7 +38,7 @@ object Route {
       def textColor = record.textColor
 
       def routeType = record.routeType
-      val agency = agencies(record.agencyId)
+      def agency = record.agencyId.map(agencies(_))
 
       def trips = t
     }

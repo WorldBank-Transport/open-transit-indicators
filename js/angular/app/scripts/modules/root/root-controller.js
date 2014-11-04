@@ -1,10 +1,20 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService',
-            function (config, $cookieStore, $cookies, $scope, $translate, $state, $stateParams, OTIEvents, mapService, authService) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
+            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
+
+    var invalidateMapDiv = function () {
+        leafletData.getMap().then(function (map) {
+            $timeout(function () {
+                map.invalidateSize();
+            });
+        });
+    };
 
     var mapStates = ['map', 'transit', 'scenarios'];
+    // Add all scenario views to map states
+    mapStates = mapStates.concat(_.map(config.scenarioViews, function (view) { return view.id; }));
 
     // Setup defaults for all leaflet maps:
     // Includes: baselayers, center, bounds
@@ -33,6 +43,8 @@ angular.module('transitIndicators')
                             $stateParams,
                             { reload: true, inherit: true, notify: true });
     };
+    // Make Angular respect language cookies on page reload
+    $translate.use($cookies.openTransitLanguage);
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
@@ -72,26 +84,38 @@ angular.module('transitIndicators')
         zoomToDataExtent();
     });
 
-    // zoom out to world view when data deleted
+    // zoom out to world view and clear legend when data deleted
     $scope.$on(OTIEvents.Settings.Upload.GTFSDelete, function() {
+        $scope.cache.transitLegend = undefined;
+        $scope.leaflet.legend = {};
         $scope.leaflet.bounds = config.worldExtent;
     });
 
-    $scope.$on('$stateChangeStart', function () {
+    $scope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState) {
         // Always clear the legend when going to a state, we will always need to redraw it with
         // the proper legend in the child state
+
         $scope.leaflet.legend = {};
     });
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
 
         $scope.mapActive = _.find(mapStates, function (state) { return state === toState.name; }) ? true : false;
+        if ($scope.mapActive) {
+            // When we go to the map we want to update the map div. It changes height based on which
+            //  view we were last viewing.
+            invalidateMapDiv();
+            zoomToDataExtent();
+        }
+
         $scope.mapClassNav2 = false;
 
         var activeState = toState.name;
         if (toState.parent === 'indicators') {
             activeState = 'indicators';
             $scope.mapClassNav2 = true;
+        } else if (toState.parent === 'scenarios') {
+            activeState = 'scenarios';
         } else if (toState.parent === 'settings') {
             activeState = 'settings';
         }
@@ -99,5 +123,4 @@ angular.module('transitIndicators')
     });
 
     $scope.init();
-
 }]);

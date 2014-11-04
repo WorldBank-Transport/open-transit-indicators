@@ -49,7 +49,7 @@ def load_stop_times(real_time, error_factory):
 
     """
 
-    BATCH_SIZE = 1000
+    BATCH_SIZE = 5000
 
     def ensure_row_key(row, key, default=None):
         val = row.get(key, default)
@@ -57,34 +57,44 @@ def load_stop_times(real_time, error_factory):
             val = default
         row[key] = val
 
-    line = 0
+    def insert_realstoptimes(realstoptimes, line):
+        try:
+            RealStopTime.objects.bulk_create(realstoptimes)
+        except Exception:
+            for num, realstoptime in enumerate(realstoptimes, line):
+                try:
+                    realstoptime.save()
+                except Exception as e:
+                    logger.debug('Row %d error: %s', num, e)
+                    key = 'Row %i' % num
+                    error_factory.warn(key, e.message)
+
     imported = 0
-    with open(real_time.source_file.path, 'r') as stop_times_file:
-        dict_reader = csv.DictReader(stop_times_file)
-        stop_time_objects = []
-        for row in dict_reader:
-            try:
+    try:
+        with open(real_time.source_file.path, 'r') as stop_times_file:
+            dict_reader = csv.DictReader(stop_times_file)
+            stop_time_objects = []
+            for line, row in enumerate(dict_reader, start=1):
                 # Ensure optionals have proper defaults
                 ensure_row_key(row, 'pickup_type', 0)
                 ensure_row_key(row, 'drop_off_type', 0)
                 ensure_row_key(row, 'shape_dist_traveled')
 
-                real_stop_time = RealStopTime(datasource=real_time, **row)
-                # TODO: Speed up with bulk_create?
-                #       5 mb file takes ~4 min
-                #       Would require more strict error checking of params because
-                #       a single insert failure in a bulk_create cancels all inserts
-                real_stop_time.save()
+                stop_time_object = RealStopTime(datasource=real_time, **row)
+                stop_time_objects.append(stop_time_object)
                 imported += 1
-            except Exception as e:
-                logger.debug('Row %d error: %s', line, e.message)
-                key = 'Row %i' % line
-                error_factory.warn(key, e.message)
 
-            line += 1
+                if line % BATCH_SIZE == 0:
+                    # line - BATCH_SIZE is passed to insert_realstoptimes
+                    # so it knows what line this batch begins on
+                    insert_realstoptimes(stop_time_objects, line - BATCH_SIZE)
+                    stop_time_objects = []
+                    logger.debug('Imported objects %i of %i', imported, line)
 
-            if line % BATCH_SIZE == 0:
-                logger.debug('Imported objects %i of %i', imported, line)
+            insert_realstoptimes(stop_time_objects, line)
+    except Exception as e:
+        error_factory.error('Import failed', e.message)
+        imported = 0
 
     if imported > 0:
         # Delete all other stop times not of this import

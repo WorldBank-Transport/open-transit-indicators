@@ -1,5 +1,5 @@
 <nvd3-discrete-bar-chart
-    data="data.mode"
+    data="chartData[type][cityname]"
     id="{{ type }}-{{ $index }}-mode-bar-chart"
     height="170"
     showXAxis="true"
@@ -7,5 +7,7 @@
     showValues="true"
     x="charts.bar.xFunctionMode()"
     y="charts.bar.yFunction()"
+    color="charts.bar.colorFunction()"
+    xAxisTickFormat="charts.bar.xAxisTickFormatFunction()"
     forcey="[0, {{ charts.bar.forceYFunction(indicatorData, type, 'mode') }}]">
 </nvd3-discrete-bar-chart>

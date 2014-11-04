@@ -22,7 +22,6 @@ class DatabaseGtfsRecords(implicit session: Session)
   def force: GtfsRecords =
     new GtfsRecords {
       val agencies: Seq[Agency] = DatabaseGtfsRecords.this.agencies
-      val stops: Seq[Stop] = DatabaseGtfsRecords.this.stops
       val routeRecords: Seq[RouteRecord] = DatabaseGtfsRecords.this.routeRecords
       val tripRecords: Seq[TripRecord] = DatabaseGtfsRecords.this.tripRecords
       val stopTimeRecords: Seq[StopTimeRecord] = DatabaseGtfsRecords.this.stopTimeRecords
@@ -30,5 +29,6 @@ class DatabaseGtfsRecords(implicit session: Session)
       val calendarDateRecords: Seq[CalendarDateRecord] = DatabaseGtfsRecords.this.calendarDateRecords
       val tripShapes: Seq[TripShape] = DatabaseGtfsRecords.this.tripShapes
       val frequencyRecords: Seq[FrequencyRecord] = DatabaseGtfsRecords.this.frequencyRecords
+      val stops: Seq[Stop] = DatabaseGtfsRecords.this.stops
     }
 }

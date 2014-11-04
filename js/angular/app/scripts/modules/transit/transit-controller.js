@@ -1,10 +1,24 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
+            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
+
+    var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
+        calculation_job: 0,
+        type: 'num_stops',
+        sample_period: 'morning',
+        aggregation: 'route'
+    });
 
     var overlays = {
+        boundary: {
+            name: 'Boundary',
+            type: 'xyz',
+            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            visible: true,
+            layerOptions: boundaryIndicator
+        },
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
@@ -26,19 +40,20 @@ angular.module('transitIndicators')
         }
     };
 
+    var updateLegend = function () {
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+            legend.style = 'stacked';
+            $rootScope.cache.transitLegend = legend;
+            $scope.leaflet.legend = legend;
+        });
+    };
+
     var setLegend = function () {
         if($rootScope.cache.transitLegend) {
             $scope.leaflet.legend = $rootScope.cache.transitLegend;
             return;
         }
-        OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
-            var legend = {
-                colors: config.gtfsRouteTypeColors,
-                labels: labels
-            };
-            $rootScope.cache.transitLegend = legend;
-            $scope.leaflet.legend = legend;
-        });
+        updateLegend();
     };
 
     $scope.updateLeafletOverlays(overlays);
@@ -65,4 +80,18 @@ angular.module('transitIndicators')
         }
     });
 
+    $rootScope.$on('$translateChangeSuccess', function() {
+        updateLegend();
+    });
+
+    // This may not be the best place to update the legend on GTFS
+    // update, but most of the other legend updating code was here
+    $rootScope.$on(OTIEvents.Settings.Upload.GTFSDone, function () {
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+            $rootScope.cache.transitLegend = legend;
+            $rootScope.cache.transitLegend.style = 'stacked';
+            // only update cache so we don't show legend on the
+            // settings view
+        });
+    });
 }]);

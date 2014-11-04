@@ -31,7 +31,7 @@ object Build extends Build {
           "org.apache.servicemix.bundles" % "org.apache.servicemix.bundles.commons-csv" % "1.0-r706900_3",
 
           "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
-          "com.github.nscala-time" %% "nscala-time" % "0.8.0",
+          "com.github.nscala-time" %% "nscala-time" % "1.4.0",
 
           "commons-io" % "commons-io" % "2.4",
 
@@ -39,7 +39,8 @@ object Build extends Build {
           "com.azavea.geotrellis" %% "geotrellis-proj4" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-slick" % "0.10.0-SNAPSHOT",
 
-          "org.joda" % "joda-convert" % "1.5",
+          "joda-time" % "joda-time" % "2.5",
+          "org.joda" % "joda-convert" % "1.7",
           "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0"
         )
        )
@@ -51,7 +52,7 @@ object Build extends Build {
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
         scalaVersion := "2.10.3",
-        scalacOptions ++= 
+        scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
             "-Yinline-warnings",
@@ -91,7 +92,6 @@ object Build extends Build {
           "com.typesafe.akka" %% "akka-actor" % "2.2.4",
           "com.github.nscala-time" %% "nscala-time" % "1.4.0",
           "org.scalatest" %% "scalatest" % "2.1.5" % "test",
-          "org.slf4j" % "slf4j-nop" % "1.6.4",
           "org.scala-lang" % "scala-compiler" % "2.10.3",
           "ch.qos.logback" % "logback-classic" % "1.1.1",
           "org.clapper" %% "grizzled-slf4j" % "1.0.2"
@@ -105,9 +105,10 @@ object Build extends Build {
       .settings(
         name := "opentransit-test",
         organization := "com.azavea",
+        fork := true,
         version := "0.1-SNAPSHOT",
         scalaVersion := "2.10.3",
-        scalacOptions ++= 
+        scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
             "-Yinline-warnings",
@@ -117,7 +118,8 @@ object Build extends Build {
             "-language:existentials",
             "-feature"),
         libraryDependencies ++= Seq(
-          "org.scalatest" %% "scalatest" % "2.1.5"
+          "org.scalatest" %% "scalatest" % "2.1.5",
+          "io.spray" % "spray-testkit" % "1.2.0"
         )
        )
       .dependsOn(opentransit, testkit)
@@ -163,7 +165,7 @@ object Build extends Build {
         libraryDependencies ++= Seq(
           "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-geotools" % "0.10.0-SNAPSHOT",
-          "com.azavea.geotrellis" %% "geotrellis-jetty" % "0.10.0-SNAPSHOT",
+          "com.azavea.geotrellis" %% "geotrellis-services" % "0.10.0-SNAPSHOT",
           "io.spray"        % "spray-client"  % "1.2.1",
           "io.spray"        % "spray-routing" % "1.2.1",
           "io.spray"        % "spray-httpx"   % "1.2.1",

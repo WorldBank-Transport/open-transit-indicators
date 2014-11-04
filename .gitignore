@@ -62,6 +62,7 @@ logs/
 ~*
 \#*#
 .#*
+.idea
 
 # OS X
 .DS_Store
@@ -74,6 +75,7 @@ python/django/transit_indicators/settings/secret_key.py
 python/django/transit_indicators/settings/provision_settings.py
 python/django/transit_indicators/settings/__init__.py
 scala/opentransit/src/main/resources/application.conf
+geotrellis
 
 # Scala build artifacts
 project/boot
@@ -95,3 +97,7 @@ tags
 
 /deployment/packer/open-transit-vars.json
 /js/angular/app/scripts/windshaft-config.js
+/scala/.ensime
+/scala/.ensime_cache/build.sbt
+/scala/.ensime_cache/project/build.properties
+/scala/TAGS

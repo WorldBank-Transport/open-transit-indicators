@@ -12,7 +12,7 @@ package object csv {
   val dateRegex = """(\d{4})(\d{2})(\d{2})""".r
 
   implicit def parsePeriod(s: String): Period = {
-    if (s == "") null else periodFormatter.parsePeriod(s)
+    if (s == "" || s == "””" || s == "''") null else periodFormatter.parsePeriod(s)
   }
 
   implicit def parseLocalDate(s: String): LocalDate = {

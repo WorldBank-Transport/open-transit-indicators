@@ -18,6 +18,19 @@ object RouteType {
       case 7 => Funicular
       case _ => UndefinedRouteType(id, "Unkown")
     }
+
+  def apply(name: String): RouteType =
+    name match {
+      case "Tram" => Tram
+      case "Subway" => Subway
+      case "Rail" => Rail
+      case "Bus" => Bus
+      case "Ferry" => Ferry
+      case "Cablecar" => Cablecar
+      case "Gondola" => Gondola
+      case "Funicular" => Funicular
+      case _ => UndefinedRouteType(-1, name)
+    }
 }
 
 case object Tram       extends RouteType { val id = 0; val name = "Tram" }

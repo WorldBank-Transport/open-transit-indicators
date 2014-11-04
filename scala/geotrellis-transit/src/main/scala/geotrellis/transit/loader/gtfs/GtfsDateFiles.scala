@@ -10,7 +10,6 @@ import com.github.nscala_time.time.Imports._
 case class GtfsDateFiles(name: String, dataPath: String, date: LocalDate)
     extends GraphFileSet {
   def parse(): ParseResult = {
-    val (graph, namedLocations) = GtfsDateParser.parse(name, dataPath, date)
-    ParseResult(graph, namedLocations, NamedWays.EMPTY)
+    GtfsDateParser.parse(name, dataPath, date)    
   }
 }

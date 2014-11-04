@@ -4,12 +4,12 @@ import com.github.nscala_time.time.Imports._
 
 /**
  * Represents a repetition of a trip in a time with headway
- * @param trip_id Related trip
- * @param start_time The time of the first trip as offset from midnight
- * @param end_time No trips may leave after this time as offset from midnight
+ * @param tripId  Related trip
+ * @param start   The time of the first trip as offset from midnight
+ * @param end     No trips may leave after this time as offset from midnight
  * @param headway delay between the start of the trips
  */
-case class FrequencyRecord (
+case class FrequencyRecord  (
   tripId: String,
   start: Period,
   end: Period,
@@ -32,3 +32,4 @@ case class FrequencyRecord (
       }
     }
 }
+

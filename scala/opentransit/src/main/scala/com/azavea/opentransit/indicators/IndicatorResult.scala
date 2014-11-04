@@ -4,6 +4,8 @@ import com.azavea.gtfs._
 
 import geotrellis.vector._
 
+import spray.json._
+
 object IndicatorResultContainer {
   final val OVERALL_KEY = "alltime"
 }
@@ -16,13 +18,13 @@ case class IndicatorResultContainer(
   samplePeriodType: String,
   aggregation: Aggregate,
   value: Double,
-  geom: Geometry,
-  version: String,
+  geom: JsValue,
+  calculationJob: Int,
   routeId: String = "",
   routeType: Option[RouteType] = None,
   cityBounded: Boolean = false
 )
 
 trait ContainerGenerator {
-  def toContainer(version: String): IndicatorResultContainer
+  def toContainer(id: Int): IndicatorResultContainer
 }

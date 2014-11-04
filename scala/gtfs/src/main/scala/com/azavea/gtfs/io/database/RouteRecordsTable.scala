@@ -5,12 +5,12 @@ import com.azavea.gtfs._
 trait RouteRecordsTable { this: Profile =>
   import profile.simple._
 
-  class RouteRecords(tag: Tag) extends Table[RouteRecord](tag, "gtfs_routes") {
+  class RouteRecords(tag: Tag) extends Table[RouteRecord](tag, this.routesTableName) {
     def id = column[String]("route_id", O.PrimaryKey)
     def short_name = column[String]("route_short_name")
     def long_name = column[String]("route_long_name")
     def route_type = column[RouteType]("route_type")
-    def agency_id = column[String]("agency_id")
+    def agency_id = column[Option[String]]("agency_id")
     def route_desc = column[Option[String]]("route_desc")
     def route_url = column[Option[String]]("route_url")
     def route_color = column[Option[String]]("route_color")
@@ -20,5 +20,5 @@ trait RouteRecordsTable { this: Profile =>
       (RouteRecord.tupled, RouteRecord.unapply)
   }
 
-  val routeRecordsTable = TableQuery[RouteRecords]
+  def routeRecordsTable = TableQuery[RouteRecords]
 }

@@ -4,18 +4,46 @@ import com.github.nscala_time.time.Imports._
 import org.joda.time.Days
 
 import scala.collection.mutable
+import com.azavea.gtfs.op._
 
 object TransitSystemBuilder {
   def apply(records: GtfsRecords): TransitSystemBuilder =
-    new TransitSystemBuilder(records)
+    new TransitSystemBuilder(InterpolateStopTimes(records))
+
+  type StopScheduler = (Seq[StopTimeRecord], LocalDate, StopId=>Stop) => Iterator[Seq[ScheduledStop]]
+
+  def scheduleStopFromFrequency(frequency: FrequencyRecord)
+                               (stopTimeRecords: Seq[StopTimeRecord],
+                                date: LocalDate,
+                                stopIdToStop: StopId => Stop): Iterator[Seq[ScheduledStop]] = {
+    frequency.generateStartTimes(date) map { startTime =>
+      val offset = stopTimeRecords.head.arrivalTime
+
+      stopTimeRecords map { record =>
+        ScheduledStop(record, startTime, offset, stopIdToStop)
+      }
+    }
+  }
+
+  def scheduleStops(stopTimeRecords: Seq[StopTimeRecord],
+                    date: LocalDate,
+                    stopIdToStop: StopId => Stop): Iterator[Seq[ScheduledStop]] = {
+
+    val midnight = date.toLocalDateTime(LocalTime.Midnight)
+    Iterator(stopTimeRecords  map { ScheduledStop(_, midnight, stopIdToStop) })
+  }
 }
 
 class TransitSystemBuilder(records: GtfsRecords) {
+  import TransitSystemBuilder._
+
   private val tripIdToFrequencyRecords: Map[TripId, Seq[FrequencyRecord]] = 
     records.frequencyRecords.groupBy(_.tripId)
 
   private val tripIdToStopTimeRecords: Map[TripId, Seq[StopTimeRecord]] =
-    records.stopTimeRecords.groupBy(_.tripId)
+    records.stopTimeRecords
+      .groupBy(_.tripId)
+      .map{ case (key, values) => key -> values.sortBy(_.sequence) }
 
   private val stopIdToStop: Map[String, Stop] =
     records.stops.map { stop => (stop.id, stop) }.toMap
@@ -32,9 +60,17 @@ class TransitSystemBuilder(records: GtfsRecords) {
       start.toLocalDateTime(LocalTime.Midnight), 
       end.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
 
+  /** Generates a TransitSystem for the specified date */
+  def systemOn(date: LocalDate): TransitSystem = 
+    systemBetween(
+      date.toLocalDateTime(LocalTime.Midnight), 
+      date.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
 
   /** Generates a TransitSystem for the specified period */
-  def systemBetween(start: LocalDateTime, end: LocalDateTime): TransitSystem = {
+  def systemBetween(
+      start: LocalDateTime,
+      end: LocalDateTime,
+      pruneStops: Boolean = true): TransitSystem = {
     val dates = {
       val startDate = start.toLocalDate
       val endDate = end.toLocalDate
@@ -55,49 +91,32 @@ class TransitSystemBuilder(records: GtfsRecords) {
       if(isActiveDuringDates) {
         val stopTimeRecords = tripIdToStopTimeRecords(tripRecord.id)
 
-        val trips: Seq[Trip] =
-          tripIdToFrequencyRecords.get(tripRecord.id) match {
-            case Some(frequencyRecords) =>
-              // Since this trip is scheduled per frequency, we need to go over each frequency schedule
-              // for each of the dates in the range, and generate all applicable scheduled trips.
-              (for(date <- dates) yield {
-                val midnight = date.toLocalDateTime(LocalTime.Midnight)
-
-                frequencyRecords.map { frequencyRecord =>
-                  frequencyRecord.generateStartTimes(date)
-                    .map { startTime =>
-                      val offset = stopTimeRecords.head.arrivalTime
-                      val scheduledStops = 
-                        stopTimeRecords
-                          .map { record =>
-                            ScheduledStop(record, startTime, offset, stopIdToStop)
-                           }
-                          .filter { scheduledStop =>
-                            start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
-                          }
-                          .sortBy(_.arrivalTime)
-     
-                      if(!scheduledStops.isEmpty)
-                        Some(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
-                      else
-                        None
-                     }
-                    .flatten //Remove trips with no stops
-                }.flatten
-              }).flatten
+        val trips: Iterator[Trip] = {
+          val schedulers: Seq[StopScheduler] = tripIdToFrequencyRecords.get(tripRecord.id) match {
+            case Some(frequencies) =>
+              frequencies map { freq => scheduleStopFromFrequency(freq) _ }
             case None =>
-              (for(date <- dates) yield {
-                val midnight = date.toLocalDateTime(LocalTime.Midnight)
-                val scheduledStops =
-                  stopTimeRecords
-                    .sortBy(_.sequence)
-                    .map(ScheduledStop(_, midnight, stopIdToStop))
-                    .filter { scheduledStop =>
-                      start <= scheduledStop.departureTime && scheduledStop.arrivalTime <= end
-                     }
-                Seq(Trip(tripRecord, scheduledStops, tripShapeIdToTripShape))
-              }).flatten.toSeq
+              scheduleStops _ :: Nil
           }
+
+          val scheduledStops =
+            (for(date <- dates) yield {
+              val listOfLists =
+                schedulers map { f =>
+                  f(stopTimeRecords, date, stopIdToStop)
+                    .map { stopList =>
+                      stopList.filter { stop => // chop off stops that happen past our system bounds
+                        !pruneStops || (start <= stop.departureTime && stop.arrivalTime <= end)
+                      }
+                    }
+                    .filter (_.length > 0) // throw out empty stop lists after prune
+                }
+
+              listOfLists reduce (_ ++ _) // combine iterators from all schedulers
+            }) reduce (_ ++ _)           // combine iterators from all dates
+
+          scheduledStops map { stops => Trip(tripRecord, stops, tripShapeIdToTripShape) }
+        }
 
         if(! routeIdToTrips.contains(tripRecord.routeId)) {
           routeIdToTrips(tripRecord.routeId) = new mutable.ListBuffer[Trip]()

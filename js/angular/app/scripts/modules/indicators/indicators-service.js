@@ -2,14 +2,12 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource',
-        function ($q, $http, $resource) {
+        ['$q', '$http', '$resource', 'OTIUploadService',
+        function ($q, $http, $resource, OTIUploadService) {
 
     var otiIndicatorsService = {};
-    var nullVersion = 0;
-    // TODO: Replace this with call to get user-defined city name once implemented
-    // Should equal django.conf.settings.OTI_CITY_NAME
-    otiIndicatorsService.selfCityName = 'My City';
+    var nullJob = 0;
+    otiIndicatorsService.selfCityName = null;
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
         'update': {
@@ -21,7 +19,19 @@ angular.module('transitIndicators')
     /**
      * Resource for indicator jobs
      */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {});
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {
+        search: {
+            method: 'GET',
+            isArray: true,
+            url: '/api/indicator-jobs/'
+        },
+        latest: {
+            method: 'GET',
+            idArray: false,
+            url: '/api/latest-calculation-job/'
+        }
+
+    });
 
     /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
@@ -49,7 +59,7 @@ angular.module('transitIndicators')
      * Thin wrapper for Indicator used in the controller for setting the map properties
      */
     otiIndicatorsService.IndicatorConfig = function (config) {
-        this.version = config.version || nullVersion;
+        this.calculation_job = config.calculation_job || nullJob;
         this.type = config.type;
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
@@ -63,7 +73,7 @@ angular.module('transitIndicators')
      */
     otiIndicatorsService.getIndicatorUrl = function (filetype) {
         var url = otiIndicatorsService.getWindshaftHost();
-        url += '/tiles/transit_indicators/{version}/{type}/{sample_period}/{aggregation}' +
+        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
         return url;
@@ -84,23 +94,57 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Get the current indicator version
-     *
-     * @param callback: function to call after request is made, has a single argument 'version'
+     * Delete a chosen city
      */
-    otiIndicatorsService.getIndicatorVersion = function (callback) {
-        $http.get('/api/indicator-version/').success(function (data) {
-            var version = nullVersion;
-            if (data && data.current_versions && !_.isEmpty(data.current_versions)) {
-                var versionObj = _.findWhere(data.current_versions, {version__city_name: otiIndicatorsService.selfCityName});
-                if (versionObj) {
-                    version = versionObj.version;
-                }
+    otiIndicatorsService.deleteCity = function (cityname) {
+        var dfd = $q.defer();
+        $http.delete('/api/indicator-cities/', {
+            params: {
+                city_name: cityname
             }
-            callback(version);
+        }).success(function (data) {
+            dfd.resolve();
         }).error(function (error) {
-            console.error('getIndicatorVersion:', error);
-            callback(nullVersion);
+            console.error('OTIIndicatorService.deleteCity:', error);
+            dfd.reject();
+        });
+        return dfd.promise;
+    };
+
+    /**
+     * Get the current indicator calculation job
+     *
+     * @param callback: function to call after request is made, has a single argument 'calculation_job'
+     */
+    otiIndicatorsService.getIndicatorCalcJob = function (callback) {
+        var promises = []; // get the city name before using it to filter indicator CalcJobs
+        promises.push(OTIUploadService.cityName.get({}, function (data) {
+            otiIndicatorsService.selfCityName = data.city_name;
+        }));
+
+        promises.push($http.get('/api/indicator-calculation-job/').success(function () {
+        }).error(function (error) {
+            console.error('getIndicatorCalcJob:', error);
+            callback(nullJob);
+        }));
+
+        $q.all(promises).then(function (data) {
+            var job = nullJob;
+            // flatter is better - the following (very long) line just ensures the existence of
+            // certain nodes which are operated on in the flow
+            if (data && data[1] && data[1].data && data[1].data.current_jobs &&
+                !_.isEmpty(data[1].data.current_jobs) &&
+                _.findWhere(data[1].data.current_jobs, {calculation_job__city_name: otiIndicatorsService.selfCityName})) {
+                var jobs = data[1].data;
+                var jobObj = _.findWhere(jobs.current_jobs, {calculation_job__city_name: otiIndicatorsService.selfCityName});
+                job = jobObj.calculation_job;
+                callback(job);
+                return; // otherwise fall through to set null job
+            }
+            callback(nullJob);
+        }, function (error) {
+            console.log('otiIndicatorsService.getIndicatorCalcJob error:');
+            console.log(error);
         });
     };
 
@@ -133,6 +177,17 @@ angular.module('transitIndicators')
         }).error(function (error) {
             console.error('OTIIndicatorService.getSamplePeriodTypes', error);
             dfd.resolve({});
+        });
+        return dfd.promise;
+    };
+
+    otiIndicatorsService.getRouteTypes = function () {
+        var dfd = $q.defer();
+        $http.get('/api/gtfs-route-types/').success(function (data) {
+            dfd.resolve(data);
+        }).error(function (error) {
+            console.error('getRouteTypes Error: ', error);
+            dfd.resolve([]);
         });
         return dfd.promise;
     };

@@ -1,8 +1,18 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsMapService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsMapService) {
+            ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
+             'OTIIndicatorsMapService', 'OTIScenariosService', 'scenarios', 'samplePeriods',
+             'samplePeriodI18N', 'routeTypes',
+             function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
+                       OTIIndicatorsMapService, OTIScenariosService, scenarios, samplePeriods,
+                       samplePeriodI18N, routeTypes)
+{
+
+    // PRIVATE
+
+    // Number of scenarios to list at any given time
+    var pageSize = 5;
 
     var overlays = {
         gtfs_shapes: {
@@ -31,38 +41,71 @@ angular.module('transitIndicators')
             $scope.leaflet.legend = $rootScope.cache.transitLegend;
             return;
         }
-        OTIIndicatorsMapService.getRouteTypeLabels().then(function (labels) {
-            var legend = {
-                colors: config.gtfsRouteTypeColors,
-                labels: labels
-            };
+        OTIIndicatorsMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });
     };
 
-    $scope.updateLeafletOverlays(overlays);
-    setLegend();
+    // Function that gets scenarios for a user
+    var getMyScenarios = function () {
+        OTIScenariosService.getScenarios($scope.user.id).then(function(results) {
+            $scope.myScenarios = _.chain(results).groupBy(function(element, index) {
+                return Math.floor(index/pageSize);
+            }).toArray().value();
+            $scope.$broadcast('updateHeight');
+        });
+    };
 
-    $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
-        $scope.leaflet.markers.length = 0;
-        if (leafletEvent && leafletEvent.data && leafletEvent.data.stop_routes) {
-            $scope.$apply(function () {
-                var marker = {
-                    lat: leafletEvent.latlng.lat,
-                    lng: leafletEvent.latlng.lng,
-                    message: leafletEvent.data.stop_routes,
-                    focus: true,
-                    draggable: false,
-                    icon: {
-                        type: 'div',
-                        iconSize: [0, 0],
-                        popupAnchor:  [0, 0]
-                    }
-                };
-                $scope.leaflet.markers.push(marker);
-            });
+    // Function that gets scenarios for colleagues
+    var getColleagueScenarios = function () {
+        OTIScenariosService.getScenarios().then(function(results) {
+            var filteredResults = _.filter(results, function (scenario) {
+		return scenario.created_by != $scope.user.username;
+	    });
+            $scope.colleagueScenarios = _.chain(filteredResults).groupBy(function(element, index) {
+                return Math.floor(index/pageSize);
+            }).toArray().value();
+            $scope.$broadcast('updateHeight');
+        });
+    };
+
+    // EVENTS
+
+    $scope.$on('$stateChangeSuccess', function (event, to, toParams, from) {
+        // $scope.back responsible for determining the direction of the x direction animation
+        // From: http://codepen.io/ed_conolly/pen/aubKf
+        $scope.back = OTIScenariosService.isReverseView(from, to);
+
+        $scope.$broadcast('updateHeight');
+
+        if (to.parent.name === 'scenario') {
+            $scope.page = to.name;
         }
+
+        // TODO: Add logic to lock navigation out of an edit view if $scope.scenario.id
+        //       is not defined
     });
+
+    // INIT
+
+    $scope.height = 0;
+
+    $scope.samplePeriods = samplePeriods;
+    $scope.samplePeriodI18N = samplePeriodI18N;
+    $scope.routeTypes = routeTypes;
+    $scope.page = '';
+
+    $scope.updateLeafletOverlays(overlays);
+
+    $scope.myScenarios = null;
+    $scope.colleagueScenarios = null;
+
+    $scope.colleagueScenarioPage = 0;
+    $scope.myScenarioPage = 0;
+
+    getMyScenarios();
+    getColleagueScenarios();
+    setLegend();
 
 }]);

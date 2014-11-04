@@ -13,7 +13,7 @@ object RoutesFile extends GtfsFile[RouteRecord] {
         r("route_short_name").get,
         r("route_long_name").get,
         RouteType(r("route_type").get.toInt),
-        r("agency_id").getOrElse("").intern,
+        Option(r("agency_id").getOrElse[String]("1").intern),
         r("route_desc"),
         r("route_url"),
         r("route_color"),

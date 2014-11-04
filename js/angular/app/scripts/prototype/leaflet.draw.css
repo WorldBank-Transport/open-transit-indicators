@@ -293,3 +293,10 @@
 	height: 27px;
 	line-height: 27px;
 }
+
+/* fix for line drawing on scenario map */
+
+svg.leaflet-zoom-animated {
+    width: inherit !important;
+    height: inherit !important;
+}

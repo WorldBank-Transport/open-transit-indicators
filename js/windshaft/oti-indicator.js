@@ -14,11 +14,11 @@ var styles = {
         var cartocss = '#' + result_tablename + ' { ' +
             'line-color: #EFF3FF; ' +
             'line-width: 5; ' +
-            '[ ntiles_bin > 0 ] { line-color: #c6dbef; } ' +
-            '[ ntiles_bin > 1 ] { line-color: #9ecae1; } ' +
-            '[ ntiles_bin > 2 ] { line-color: #6baed6; } ' +
-            '[ ntiles_bin > 3 ] { line-color: #3182bd; } ' +
-            '[ ntiles_bin > 4 ] { line-color: #08519c; } ' +
+            '[ ntiles_bin > 0 ] { line-color: #d7191c; } ' +
+            '[ ntiles_bin > 1 ] { line-color: #fdae61; } ' +
+            '[ ntiles_bin > 2 ] { line-color: #ffffbf; } ' +
+            '[ ntiles_bin > 3 ] { line-color: #abdda4; } ' +
+            '[ ntiles_bin > 4 ] { line-color: #2b83ba; } ' +
             '} ';
         return cartocss;
     },
@@ -52,6 +52,24 @@ var styles = {
             'marker-placement: point;' +
             'marker-type: ellipse;' +
             'marker-allow-overlap: true;' +
+            '}';
+        return cartocss;
+    },
+    gtfs_stops_buffers: function () {
+       var cartocss =  '#' + result_tablename + ' {' +
+            'polygon-opacity: 0.7;' +
+            'polygon-fill: #1f78b4;' +
+            'line-color: #CCC;' +
+            'line-width: 0.5;' +
+            'line-opacity: 0.7;' +
+            '}';
+        return cartocss;
+    },
+    datasources_boundary: function () {
+        var cartocss = '#' + result_tablename + ' {' +
+            'line-color: #00f;' +
+            'line-width:3;' +
+            'line-dasharray:3,3;'+
             '}';
         return cartocss;
     }
@@ -95,6 +113,40 @@ GTFSStops.prototype.getStyle = function () {
 };
 
 /**
+ * Encapsulates windshaft display logic for the datasources_boundary table
+ */
+
+var datasourcesBoundary = function () {};
+
+datasourcesBoundary.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT ST_Transform(geom, 4326) as the_geom FROM datasources_boundary) AS " + result_tablename;
+    return sqlString;
+};
+
+datasourcesBoundary.prototype.getStyle = function () {
+    return styles.datasources_boundary() || "";
+}
+
+;
+
+/**
+ * Encapsulates windshaft display logic for the gtfs_stops_buffers table
+ */
+
+var GTFSStopsBuffers = function () {};
+
+GTFSStopsBuffers.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT * FROM gtfs_stops_buffers) AS " + result_tablename;
+    return sqlString;
+};
+
+GTFSStopsBuffers.prototype.getStyle = function () {
+    return styles.gtfs_stops_buffers() || "";
+};
+
+/**
  * Defaults for the IndicatorConfig object
  * IndicatorConfig has the following properties:
  * TODO: Docstring once finalized
@@ -113,7 +165,7 @@ var IndicatorDefaults = {
  * TODO: Allow ntiles other than 5
  */
 var Indicator = function (options) {
-    this.version = options.version;
+    this.calculation_job = options.calculation_job;
     this.type = options.type;
     this.aggregation = options.aggregation;
     this.sample_period = options.sample_period;
@@ -132,7 +184,7 @@ Indicator.prototype.getSql = function () {
         "the_geom " +
         "FROM transit_indicators_indicator " +
         "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
-        "AND version_id='" + this.version + "' AND sample_period_id=" +
+        "AND calculation_job_id='" + this.calculation_job + "' AND sample_period_id=" +
         "(SELECT id from transit_indicators_sampleperiod WHERE type='" + this.sample_period + "')" +
         ") as " + result_tablename;
     return sqlString;
@@ -150,4 +202,6 @@ Indicator.prototype.getStyle = function () {
 exports.Indicator = Indicator;
 exports.GTFSShapes = GTFSShapes;
 exports.GTFSStops = GTFSStops;
+exports.GTFSStopsBuffers = GTFSStopsBuffers;
+exports.datasourcesBoundary = datasourcesBoundary;
 exports.table = result_tablename;

@@ -14,18 +14,15 @@ import spire.syntax.cfor._
 
 import scala.collection.mutable
 
-import geotrellis.jetty.WebRunner
-
 import java.io._
 
-
-  import geotrellis.raster.io.arg.ArgWriter
-  import geotrellis.raster.io.geotiff._
-  import geotrellis.raster.io.geotiff.reader._
-  import geotrellis.proj4._
+import geotrellis.raster.io.arg.ArgWriter
+import geotrellis.raster.io.geotiff._
+import geotrellis.raster.io.geotiff.reader._
+import geotrellis.proj4._
 import geotrellis.raster.reproject._
 
-  import scala.collection.mutable.PriorityQueue
+import scala.collection.mutable.PriorityQueue
 
 
 object Main {
@@ -94,8 +91,8 @@ object Main {
     Loader.buildGraph(outDir, fileSets)
   }
 
-  def mainServer(args: Array[String]) =
-    WebRunner.run()
+  def mainServer(args: Array[String]) = ???
+//    WebRunner.run()
 
   def graphInfo() = {
     val graph = _context.graph
@@ -338,10 +335,7 @@ object Main {
     val maxDuration = duration.toInt
 
     val ldelta = 0.0018f
-//    val ldelta = 0.0098f
     val ldelta2 = ldelta * ldelta
-
-    val totalCells = cols * rows
 
     val resultTile =
       geotrellis.transit.Logger.timedCreate("Brute force multisource walkshed...", "Raster created.") { () =>
@@ -420,9 +414,6 @@ object Main {
     GeoTiffWriter.write("/Users/rob/proj/wb/data/zhengzhou/indicator.tif", resultTile, extent, LatLng)
     Logger.log("Done.")
   }
-
-
-
 
 
   def memdebug() = {

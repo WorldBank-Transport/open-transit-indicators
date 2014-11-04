@@ -2,15 +2,35 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsDataService',
-        [
-        function () {
+        ['OTIIndicatorsService', 'OTIMapStyleService',
+        function (OTIIndicatorsService, OTIMapStyleService) {
+
+    var routeTypes = {};
+    OTIIndicatorsService.getRouteTypes().then(function (data) {
+        _.each(data, function (routeType) {
+            routeTypes[routeType.route_type] = routeType.description;
+        });
+    });
+
+    var getRouteTypeLabel = function (routeType) {
+        if (!routeTypes) {
+            return routeType;
+        }
+
+        var label = routeTypes[routeType] || routeType;
+        return label;
+
+    };
+
+    var routeTypeColorRamp = OTIMapStyleService.routeTypeColorRamp();
+    var defaultColor = OTIMapStyleService.defaultColor;
 
     var otiDataService = {};
 
     /// DEFAULT CHART FUNCTIONS
     var defaultTooltipFunction = function () {
         return function (key, x, y) {
-            return '<h3>' + key + '</h3><p>' + y.formatted_value + '</p>';
+            return '<h3>' + getRouteTypeLabel(key) + '</h3><p>' + y + '</p>';
         };
     };
     var defaultXFunctionMode = function () {
@@ -40,18 +60,49 @@ angular.module('transitIndicators')
         return Math.ceil(data[type][aggregation].max);
     };
 
+    var multiBarFilterFunction = function (citydata, aggregation) {
+        if (!(citydata && citydata[aggregation])) {
+            return null;
+        }
+        var tempdata = {};
+        _.each(citydata[aggregation][0].values, function (value) {
+            if (!tempdata[value.route_type]) {
+                tempdata[value.route_type] = [];
+            }
+            tempdata[value.route_type].push(_.extend({}, value));
+        });
+
+        var transformed = [];
+        _.each(tempdata, function (value, key) {
+            transformed.push({
+                key: key,
+                values: value
+            });
+        });
+        return transformed;
+    };
+
     // Chart configuration
     otiDataService.Charts = {
         pie: {
             xFunctionMode: defaultXFunctionMode,
             xFunctionRoute: defaultXFunctionRoute,
             yFunction: defaultYFunction,
-            tooltipFunction: defaultTooltipFunction,
+            tooltipFunction: function () {
+                return function (key, x, y) {
+                    return '<h3>' + getRouteTypeLabel(key) + '</h3><p>' + y.value + '</p>';
+                };
+            },
             filterFunction: function (citydata, aggregation) {
                 if (citydata && citydata[aggregation]) {
                     return citydata[aggregation][0].values;
                 }
                 return null;
+            },
+            colorFunction: function () {
+                return function (data) {
+                    return routeTypeColorRamp[data.data.route_type] || defaultColor;
+                };
             }
         },
         bar: {
@@ -59,50 +110,56 @@ angular.module('transitIndicators')
             xFunctionRoute: defaultXFunctionRoute,
             yFunction: defaultYFunction,
             forceYFunction: defaultForceYFunction,
-            filterFunction: defaultFilterFunction
+            filterFunction: defaultFilterFunction,
+            xAxisTickFormatFunction: function () {
+                return function (x) {
+                    var label = getRouteTypeLabel(x);
+                    if (label.length > 6) {
+                        label = label.substr(0, 6) + '...';
+                    }
+                    return label;
+                };
+            },
+            colorFunction: function () {
+                return function (data) {
+                    return routeTypeColorRamp[data.route_type] || defaultColor;
+                };
+            }
         },
         stacked: {
             xFunctionMode: xFunctionZero,
             xFunctionRoute: xFunctionZero,
             yFunction: defaultYFunction,
             forceYFunction: defaultForceYFunction,
-            filterFunction: function (citydata, aggregation) {
-                if (!(citydata && citydata[aggregation])) {
-                    return null;
-                }
-                var tempdata = {};
-                _.each(citydata[aggregation][0].values, function (value) {
-                    if (!tempdata[value.route_type]) {
-                        tempdata[value.route_type] = [];
-                    }
-                    tempdata[value.route_type].push(_.extend({}, value));
-                });
-
-                var transformed = [];
-                _.each(tempdata, function (value, key) {
-                    transformed.push({
-                        key: key,
-                        values: value
-                    });
-                });
-                return transformed;
-            },
-            tooltipFunction: function () {
-                return function (key, x, y) {
-                    return '<h3>' + key + '</h3><p>' + y + '</p>';
+            colorFunction: function () {
+                return function (data) {
+                    return routeTypeColorRamp[data.key] || defaultColor;
                 };
-
-            }
+            },
+            filterFunction: multiBarFilterFunction,
+            tooltipFunction: defaultTooltipFunction
+        },
+        horizontal: {
+            xFunctionMode: xFunctionZero,
+            xFunctionRoute: xFunctionZero,
+            yFunction: defaultYFunction,
+            forceYFunction: defaultForceYFunction,
+            filterFunction: multiBarFilterFunction,
+            colorFunction: function () {
+                return function (data) {
+                    return routeTypeColorRamp[data.key] || defaultColor;
+                };
+            },
+            tooltipFunction: defaultTooltipFunction
         }
     };
-
 
     otiDataService.IndicatorConfig = {
         'affordability': {
             'mode': 'bar',
             'system': 'number'
         },
-        'average_service_freq': {
+        'avg_service_freq': {
             'mode': 'bar',
             'system': 'number'
         },
@@ -122,7 +179,7 @@ angular.module('transitIndicators')
             'system': 'number'
         },
         'length': {
-            'mode': 'stacked',
+            'mode': 'horizontal',
             'system': 'number'
         },
         'line_network_density': {
@@ -151,6 +208,10 @@ angular.module('transitIndicators')
             'system': 'number'
         },
         'service_freq_weighted': {
+            'mode': 'bar',
+            'system': 'number'
+        },
+        'service_freq_weighted_low': {
             'mode': 'bar',
             'system': 'number'
         },

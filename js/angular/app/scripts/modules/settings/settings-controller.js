@@ -25,7 +25,6 @@ angular.module('transitIndicators')
 
 
     $scope.init = function() {
-        console.log('settingsController.init()');
         /**
          * FIXME: Use of these functions is not fully utilized.
                   Due to time constraints, switched tasks before fixing.
@@ -45,9 +44,9 @@ angular.module('transitIndicators')
         // GTFS
         $scope.gtfsData = gtfsData.$promise.then(function(response) {
             var validGtfs = _.filter(response, function(upload) {
-                return upload.is_processed && upload.is_valid;
+                return upload.status === 'complete';
             });
-            $scope.checkmarks['upload'] = validGtfs.length > 0;
+            $scope.checkmarks.upload = validGtfs.length > 0;
             return response[0];
         });
 
@@ -56,37 +55,43 @@ angular.module('transitIndicators')
             if (!(response && response.length)) {
                 return;
             }
-            var config = response[0];
+            var demographics = response[0];
             $scope.assign = {
-                pop_metric_1: config.pop_metric_1_field || null,
-                pop_metric_2: config.popmetric_2_field || null,
-                dest_metric_1: config.destmetric_1_field || null
+                pop_metric_1: demographics.pop_metric_1_field || null,
+                pop_metric_2: demographics.popmetric_2_field || null,
+                dest_metric_1: demographics.destmetric_1_field || null
             };
-            $scope.checkmarks['demographic'] = true;
-            return config;
+            $scope.checkmarks.demographic = true;
+            return demographics;
         });
 
         // REALTIME
         $scope.realtimeData = realtimeData.$promise.then(function(response){
-            var validRealtime = _.filter(response[2], function(upload) {
-                return upload.is_processed && upload.is_valid;
+            var validRealtime = _.filter(response, function(upload) {
+                return upload.status === 'complete';
             });
-            $scope.checkmarks['realtime'] = validRealtime.length > 0;
+            $scope.checkmarks.realtime = validRealtime.length > 0;
             return response[0];
         });
 
-        // BOUNDARY
-        $scope.configData = boundaryData.$promise.then(function(response) {
-            var cityId = response[0].city_boundary;
-            var regId = response[0].region_boundary;
-            $scope.checkmarks['boundary'] = typeof(cityId) === "number" && typeof(regId) === "number";
-            return response[0];
+        $scope.configData = configData.$promise.then(function(configResponse) {
+            // BOUNDARY
+            var cityId = configResponse[0].city_boundary;
+            var regId = configResponse[0].region_boundary;
+            $scope.checkmarks.boundary = typeof(cityId) === 'number' && typeof(regId) === 'number';
+
+            return configResponse[0];
         });
 
         // SAMPLE PERIODS
-        $scope.samplePeriod = samplePeriodData.$promise.then(function(response) {
-            $scope.checkmarks['configuration'] = response.length > 0;
+        $scope.samplePeriod = samplePeriodData.$promise.then(function(samplePeriods) {
+            configData = configData.$promise.then(function(configResponse) {
+                $scope.checkmarks.configuration = samplePeriods.length > 0 && configResponse[0].nearby_buffer_distance_m > 0;
+            });
+            return samplePeriods.slice(0,-1);
         });
+
+
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {

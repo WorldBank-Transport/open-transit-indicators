@@ -1,7 +1,8 @@
 package geotrellis.transit.loader.gtfs
 
-import geotrellis.network.{WeekDaySchedule, Location, NamedLocations, NamedLocation}
 import geotrellis.transit.Logger
+import geotrellis.transit.loader._
+import geotrellis.network.{WeekDaySchedule, Location, NamedLocations, NamedLocation, NamedWays}
 import geotrellis.network.graph._
 import com.github.nscala_time.time.Imports._
 import com.azavea.gtfs._
@@ -11,8 +12,23 @@ import scala.collection.mutable
 object GtfsDateParser {
   val gtfsTimeRegex = """(\d?\d):(\d\d):(\d\d)""".r
 
-  def parse(name: String, gtfsDirectory: String, date: LocalDate): (MutableGraph, NamedLocations) = {
+  def parse(name: String, gtfsDirectory: String, date: LocalDate): ParseResult = {
+    val records = GtfsRecords.fromFiles(gtfsDirectory)
+    val transitSystem = TransitSystemBuilder(records).systemBetween(date, date)
+    parse(name, transitSystem)
+  }
 
+  def parse(name: String, records: GtfsRecords, date: LocalDate): ParseResult = {
+    val transitSystem = TransitSystemBuilder(records).systemOn(date)
+    parse(name, transitSystem)
+  }
+
+  def parse(name: String, records: GtfsRecords, start: LocalDateTime, end: LocalDateTime): ParseResult = {
+    val transitSystem = TransitSystemBuilder(records).systemBetween(start, end)
+    parse(name, transitSystem)
+  }
+
+  def parse(name: String, transitSystem: TransitSystem): ParseResult = {
     def getLocalDuration(start: LocalDateTime, end: LocalDateTime): Int = {
       val dur = new Duration(start.toDateTime(DateTimeZone.UTC), end.toDateTime(DateTimeZone.UTC))
       dur.getStandardSeconds.toInt
@@ -59,8 +75,6 @@ object GtfsDateParser {
     }
 
     val g = MutableGraph()
-    val records = GtfsRecords.fromFiles(gtfsDirectory)
-    val transitSystem = TransitSystemBuilder(records).systemBetween(date, date)
     val stopsToVertices = mutable.Map[Stop, Vertex]()
 
     val (edges, namedLocations) =
@@ -81,6 +95,6 @@ object GtfsDateParser {
       }
 
     Logger.log(s"$edges edges set.")
-    (g, namedLocations)
+    ParseResult(g, namedLocations, NamedWays.EMPTY)
   }
 }

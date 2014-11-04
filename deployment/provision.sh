@@ -89,8 +89,9 @@ APP_EMAIL="$APP_USERNAME@azavea.com"
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
-GUNICORN_WORKERS=3
-GUNICORN_TIMEOUT=300
+GUNICORN_WORKERS=8
+GUNICORN_CONNECTIONS=500
+GUNICORN_TIMEOUT=600
 
 # Create logs directory
 mkdir -p $LOG_ROOT
@@ -100,7 +101,7 @@ case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
+        GUNICORN_MAX_REQUESTS="--max-requests 100" # force gunicorn to reload code
         WEB_USER="vagrant"
         ;;
     "production")
@@ -193,6 +194,9 @@ else
 
 fi
 
+## update npm
+npm -g install npm@2.1.2
+
 #### build postgis and friends #############
 # http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21Ubuntu1204src
 
@@ -236,6 +240,19 @@ else
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
     popd
+    echo 'Tuning Postgres'
+    # set SHMMAX for postgres shared buffers
+    echo "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
+    sysctl -p
+    pushd /etc/postgresql/9.1/main
+        sed -i '/shared_buffers =/c\shared_buffers = 756MB' postgresql.conf
+        sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
+        sed -i '/effective_cache_size =/c\effective_cache_size = 2GB' postgresql.conf
+        sed -i '/#work_mem =/c\work_mem = 64MB' postgresql.conf
+        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 512MB' postgresql.conf
+        sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
+        service postgresql restart
+    popd
 fi
 
 ########## Install osm2pgsql ##########
@@ -268,7 +285,7 @@ popd
 
 # Install node dependencies
 echo 'Installing node dependencies'
-npm install -g grunt-cli yo generator-angular
+npm install -g bower grunt-cli yo generator-angular
 
 # Install ruby gems
 echo 'Installing ruby gems dependencies'
@@ -438,8 +455,24 @@ exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --que
 celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
 echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
 
+# scenarios
+celery_scenarios_conf="
+start on (filesystem or (vagrant-mounted or cloud-final))
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue scenarios --logfile $LOG_ROOT/celery.log -l debug --pidfile /var/run/celery-scenarios.pid --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_scenarios_conf_file="/etc/init/oti-celery-scenarios.conf"
+echo "$celery_scenarios_conf" > "$celery_scenarios_conf_file"
+
 service oti-celery-datasources restart
 service oti-celery-indicators restart
+service oti-celery-scenarios restart
 
 echo "Finished setting up celery and background processes started"
 
@@ -545,11 +578,15 @@ opentransit.catalog = \"$OTI_CATALOG\"
 opentransit.spray.port = \"$SPRAY_PORT\"
 database.geom-name-lat-lng = \"the_geom\"
 database.geom-name-utm = \"geom\"
+database.sudo = "postgres"
 database.name = \"$DB_NAME\"
 database.user = \"$DB_USER\"
 database.password = \"$DB_PASS\"
 spray.can.server.idle-timeout = 1260 s
 spray.can.server.request-timeout = 1200 s
+spray.can.client.idle-timeout = 1260 s
+spray.can.client.request-timeout = 1200 s
+spray.can.client.connecting-timeout = 1200 s
 "
 
 pushd $SCALA_OTI_ROOT/src/main/resources/
@@ -564,7 +601,7 @@ kill timeout 30
 script
     echo \$\$ > /var/run/oti-indicators.pid
     chdir $SCALA_ROOT
-    exec ./sbt 'project opentransit' -mem $SBT_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
+    exec nice -n 18 ./sbt 'project opentransit' -mem $SBT_MEM_MB run
 end script
 
 pre-stop script
@@ -588,7 +625,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
+exec /usr/bin/gunicorn -k gevent --worker-connections $GUNICORN_CONNECTIONS --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -634,7 +671,8 @@ nginx_conf="server {
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
         proxy_read_timeout 600s;
-        client_max_body_size 100M;
+        proxy_connect_timeout 75s;
+        client_max_body_size 200M;
     }
 
     location /tiles {
@@ -671,6 +709,13 @@ fi
 echo 'Restarting nginx'
 service nginx restart
 echo 'Nginx now running'
+
+#########################
+# Canned data           #
+#########################
+pushd $PROJECT_ROOT/deployment
+    . load_canned_data.sh
+popd
 
 #########################
 # Monit setup           #

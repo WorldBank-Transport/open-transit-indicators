@@ -11,7 +11,15 @@
 <div class="indicators-table">
     <div class="indicators-row indicators-row-heading">
         <div class="indicators-cell indicators-label">City <span ng-show="updating" class="label label-info">Updating Indicators...</span></div>
-        <div ng-repeat="cityname in cities" class="indicators-cell">{{ cityname }}</div>
+        <div ng-repeat="cityname in cities" class="indicators-cell">
+          {{ cityname }}
+          <a ng-href="/api/indicators/?format=csv&city_name={{ selfCityName }}"
+             download="{{ selfCityName }}.csv">
+            <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-save"
+                    ng-if="cityname == selfCityName">
+            </button>
+          </a>
+        </div>
     </div>
 </div>
 <div ng-repeat="(type, indicator) in indicatorData"
@@ -26,13 +34,13 @@
              because that attribute is watched, and calling a function there causes
              inf watch cycles
         -->
+
         <div ng-repeat="(cityname, citydata) in indicator.cities"
-             ng-init="data = { system: citydata.system[0].values, mode: filterDataForChartType(citydata, type, 'mode') }"
              class="indicators-cell">
-            <div ng-if="displayIndicator(type, 'mode')">
+            <div ng-if="displayIndicator(citydata, type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(type, 'system')">{{ data.system[0].formatted_value || "No Data Available" }}</span>
+            <span ng-if="displayIndicator(citydata, type, 'system')">{{ citydata.system[0].values[0].formatted_value || "No Data Available" }}</span>
         </div>
     </div>
 </div>

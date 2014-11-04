@@ -3,6 +3,7 @@ import os
 import os.path
 import re
 import requests
+from simplejson import JSONDecodeError
 import zipfile
 
 from celery.utils.log import get_task_logger
@@ -13,6 +14,7 @@ from transit_indicators.models import IndicatorJob
 from urllib import urlencode
 
 from datasources.models import Boundary, GTFSFeed, GTFSFeedProblem, OSMData, DemographicDataSource
+from userdata.models import OTIUser
 
 # set up shared task logger
 logger = get_task_logger(__name__)
@@ -125,17 +127,14 @@ def run_validate_gtfs(gtfsfeed_id):
     # delete any uploaded shapefiles that aren't for this GTFS' city
     delete_other_city_uploads(gtfsfeed.city_name)
 
-    # invalidate last set of indicators calculated for this city (need to re-run them for this GTFS)
-    IndicatorJob.objects.filter(city_name=gtfsfeed.city_name).update(is_latest_version=False)
-
     # send to GeoTrellis
     logger.debug('going to send gtfs to geotrellis')
-    response = send_to_geotrellis(gtfsfeed.source_file)
+    response = send_to_geotrellis(gtfsfeed.source_file, gtfsfeed_id)
     success = response.get('success', False)
 
     # Update processing status
     logger.debug('gtfs-parser status is %s', response)
-    gtfsfeed.status = GTFSFeed.Statuses.COMPLETE if success else GTFSFeed.Statuses.ERROR
+    gtfsfeed.status = GTFSFeed.Statuses.PROCESSING if success else GTFSFeed.Statuses.ERROR
     if not success:
         title = _('GTFS Data load failed')
         msg = response.get('message', _('Unknown Error'))
@@ -158,7 +157,7 @@ def delete_other_city_uploads(cityname):
     OSMData.objects.exclude(city_name=cityname).delete()
     DemographicDataSource.objects.exclude(city_name=cityname).delete()
 
-def send_to_geotrellis(gtfs_file):
+def send_to_geotrellis(gtfs_file, gtfsfeed_id):
     """Sends GTFS data to GeoTrellis for storage
 
     Note: this makes use of the current assumption that GeoTrellis is running
@@ -188,11 +187,15 @@ def send_to_geotrellis(gtfs_file):
     }
 
     try:
-        params = {'gtfsDir': zip_dir}
-        response = requests.post('http://localhost/gt/gtfs?%s' % urlencode(params))
+        token = OTIUser.objects.get(username='oti-admin').auth_token.key
+        params = {'gtfsDir': zip_dir, 'token': token, 'id': gtfsfeed_id}
+        response = requests.post('http://localhost/gt/utils/gtfs?%s' % urlencode(params))
         logger.debug('GeoTrellis response: %s', response.text)
         data = response.json()
         gtfs_response = data
+    except JSONDecodeError as j:
+        logger.exception('GeoTrellis response is not JSON!')
+        gtfs_response['message'] = response.text
     except ValueError as e:
         logger.exception('Error when parsing GeoTrellis response')
         gtfs_response['message'] = e.message

@@ -4,6 +4,8 @@ import com.azavea.gtfs._
 
 import geotrellis.vector._
 
+import spray.json._
+
 object PeriodIndicatorResult {
   def apply(indicatorId: String, period: SamplePeriod, value: Double): PeriodIndicatorResult =
     new PeriodIndicatorResult(indicatorId, period, value)
@@ -14,19 +16,19 @@ object PeriodIndicatorResult {
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
         PeriodIndicatorResult(name, period, value)
-          .forRoute(route, geometries.byRoute(route))
+          .forRoute(route, geometries.byRouteWkb(route))
       }
 
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteType(routeType))
+        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteTypeWkb(routeType))
       }
 
     val containerForSystem: Iterable[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystem))
+          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystemWkb))
         case None =>
           Seq()
       }
@@ -35,44 +37,44 @@ object PeriodIndicatorResult {
 }
 
 class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Double) {
-  def forRoute(route: Route, ml: MultiLine) =
+  def forRoute(route: Route, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           RouteAggregate,
           value,
-          ml,
-          version,
+          geoJson,
+          calculationJob,
           routeId = route.id
         )
     }
 
-  def forRouteType(routeType: RouteType, ml: MultiLine) =
+  def forRouteType(routeType: RouteType, geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           RouteTypeAggregate,
           value,
-          ml,
-          version,
+          geoJson,
+          calculationJob,
           routeType = Some(routeType)
         )
     }
 
-  def forSystem(ml: MultiLine) =
+  def forSystem(geoJson: JsValue) =
     new ContainerGenerator {
-      def toContainer(version: String): IndicatorResultContainer =
+      def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
           period.periodType,
           SystemAggregate,
           value,
-          ml,
-          version = version
+          geoJson,
+          calculationJob = calculationJob
         )
     }
 }

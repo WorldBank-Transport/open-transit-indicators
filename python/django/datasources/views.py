@@ -31,22 +31,6 @@ class GTFSFeedViewSet(FileDataSourceViewSet):
             validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
         return response
 
-    def update(self, request, pk=None):
-        """Override update to re-validate GTFS"""
-        response = super(GTFSFeedViewSet, self).update(request, pk)
-
-        # Reset processing status since GTFS needs revalidation
-        pending = GTFSFeed.Statuses.PENDING
-        self.object.status = pending
-        self.object.save()
-        response.data['status'] = pending
-
-        # Delete existing problems since it will be revalidated
-        self.obj.gtfsfeedproblem_set.all().delete()
-
-        validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
-        return response
-
 
 class GTFSFeedProblemViewSet(OTIAdminViewSet):
     """Viewset for displaying problems for GTFS data"""

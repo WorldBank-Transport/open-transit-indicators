@@ -12,6 +12,8 @@ import spray.can.Http
 object Main {
   val actorSystem = ActorSystem("opentransit")
 
+  val rasterCache = new RasterCache(actorSystem)
+
   def main(args: Array[String]) {
     // We need an ActorSystem to host our service
     implicit val system = actorSystem

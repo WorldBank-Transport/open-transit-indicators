@@ -23,7 +23,9 @@
                 <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
                        ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
-                       date-disabled="disableWeekend(date, mode)" name="weekdayDate" ng-change="validateWeekday()" />
+                       min="serviceStart" max="serviceEnd" init-date="{{Date.now()}}"
+                       date-disabled="disableWeekend(date, mode)" name="weekdayDate"
+                       ng-change="validateWeekday()" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="openWeekdayPicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
@@ -42,7 +44,8 @@
                 <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
                        ng-model="weekendDate" is-open="weekendPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
-                       date-disabled="disableWeekday(date, mode)" name="weekendDate" ng-change="validateWeekend()" />
+                       min="serviceStart" max="serviceEnd" date-disabled="disableWeekday(date, mode)"
+                       name="weekendDate" ng-change="validateWeekend()" init-date="{{Date.now()}}" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default"
                             ng-click="openWeekendPicker($event)">
@@ -139,7 +142,7 @@
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
-                    <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
+                    <input type="number" step="0.01" name="avg_fare" ng-model="config.avg_fare" min="0">
                 </div>
             </div>
         </div>
@@ -155,6 +158,22 @@
                 <div class="col-sm-3">
                     <input type="number" name="nearby_buffer_distance_m"
                            ng-model="config.nearby_buffer_distance_m" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-5">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_ARRIVE_BY_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_ARRIVE_BY_TIME' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="arrive_by_time" name="arrive_by_time" ng-required="true" 
+                            ng-options="i+':00' for i in hours" ng-change="config.arrive_by_time_s = arrive_by_time * 60 * 60">
+                    </select>
                 </div>
             </div>
         </div>

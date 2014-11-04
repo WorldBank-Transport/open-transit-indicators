@@ -1,0 +1,70 @@
+<div class="scenario-page-content">
+    <h3>{{'SCENARIO.MY_SCENARIOS'|translate}}</h3>
+    <div class="block">
+        <div class="row" ng-hide="myScenarios.length >= 0">
+          <wave-spinner></wave-spinner>
+          <div class="text-center">{{'SCENARIO.LOADING_MY_SCENARIOS'|translate}}</div>
+        </div>
+        <div class="row" ng-show="myScenarios.length === 0">
+          <div class="text-center">{{'SCENARIO.NO_SCENARIOS_AVAILABLE'|translate}}</div>
+        </div>
+        <div class="row" ng-show="myScenarios.length > 0">
+            <div class="col-xs-4 text-muted">{{'SCENARIO.HEADER_NAME'|translate}}</div>
+            <div class="col-xs-8 text-muted">{{'SCENARIO.HEADER_LAST_MODIFIED'|translate}}</div>
+        </div>
+        <div class="row" ng-show="myScenarios.length > 0" ng-repeat="scenario in myScenarios[myScenarioPage]">
+            <div class="col-xs-4">{{ scenario.name }}</div>
+            <div class="col-xs-4">{{ scenario.create_date | date:'yyyy/MM/dd' }}</div>
+            <div class="col-xs-4">
+                <a class="button--small default" ng-click="edit(scenario)">{{'TERM.LOAD'|translate}}</a> /
+                <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
+            </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-4">
+            <a ng-click="myScenarioPage = myScenarioPage - 1" ng-show="(myScenarioPage > 0)">{{'TERM.PREVIOUS'|translate}}</a>
+            <span ng-show="(myScenarioPage > 0 && myScenarioPage + 1 < myScenarios.length)">/</span>
+            <a ng-click="myScenarioPage = myScenarioPage + 1" ng-show="(myScenarioPage + 1 < myScenarios.length)">{{'TERM.MORE'|translate}}</a>
+          </div>
+        </div>
+    </div>
+    <h3>{{'SCENARIO.COLLEAGUE_SCENARIOS'|translate}}</h3>
+    <div class="block">
+        <div class="row" ng-hide="colleagueScenarios">
+            <wave-spinner></wave-spinner>
+            <div class="text-center">{{'SCENARIO.LOADING_COLLEAGUE_SCENARIOS'|translate}}</div>
+        </div>
+        <div class="row" ng-show="colleagueScenarios.length === 0">
+            <div class="text-center">{{'SCENARIO.NO_SCENARIOS_AVAILABLE'|translate}}</div>
+        </div>
+        <div class="row" ng-show="colleagueScenarios.length > 0">
+            <div class="col-xs-2 text-muted">{{'SETTINGS.USERNAME'|translate}}</div>
+            <div class="col-xs-4 text-muted">{{'SCENARIO.HEADER_NAME'|translate}}</div>
+            <div class="col-xs-6 text-muted">{{'SCENARIO.HEADER_LAST_MODIFIED'|translate}}</div>
+        </div>
+        <div class="row"
+             ng-repeat="scenario in colleagueScenarios[colleagueScenarioPage]"
+             ng-show="colleagueScenarios.length > 0">
+            <!-- TODO make this not look bad -->
+            <div class="col-xs-2">{{ scenario.created_by }}</div>
+            <div class="col-xs-4">{{ scenario.name }}</div>
+            <div class="col-xs-4">{{ scenario.create_date | date:'yyyy/MM/dd' }}</div>
+            <div class="col-xs-2">
+                <a class="button--small default" ng-click="edit(scenario)">{{'TERM.COPY'|translate}}</a> /
+                <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-4">
+            <a ng-click="colleagueScenarioPage = colleagueScenarioPage - 1" ng-show="(colleagueScenarioPage > 0)">{{'TERM.PREVIOUS'|translate}}</a>
+            <span ng-show="colleagueScenarioPage > 0 && colleagueScenarioPage + 1 < colleagueScenarios.length">/</span>
+            <a ng-click="colleagueScenarioPage = colleagueScenarioPage + 1" ng-show="(colleagueScenarioPage + 1 < colleagueScenarios.length)">{{'TERM.MORE'|translate}}</a>
+          </div>
+        </div>
+    </div>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="create()">{{'SCENARIO.NEW_SCENARIO'|translate}}</a> /
+    <a class="button--small default" ng-click="transition('list')">{{'TERM.IMPORT'|translate}}</a>
+</div>

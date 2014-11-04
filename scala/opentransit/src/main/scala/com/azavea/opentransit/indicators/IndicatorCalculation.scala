@@ -6,26 +6,35 @@ import geotrellis.vector._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
 
+trait IndicatorCalculation {
+  def apply(transitSystem: TransitSystem): AggregatedResults
+}
+
 /** Indicator calculation that calculates intermediate values of type T */
-sealed trait IndicatorCalculation[T] {
+trait ReducingIndicatorCalculation[T] extends IndicatorCalculation {
   def reduce(results: Seq[T]): Double
 
   def apply(transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults =
     IndicatorCalculation.resultsForSystem(this, transitSystem, aggregatesBy)
 }
 
-trait PerRouteIndicatorCalculation[T] extends IndicatorCalculation[T] {
+trait PerRouteIndicatorCalculation[T] extends ReducingIndicatorCalculation[T] {
   def map(trips: Seq[Trip]): T
 }
 
-trait PerTripIndicatorCalculation[T] extends IndicatorCalculation[T] {
+trait PerTripIndicatorCalculation[T] extends ReducingIndicatorCalculation[T] {
   def map(trip: Trip): T
 }
 
 case class AggregatedResults(byRoute: Map[Route, Double], byRouteType: Map[RouteType, Double], bySystem: Option[Double])
 
+object AggregatedResults {
+  def systemOnly(value: Double): AggregatedResults =
+    AggregatedResults(Map(), Map(), Some(value))
+}
+
 object IndicatorCalculation {
-  def resultsForSystem[T](calc: IndicatorCalculation[T], transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults = {
+  def resultsForSystem[T](calc: ReducingIndicatorCalculation[T], transitSystem: TransitSystem, aggregatesBy: Aggregate => Boolean): AggregatedResults = {
     // Indicators can either map a single trip or a set of trips
     // to an intermediate value. Create a mapping from each route
     // to a set of intermediate results based on the Indicator's
@@ -42,8 +51,8 @@ object IndicatorCalculation {
     val intermediateResults: Map[Route, Seq[T]] =
       transitSystem.routes
         .map { route =>
-        (route, mapRouteToIntermediateResults(route))
-      }
+          (route, mapRouteToIntermediateResults(route))
+         }
         .toMap
     // Aggregate by route by reducing the set of results for each route.
     val byRoute: Map[Route, Double] =
