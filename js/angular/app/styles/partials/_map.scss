@@ -44,6 +44,20 @@ https://www.mapbox.com/tilemill/docs/guides/advanced-legends/
 Use class legend + (stacked-legend || flat-legend)
 */
 
+.mode-selector {
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255, 1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding: 6px 8px;
+    width: 240px;
+    line-height: 18px;
+    color: #555;
+    position: absolute;
+    right: 2rem;
+    top: 14rem;
+}
+
 .legend {
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: rgba(255,255,255, 1);
