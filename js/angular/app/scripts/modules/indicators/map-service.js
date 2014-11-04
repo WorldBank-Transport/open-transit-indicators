@@ -59,6 +59,8 @@ angular.module('transitIndicators')
         });
     };
 
+    otiMapService.enabledModes = '';
+
     /**
      * Create windshaft urls for leaflet map
      *

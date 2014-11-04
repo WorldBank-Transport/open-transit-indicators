@@ -11,8 +11,6 @@ angular.module('transitIndicators')
         aggregation: 'route'
     });
 
-    $scope.modes = '';
-
     var overlays = {
         boundary: {
             name: 'Boundary',
@@ -26,14 +24,14 @@ angular.module('transitIndicators')
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSShapesUrl(),
             visible: true,
-            layerParams: { modes: '' }
+            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
             visible: true,
-            layerParams: { modes: '' }
+            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
@@ -41,7 +39,7 @@ angular.module('transitIndicators')
             url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: { 'useJsonP': false },
-            layerParams: { modes: '' }
+            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         }
     };
 

@@ -20,6 +20,9 @@ angular.module('transitIndicators')
     // Retrieve last selected indicator from session cookie, if available
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
+    angular.extend($scope.indicator,
+        { modes: OTIIndicatorsMapService.enabledModes });
+
     /* LEAFLET CONFIG */
     var overlays = {
         indicator: {
@@ -103,7 +106,7 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $scope.indicator.modes = $rootScope.visibleModes || '';
+        $scope.indicator.modes = OTIIndicatorsMapService.enabledModes;
         $cookieStore.put("indicator", $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
@@ -153,6 +156,10 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         updateIndicatorLegend($scope.indicator);
+        OTIIndicatorsMapService.getLegendData().then(function(legenddata) {
+            $rootScope.$broadcast('OTIEvent:Root:AvailableModesUpdated',
+                                  OTIIndicatorsMapService.modes);
+        });
     };
     $scope.init();
 }]);
