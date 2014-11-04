@@ -32,6 +32,15 @@
   padding: .4rem .8rem;
 }
 
+.button--inactive {
+    color: $btn-link-disabled-color;
+    cursor: default;
+    &:hover {
+        color: $btn-link-disabled-color;
+        text-decoration: none;
+    }
+}
+
 .filter {
   .button--small {
     margin-right: 1rem;
