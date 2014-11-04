@@ -157,7 +157,7 @@ angular.module('transitIndicators')
     $scope.init = function () {
         updateIndicatorLegend($scope.indicator);
         OTIIndicatorsMapService.getLegendData().then(function(legenddata) {
-            $rootScope.$broadcast('OTIEvent:Root:AvailableModesUpdated',
+            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
                                   OTIIndicatorsMapService.modes);
         });
     };

@@ -47,7 +47,7 @@ angular.module('transitIndicators')
         OTIIndicatorsMapService.getLegendData().then(function (legend) {
             legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
-            $rootScope.$broadcast('OTIEvent:Root:AvailableModesUpdated',
+            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
                 OTIIndicatorsMapService.modes);
             $scope.leaflet.legend = legend;
         });

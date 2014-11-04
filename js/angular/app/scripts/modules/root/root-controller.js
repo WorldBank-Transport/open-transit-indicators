@@ -145,10 +145,10 @@ angular.module('transitIndicators')
                 });
             });
         });
-        $rootScope.$broadcast('OTIEvent:Root:VisibleModesSelected', modes);
+        $rootScope.$broadcast(OTIEvents.Root.VisibleModesSelected, modes);
     };
 
-    $scope.$on('OTIEvent:Root:AvailableModesUpdated', function(event, modes) {
+    $scope.$on(OTIEvents.Root.AvailableModesUpdated, function(event, modes) {
         $scope.modes = modes;
     });
 
