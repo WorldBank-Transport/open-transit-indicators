@@ -35,14 +35,14 @@ var config = {
             var filetype = req.query.interactivity ? 'utfgrid' : 'png';
             req.params.sql = gtfsStops.getSql(filetype);
             req.params.style = gtfsStops.getStyle();
-        } else if (req.params.type === 'coverage_ratio_stops_buffer') {
-            var gtfsStopsBuffers = new oti.GTFSStopsBuffers();
-            req.params.sql = gtfsStopsBuffers.getSql();
-            req.params.style = gtfsStopsBuffers.getStyle();
         } else if (req.params.type === 'datasources_boundary') {
             var datasourcesBoundary = new oti.datasourcesBoundary();
             req.params.sql = datasourcesBoundary.getSql();
             req.params.style = datasourcesBoundary.getStyle();
+        } else if (req.params.type === 'coverage_ratio_stops_buffer') {
+            var gtfsStopsBuffers = new oti.GTFSStopsBuffers(req.params);
+            req.params.sql = gtfsStopsBuffers.getSql();
+            req.params.style = gtfsStopsBuffers.getStyle();
         } else {
             // Default to displaying indicators from the url params
             var indicatorOptions = _.extend({}, req.params, { ntiles: req.query.ntiles || 5 });

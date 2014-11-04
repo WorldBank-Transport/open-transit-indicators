@@ -134,11 +134,22 @@ datasourcesBoundary.prototype.getStyle = function () {
  * Encapsulates windshaft display logic for the gtfs_stops_buffers table
  */
 
-var GTFSStopsBuffers = function () {};
+var GTFSStopsBuffers = function (options) {
+    this.calculation_job = options.calculation_job;
+    this.type = 'coverage_ratio_stops_buffer';
+    this.aggregation = 'system';
+    this.sample_period = options.sample_period;
+};
 
 GTFSStopsBuffers.prototype.getSql = function () {
     var sqlString =
-        "(SELECT * FROM gtfs_stops_buffers) AS " + result_tablename;
+        "(SELECT formatted_value as value, " +
+        "the_geom " +
+        "FROM transit_indicators_indicator " +
+        "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
+        "AND calculation_job_id='" + this.calculation_job + "' AND sample_period_id=" +
+        "(SELECT id from transit_indicators_sampleperiod WHERE type='" + this.sample_period + "')" +
+        ") as " + result_tablename;
     return sqlString;
 };
 

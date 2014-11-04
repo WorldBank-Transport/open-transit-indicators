@@ -328,7 +328,6 @@ class Indicator(models.Model):
         ACCESS_INDEX = 'access_index'
         AFFORDABILITY = 'affordability'
         AVG_SERVICE_FREQ = 'avg_service_freq'
-        COVERAGE = 'coverage'
         COVERAGE_STOPS = 'coverage_ratio_stops_buffer'
         DISTANCE_STOPS = 'distance_stops'
         DWELL_TIME = 'dwell_time'
@@ -400,7 +399,6 @@ class Indicator(models.Model):
                               WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
-                              COVERAGE,
                               COVERAGE_STOPS
         ])
 
@@ -408,7 +406,6 @@ class Indicator(models.Model):
             (ACCESS_INDEX, _(u'Access index')),
             (AFFORDABILITY, _(u'Affordability')),
             (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
-            (COVERAGE, _(u'System coverage')),
             (COVERAGE_STOPS, _(u'Coverage of transit stops')),
             (DISTANCE_STOPS, _(u'Distance between stops')),
             (DWELL_TIME, _(u'Dwell Time Performance')),

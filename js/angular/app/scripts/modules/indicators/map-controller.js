@@ -88,9 +88,8 @@ angular.module('transitIndicators')
         });
     };
 
-    // TODO: Update this method to allow changes on aggregation, calculation_job, sample_period
-    $scope.setIndicator = function (type) {
-        $scope.indicator.type = type;
+    $scope.setIndicator = function (options) {
+        angular.extend($scope.indicator, options);
         $scope.updateIndicatorLayers($scope.indicator);
         $scope.indicator_dropdown_open = false;
     };
@@ -104,7 +103,7 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $cookieStore.put("indicator", $scope.indicator);
+        $cookieStore.put('indicator', $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them

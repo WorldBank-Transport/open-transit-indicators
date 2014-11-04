@@ -63,7 +63,6 @@
         "avg_service_freq": "平均服务频率",
         "access_index": "Access Index",
         "affordability": "Affordability",
-        "coverage": "System coverage",
         "coverage_ratio_stops_buffer": "Stop coverage",
         "distance_stops": "Distance between stops",
         "dwell_time": "Dwell time",
