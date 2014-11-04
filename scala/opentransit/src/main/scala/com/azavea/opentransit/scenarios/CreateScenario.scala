@@ -16,7 +16,7 @@ import scala.util.Try
 
 object CreateScenario extends Logging {
   /** Creates a new scenario and passes status to a sink function. */
-  def apply(request: ScenarioCreationRequest, dbByName: String=>Database, createDatabase: String=>Unit, createFunctions: String => Unit): Unit =  {
+  def apply(request: ScenarioCreationRequest, dbByName: String=>Database, createDatabase: String=>Unit): Unit =  {
     logger.info(s"Creating scenario with database: ${request.dbName}")
 
     // Initialize the new scenario database via the setup_db script
@@ -25,7 +25,6 @@ object CreateScenario extends Logging {
     val dbPassword = config.getString("database.password")
 
     createDatabase(request.dbName)
-    createFunctions(request.dbName)
 
     // Copy GTFS data from the old database to the new database.
     logger.info(s"Obtaining gtfs records from base database: ${request.baseDbName}")

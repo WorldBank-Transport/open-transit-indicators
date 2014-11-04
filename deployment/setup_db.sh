@@ -40,8 +40,8 @@ if [ 0 -ne $has_spatial_db ]; then
     # need to be accessed from within Django, which is why they are not set up as models.
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/setup_gtfs.sql
 
-    # add database triggers
-    psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_trigger.sql
+    # add function to calculate routes served by stops
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_function.sql
 
     # Populate the UTM zone->srid lookup table
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/utm_zone_boundaries.sql
