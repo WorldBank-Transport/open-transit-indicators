@@ -10,10 +10,6 @@ import geotrellis.vector._
 
 import com.azavea.gtfs.io.database.{ DatabaseGtfsRecords, DefaultProfile }
 
-import com.vividsolutions.jts.geom.{MultiPolygon => JTSMultiPolygon, Polygon => JTSPolygon}
-import com.vividsolutions.jts.operation.union._
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
@@ -45,18 +41,16 @@ object StopBuffers {
 
     // calculate buffers for a given sequence of stops (useful for populations served by trips/routes/etc
     def calcBufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = {
-      val stopBuffers = stops.distinct.map(stop => stopMap(stop.id)).map(_.jtsGeom)
-      val stopSrid = stopBuffers.head.getSRID
+      val stopBuffers = stops.distinct.map(stop => stopMap(stop.id))
+      val stopSrid = stopBuffers.head.srid
 
-      val union = new CascadedPolygonUnion(stopBuffers)
-      val unionedGeometry = union.union()
-      val multipolygon = unionedGeometry match {
-        case p:JTSPolygon => MultiPolygon(Polygon(p))
-        case mp:JTSMultiPolygon => MultiPolygon(mp)
+      val union = stopBuffers.map(_.geom).unioned
+      val multipolygon = union match {
+        case PolygonResult(p) => MultiPolygon(p)
+        case MultiPolygonResult(mp) => mp
       }
       Projected(multipolygon, stopSrid)
     }
-
 
     // Calculate combined buffers for entire period
     def calcBufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] = {
