@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData',
-            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', '$rootScope',
+            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData, $rootScope) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -135,11 +135,17 @@ angular.module('transitIndicators')
                 _.each(layer, function(sublayer) {
                     if(sublayer.options.modes !== undefined) {
                         sublayer.options.modes = modes;
-                        sublayer.redraw();
+                        if(sublayer.redraw) {
+                            sublayer.redraw();
+                        } else { // utfgrid
+                            sublayer._cache = {};
+                            sublayer._update();
+                        }
                     }
                 });
             });
         });
+        $rootScope.$broadcast('OTIEvent:Root:VisibleModesSelected', modes);
     };
 
     $scope.$on('OTIEvent:Root:AvailableModesUpdated', function(event, modes) {

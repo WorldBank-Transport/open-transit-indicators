@@ -38,8 +38,8 @@ angular.module('transitIndicators')
             type: 'utfGrid',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
             visible: true,
-            pluginOptions: { 'useJsonP': false },
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            pluginOptions: { 'useJsonP': false,
+                             modes: OTIIndicatorsMapService.enabledModes }
         }
     };
 
