@@ -41,8 +41,6 @@ trait DjangoClient {
 
   /** Send a PATCH to update processing status for indicator calculation job */
   def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
-    // Sleep between updates to help prevent Django timeouts
-    Thread.sleep(THROTTLE_INDICATORJOBS_MILLIS)
     sendRequest(token, Patch(s"$BASE_URI/indicator-jobs/${indicatorJob.id}/", indicatorJob))
   }
 
@@ -53,13 +51,6 @@ trait DjangoClient {
   /** Send a PATCH to update processing status for GTFS feed */
   def updateGtfsFeed(token: String, gtfsFeed: GtfsFeed) = {
     sendRequest(token, Patch(s"$BASE_URI/gtfs-feeds/${gtfsFeed.id}/", gtfsFeed))
-  }
-
-  /** Sends a POST request to the indicators endpoint */
-  def postIndicators(token: String, indicators: Seq[IndicatorResultContainer]) = {
-    // Sleep between updates to help prevent Django timeouts
-    Thread.sleep(THROTTLE_INDICATORS_MILLIS)
-    sendRequest(token, Post(INDICATOR_URI, indicators.map(_.toJson)))
   }
 }
 

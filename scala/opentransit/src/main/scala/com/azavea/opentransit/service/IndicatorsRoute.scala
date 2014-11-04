@@ -5,6 +5,7 @@ import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.database.IndicatorsTable
 
 import com.azavea.gtfs._
 
@@ -59,15 +60,19 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 dbByName(request.gtfsDbName) withSession { implicit session =>
                   GtfsRecords.fromDatabase(dbGeomNameUtm)
                 }
-                CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager {
-                  def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
-                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
-                    djangoClient.postIndicators(request.token, indicatorResultContainers)
-                  }
-                  def statusChanged(status: Map[String, JobStatus]) = {
-                    djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
-                  }
-                })
+              CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager with IndicatorsTable {
+
+                def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
+                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
+                  dbByName(request.gtfsDbName) withTransaction { implicit session =>
+                    import PostgresDriver.simple._
+                      indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
+                    }
+                }
+                def statusChanged(status: Map[String, JobStatus]) = {
+                  djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
+                }
+              })
 
             }.onComplete { // TaskQueue callback for result handling
               case Success(_) =>
@@ -85,8 +90,8 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 }
             }
             Accepted -> JsObject(
-                "success" -> JsBoolean(true),
-                "message" -> JsString(s"Calculations started (id: ${request.id})")
+              "success" -> JsBoolean(true),
+              "message" -> JsString(s"Calculations started (id: ${request.id})")
             )
           }
         }
