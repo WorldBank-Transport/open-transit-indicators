@@ -1,26 +1,39 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosRouteeditController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService', 'OTIDrawService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService, OTIDrawService) {
+            ['config', '$scope', '$state', '$stateParams', 'OTIRouteManager', 'OTITripManager', 'OTIDrawService',
+            function (config, $scope, $state, $stateParams, OTIRouteManager, OTITripManager, OTIDrawService) {
 
-    $scope.scenario = OTIScenariosService.otiScenario;
     $scope.selectedRouteType = 0;
-    $scope.route = OTIScenariosService.otiRoute;
+    $scope.route = OTIRouteManager.get();
+    $scope.selectedTripId = '';
+    $scope.trips = [];
+    $scope.trip = OTITripManager.get();
+
+    OTITripManager.setRouteId($scope.route.id);
+    OTITripManager.list().then(function (trips) {
+        $scope.trips = trips;
+    });
 
     OTIDrawService.reset();
 
     $scope.continue = function () {
-        // TODO: UI Validation
         if ($scope.newRoute.$valid) {
-            OTIScenariosService.upsertRoute($scope.route);
+            OTIRouteManager.set($scope.route);
             $state.go('route-stops');
         }
     };
 
     $scope.back = function () {
-        OTIScenariosService.otiRoute = {};
+        OTIRouteManager.clear();
         $state.go('routes');
+    };
+
+    $scope.getTrip = function (tripId) {
+        OTITripManager.retrieve($scope.selectedTripId).then(function (trip) {
+            $scope.trip = trip;
+            console.log(trip);
+        });
     };
 
 }]);

@@ -36,7 +36,7 @@ angular.module('transitIndicators')
 
     module.findById = function (routeId) {
         return _.find(routes, function (r) {
-            return r.routeId === routeId;
+            return r.id === routeId;
         });
     };
 

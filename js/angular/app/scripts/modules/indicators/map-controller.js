@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
+        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService', '$rootScope',
+        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService, $rootScope) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -19,6 +19,9 @@ angular.module('transitIndicators')
     // Object used to configure the indicator displayed on the map
     // Retrieve last selected indicator from session cookie, if available
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
+
+    angular.extend($scope.indicator,
+        { modes: OTIIndicatorsMapService.enabledModes });
 
     /* LEAFLET CONFIG */
     var overlays = {
@@ -103,7 +106,8 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $cookieStore.put('indicator', $scope.indicator);
+        $scope.indicator.modes = OTIIndicatorsMapService.enabledModes;
+        $cookieStore.put("indicator", $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -152,6 +156,10 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         updateIndicatorLegend($scope.indicator);
+        OTIIndicatorsMapService.getLegendData().then(function(legenddata) {
+            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
+                                  OTIIndicatorsMapService.modes);
+        });
     };
     $scope.init();
 }]);

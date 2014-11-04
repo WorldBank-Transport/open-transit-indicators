@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource', 'OTIUploadService',
-        function ($q, $http, $resource, OTIUploadService) {
+        ['$q', '$http', '$resource', 'OTIUploadService', '$rootScope',
+        function ($q, $http, $resource, OTIUploadService, $rootScope) {
 
     var otiIndicatorsService = {};
     var nullJob = 0;
@@ -63,6 +63,7 @@ angular.module('transitIndicators')
         this.type = config.type;
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
+        this.modes = $rootScope.visibleModes || '';
     };
 
     /**
