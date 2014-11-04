@@ -245,7 +245,12 @@ class Indicator(models.Model):
 
     def save(self, *args, **kwargs):
         units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
-        if units:
+        # Transit Line Density is a special unitless case that has very small values
+        # Multiply by a constant to make the values be > 1
+        if self.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
+            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
+            self.formatted_value = u"%s" % round(self.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
+        elif units:
             self.formatted_value = u"%s %s" % (round(self.value, 2), units)
         else:
             self.formatted_value = u"%s" % round(self.value, 2)
