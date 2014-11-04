@@ -16,7 +16,7 @@
             <label>{{'SCENARIO.TIME_PERIOD'|translate}} <span ng-if="isEditing">({{'SCENARIO.LOCKED'|translate}})</span></label>
             <div class="row">
                 <div class="col-xs-12">
-                    <select ng-model="scenario.sample_period" ng-disabled="isEditing" required ng-options="key as value for (key, value) in samplePeriodI18N" ></select>
+                    <select ng-model="scenario.sample_period" ng-disabled="isEditing" required ng-options="key as value for (key, value) in filteredSamplePeriods" ></select>
                 </div>
             </div>
         </div>

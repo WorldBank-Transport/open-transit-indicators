@@ -5,6 +5,7 @@ angular.module('transitIndicators')
             function (config, $scope, $state, $stateParams, OTIScenarioManager) {
 
     $scope.scenario = OTIScenarioManager.get();
+    $scope.filteredSamplePeriods = _.omit($scope.samplePeriodI18N, 'alltime');
 
     $scope.isEditing = !!($scope.scenario.sample_period);
 
