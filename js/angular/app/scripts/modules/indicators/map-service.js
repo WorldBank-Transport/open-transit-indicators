@@ -2,8 +2,10 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsMapService',
-        ['$q', '$http', '$resource', '$location', 'windshaftConfig', 'OTIMapStyleService',
-        function ($q, $http, $resource, $location, windshaftConfig, OTIMapStyleService) {
+         ['$q', '$http', '$resource', '$location', 'windshaftConfig', 'OTIMapStyleService',
+	  'OTIIndicatorsService',
+          function ($q, $http, $resource, $location, windshaftConfig, OTIMapStyleService,
+		    OTIIndicatorsService) {
 
     var otiMapService = {};
 
@@ -16,6 +18,18 @@ angular.module('transitIndicators')
             dfd.resolve(result);
         });
         return dfd.promise;
+    };
+
+
+    /**
+     * Get indicator display value for map
+     */
+    otiMapService.getIndicatorFormattedValue = function(indicatorId) {
+	var dfd = $q.defer();
+	var result = OTIIndicatorsService.Indicator.get({id: indicatorId}, function () {
+	    dfd.resolve(result);
+	});
+	return dfd.promise;
     };
 
     /**
@@ -70,7 +84,7 @@ angular.module('transitIndicators')
         var url = otiMapService.getWindshaftHost();
         url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
-        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value&modes={modes}' : '.png?modes={modes}';
+        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=indicator_id&modes={modes}' : '.png?modes={modes}';
         return url;
     };
 

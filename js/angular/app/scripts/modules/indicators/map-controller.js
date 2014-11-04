@@ -52,27 +52,22 @@ angular.module('transitIndicators')
     $scope.updateLeafletOverlays(overlays);
 
     // Create utfgrid popup from leaflet event
-    var utfGridMarker = function (leafletEvent) {
-        if (leafletEvent && leafletEvent.data) {
-            // use $apply so popup appears right away
-            // (otherwise it doesn't show up until the next time the mouse gets moved)
-            $scope.$apply(function() {
-                var marker = {
-                    lat: leafletEvent.latlng.lat,
-                    lng: leafletEvent.latlng.lng,
-                    focus: true,
-                    draggable: false,
-                    message: 'Indicator Value: ' + leafletEvent.data.value,
-                    // we need something to bind the popup to, so use a marker with an empty icon
-                    icon: {
-                        type: 'div',
-                        iconSize: [0, 0],
-                        popupAnchor:  [0, 0]
-                    }
-                };
-                $scope.leaflet.markers.push(marker);
-            });
-        }
+    var utfGridMarker = function (leafletEvent, indicator) {
+        if (leafletEvent && leafletEvent.data && indicator) {
+            var marker = {
+                lat: leafletEvent.latlng.lat,
+                lng: leafletEvent.latlng.lng,
+                focus: true,
+                draggable: false,
+                message: indicator.formatted_value,
+                // we need something to bind the popup to, so use a marker with an empty icon
+                icon: {
+                    type: 'div',
+                    iconSize: [0, 0],
+                    popupAnchor:  [0, 0]
+                }
+            };
+            $scope.leaflet.markers.push(marker);};
     };
 
     var setIndicator = function (indicator) {
@@ -139,7 +134,10 @@ angular.module('transitIndicators')
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
-        utfGridMarker(leafletEvent);
+	var formattedValue = OTIIndicatorsMapService.getIndicatorFormattedValue(leafletEvent.data.indicator_id).then(
+	    function(indicator) {
+		utfGridMarker(leafletEvent, indicator);
+	    });
     });
 
     $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {

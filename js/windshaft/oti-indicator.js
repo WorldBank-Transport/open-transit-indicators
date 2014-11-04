@@ -172,7 +172,7 @@ var GTFSStopsBuffers = function (options) {
 
 GTFSStopsBuffers.prototype.getSql = function () {
     var sqlString =
-        "(SELECT formatted_value as value, " +
+        "(SELECT id AS indicator_id, value, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +
         "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
@@ -225,7 +225,7 @@ Indicator.prototype.getSql = function (modes) {
         modestr += ')';
     }
     var sqlString =
-        "(SELECT formatted_value as value, " +
+        "(SELECT id as indicator_id, value, " +
         "ntile(" + this.options.ntiles + ") over (order by value) as ntiles_bin, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +
