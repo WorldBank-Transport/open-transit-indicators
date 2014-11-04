@@ -9,16 +9,14 @@ angular.module('transitIndicators')
     // @return First trip in each group of trips as Array[String]
     var transformTrips = function (tripsString) {
         var trips2dArray = angular.fromJson(tripsString);
-        var trips = [];
-        if (trips2dArray && trips2dArray.length) {
-            for (var i = 0; i < trips2dArray.length; i++) {
-                var tripSet = trips2dArray[i];
-                if (tripSet && tripSet.length) {
-                    trips.push(tripSet[0]);
-                }
-            }
+        if (!trips2dArray) {
+            return [];
         }
-        return trips;
+        return _.map(trips2dArray, function (tripArray) {
+            return tripArray[0];
+        }).filter(function(p) { // Remove undefined/null entries
+            return p;
+        });
     };
 
     var baseUrl = '/gt/scenarios/:db_name/routes/:routeId/trips';
