@@ -10,11 +10,6 @@ import geotrellis.vector.reproject._
 import geotrellis.proj4._
 import spray.json._
 
-import com.vividsolutions.jts.geom.{MultiPolygon => JTSMultiPolygon, Polygon => JTSPolygon}
-import com.vividsolutions.jts.operation.union._
-
-import scala.collection.JavaConversions._
-
 trait SystemGeometries {
   type G <: Geometry
 
@@ -192,9 +187,10 @@ object SystemBufferGeometries {
   }
 
   def merge(geometries: Seq[SystemBufferGeometries]): SystemBufferGeometries = {
-    val union = new CascadedPolygonUnion(geometries.map(_.bySystem.jtsGeom))
-    val mergedBufferGeom = union.union() match {
-      case p: JTSPolygon => MultiPolygon(Polygon(p))
+    val union = geometries.map(_.bySystem).unioned
+    val mergedBufferGeom = union match {
+      case PolygonResult(p) => MultiPolygon(p)
+      case MultiPolygonResult(mp) => mp
     }
     new SystemBufferGeometries(mergedBufferGeom)
   }
