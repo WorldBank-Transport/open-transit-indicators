@@ -16,20 +16,25 @@ angular.module('transitIndicators')
             name: 'Transit Routes',
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSShapesUrl(),
-            visible: true
+            visible: true,
+            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
-            visible: true
+            visible: true,
+            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
             url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
             visible: true,
-            pluginOptions: { 'useJsonP': false }
+            pluginOptions: {
+                useJsonP: false,
+                modes: OTIIndicatorsMapService.enabledModes
+            }
         }
     };
 
