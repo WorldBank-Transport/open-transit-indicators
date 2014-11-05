@@ -8,7 +8,7 @@ angular.module('transitIndicators')
     // Datepicker Options
     $scope.datepickerFormat = 'dd MMMM yyyy';
     $scope.dateOptions = {
-        startingDay: 1,
+        startingDay: 0,
         showWeeks: false
     };
 
@@ -179,8 +179,9 @@ angular.module('transitIndicators')
         $scope.morningPeakEnd = morningEnd.getHours();
         $scope.eveningPeakStart = eveningStart.getHours();
         $scope.eveningPeakEnd = eveningEnd.getHours();
-        $scope.weekdayDate = morningStart;
-        $scope.weekendDate = weekendStart;
+
+        $scope.weekdayDate = morningStart.toISOString();
+        $scope.weekendDate = weekendStart.toISOString();
     };
 
     var setSidebarCheckmark = function () {
@@ -218,8 +219,8 @@ angular.module('transitIndicators')
         $scope.samplePeriodsError = false;
         var promises = [];
 
-        var weekdayDate = $scope.weekdayDate;
-        var weekendDate = $scope.weekendDate;
+        var weekdayDate = new Date($scope.weekdayDate);
+        var weekendDate = new Date($scope.weekendDate);
 
         var morning = $scope.samplePeriods.morning;
         morning.period_start = createWeekdayDateTime(weekdayDate, $scope.morningPeakStart);
@@ -271,8 +272,12 @@ angular.module('transitIndicators')
      * Invalidate samplePeriodsForm if weekdayDate is not a weekday in service date range
      */
     $scope.validateWeekday = function () {
-        var isValid = OTIConfigurationService.isWeekday($scope.weekdayDate) && 
-                      isInServiceRange($scope.weekdayDate);
+        if (!$scope.weekdayDate) {
+            return;
+        }
+        var validateDay = new Date($scope.weekdayDate);
+        var isValid = OTIConfigurationService.isWeekday(validateDay) && 
+                      isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekdayDate.$setValidity('weekdayDate', isValid);
     };
 
@@ -280,8 +285,12 @@ angular.module('transitIndicators')
      * Invalidate samplePeriodsForm if weekendDate is not a weekend in service date range
      */
     $scope.validateWeekend = function () {
-        var isValid = OTIConfigurationService.isWeekend($scope.weekendDate) &&
-                      isInServiceRange($scope.weekendDate);
+        if (!$scope.weekendDate) {
+            return;
+        }
+        var validateDay = new Date($scope.weekendDate);
+        var isValid = OTIConfigurationService.isWeekend(validateDay) &&
+                      isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
     };
     
@@ -290,6 +299,7 @@ angular.module('transitIndicators')
      */
     var isInServiceRange = function (date) {
         if (!$scope.serviceStart || !$scope.serviceEnd) {
+            console.log("missing service start and/or end!");
             return true;
         }
         
