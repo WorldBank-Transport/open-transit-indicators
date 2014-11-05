@@ -125,10 +125,13 @@ GTFSStops.prototype.getSql = function (filetype, modes) {
         modestr += _.map(modes.split(','), function(m) { return sqle(m,'int'); }).join();
         modestr += ')';
     }
-    var table = filetype === 'utfgrid' ? 'gtfs_stops_info' : 'gtfs_stops';
-    var sqlString =
-        "(SELECT distinct s.stop_id, s.the_geom as the_geom " +
-        "FROM " + table + " AS s " +
+    var table = 'gtfs_stops';
+    var sqlString = "(SELECT distinct s.stop_id, s.the_geom as the_geom";
+    if (filetype === 'utfgrid') {
+    	table = 'gtfs_stops_info';
+    	sqlString += ', stop_routes';
+    }
+    sqlString += " FROM " + table + " AS s " +
         "LEFT JOIN gtfs_stops_routes_join j ON j.stop_id = s.stop_id " +
         "LEFT JOIN gtfs_routes r on r.route_id = j.route_id " +
         "WHERE s.the_geom && !bbox! " +
