@@ -230,7 +230,7 @@ class IndicatorJob(models.Model):
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'calculation_job']
 
     class LoadStatus(object):
