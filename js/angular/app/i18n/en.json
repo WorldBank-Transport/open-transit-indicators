@@ -26,6 +26,9 @@
         "SKIP": "Skip",
         "RETRY": "Retry"
     },
+    "UNITS": {
+        "MINUTES": "Minutes"
+    },
     "TERM": {
         "LANGUAGE": "Language",
         "INDICATOR": "Indicator",
@@ -111,6 +114,7 @@
         "SHORT_NAME": "Short Name",
         "LONG_NAME": "Long Name",
         "DESCRIPTION": "Description",
+        "HEADWAY": "Headway",
         "INCOMPLETE_FORM": "Incomplete Form",
         "DATE_AND_TIME_RANGE": "Date and Time Range",
         "DT_RANGE_FROM": "from",

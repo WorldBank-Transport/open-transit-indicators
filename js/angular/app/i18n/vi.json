@@ -26,6 +26,9 @@
         "SKIP": "Bỏ qua",
         "RETRY": "Thử lại"
     },
+    "UNITS": {
+        "MINUTES": "Minutes"
+    },
     "TERM": {
         "LANGUAGE": "!Language",
         "INDICATOR": "Chỉ báo",
@@ -110,6 +113,7 @@
         "SHORT_NAME": "Short Name",
         "LONG_NAME": "Long Name",
         "DESCRIPTION": "Description",
+        "HEADWAY": "Headway",
         "INCOMPLETE_FORM": "Incomplete Form",
         "DATE_AND_TIME_RANGE": "Date and Time Range",
         "DT_RANGE_FROM": "from",

@@ -26,6 +26,9 @@
         "SKIP": "跳过",
         "RETRY": "重试"
     },
+    "UNITS": {
+        "MINUTES": "Minutes"
+    },
     "TERM": {
         "LANGUAGE": "语言",
         "INDICATOR": "指标",
@@ -110,6 +113,7 @@
         "SHORT_NAME": "Short Name",
         "LONG_NAME": "Long Name",
         "DESCRIPTION": "说明",
+        "HEADWAY": "Headway",
         "INCOMPLETE_FORM": "Incomplete Form",
         "DATE_AND_TIME_RANGE": "日期和时间范围",
         "DT_RANGE_FROM": "自",
