@@ -1,0 +1,19 @@
+<div class="mode-selector" ng-show="visible">
+    <div class="btn-group" dropdown is-open="dropdown.isopen">
+        <button type="button" class="button--navigationsecondary dropdown-toggle">
+            {{ choice }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a ng-click="pickMode(null)">
+                    All Modes
+                </a>
+            </li>
+            <li ng-repeat="mode in modes">
+                <a ng-click="pickMode(mode)">
+                    {{ mode.name }}
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

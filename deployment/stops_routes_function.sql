@@ -1,7 +1,6 @@
--- Trigger function to set stops interactivity dialog with routes served
-DROP TRIGGER IF EXISTS stops_routes on gtfs_stops;
+-- Function to set stops interactivity dialog with routes served
 
-CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
+CREATE OR REPLACE FUNCTION stops_routes() RETURNS void AS $stops_routes$
     BEGIN
         DELETE FROM gtfs_stops_routes_join;
         DELETE FROM gtfs_stops_info;
@@ -26,11 +25,5 @@ CREATE OR REPLACE FUNCTION stops_routes() RETURNS trigger AS $stops_routes$
                 ), ''<br />'')
             )
             FROM gtfs_stops s)';
-
-        RETURN NEW;
     END;
 $stops_routes$ LANGUAGE plpgsql;
-
-CREATE TRIGGER stops_routes AFTER INSERT ON gtfs_stops
-    FOR EACH STATEMENT EXECUTE PROCEDURE stops_routes();
-

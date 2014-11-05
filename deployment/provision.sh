@@ -76,7 +76,7 @@ OTI_CATALOG="$OTI_ROOT/data/catalog.json"
 SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
-TRANSITFEED_VERSION=1.2.12
+TRANSITFEED_VERSION=1.2.13
 
 # TODO: Change user emails?
 APP_SU_USERNAME="oti-admin"
@@ -321,16 +321,16 @@ popd
 #########################
 # This is installed manually due to a problem where the newest version
 # isn't able to be installed via pip on Travis.
-# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+# docs here:  https://github.com/google/transitfeed/wiki/FeedValidator
 if ! $(python -c "import transitfeed" &> /dev/null); then
     echo 'Setting up transitfeed'
     pushd $TEMP_ROOT
-        wget https://googletransitdatafeed.googlecode.com/files/transitfeed-$TRANSITFEED_VERSION.tar.gz
-        tar xzf transitfeed-$TRANSITFEED_VERSION.tar.gz
+        wget https://github.com/google/transitfeed/archive/$TRANSITFEED_VERSION.tar.gz
+        tar xzf $TRANSITFEED_VERSION.tar.gz
         pushd transitfeed-$TRANSITFEED_VERSION
             sudo python setup.py install
         popd
-        rm -rf transitfeed-$TRANSITFEED_VERSION transitfeed-$TRANSITFEED_VERSION.tar.gz
+        rm -rf transitfeed-$TRANSITFEED_VERSION $TRANSITFEED_VERSION.tar.gz
     popd
 fi
 
@@ -403,6 +403,15 @@ popd
 pushd $PROJECT_ROOT
     echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
+    echo 'Adding Routes Served by Stops PostgreSQL Function'
+
+    # To ease transitioning to new, non-trigger version of function, explicitly drop the trigger 
+    # and the trigger version of its funciton.  (CREATE OR REPLACE fails when changing function return type.)
+    # TODO: These two drop statements can be removed once all users have re-provisioned with this at least once.
+    sudo -u postgres psql -d $DB_NAME -c "DROP TRIGGER IF EXISTS stops_routes ON gtfs_stops;"
+    sudo -u postgres psql -d $DB_NAME -c "DROP FUNCTION IF EXISTS stops_routes();"
+    
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/stops_routes_function.sql
     echo 'Adding Fishnet PostgreSQL Function'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
     echo 'Adding Demographic Grid PostgreSQL Function'

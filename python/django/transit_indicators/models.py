@@ -250,7 +250,12 @@ class Indicator(models.Model):
 
     def save(self, *args, **kwargs):
         units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
-        if units:
+        # Transit Line Density is a special unitless case that has very small values
+        # Multiply by a constant to make the values be > 1
+        if self.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
+            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
+            self.formatted_value = u"%s" % round(self.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
+        elif units:
             self.formatted_value = u"%s %s" % (round(self.value, 2), units)
         else:
             self.formatted_value = u"%s" % round(self.value, 2)
@@ -276,7 +281,7 @@ class Indicator(models.Model):
             response.success = False
             return response
         try:
-            import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+            import_job = IndicatorJob.objects.create(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                       created_by=user, city_name=city_name)
             num_saved = 0
             dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
@@ -299,6 +304,10 @@ class Indicator(models.Model):
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
                     value = float(row.pop('value'))
+                    # We are going to ignore the csv's calculation_job field because that depends
+                    # upon the database in which the indicators are originally stored rather than
+                    # the database that we're now uploading to
+                    row.pop('calculation_job')
                     indicator = cls(sample_period=sample_period, calculation_job=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
@@ -329,7 +338,6 @@ class Indicator(models.Model):
         ACCESS_INDEX = 'access_index'
         AFFORDABILITY = 'affordability'
         AVG_SERVICE_FREQ = 'avg_service_freq'
-        COVERAGE = 'coverage'
         COVERAGE_STOPS = 'coverage_ratio_stops_buffer'
         DISTANCE_STOPS = 'distance_stops'
         DWELL_TIME = 'dwell_time'
@@ -358,8 +366,6 @@ class Indicator(models.Model):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop served')
-            FREQ_WEIGHTED_BY_LOW_POP = _(u'stops per hr/low-income pop served')
             SECONDS = _(u'secs')
             MINUTES = _(u'mins')
             HOURS = _(u'hrs')
@@ -381,8 +387,8 @@ class Indicator(models.Model):
                             LINE_NETWORK_DENSITY: Units.KM_PER_AREA,
                             ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
                             REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
-                            SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
-                            SERVICE_FREQ_WEIGHTED_LOW: Units.FREQ_WEIGHTED_BY_LOW_POP,
+                            SERVICE_FREQ_WEIGHTED: Units.MINUTES,
+                            SERVICE_FREQ_WEIGHTED_LOW: Units.MINUTES,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
                             SYSTEM_ACCESS: Units.POP_PER_STOP,
                             SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_STOP,
@@ -403,7 +409,6 @@ class Indicator(models.Model):
                               WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
-                              COVERAGE,
                               COVERAGE_STOPS
         ])
 
@@ -411,7 +416,6 @@ class Indicator(models.Model):
             (ACCESS_INDEX, _(u'Access index')),
             (AFFORDABILITY, _(u'Affordability')),
             (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
-            (COVERAGE, _(u'System coverage')),
             (COVERAGE_STOPS, _(u'Coverage of transit stops')),
             (DISTANCE_STOPS, _(u'Distance between stops')),
             (DWELL_TIME, _(u'Dwell Time Performance')),

@@ -28,21 +28,21 @@ var config = {
         // calculation_job, sample_period, aggregation can all be 0 for these requests
         if (req.params.type === 'gtfs_shapes') {
             var gtfsShapes = new oti.GTFSShapes();
-            req.params.sql = gtfsShapes.getSql();
+            req.params.sql = gtfsShapes.getSql(req.query.modes);
             req.params.style = gtfsShapes.getStyle();
         } else if (req.params.type === 'gtfs_stops') {
             var gtfsStops = new oti.GTFSStops();
             var filetype = req.query.interactivity ? 'utfgrid' : 'png';
-            req.params.sql = gtfsStops.getSql(filetype);
+            req.params.sql = gtfsStops.getSql(filetype, req.query.modes);
             req.params.style = gtfsStops.getStyle();
-        } else if (req.params.type === 'coverage_ratio_stops_buffer') {
-            var gtfsStopsBuffers = new oti.GTFSStopsBuffers();
-            req.params.sql = gtfsStopsBuffers.getSql();
-            req.params.style = gtfsStopsBuffers.getStyle();
         } else if (req.params.type === 'datasources_boundary') {
             var datasourcesBoundary = new oti.datasourcesBoundary();
             req.params.sql = datasourcesBoundary.getSql();
             req.params.style = datasourcesBoundary.getStyle();
+        } else if (req.params.type === 'coverage_ratio_stops_buffer') {
+            var gtfsStopsBuffers = new oti.GTFSStopsBuffers(req.params);
+            req.params.sql = gtfsStopsBuffers.getSql();
+            req.params.style = gtfsStopsBuffers.getStyle();
         } else {
             // Default to displaying indicators from the url params
             var indicatorOptions = _.extend({}, req.params, { ntiles: req.query.ntiles || 5 });
@@ -51,7 +51,7 @@ var config = {
 
             // Set style/sql based on indicator config
             req.params.style = indicator.getStyle();
-            req.params.sql = indicator.getSql();
+            req.params.sql = indicator.getSql(req.query.modes);
         }
 
         // Interactivity column comes through in our get params since it's optional

@@ -121,6 +121,7 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
     sumRouteHours(weekSystems, Map[Route, Double]())
   }
 
+  // TODO: Pull this out for reuse
   // Get the representative weekday by finding it from the sample periods.
   def representativeWeekday: Option[LocalDateTime] = {
     // Recursively look through sample periods and return the first one that's for a weekday.

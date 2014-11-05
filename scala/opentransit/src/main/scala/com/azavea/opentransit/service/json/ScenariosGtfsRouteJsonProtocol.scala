@@ -20,12 +20,12 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
 
   implicit object routeTypeFormat extends JsonFormat[RouteType]{
     def read(json: JsValue): RouteType = json match {
-      case JsString(name) => RouteType(name)
+      case JsNumber(id) => RouteType(id.toInt)
       case _ => throw new DeserializationException("RouteType index expected")
     }
 
     def write(obj: RouteType): JsValue =
-      JsString(obj.name)
+      JsNumber(obj.id)
   }
 
   implicit val routeFormat = jsonFormat9(RouteRecord)
@@ -72,14 +72,14 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
 
   implicit object stopFormat extends JsonWriter[Stop]{
     def read(json: JsValue)(tripId: String, seq: Int): Stop =
-      json.asJsObject.getFields("stop_id","name","lat","long") match {
+      json.asJsObject.getFields("stopId","name","lat","long") match {
         case Seq(JsString(stopId), JsString(name), JsNumber(lat), JsNumber(long)) =>
           Stop(s"${STOP_PREFIX}-${tripId}-${seq}", name, None, Projected(Point(long.toDouble, lat.toDouble), 4326))
         case _ => throw new DeserializationException("Stop expected")
       }
 
     def write(obj: Stop): JsValue = JsObject(
-      "stop_id" -> obj.id.toJson,
+      "stopId" -> obj.id.toJson,
       "name" -> obj.name.toJson,
       "lat" -> obj.point.geom.y.toJson,
       "long" -> obj.point.geom.x.toJson
@@ -88,7 +88,7 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
 
   implicit object stopTimeFormat extends JsonWriter[(StopTimeRecord, Stop)]{
     def read(json: JsValue)(tripId: String): (StopTimeRecord, Stop) =
-    json.asJsObject.getFields("stop", "stop_sequence", "arrival_time", "departure_time") match {
+    json.asJsObject.getFields("stop", "stopSequence", "arrivalTime", "departureTime") match {
       case Seq(stopJson: JsObject, JsNumber(seq), arrival, departure) =>
         val stop = stopFormat.read(stopJson)(tripId, seq.toInt)
         val st = StopTimeRecord(stop.id, tripId, seq.toInt, arrival.convertTo[Period], departure.convertTo[Period])
@@ -99,9 +99,9 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
     def write(obj: (StopTimeRecord, Stop)): JsValue = {
       val (st, stop) = obj
       JsObject(
-        "stop_sequence" -> st.sequence.toJson,
-        "arrival_time" -> st.arrivalTime.toJson,
-        "departure_time" -> st.departureTime.toJson,
+        "stopSequence" -> st.sequence.toJson,
+        "arrivalTime" -> st.arrivalTime.toJson,
+        "departureTime" -> st.departureTime.toJson,
         "stop" -> stop.toJson
       )
     }
@@ -123,7 +123,7 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
 
   implicit object tripTupleFormat extends RootJsonFormat[TripTuple] {
     def read(json: JsValue): TripTuple =
-      json.asJsObject.getFields("trip_id", "route_id", "headsign", "stop_times", "frequencies", "shape") match {
+      json.asJsObject.getFields("tripId", "routeId", "headsign", "stopTimes", "frequencies", "shape") match {
         case Seq(JsString(tripId), JsString(routeId), headsign, JsArray(stopTimesJson) , JsArray(freqsJson), shapeJson) =>
           val stopTimes = stopTimesJson map { js => stopTimeFormat.read(js)(tripId) }
           val freqs = freqsJson map { js => frequencyFormat.read(js)(tripId) }
@@ -134,10 +134,10 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
       }
 
     def write(obj: TripTuple): JsValue = JsObject(
-      "trip_id" -> JsString(obj.trip.id),
-      "route_id" -> JsString(obj.trip.routeId),
+      "tripId" -> JsString(obj.trip.id),
+      "routeId" -> JsString(obj.trip.routeId),
       "headsign" -> JsString(obj.trip.headsign.getOrElse("")),
-      "stop_times" -> JsArray(obj.stopTimes map (_.toJson): _*),
+      "stopTimes" -> JsArray(obj.stopTimes map (_.toJson): _*),
       "frequencies" -> JsArray( obj.frequencies map (_.toJson):_*),
       "shape" -> obj.shape.toJson
     )

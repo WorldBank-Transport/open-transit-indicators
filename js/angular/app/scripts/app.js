@@ -75,7 +75,6 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/scenarios/scenarios-partial.html',
             controller: 'OTIScenariosController',
             resolve: {
-                OTIScenariosService: 'OTIScenariosService',
                 OTIIndicatorsService: 'OTIIndicatorsService',
                 OTISettingsService: 'OTISettingsService',
                 samplePeriods: function (OTISettingsService) {
@@ -86,9 +85,6 @@ angular.module('transitIndicators', [
                 },
                 routeTypes: function (OTIIndicatorsService) {
                     return OTIIndicatorsService.getRouteTypes();
-                },
-                scenarios: function (OTIScenariosService) {
-                    return OTIScenariosService.getScenarios();
                 }
             }
         })
@@ -134,7 +130,7 @@ angular.module('transitIndicators', [
             $stateProvider.state(view.id, {
                 parent: 'scenarios',
                 url: '/' + viewId,
-                templateUrl: 'scripts/modules/scenarios/views/' + viewId + '-partial.html',
+                templateUrl: 'scripts/modules/scenarios/' + viewId + '/' + viewId + '-partial.html',
                 controller: 'OTIScenarios' +  capsId + 'Controller',
                 resolve: {
 

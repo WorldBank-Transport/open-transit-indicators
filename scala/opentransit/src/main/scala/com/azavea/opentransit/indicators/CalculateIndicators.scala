@@ -128,17 +128,29 @@ object CalculateIndicators {
     if (calculateAllTime) {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
-        WeeklyServiceHours(periods, builder, overallGeometries, statusManager, trackStatus) }
+        WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
     }
 
     // Run travelshed indicators
     for(indicator <- travelshedIndicators) {
-      for(period <- periods) {
-        indicator(period.periodType, Main.rasterCache)
-      }
+      val name = indicator.name
+      trackStatus(name, JobStatus.Processing)
+      try {
+        for(period <- periods) {
+          indicator(period.periodType, Main.rasterCache)
+        }
 
-      if(calculateAllTime) {
-        indicator(IndicatorResultContainer.OVERALL_KEY, Main.rasterCache)
+        if(calculateAllTime) {
+          indicator(IndicatorResultContainer.OVERALL_KEY, Main.rasterCache)
+        }
+
+        trackStatus(name, JobStatus.Complete)
+      } catch {
+        case e: Exception =>
+          println(e.getMessage)
+          println(e.getStackTrace.mkString("\n"))
+
+          trackStatus(name, JobStatus.Failed)
       }
     }
 

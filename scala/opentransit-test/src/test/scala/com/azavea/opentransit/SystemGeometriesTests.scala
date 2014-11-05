@@ -25,12 +25,12 @@ class SystemGeometriesTests extends FunSuite with Matchers with IndicatorSpec {
             val system = systemBuilder.systemBetween(period.start, period.end)
           }
           Timer.timedTask(s"Calculating System Geometries for period $period") {
-            SystemGeometries(system)
+            SystemLineGeometries(system)
           }
         }
       val overall =
         Timer.timedTask(s"Calculating overall System Geometries.") {
-          SystemGeometries.merge(geoms)
+          SystemLineGeometries.merge(geoms)
         }
     }
   }
