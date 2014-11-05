@@ -19,13 +19,9 @@ trait SystemGeometries {
     JsString(WKBWriter.toHex(wkbWriter.write(g.jtsGeom)))
   }
 
-  def byRoute(route: Route): Option[G]
-  def byRouteType(routeType: RouteType): Option[G]
+  def byRoute(route: Route): G
+  def byRouteType(routeType: RouteType): G
   def bySystem: G
-
-  val byRouteWkb: Map[Route, JsValue]
-  val byRouteTypeWkb: Map[RouteType, JsValue]
-  val bySystemWkb: JsValue
 
 }
 
@@ -34,30 +30,14 @@ class SystemLineGeometries (geomsByRoute: Map[Route, MultiLine], geomsByRouteTyp
 
   def toTuple = (geomsByRoute, geomsByRouteType, geomForSystem)
 
-  def byRoute(route: Route): Option[MultiLine] =
-    geomsByRoute.get(route)
+  def byRoute(route: Route): MultiLine =
+    geomsByRoute.getOrElse(route, MultiLine.EMPTY)
 
-  def byRouteType(routeType: RouteType): Option[MultiLine] =
-    geomsByRouteType.get(routeType)
+  def byRouteType(routeType: RouteType): MultiLine =
+    geomsByRouteType.getOrElse(routeType, MultiLine.EMPTY)
 
   def bySystem: MultiLine =
     geomForSystem
-
-  // Memoize the Json serialization so it only happens once per instance.
-  lazy val byRouteWkb: Map[Route, JsValue] =
-    Timer.timedTask("Created byRoute Wkb") {
-      geomsByRoute.map { case (route, g) => (route, toWkb(g))}.toMap
-    }
-
-  lazy val byRouteTypeWkb: Map[RouteType, JsValue] =
-    Timer.timedTask("Created byRouteType Wkb") {
-      geomsByRouteType.map { case (routeType, g) => (routeType, toWkb(g))}.toMap
-    }
-
-  lazy val bySystemWkb: JsValue =
-    Timer.timedTask("Created bySystem Wkb") {
-      toWkb(geomForSystem)
-    }
 
 }
 
@@ -141,24 +121,12 @@ object SystemLineGeometries {
 class SystemBufferGeometries (geomForSystem: MultiPolygon) extends SystemGeometries {
   type G = MultiPolygon
 
-  def byRoute(route: Route): Option[MultiPolygon] =
-    None
+  def byRoute(route: Route): MultiPolygon = MultiPolygon.EMPTY
 
-  def byRouteType(routeType: RouteType): Option[MultiPolygon] =
-    None
+  def byRouteType(routeType: RouteType): MultiPolygon = MultiPolygon.EMPTY
 
   def bySystem: MultiPolygon =
     geomForSystem
-
-  // Memoize the Json serialization so it only happens once per instance.
-  lazy val byRouteWkb: Map[Route, JsValue] = Map()
-
-  lazy val byRouteTypeWkb: Map[RouteType, JsValue] = Map()
-
-  lazy val bySystemWkb: JsValue =
-    Timer.timedTask("Created bySystem Wkb") {
-      toWkb(geomForSystem)
-    }
 }
 
 object SystemBufferGeometries {

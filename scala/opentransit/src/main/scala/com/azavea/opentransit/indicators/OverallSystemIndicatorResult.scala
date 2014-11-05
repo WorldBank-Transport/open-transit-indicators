@@ -3,6 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 
 import geotrellis.vector._
+import geotrellis.slick._
 
 import spray.json._
 
@@ -15,18 +16,18 @@ object OverallIndicatorResult {
 
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
-        OverallIndicatorResult(name, value).forRoute(route, geometries.byRouteWkb(route))
+        OverallIndicatorResult(name, value).forRoute(route, geometries.byRoute(route))
       }
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteTypeWkb(routeType))
+        OverallIndicatorResult(name, value).forRouteType(routeType, geometries.byRouteType(routeType))
       }
 
     val containerForSystem: Seq[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystemWkb))
+          Seq(OverallIndicatorResult(name, v).forSystem(geometries.bySystem))
         case None =>
           Seq()
       }
@@ -36,7 +37,7 @@ object OverallIndicatorResult {
 }
 
 class OverallIndicatorResult(indicatorId: String, value: Double) {
-  def forRoute(route: Route, geoJson: JsValue) =
+  def forRoute(route: Route, geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -44,13 +45,13 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           RouteAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob,
           routeId = route.id
         )
     }
 
-  def forRouteType(routeType: RouteType, geoJson: JsValue) =
+  def forRouteType(routeType: RouteType, geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -58,13 +59,13 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           RouteTypeAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob,
           routeType = Some(routeType)
         )
     }
 
-  def forSystem(geoJson: JsValue) =
+  def forSystem(geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
@@ -72,7 +73,7 @@ class OverallIndicatorResult(indicatorId: String, value: Double) {
           IndicatorResultContainer.OVERALL_KEY,
           SystemAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob
         )
     }

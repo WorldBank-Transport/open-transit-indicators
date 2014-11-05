@@ -198,26 +198,6 @@ package object json {
       }
   }
 
-  implicit object IndicatorResultContainerWriter extends RootJsonWriter[IndicatorResultContainer] {
-    def write(container: IndicatorResultContainer) =
-      JsObject(
-        "type" -> JsString(container.indicatorId),
-        "sample_period" -> JsString(container.samplePeriodType),
-        "aggregation" -> container.aggregation.toJson,
-        "value" -> JsNumber(container.value),
-        "the_geom" -> container.geom,
-        "calculation_job" -> JsNumber(container.calculationJob),
-        "route_id" -> JsString(container.routeId),
-        ("route_type",
-          container.routeType match {
-            case Some(routeType) => JsString(routeType.id.toString)
-            case None => JsString("")
-          }
-        ),
-        "city_bounded" -> JsBoolean(container.cityBounded)
-      )
-  }
-
   implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
     def write(job: IndicatorJob) = {
       // A job is complete if nothing is processing or submitted
