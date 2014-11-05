@@ -344,7 +344,6 @@ class IndicatorsTestCase(TestCase):
 
         response = self.client.post(self.list_url, {'city_name': 'My City', 'source_file': test_csv})
 
-        import ipdb; ipdb.set_trace()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(self.list_url, {'source_file': test_csv})
