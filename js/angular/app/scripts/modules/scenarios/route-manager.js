@@ -21,6 +21,15 @@ angular.module('transitIndicators')
         route = newRoute;
     };
 
+    /**
+     * For now, isNew is defined as the route not having an id
+     * Could track this with an internal var instead
+     * @return Boolean True if the stored route is new, False if it was retrieved from the API
+     */
+    module.isNew = function () {
+        return !(route.id);
+    };
+
     module.clear = function () {
         route = {};
     };
