@@ -54,9 +54,7 @@ angular.module('transitIndicators')
 
     if ($scope.scenario) {
         if ($scope.scenario.job_status) {
-            checkScenarioCreate($scope.scenario);
-            // TODO: Figure out why a PUT triggers a new scenario create?
-            //$scope.scenario.$update().then(checkScenarioCreate);
+            $scope.scenario.$update().then(checkScenarioCreate);
         } else {
             $scope.scenario.$save().then(checkScenarioCreate, function (error) {
                 // TODO: Remove this helpful message after a little while (maybe Dec 2014?)
