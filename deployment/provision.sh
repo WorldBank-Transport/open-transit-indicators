@@ -403,15 +403,6 @@ popd
 pushd $PROJECT_ROOT
     echo 'Adding GTFS Delete PostgreSQL Trigger'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/delete_gtfs_trigger.sql
-    echo 'Adding Routes Served by Stops PostgreSQL Function'
-
-    # To ease transitioning to new, non-trigger version of function, explicitly drop the trigger 
-    # and the trigger version of its funciton.  (CREATE OR REPLACE fails when changing function return type.)
-    # TODO: These two drop statements can be removed once all users have re-provisioned with this at least once.
-    sudo -u postgres psql -d $DB_NAME -c "DROP TRIGGER IF EXISTS stops_routes ON gtfs_stops;"
-    sudo -u postgres psql -d $DB_NAME -c "DROP FUNCTION IF EXISTS stops_routes();"
-    
-    sudo -u postgres psql -d $DB_NAME -f ./deployment/stops_routes_function.sql
     echo 'Adding Fishnet PostgreSQL Function'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
     echo 'Adding Demographic Grid PostgreSQL Function'

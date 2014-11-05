@@ -65,7 +65,7 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
   }
 
   abstract override protected def afterAll(): Unit = {
-    super.afterAll()
     live.foreach(deleteDatabase)
+    super.afterAll()
   }
 }

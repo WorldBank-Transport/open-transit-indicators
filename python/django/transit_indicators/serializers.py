@@ -1,13 +1,9 @@
-import json
-import time
-
 from rest_framework import serializers
-from django.contrib.gis.geos.collections import GEOSGeometry
 
 from datasources.models import DemographicDataFieldName
 from transit_indicators.models import (OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod,
                                        Indicator, IndicatorJob, Scenario, OTICityName)
-from userdata.models import OTIUser
+
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
     """Serializer for SamplePeriods -- performs validation of times"""
@@ -91,6 +87,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
     sample_period = serializers.SlugRelatedField(slug_field='type')
     calculation_job = serializers.SlugRelatedField(slug_field='id')
     city_name = serializers.SerializerMethodField('get_city_name')
+    formatted_value = serializers.CharField(source='formatted_value', read_only=True)
 
     def get_city_name(self, obj):
         return obj.calculation_job.city_name
@@ -125,8 +122,8 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type',
-                  'city_bounded', 'value', 'formatted_value', 'calculation_job', 'city_name', 'the_geom')
-        read_only_fields = ('id', 'formatted_value')
+                  'city_bounded', 'value', 'calculation_job', 'city_name', 'the_geom')
+        read_only_fields = ('id',)
         write_only_fields = ('the_geom',)
 
 

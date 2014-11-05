@@ -11,7 +11,7 @@ angular.module('transitIndicators')
 
     var module = $resource('/api/scenarios/:db_name/', {db_name: '@db_name'}, {
         update: {
-            method: 'PUT'
+            method: 'PATCH'
         }
     }, {
         stripTrailingSlashes: false

@@ -16,19 +16,19 @@ object PeriodIndicatorResult {
     val containersByRoute: Iterable[ContainerGenerator] =
       byRoute.map { case (route, value) =>
         PeriodIndicatorResult(name, period, value)
-          .forRoute(route, geometries.byRouteWkb(route))
+          .forRoute(route, geometries.byRoute(route))
       }
 
 
     val containersByRouteType: Iterable[ContainerGenerator] =
       byRouteType.map { case (routeType, value) =>
-        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteTypeWkb(routeType))
+        PeriodIndicatorResult(name, period, value).forRouteType(routeType, geometries.byRouteType(routeType))
       }
 
     val containerForSystem: Iterable[ContainerGenerator] =
       bySystem match {
         case Some(v) =>
-          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystemWkb))
+          Seq(PeriodIndicatorResult(name, period, v).forSystem(geometries.bySystem))
         case None =>
           Seq()
       }
@@ -37,43 +37,43 @@ object PeriodIndicatorResult {
 }
 
 class PeriodIndicatorResult(indicatorId: String, period: SamplePeriod, value: Double) {
-  def forRoute(route: Route, geoJson: JsValue) =
+  def forRoute(route: Route, geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
-          period.periodType,
+          period,
           RouteAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob,
           routeId = route.id
         )
     }
 
-  def forRouteType(routeType: RouteType, geoJson: JsValue) =
+  def forRouteType(routeType: RouteType, geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
-          period.periodType,
+          period,
           RouteTypeAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob,
           routeType = Some(routeType)
         )
     }
 
-  def forSystem(geoJson: JsValue) =
+  def forSystem(geometry: Geometry) =
     new ContainerGenerator {
       def toContainer(calculationJob: Int): IndicatorResultContainer =
         IndicatorResultContainer(
           indicatorId,
-          period.periodType,
+          period,
           SystemAggregate,
           value,
-          geoJson,
+          geometry,
           calculationJob = calculationJob
         )
     }

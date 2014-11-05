@@ -125,10 +125,13 @@ GTFSStops.prototype.getSql = function (filetype, modes) {
         modestr += _.map(modes.split(','), function(m) { return sqle(m,'int'); }).join();
         modestr += ')';
     }
-    var table = filetype === 'utfgrid' ? 'gtfs_stops_info' : 'gtfs_stops';
-    var sqlString =
-        "(SELECT distinct s.stop_id, s.the_geom as the_geom " +
-        "FROM " + table + " AS s " +
+    var table = 'gtfs_stops';
+    var sqlString = "(SELECT distinct s.stop_id, s.the_geom as the_geom";
+    if (filetype === 'utfgrid') {
+    	table = 'gtfs_stops_info';
+    	sqlString += ', stop_routes';
+    }
+    sqlString += " FROM " + table + " AS s " +
         "LEFT JOIN gtfs_stops_routes_join j ON j.stop_id = s.stop_id " +
         "LEFT JOIN gtfs_routes r on r.route_id = j.route_id " +
         "WHERE s.the_geom && !bbox! " +
@@ -172,7 +175,7 @@ var GTFSStopsBuffers = function (options) {
 
 GTFSStopsBuffers.prototype.getSql = function () {
     var sqlString =
-        "(SELECT formatted_value as value, " +
+        "(SELECT id AS indicator_id, value, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +
         "WHERE type='" + this.type + "' AND aggregation='" + this.aggregation + "' " +
@@ -225,7 +228,7 @@ Indicator.prototype.getSql = function (modes) {
         modestr += ')';
     }
     var sqlString =
-        "(SELECT formatted_value as value, " +
+        "(SELECT id as indicator_id, value, " +
         "ntile(" + this.options.ntiles + ") over (order by value) as ntiles_bin, " +
         "the_geom " +
         "FROM transit_indicators_indicator " +

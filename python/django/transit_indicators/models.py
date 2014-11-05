@@ -6,7 +6,6 @@ import uuid
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.db import transaction
-from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
 from transit_indicators.gtfs import GTFSRouteTypes
@@ -236,7 +235,7 @@ class IndicatorJob(models.Model):
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
                    'sample_period', 'type', 'value', 'calculation_job']
 
     class LoadStatus(object):
@@ -247,20 +246,6 @@ class Indicator(models.Model):
             self.success = False
             self.count = 0
             self.errors = []
-
-    def save(self, *args, **kwargs):
-        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
-        # Transit Line Density is a special unitless case that has very small values
-        # Multiply by a constant to make the values be > 1
-        if self.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
-            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
-            self.formatted_value = u"%s" % round(self.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
-        elif units:
-            self.formatted_value = u"%s %s" % (round(self.value, 2), units)
-        else:
-            self.formatted_value = u"%s" % round(self.value, 2)
-
-        super(Indicator, self).save(*args, **kwargs)
 
     @classmethod
     def load(cls, data, city_name, user):
@@ -467,8 +452,16 @@ class Indicator(models.Model):
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
 
-    # Value of the calculation, formatted for display
-    formatted_value = models.CharField(max_length=255, null=True)
+    @property
+    def formatted_value(self):
+        """Display value for units"""
+        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
+        if self.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
+            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
+            self.formatted_value = u"%s" % round(self.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
+        elif units:
+            return u"%s %s" % (round(self.value, 2), units)
+        return u"%s" % round(self.value, 2)
 
     # Cached geometry for this indicator only used by Windshaft
     the_geom = models.GeometryField(srid=4326, null=True)

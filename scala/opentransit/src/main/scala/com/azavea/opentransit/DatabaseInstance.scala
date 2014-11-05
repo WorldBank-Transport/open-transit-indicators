@@ -12,7 +12,6 @@ trait DatabaseInstance {
   def dbByName(dbName: String): DatabaseDef
 
   def createDatabase(name: String)
-  def createFunctions(name: String)
   def deleteDatabase(name: String)
 }
 
@@ -36,10 +35,6 @@ trait ProductionDatabaseInstance extends DatabaseInstance {
 
   def createDatabase(name: String) = {
     s"""sudo -u $dbSudo ../deployment/setup_db.sh $name $dbUser "$dbPassword" ..""".!!
-  }
-
-  def createFunctions(name: String) = {
-    s"""sudo -u postgres psql -d $name -f ../deployment/stops_routes_function.sql""".!!
   }
 
   def deleteDatabase(name: String) = {
