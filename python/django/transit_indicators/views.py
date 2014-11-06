@@ -9,7 +9,7 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
-from viewsets import OTIAdminViewSet
+from viewsets import OTIBaseViewSet, OTIAdminViewSet
 from models import (OTIIndicatorsConfig,
                     OTIDemographicConfig,
                     OTICityName,
@@ -124,7 +124,7 @@ class LatestCalculationJob(APIView):
         return Response(serial_job.data, status=status.HTTP_200_OK)
 
 
-class ScenarioViewSet(OTIAdminViewSet):
+class ScenarioViewSet(OTIBaseViewSet):
     """Viewset for Scenarios"""
     model = Scenario
     lookup_field = 'db_name'
