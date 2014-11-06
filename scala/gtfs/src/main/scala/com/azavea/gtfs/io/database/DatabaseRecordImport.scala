@@ -16,7 +16,7 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
 
   private def load[T, U <: Table[T]](records: Seq[T], table: TableQuery[U]): Unit = {
     session.withTransaction {
-      table.forceInsertAll(records:_*)
+      records.grouped(1000).foreach(batch => if (batch.size > 0) table.forceInsertAll(batch:_*))
     }
   }
 

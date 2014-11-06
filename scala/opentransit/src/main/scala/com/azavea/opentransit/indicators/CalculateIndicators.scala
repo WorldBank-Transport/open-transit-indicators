@@ -89,6 +89,14 @@ object CalculateIndicators {
       }
     }
 
+    // This indicator only needs to be calculated when there's a full set of sample periods
+    if (calculateAllTime) {
+      println("Done processing periodic indicators; going to calculate weekly service hours...")
+      timedTask("Processed indicator: hours_service") {
+        WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
+      println("Done processing indicators in CalculateIndicators")
+    }
+
     for(indicator <- Indicators.list(params)) {
       try {
         timedTask(s"Processed indicator: ${indicator.name}") {
@@ -141,14 +149,6 @@ object CalculateIndicators {
           trackStatus(indicator.name, JobStatus.Failed)
         }
       }
-    }
-
-    // This indicator only needs to be calculated when there's a full set of sample periods
-    if (calculateAllTime) {
-      println("Done processing periodic indicators; going to calculate weekly service hours...")
-      timedTask("Processed indicator: hours_service") {
-        WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
-      println("Done processing indicators in CalculateIndicators")
     }
   }
 }
