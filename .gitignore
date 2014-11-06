@@ -82,8 +82,10 @@ project/plugins/target
 project/target
 resources/application.conf
 target
-.lib
-.tmp
+lib
+tmp
+*.class
+
 /js/angular/app/styles/main.css
 
 # Log files
