@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', '$rootScope',
-            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData, $rootScope) {
+            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', '$rootScope', '$modal',
+            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData, $rootScope, $modal) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -154,6 +154,13 @@ angular.module('transitIndicators')
 
     $scope.setModes = function(modes) {
         $scope.modes = modes;
+    };
+
+    $scope.changePassword = function() {
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-password.html',
+            controller: 'OTIUserdataChangePasswordController'
+        });
     };
 
     $scope.init();

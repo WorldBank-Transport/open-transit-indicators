@@ -6,7 +6,8 @@
         "SETTINGS": "设置",
         "TRANSITMAP": "公交地图",
         "SCENARIO": "场景",
-        "INDICATORS": "指标"
+        "INDICATORS": "指标",
+        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD"
     },
     "STATUS": {
         "CANCELLED": "已取消",
@@ -295,5 +296,13 @@
         "RESET_PASSWORD": "重置密码",
         "ADD_NEW_USER": "添加新用户",
         "CONFIRM_PASSWORD": "确认密码"
+    },
+    "CHANGE_PW": {
+        "CHANGE_PASSWORD": "Change Password",
+        "PASSWORD_FIELD": "New password",
+        "PASSWORD_FIELD_AGAIN": "Confirm Password",
+        "SAVE": "@:STATUS.SAVE",
+        "CANCEL": "@:STATUS.CANCEL",
+        "INSTRUCTIONS": "Please enter a password 8 characters or more."
     }
 }
