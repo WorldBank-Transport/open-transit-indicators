@@ -26,6 +26,6 @@
     </form>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-click="create()">{{'TERM.FINISH'|translate}}</a> /
+    <a class="button--small default" ng-class="{'button--inactive': !newScenario.$valid }" ng-click="create()">{{'TERM.FINISH'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>

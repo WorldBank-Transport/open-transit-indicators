@@ -25,7 +25,14 @@ angular.module('transitIndicators', [
         .state('root', {
             abstract: true,
             templateUrl: 'scripts/modules/root/root-partial.html',
-            controller: 'OTIRootController'
+            controller: 'OTIRootController',
+            resolve: {
+                authService: 'authService',
+                OTIUserService: 'OTIUserService',
+                user: function (OTIUserService, authService) {
+                    return OTIUserService.getUser(authService.getUserId());
+                }
+            }
         })
         .state('login', {
             url: '/login/',
@@ -160,10 +167,11 @@ angular.module('transitIndicators', [
     $translateProvider.fallbackLanguage('en');
 }]).config(['$logProvider', function($logProvider) {
     $logProvider.debugEnabled(true);
-}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIEvents', 'OTIUserService',
-    function($rootScope, $state, $cookies, $http, authService, OTIEvents, OTIUserService) {
+}]).run(['$cookies', '$http', '$rootScope', '$state', 'authService', 'OTIEvents',
+    function($cookies, $http, $rootScope, $state, authService, OTIEvents) {
 
         // Create cache object for useful global objects, e.g. the legends
+        // TODO: Should use $cacheFactory as a service
         $rootScope.cache = {};
 
         // Django CSRF Token compatibility
@@ -183,12 +191,6 @@ angular.module('transitIndicators', [
                 $state.go('login');
                 return;
             }
-        });
-
-        $rootScope.$on(OTIEvents.Auth.LoggedIn, function () {
-            OTIUserService.getUser(authService.getUserId()).then(function (data) {
-                $rootScope.user = data;
-            });
         });
 
         $rootScope.$on(OTIEvents.Auth.LoggedOut, function () {

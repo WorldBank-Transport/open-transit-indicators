@@ -39,6 +39,27 @@ angular.module('transitIndicators')
 
     angular.extend(module.prototype, {
 
+        addFrequency: function (frequency, index) {
+            // For now, only one frequency is allowed
+            this.clearFrequencies();
+            this.frequencies.push(frequency);
+        },
+
+        getFrequency: function (index) {
+            index = parseInt(index, 10);
+            if (isNaN(index)) {
+                index = 0;
+            }
+            if (index >= this.frequencies.length) {
+                return null;
+            }
+            return this.frequencies[index];
+        },
+
+        clearFrequencies: function () {
+            this.frequencies = [];
+        },
+
         // if index undefined, add to end of array
         addShape: function (shape, index) {
 

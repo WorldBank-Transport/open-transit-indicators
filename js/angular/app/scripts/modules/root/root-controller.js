@@ -1,8 +1,12 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIRootController',
-            ['config', '$cookieStore', '$cookies', '$scope', '$timeout', '$translate', '$state', '$stateParams', 'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', '$rootScope', '$modal',
-            function (config, $cookieStore, $cookies, $scope, $timeout, $translate, $state, $stateParams, OTIEvents, mapService, authService, leafletData, $rootScope, $modal) {
+            ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
+             '$translate', '$state', '$stateParams',
+             'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', 'user',
+            function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
+                      $translate, $state, $stateParams,
+                      OTIEvents, mapService, authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -15,6 +19,8 @@ angular.module('transitIndicators')
     var mapStates = ['map', 'transit', 'scenarios'];
     // Add all scenario views to map states
     mapStates = mapStates.concat(_.map(config.scenarioViews, function (view) { return view.id; }));
+
+    $rootScope.user = user;
 
     // Setup defaults for all leaflet maps:
     // Includes: baselayers, center, bounds

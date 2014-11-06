@@ -41,7 +41,7 @@ angular.module('transitIndicators')
             if (nowDatetime.getTime() - startDatetime.getTime() > ASSIGNMENT_TIMEOUT_MS) {
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'TIMEOUT'
+                    msg: 'STATUS.TIMEOUT'
                 });
             } else if ($scope.Status.isPolling($scope.uploadDemographic.status)) {
                 $scope.timeoutId = $timeout(function () {
@@ -53,18 +53,18 @@ angular.module('transitIndicators')
             } else if ($scope.Status.isError($scope.uploadDemographic.status)) {
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'FAILED'
+                    msg: 'STATUS.FAILED'
                 });
             } else if ($scope.Status.isWaiting($scope.uploadDemographic.status)) {
                 // Log error to bottom of assign fields section
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'INVALID_SELECTIONS'
+                    msg: 'STATUS.INVALID_SELECTIONS'
                 });
             } else {
                 addLoadAlert({
                     type: 'success',
-                    msg: 'SELECTIONS_SAVED'
+                    msg: 'STATUS.SELECTIONS_SAVED'
                 });
                 $scope.setSidebarCheckmark('demographic', true);
                 // Send assignment success message
@@ -190,7 +190,7 @@ angular.module('transitIndicators')
             pollForAssignments();
             addLoadAlert({
                 type: 'info',
-                msg: 'SAVING'
+                msg: 'STATUS.SAVING'
             });
         }).error(function (data, status) {
             // TODO: tranlsate
