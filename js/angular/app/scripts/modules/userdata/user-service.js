@@ -6,19 +6,21 @@ factory('OTIUserService', ['$resource', '$q',
 
     var userService = {};
 
-    userService.User = $resource('/api/users/:id/ ', {id: '@id'}, {
+    userService.User = $resource('/api/users/:id/', {id: '@id'}, {
         'update': {
             method: 'PATCH',
-            url: '/api/users/:id/ '
+            url: '/api/users/:id/'
         },
         'changePassword' : {
             method: 'POST',
-            url: '/api/users/:id/change_password/ '
+            url: '/api/users/:id/change_password/'
         },
         'resetPassword' : {
             method: 'POST',
-            url: '/api/users/:id/reset_password/ '
+            url: '/api/users/:id/reset_password/'
         }
+    }, {
+        stripTrailingSlashes: false
     });
 
     userService.getUser = function (userId) {

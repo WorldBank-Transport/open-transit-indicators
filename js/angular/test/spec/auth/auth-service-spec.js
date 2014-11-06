@@ -99,8 +99,7 @@ describe('Service: auth', function () {
             // Apparently the app still loads in the background and logic in app.js
             // sends these web requests
             $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
-            // Silly space at the end for the trailing slash issue
-            $httpBackend.expectGET('/api/users/' + userId + '/ ').respond(200);
+            $httpBackend.expectGET('/api/users/' + userId + '/').respond(200);
 
             expect(authService.isAuthenticated()).toEqual(false);
             authService.authenticate(auth);

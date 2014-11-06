@@ -32,36 +32,22 @@ angular.module('transitIndicators')
             return (day === 0 || day === 6);
         },
 
-        Config: $resource('/api/config/:id/ ', {}, {
-            update: {
-                method: 'PATCH',
-                url: '/api/config/:id'
-            }
-        }),
-
-        SamplePeriod: $resource('/api/sample-periods/:type/ ', {type: '@type'}, {
-            update: {
-                method: 'PUT',
-                url: '/api/sample-periods/:type/ '
-            }
-        }),
-        
         createDateFromISO: function (str) {
             if (!str) {
                 return null;
             }
-            
+
            var dt = new Date(str);
-           
+
            // explicitly set time part for local time zone
            dt.setHours(0);
            dt.setMinutes(0);
            dt.setSeconds(0);
            return dt;
         },
-        
+
         ServiceDates: $resource('/gt/utils/service-dates', {}, {}),
-        
+
         SamplePeriodTypes: ['morning', 'midday', 'evening', 'night', 'weekend']
     };
 }]);
