@@ -2,15 +2,15 @@
 
 angular.module('transitIndicators')
 .controller('OTIDemographicController',
-        ['$rootScope', '$scope', '$http', '$timeout', '$upload', 'OTIEvents', 'OTIDemographicService',
-        function ($rootScope, $scope, $http, $timeout, $upload, OTIEvents, OTIDemographicService) {
+        ['$rootScope', '$scope', '$http', '$timeout', '$upload', 'OTIEvents', 'OTISettingsService',
+        function ($rootScope, $scope, $http, $timeout, $upload, OTIEvents, OTISettingsService) {
 
     $scope.loadAlert = null;
     var addLoadAlert = function (alertObj) {
         $scope.loadAlert = alertObj;
     };
 
-    $scope.DemographicUpload = OTIDemographicService.demographicUpload;
+    $scope.DemographicUpload = OTISettingsService.demographics;
     $scope.uploadDemographic = {};
     $scope.demographicsOptions = {
         uploadTimeoutMs: 60 * 1000,
@@ -28,7 +28,7 @@ angular.module('transitIndicators')
      * Continuously polls for changes to the passed upload object until an error
      * is encountered or the upload is valid
      *
-     * @param upload: A OTIDemographicService.demographicUpload $resource instance
+     * @param upload: A OTISettingsService.demographics $resource instance
      *
      * @return none
      */
@@ -45,7 +45,7 @@ angular.module('transitIndicators')
                 });
             } else if ($scope.Status.isPolling($scope.uploadDemographic.status)) {
                 $scope.timeoutId = $timeout(function () {
-                    OTIDemographicService.demographicUpload.get({id: $scope.uploadDemographic.id}, function (data) {
+                    OTISettingsService.demographics.get({id: $scope.uploadDemographic.id}, function (data) {
                         $scope.uploadDemographic = data;
                         checkAssignments();
                     });
@@ -94,8 +94,8 @@ angular.module('transitIndicators')
             return;
         }
 
-        OTIDemographicService.demographicsProblems.query(
-            {id: upload.id},
+        OTISettingsService.demogProblems.query(
+            {datasource: upload.id},
             function(data) {
                 $scope.uploadProblems.warnings = _.filter(data, function (problem) {
                     return problem.type === 'war';
@@ -109,7 +109,7 @@ angular.module('transitIndicators')
     /*
      * Setter for the $scope.upload property. Do not set $scope.upload directly.
      *
-     * @param upload: A OTIDemographicService.demographicUpload $resource instance
+     * @param upload: A OTISettingsService.demographics $resource instance
      *
      * @return none
      */
@@ -126,7 +126,7 @@ angular.module('transitIndicators')
         // if we're setting a new upload object, query the demographics config endpoint
         // to update the selected options
         if (!_.isEmpty(upload)) {
-            OTIDemographicService.demographicsConfig.query(function (data) {
+            OTISettingsService.demogConfigs.query(function (data) {
                 if (!(data && data.length)) {
                     return;
                 }
@@ -208,7 +208,7 @@ angular.module('transitIndicators')
      */
     $scope.init = function () {
         clearUploadProblems();
-        OTIDemographicService.demographicUpload.query({}, function (uploads) {
+        OTISettingsService.demographics.query({}, function (uploads) {
             if (uploads.length > 0) {
                 var upload = uploads[uploads.length - 1];
                 setUpload(upload);

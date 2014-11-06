@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIConfigurationController',
-        ['$scope', '$q', 'OTIConfigurationService',
-        function ($scope, $q, OTIConfigurationService) {
+        ['$scope', '$q', 'OTISettingsService', 'OTIConfigurationService',
+        function ($scope, $q, OTISettingsService, OTIConfigurationService) {
 
     // Datepicker Options
     $scope.datepickerFormat = 'dd MMMM yyyy';
@@ -124,7 +124,7 @@ angular.module('transitIndicators')
      */
     var createDefaultPeriods = function () {
         var promises = [];
-        var SamplePeriod = OTIConfigurationService.SamplePeriod;
+        var SamplePeriod = OTISettingsService.samplePeriods;
 
         var morning = new SamplePeriod({type: 'morning'});
         morning.period_start = createWeekdayDateTime($scope.weekdayDate, 7);
@@ -293,7 +293,7 @@ angular.module('transitIndicators')
                       isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
     };
-    
+
     /**
      * Returns true if the given Date object is within the feed's service range
      */
@@ -302,11 +302,11 @@ angular.module('transitIndicators')
             console.log("missing service start and/or end!");
             return true;
         }
-        
+
         if (date && date >= $scope.serviceStart && date <= $scope.serviceEnd) {
             return true;
         }
-        
+
         return false;
     };
 
@@ -349,7 +349,7 @@ angular.module('transitIndicators')
     $scope.disableWeekday = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekday(date));
     };
-    
+
     /**
      * Get the start and end dates for the feed's service from the query response object.
      * Once it returns, use it to set default sample period to date within range.
@@ -361,7 +361,7 @@ angular.module('transitIndicators')
             $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
             $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
             var nextDay = null;
-            
+
             // if dates have not been chosen yet, default to second valid date in range
             if (!$scope.weekdayDate) {
                 nextDay = new Date($scope.serviceStart);
@@ -371,7 +371,7 @@ angular.module('transitIndicators')
                 }
                 $scope.weekdayDate = nextDay;
             }
-            
+
             if (!$scope.weekendDate) {
                 nextDay = new Date($scope.serviceStart);
                 nextDay.setDate(nextDay.getDate() + 1);
@@ -390,17 +390,17 @@ angular.module('transitIndicators')
             }
         }
     };
-    
+
     /**
      * Create a JS Date object from an ISO-formatted date string
      */
-    
+
     /**
      * Initialize config page with data
      */
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.Config.query({}, function (configs) {
+        OTISettingsService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
                 $scope.configLoadError = true;
                 return;
@@ -409,15 +409,15 @@ angular.module('transitIndicators')
         }, function () {
             $scope.configLoadError = true;
         });
-        
+
         // get service date range
         OTIConfigurationService.ServiceDates.get({}, function (data) {
             setServiceDateRange(data);
 
             // do not attempt to set default sample period until service date range found
-            OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
+            OTISettingsService.samplePeriods.get({type: 'morning'}, function () {
                 // Configs exist, set UI
-                OTIConfigurationService.SamplePeriod.query(function (data) {
+                OTISettingsService.samplePeriods.query(function (data) {
                     setSamplePeriods(data);
                 }, function () {
                     // Unable to make web request, so hide the samplePeriods form and show

@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource', 'OTIUploadService', '$rootScope',
-        function ($q, $http, $resource, OTIUploadService, $rootScope) {
+        ['$q', '$http', '$resource', 'OTISettingsService', '$rootScope',
+        function ($q, $http, $resource, OTISettingsService, $rootScope) {
 
     var otiIndicatorsService = {};
     var nullJob = 0;
@@ -122,7 +122,7 @@ angular.module('transitIndicators')
      */
     otiIndicatorsService.getIndicatorCalcJob = function (callback) {
         var promises = []; // get the city name before using it to filter indicator CalcJobs
-        promises.push(OTIUploadService.cityName.get({}, function (data) {
+        promises.push(OTISettingsService.cityName.get({}, function (data) {
             otiIndicatorsService.selfCityName = data.city_name;
         }));
 

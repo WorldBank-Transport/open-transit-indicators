@@ -54,6 +54,17 @@ angular.module('transitIndicators')
         stripTrailingSlashes: false
     });
 
+    // OTI city name
+    settingsService.cityName = $resource('/api/city-name/', {}, {
+        'save': {
+            method: 'POST',
+            url: '/api/city-name/ '
+        }
+    }, {
+        stripTrailingSlashes: false
+    });
+
+
     // Boundary resources
     settingsService.boundaryUploads = $resource(_settings_urls.boundaries, {}, {
         update: {

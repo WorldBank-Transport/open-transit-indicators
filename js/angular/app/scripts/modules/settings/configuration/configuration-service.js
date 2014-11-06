@@ -32,24 +32,6 @@ angular.module('transitIndicators')
             return (day === 0 || day === 6);
         },
 
-        Config: $resource('/api/config/:id/', {}, {
-            update: {
-                method: 'PATCH',
-                url: '/api/config/:id/'
-            }
-        }, {
-            stripTrailingSlashes: false
-        }),
-
-        SamplePeriod: $resource('/api/sample-periods/:type/', {type: '@type'}, {
-            update: {
-                method: 'PUT',
-                url: '/api/sample-periods/:type/'
-            }
-        }, {
-            stripTrailingSlashes: false
-        }),
-
         createDateFromISO: function (str) {
             if (!str) {
                 return null;
