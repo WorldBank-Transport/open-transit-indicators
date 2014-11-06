@@ -6,7 +6,8 @@
         "SETTINGS": "Settings",
         "TRANSITMAP": "Transit Map",
         "SCENARIO": "Scenario",
-        "INDICATORS": "Indicators"
+        "INDICATORS": "Indicators",
+        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD"
     },
     "STATUS": {
         "CANCELLED": "Cancelled",
@@ -297,5 +298,13 @@
         "RESET_PASSWORD": "Reset Password",
         "ADD_NEW_USER": "Add New User",
         "CONFIRM_PASSWORD": "Confirm Password"
+    },
+    "CHANGE_PW": {
+        "CHANGE_PASSWORD": "Change Password",
+        "PASSWORD_FIELD": "New password",
+        "PASSWORD_FIELD_AGAIN": "Confirm Password",
+        "SAVE": "@:STATUS.SAVE",
+        "CANCEL": "@:STATUS.CANCEL",
+        "INSTRUCTIONS": "Please enter a password of 8 characters or more."
     }
 }
