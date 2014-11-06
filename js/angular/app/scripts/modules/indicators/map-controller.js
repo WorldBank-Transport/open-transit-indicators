@@ -2,8 +2,12 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService', '$rootScope',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService, $rootScope) {
+        ['$cookieStore', '$rootScope', '$scope', '$state',
+         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+         'OTIMapStyleService', 'OTIWindshaftService',
+        function ($cookieStore, $rootScope, $scope, $state,
+                  config, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService,
+                  OTIMapStyleService, OTIWindshaftService) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -28,21 +32,21 @@ angular.module('transitIndicators')
         indicator: {
             name: 'GTFS Indicator',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            url: OTIWindshaftService.indicatorUrl('png'),
             visible: true,
             layerOptions: $scope.indicator
         },
         boundary: {
             name: 'Boundary',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            url: OTIWindshaftService.boundaryUrl(),
             visible: true,
             layerOptions: $scope.indicator
         },
         utfgrid: {
             name: 'GTFS Indicator Interactivity',
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            url: OTIWindshaftService.indicatorUrl('utfgrid'),
             visible: true,
             // When copied to the internal L.Utfgrid class, these options end up on
             //  layer.options, same as for TileLayers
@@ -67,7 +71,8 @@ angular.module('transitIndicators')
                     popupAnchor:  [0, 0]
                 }
             };
-            $scope.leaflet.markers.push(marker);};
+            $scope.leaflet.markers.push(marker);
+        }
     };
 
     var setIndicator = function (indicator) {

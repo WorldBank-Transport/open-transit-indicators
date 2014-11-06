@@ -1,8 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
+            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService',
+            'OTIIndicatorsMapService', 'OTIWindshaftService',
+            function ($scope, $rootScope, OTIEvents, OTIIndicatorsService,
+                      OTIIndicatorsMapService, OTIWindshaftService) {
 
     var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -15,28 +17,28 @@ angular.module('transitIndicators')
         boundary: {
             name: 'Boundary',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            url: OTIWindshaftService.boundaryUrl(),
             visible: true,
             layerOptions: boundaryIndicator
         },
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSShapesUrl(),
+            url: OTIWindshaftService.gtfsShapesUrl(),
             visible: true,
             layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
+            url: OTIWindshaftService.gtfsStopsUrl('png'),
             visible: true,
             layerParams: { modes: OTIIndicatorsMapService.enabledModes }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
+            url: OTIWindshaftService.gtfsStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: { 'useJsonP': false,
                              modes: OTIIndicatorsMapService.enabledModes }
