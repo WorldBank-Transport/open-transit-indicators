@@ -94,12 +94,11 @@ describe('Service: auth', function () {
                 user: userId,
                 token: 'abcde12345'
             });
-            // Need these two expects because the authenticate() call fires a
+            // Need this expect because the authenticate() call fires a
             // $rootScope.$broadcast('authService:loggedIn')
             // Apparently the app still loads in the background and logic in app.js
             // sends these web requests
             $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
-            $httpBackend.expectGET('/api/users/' + userId + '/').respond(200);
 
             expect(authService.isAuthenticated()).toEqual(false);
             authService.authenticate(auth);
