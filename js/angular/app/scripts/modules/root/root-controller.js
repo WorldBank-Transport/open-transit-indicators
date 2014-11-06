@@ -159,7 +159,8 @@ angular.module('transitIndicators')
     $scope.changePassword = function() {
         $modal.open({
             templateUrl: 'scripts/modules/userdata/change-password.html',
-            controller: 'OTIUserdataChangePasswordController'
+            controller: 'OTIUserdataChangePasswordController',
+            size: 'sm'
         });
     };
 
