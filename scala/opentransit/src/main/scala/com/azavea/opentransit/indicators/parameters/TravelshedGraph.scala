@@ -70,7 +70,7 @@ object TravelshedGraph extends Logging {
       val mergedSystemResult: ParseResult = 
         Timer.timedTask("Parsed in merged systems") {
           val mergedSystem = TransitSystem.merge(systems.values.toSeq)
-          GtfsDateParser.parse(IndicatorResultContainer.OVERALL_KEY, mergedSystem)
+          GtfsDateParser.parse(IndicatorResultContainer.OVERALL_KEY.periodType, mergedSystem)
         }
 
       val ParseResult(unpackedGraph, _, _) = 

@@ -9,8 +9,9 @@ import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.indicators.parameters._
 import com.azavea.opentransit.indicators.WeeklyServiceHours._
+import com.azavea.opentransit.indicators.calculators._
 import geotrellis.vector._
-import com.azavea.opentransit.indicators.parameters._
+import geotrellis.slick._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
@@ -42,13 +43,13 @@ object CalculateIndicators {
       }.toMap
 
     val params = IndicatorParams(request, systemsByPeriod, dbByName)
-    val indictors = Indicators.list(params)
+    val indicators = Indicators.list(params)
     val travelshedIndicators = Indicators.travelshedIndicators(params)
 
     // Helper for tracking indicator calculation status
     val trackStatus = {
       val status = mutable.Map[String, JobStatus]() ++
-      (indicators ++ travelshedIndicators).map(indicator => (indicator.name, JobStatus.Submitted))
+        (indicators.map(_.name) ++ travelshedIndicators.map(_.name)).map((_, JobStatus.Submitted))
 
       (indicatorName: String, newStatus: JobStatus) => {
         status(indicatorName) = newStatus
@@ -58,22 +59,38 @@ object CalculateIndicators {
 
     val periodGeometries = periods.map { period =>
       println(s"Creating System Geometries for period ${period.periodType}...")
-      val systemGeometries = 
+      val systemGeometries =
         timedTask(s"Calculated system geometries for period ${period.periodType}.") {
-          SystemGeometries(systemsByPeriod(period))
+          SystemLineGeometries(systemsByPeriod(period))
         }
       period -> systemGeometries
     }.toMap
 
+    val periodBuffers = periods.map { period =>
+      println(s"Creating stop buffer geometries for period ${period.periodType}...")
+      val systemBuffers : Projected[MultiPolygon] =
+        timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+          params.bufferForPeriod(period)
+        }
+      period -> SystemBufferGeometries(systemsByPeriod(period), systemBuffers)
+    }.toMap
+
     // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
-    lazy val overallGeometries: SystemGeometries = {
+    lazy val overallLineGeometries = {
       println("Calculating overall system geometries...")
       timedTask("Calculated overall system geometries.") {
-        SystemGeometries.merge(periodGeometries.values.toSeq)
+        SystemLineGeometries.merge(periodGeometries.values.toSeq)
       }
     }
 
-    for(indicator <- indicators) {
+    lazy val overallBufferGeometries = {
+      println("Calculating overall buffer geometries...")
+      timedTask("Calculated overall system buffer geometries") {
+        SystemBufferGeometries.merge(periodBuffers.values.toSeq)
+      }
+    }
+
+    for(indicator <- Indicators.list(params)) {
       try {
         timedTask(s"Processed indicator: ${indicator.name}") {
           println(s"Calculating indicator: ${indicator.name}")
@@ -92,7 +109,10 @@ object CalculateIndicators {
           val periodIndicatorResults: Seq[ContainerGenerator] =
             periods
               .map { period =>
-                val (results, geometries) = (periodResults(period), periodGeometries(period))
+                val (results, geometries) = (periodResults(period), indicator match {
+                  case (_: CoverageRatioStopsBuffer | _: WeightedServiceFrequency | _: Accessibility) => periodBuffers(period)
+                  case _ => periodGeometries(period)
+                })
                 PeriodIndicatorResult.createContainerGenerators(indicator.name,
                                                                 period,
                                                                 results,
@@ -108,7 +128,7 @@ object CalculateIndicators {
             val overallIndicatorResults: Seq[ContainerGenerator] =
               OverallIndicatorResult.createContainerGenerators(indicator.name,
                                                                overallResults,
-                                                               overallGeometries)
+                                                               overallLineGeometries)
 
             statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
           }
@@ -129,6 +149,7 @@ object CalculateIndicators {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
         WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
+      println("Done processing indicators in CalculateIndicators")
     }
 
     // Run travelshed indicators
@@ -141,7 +162,7 @@ object CalculateIndicators {
         }
 
         if(calculateAllTime) {
-          indicator(IndicatorResultContainer.OVERALL_KEY, Main.rasterCache)
+          indicator(IndicatorResultContainer.OVERALL_KEY.periodType, Main.rasterCache)
         }
 
         trackStatus(name, JobStatus.Complete)

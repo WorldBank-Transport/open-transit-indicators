@@ -5,9 +5,7 @@ import com.azavea.opentransit._
 import geotrellis.raster._
 import geotrellis.vector._
 import geotrellis.raster.render._
-import geotrellis.raster.render.ColorRamps._
 import geotrellis.raster.stats._
-import geotrellis.services.ColorRampMap
 
 import spray.routing._
 import spray.http._
@@ -56,7 +54,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
                 case Some((tile, extent)) =>
                   val breaks = breaksString.split(",").map(_.toInt)
                   val ramp = {
-                    val cr = ColorRampMap.getOrElse(colorRampKey, BlueToRed)
+                    val cr = ColorRampMap.getOrElse(colorRampKey, ColorRamps.BlueToRed)
                     if(cr.toArray.length < breaks.length) { cr.interpolate(breaks.length) }
                     else { cr }
                   }
