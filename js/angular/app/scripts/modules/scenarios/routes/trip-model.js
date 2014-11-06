@@ -67,12 +67,40 @@ angular.module('transitIndicators')
         removeShape: function (index) {
 
         },
+        orderStops: function() {
+            this.stopTimes = _.map(this.stopTimes, function(stopTime, index) {
+                stopTime.stopSequence = index + 1;
+                return stopTime;
+            });
+        },
+        fixStopOrder: function() {
+            this.stopTimes = function() {
+                var newOrder = [];
+                _.each(this.stopTimes, function(stopTime) {
+                    newOrder[stopTime.stopSequence-1] = stopTime;
+                });
+                return newOrder;
+            };
+        },
         // if index undefined, add to end of array
         addStopTime: function (stopTime, index) {
-
+            index = typeof index !== 'undefined' ? index : this.stopTimes.length;
+            this.stopTimes.splice(index, 0, stopTime);
+            this.orderStops();
         },
         removeStopTime: function (index) {
-
+            var removed = this.stopTimes.splice(index, 1);
+            this.orderStops();
+            return removed;
+        },
+        changeSequence: function (index, delta) {
+            console.log(delta)
+            var newPosition = (index + delta > 0) ? index + delta : 0;
+            console.log(newPosition)
+            var removed = this.stopTimes.splice(index, 1);
+            console.log(removed)
+            this.stopTimes.splice(newPosition, 0, removed[0]);
+            this.orderStops();
         }
 
     });

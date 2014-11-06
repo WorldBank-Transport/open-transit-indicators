@@ -34,26 +34,27 @@ angular.module('transitIndicators')
         }
     };
 
-    drawService.getCircleIcon = function () {
+    drawService.getCircleIcon = function (htmlVal) {
+        htmlVal = typeof htmlVal !== 'undefined' ? htmlVal : 'X';
         return L.divIcon({
             className: 'count-icon',
-            html: 'X',
+            html: htmlVal,
             iconSize: [30, 30]
         });
     };
 
     drawService.markerDrawControl = new L.Control.Draw({
-        position: 'topright',
-        draw: {
-            polyline: false,
-            polygon: false,
-            rectangle: false,
-            circle: false,
-            marker: {
-                icon: drawService.getCircleIcon()
+            position: 'topright',
+            draw: {
+                polyline: false,
+                polygon: false,
+                rectangle: false,
+                circle: false,
+                marker: {
+                    icon: drawService.getCircleIcon()
+                }
             }
-        }
-    });
+        });
 
     drawService.lineDrawControl = new L.Control.Draw({
         position: 'topright',

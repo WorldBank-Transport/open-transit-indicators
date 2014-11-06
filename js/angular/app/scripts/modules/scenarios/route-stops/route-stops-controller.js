@@ -4,8 +4,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIScenariosRoutestopsController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIScenariosService', 'leafletData', 'OTIDrawService',
-            function (config, $scope, $state, $stateParams, OTIScenariosService, leafletData, OTIDrawService) {
+            ['config', '$scope', '$state', '$stateParams', 'OTIRouteManager', 'OTITripManager', 'leafletData', 'OTIDrawService', 'OTIStopService',
+            function (config, $scope, $state, $stateParams, OTIRouteManager, OTITripManager, leafletData, OTIDrawService, OTIStopService) {
 
     // TODO: Click existing utfgrid stop to add to route
     // TODO: Refactor and cleanup marker add logic?
@@ -17,24 +17,15 @@ angular.module('transitIndicators')
     var drawControl = OTIDrawService.markerDrawControl;
     var markerController = OTIDrawService.markerController;
 
-    var drawCreated = function (event) {
-        var type = event.layerType,
-            layer = event.layer;
-        if (type === 'marker') {
-            var stop = OTIScenariosService.stopFromMarker(layer);
-            stop.stopName = 'Stop ' + markerController.count();
-            layerHash[stop.stopId] = layer;
-            $scope.route.stops.push(stop);
-            markerController.increment();
-        }
-        OTIDrawService.drawnItems.addLayer(layer);
+    var someEvent = function (event) {
+        console.log(event);
     };
 
 
     // $SCOPE
 
-    $scope.scenario = OTIScenariosService.otiScenario;
-    $scope.route = OTIScenariosService.otiRoute;
+    $scope.route = OTIRouteManager.get();
+    $scope.trip = OTITripManager.get();
 
     $scope.continue = function () {
         $state.go('route-shapes');
@@ -45,14 +36,14 @@ angular.module('transitIndicators')
     };
 
     $scope.deleteStop = function (stopIndex) {
-        var removed = $scope.route.stops.splice(stopIndex, 1)[0];
-        OTIDrawService.drawnItems.removeLayer(layerHash[removed.stopId]);
+        OTITripManager.removeStopTime(stopIndex);
     };
 
     $scope.$on('$stateChangeStart', function () {
         leafletData.getMap().then(function (map) {
             map.removeControl(drawControl);
-            map.off('draw:created', drawCreated);
+            map.off('draw:created', OTITripManager.drawCreated);
+            map.off('click', someEvent);
         });
     });
 
@@ -62,20 +53,10 @@ angular.module('transitIndicators')
 
 
     // INIT
-
+    OTITripManager.mapStops();
     leafletData.getMap().then(function (map) {
-        map.addControl(drawControl);
-
-        _.each($scope.route.stops, function (stop) {
-            var marker = new L.Marker([stop.stopLat, stop.stopLon], {
-               icon: OTIDrawService.getCircleIcon()
-            });
-            OTIDrawService.drawnItems.addLayer(marker);
-            layerHash[stop.stopId] = marker;
-            markerController.increment();
-        });
-        map.addLayer(OTIDrawService.drawnItems);
-        map.on('draw:created', drawCreated);
+        map.addControl(OTIDrawService.markerDrawControl);
+        map.on('draw:created', OTITripManager.drawCreated);
     });
 
 }]);
