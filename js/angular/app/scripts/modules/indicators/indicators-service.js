@@ -9,17 +9,19 @@ angular.module('transitIndicators')
     var nullJob = 0;
     otiIndicatorsService.selfCityName = null;
 
-    otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
+    otiIndicatorsService.Indicator = $resource('/api/indicators/:id/', {id: '@id'}, {
         'update': {
             method: 'PATCH',
-            url: '/api/indicators/:id/ '
+            url: '/api/indicators/:id/'
         }
+    }, {
+        stripTrailingSlashes: false
     });
 
     /**
      * Resource for indicator jobs
      */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/', {id: '@id'}, {
         search: {
             method: 'GET',
             isArray: true,
@@ -30,7 +32,8 @@ angular.module('transitIndicators')
             idArray: false,
             url: '/api/latest-calculation-job/'
         }
-
+    }, {
+        stripTrailingSlashes: false
     });
 
     /**

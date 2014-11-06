@@ -16,28 +16,34 @@ angular.module('transitIndicators')
     // 3. Errors in either step will be saved to the demographicsProblems endpoint,
     //		Can make GET requests to retrieve details.
 
-    otidemographicservice.demographicUpload = $resource('/api/demographics/:id/ ', {}, {
+    otidemographicservice.demographicUpload = $resource('/api/demographics/:id/', {}, {
         'update': {
             method: 'PATCH',
-            url: '/api/demographics/:id/ '
+            url: '/api/demographics/:id/'
         },
         // After a load POST, is_valid == true and is_loaded == true if success, otherwise
         //	is_valid reverts to false
         'load': {
         	method: 'POST',
-        	url: '/api/demographics/:id/load/ ',
+        	url: '/api/demographics/:id/load/',
         	params: {
         		population_metric_1: '@population_metric_1',
         		population_metric_2: '@population_metric_2'
         	}
         }
+    }, {
+        stripTrailingSlashes: false
     });
 
     // Data problems
-    otidemographicservice.demographicsProblems = $resource('/api/demographics-problems/:id/ ');
+    otidemographicservice.demographicsProblems = $resource('/api/demographics-problems/:id/', null, null, {
+        stripTrailingSlashes: false
+    });
 
     // Read-Only -- config object used for displaying active fields
-    otidemographicservice.demographicsConfig = $resource('/api/config-demographic/ ');
+    otidemographicservice.demographicsConfig = $resource('/api/config-demographic/', null, null, {
+        stripTrailingSlashes: false
+    });
 
     return otidemographicservice;
 }

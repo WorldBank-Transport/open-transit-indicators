@@ -7,15 +7,19 @@ angular.module('transitIndicators')
 .factory('OTIBoundaryService', ['$resource', function($resource) {
     return {
         // boundary data
-        boundaryUploads: $resource('/api/boundaries/:id', {}, {
+        boundaryUploads: $resource('/api/boundaries/:id/', {}, {
             update: {
                 method: 'PATCH',
                 url: '/api/boundaries/:id'
             }
+        }, {
+            stripTrailingSlashes: false
         }),
 
         // boundary data problems
-        boundaryProblems: $resource('/api/boundary-problems/:id')
+        boundaryProblems: $resource('/api/boundary-problems/:id/', null, null, {
+            stripTrailingSlashes: false
+        })
     };
 }
 ]);
