@@ -33,7 +33,8 @@ angular.module('transitIndicators')
                 };
                 OTIIndicatorsService.query('GET', params).then(function (data) {
                     // If there is no indicator data, ask to redirect to the calculation status page
-                    if (!data.length) {
+                    // only if we're still on the data page
+                    if (!data.length && $state.is('data') && !OTIIndicatorsService.isModalOpen()) {
                         $modal.open({
                             templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
                             controller: 'OTIYesNoModalController',

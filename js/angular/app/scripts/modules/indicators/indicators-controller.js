@@ -42,7 +42,8 @@ angular.module('transitIndicators')
 
     $scope.openCityModal = function () {
         var modalCities = $scope.cities;
-        var modalInstance = $modal.open({
+        OTIIndicatorsService.setModalStatus(true);
+        var cityModalInstance = $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
             size: 'sm',
@@ -60,6 +61,8 @@ angular.module('transitIndicators')
                     return [];
                 }
             }
+        }).result.finally(function () {
+            OTIIndicatorsService.setModalStatus(false);
         });
     };
 

@@ -7,7 +7,16 @@ angular.module('transitIndicators')
 
     var otiIndicatorsService = {};
     var nullJob = 0;
+    var modalStatus = false;
     otiIndicatorsService.selfCityName = null;
+
+    otiIndicatorsService.setModalStatus = function (isOpen) {
+        modalStatus = isOpen;
+    };
+
+    otiIndicatorsService.isModalOpen = function () {
+        return modalStatus;
+    };
 
     otiIndicatorsService.Indicator = $resource('/api/indicators/:id/', {id: '@id'}, {
         'update': {
