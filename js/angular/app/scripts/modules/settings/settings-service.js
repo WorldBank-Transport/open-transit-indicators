@@ -119,7 +119,12 @@ angular.module('transitIndicators')
     });
 
     // User entered config resources
-    settingsService.configs = $resource(_settings_urls.config, null, null, {
+    settingsService.configs = $resource(_settings_urls.config, null, {
+        update: {
+            method: 'PATCH',
+            url: _settings_urls.config
+        }
+    }, {
         stripTrailingSlashes: false
     });
     settingsService.samplePeriods = $resource(_settings_urls.samplePeriod, {type: '@type'}, {
