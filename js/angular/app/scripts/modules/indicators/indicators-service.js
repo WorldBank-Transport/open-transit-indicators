@@ -28,24 +28,6 @@ angular.module('transitIndicators')
     });
 
     /**
-     * Resource for indicator jobs
-     */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/', {id: '@id'}, {
-        search: {
-            method: 'GET',
-            isArray: true,
-            url: '/api/indicator-jobs/'
-        },
-        latest: {
-            method: 'GET',
-            idArray: false,
-            url: '/api/latest-calculation-job/'
-        }
-    }, {
-        stripTrailingSlashes: false
-    });
-
-    /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
      *  call the success/failure callbacks on function return as detailed here:
      *  HTTP GET "class" actions: Resource.action([parameters], [success], [error])
@@ -76,38 +58,6 @@ angular.module('transitIndicators')
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
         this.modes = $rootScope.visibleModes || '';
-    };
-
-    /**
-     * Get the list of cities loaded into the app
-     */
-    otiIndicatorsService.getCities = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-cities/').success(function (data) {
-            dfd.resolve(data.sort());
-        }).error(function(error) {
-            console.error('OTIIndicatorsService.getCities:', error);
-            dfd.resolve([]);
-        });
-        return dfd.promise;
-    };
-
-    /**
-     * Delete a chosen city
-     */
-    otiIndicatorsService.deleteCity = function (cityname) {
-        var dfd = $q.defer();
-        $http.delete('/api/indicator-cities/', {
-            params: {
-                city_name: cityname
-            }
-        }).success(function (data) {
-            dfd.resolve();
-        }).error(function (error) {
-            console.error('OTIIndicatorService.deleteCity:', error);
-            dfd.reject();
-        });
-        return dfd.promise;
     };
 
     /**

@@ -51,9 +51,9 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/indicators-partial.html',
             controller: 'OTIIndicatorsController',
             resolve: {
-               OTIIndicatorsService: 'OTIIndicatorsService',
-               cities: function (OTIIndicatorsService) {
-                    return OTIIndicatorsService.getCities();
+               OTICityManager: 'OTICityManager',
+               cities: function (OTICityManager) {
+                    return OTICityManager.list();
                }
             }
         })

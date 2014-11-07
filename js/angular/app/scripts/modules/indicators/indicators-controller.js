@@ -46,7 +46,6 @@ angular.module('transitIndicators')
         $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
-            size: 'sm',
             windowClass: 'indicators-city-modal-window',
             resolve: {
                 cities: function () {
