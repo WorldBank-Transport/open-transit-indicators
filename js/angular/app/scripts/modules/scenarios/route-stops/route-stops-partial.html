@@ -1,21 +1,8 @@
 <div class="scenario-page-content">
-    <form name="editStops" novalidate>
-        <h3>{{'SCENARIO.ADD_STOPS'|translate}}</h3>
-        <p>
-            {{'SCENARIO.CLICK_A_STOP_TO_ADD'|translate}}
-        </p>
-        <label>Stop Name</label>
-        <div class="block">
-            <div class="row">
-                <div class="col-xs-9">
-                    <select ng-model="selectedStop" ng-options="s.stop.name for s in trip.stopTimes track by s.stop.stopId" ng-change="getStop(selectedStop)"></select>
-                </div>
-                <div class="col-xs-3">
-                    <a class="button--small" ng-click="deleteStop(selectedStop)">{{'TERM.DELETE'|translate}}</a>
-                </div>
-            </div>
-        </div>
-    </form>
+    <h3>{{'SCENARIO.ADD_STOPS'|translate}}</h3>
+    <p>
+        {{'SCENARIO.CLICK_A_STOP_TO_ADD'|translate}}
+    </p>
 </div>
 <div class="scenario-page-buttons">
     <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /

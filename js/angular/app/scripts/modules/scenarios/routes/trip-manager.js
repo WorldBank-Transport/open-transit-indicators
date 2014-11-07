@@ -102,38 +102,6 @@ angular.module('transitIndicators')
 
     module.removeStopTime = function(stop) {
       _trip.removeStopTime(stop.stopSequence-1);
-      module.mapStops();
-    };
-
-    // Call this function whenever trips need to be mapped after a change occurs
-    module.mapStops = function() {
-        OTIDrawService.reset();
-        leafletData.getMap().then(function (map) {
-
-            _.each(_trip.stopTimes, function (stopTime) {
-                var marker = new L.Marker([stopTime.stop.lat, stopTime.stop.long], {
-                   icon: OTIDrawService.getCircleIcon(stopTime.stopSequence.toString())
-                }).on('click', function(){console.log(stopTime);});
-
-                OTIDrawService.drawnItems.addLayer(marker);
-            });
-            map.addLayer(OTIDrawService.drawnItems);
-        });
-    };
-
-    module.drawCreated = function (event) {
-        var type = event.layerType,
-            layer = event.layer;
-        if (type === 'marker') {
-            var stopTime = OTIStopService.stopTimeFromLayer(layer);
-            stopTime.stopName = 'SimulatedStop-' + _trip.stopTimes.length;
-            _trip.addStopTime(stopTime);
-
-            var marker = new L.Marker([layer._latlng.lat, layer._latlng.lng], {
-               icon: OTIDrawService.getCircleIcon(stopTime.stopSequence.toString())
-            });
-            OTIDrawService.drawnItems.addLayer(marker);
-        }
     };
 
     // Get trips for a given db_name, routeId, tripId
