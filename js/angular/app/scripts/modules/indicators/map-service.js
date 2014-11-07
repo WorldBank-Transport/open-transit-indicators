@@ -73,7 +73,5 @@ angular.module('transitIndicators')
         });
     };
 
-    otiMapService.enabledModes = '';
-
     return otiMapService;
 }]);

@@ -3,10 +3,10 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', 'user',
+             'OTIEvents', 'OTIIndicatorsMapService', 'OTIMapService', 'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, mapService, authService, leafletData, user) {
+                      OTIEvents, OTIIndicatorsMapService, OTIMapService, authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -54,7 +54,7 @@ angular.module('transitIndicators')
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
-        mapService.getMapInfo().then(function(mapInfo) {
+        OTIIndicatorsMapService.getMapInfo().then(function(mapInfo) {
             if (mapInfo.extent) {
                 $scope.leaflet.bounds = mapInfo.extent;
             } else {
@@ -97,7 +97,7 @@ angular.module('transitIndicators')
         $scope.leaflet.bounds = config.worldExtent;
     });
 
-    $scope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState) {
+    $scope.$on('$stateChangeStart', function () {
         // Always clear the legend when going to a state, we will always need to redraw it with
         // the proper legend in the child state
 
@@ -131,30 +131,11 @@ angular.module('transitIndicators')
     $scope.modes = [];
 
     $scope.setMapModes = function (modes) {
-        mapService.enabledModes = modes;
-        //_.each($scope.leaflet.layers.overlays, function(overlay) {
-        //    overlay.layerParams = {modes: modes};
-        //    console.log(overlay);
-        //});
-        leafletData.getLayers().then(function (layers) {
-            _.each(layers, function(layer) {
-                _.each(layer, function(sublayer) {
-                    if(sublayer.options.modes !== undefined) {
-                        sublayer.options.modes = modes;
-                        if(sublayer.redraw) {
-                            sublayer.redraw();
-                        } else { // utfgrid
-                            sublayer._cache = {};
-                            sublayer._update();
-                        }
-                    }
-                });
-            });
-        });
-        $rootScope.$broadcast(OTIEvents.Root.VisibleModesSelected, modes);
+        OTIMapService.setTransitModes(modes);
+        OTIMapService.refreshLayers();
     };
 
-    $scope.$on(OTIEvents.Root.AvailableModesUpdated, function(event, modes) {
+    $scope.$on(OTIMapService.Events.AvailableModesUpdated, function(event, modes) {
         $scope.modes = modes;
     });
 

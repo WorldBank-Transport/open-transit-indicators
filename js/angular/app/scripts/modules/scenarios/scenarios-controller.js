@@ -2,10 +2,10 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
             ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
-             'OTIIndicatorsMapService', 'OTIWindshaftService', 'samplePeriods',
+             'OTIIndicatorsMapService', 'OTIMapService', 'samplePeriods',
              'samplePeriodI18N', 'routeTypes',
              function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
-                       OTIIndicatorsMapService, OTIWindshaftService, samplePeriods,
+                       OTIIndicatorsMapService, OTIMapService, samplePeriods,
                        samplePeriodI18N, routeTypes)
 {
 
@@ -15,25 +15,25 @@ angular.module('transitIndicators')
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
-            url: OTIWindshaftService.gtfsShapesUrl(),
+            url: OTIMapService.gtfsShapesUrl(),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
-            url: OTIWindshaftService.gtfsStopsUrl('png'),
+            url: OTIMapService.gtfsStopsUrl('png'),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
-            url: OTIWindshaftService.gtfsStopsUrl('utfgrid'),
+            url: OTIMapService.gtfsStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: {
                 useJsonP: false,
-                modes: OTIIndicatorsMapService.enabledModes
+                modes: OTIMapService.getTransitModes()
             }
         }
     };

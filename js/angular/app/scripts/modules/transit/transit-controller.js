@@ -2,9 +2,9 @@
 angular.module('transitIndicators')
 .controller('OTITransitController',
             ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService',
-            'OTIIndicatorsMapService', 'OTIWindshaftService',
+            'OTIIndicatorsMapService', 'OTIMapService',
             function ($scope, $rootScope, OTIEvents, OTIIndicatorsService,
-                      OTIIndicatorsMapService, OTIWindshaftService) {
+                      OTIIndicatorsMapService, OTIMapService) {
 
     var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -17,31 +17,31 @@ angular.module('transitIndicators')
         boundary: {
             name: 'Boundary',
             type: 'xyz',
-            url: OTIWindshaftService.boundaryUrl(),
+            url: OTIMapService.boundaryUrl(),
             visible: true,
             layerOptions: boundaryIndicator
         },
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
-            url: OTIWindshaftService.gtfsShapesUrl(),
+            url: OTIMapService.gtfsShapesUrl(),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
-            url: OTIWindshaftService.gtfsStopsUrl('png'),
+            url: OTIMapService.gtfsStopsUrl('png'),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
-            url: OTIWindshaftService.gtfsStopsUrl('utfgrid'),
+            url: OTIMapService.gtfsStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: { 'useJsonP': false,
-                             modes: OTIIndicatorsMapService.enabledModes }
+                             modes: OTIMapService.getTransitModes() }
         }
     };
 
@@ -49,7 +49,7 @@ angular.module('transitIndicators')
         OTIIndicatorsMapService.getLegendData().then(function (legend) {
             legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
-            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
+            $rootScope.$broadcast(OTIMapService.Events.AvailableModesUpdated,
                 OTIIndicatorsMapService.modes);
             $scope.leaflet.legend = legend;
         });

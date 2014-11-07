@@ -6,8 +6,8 @@ OTIWindshaft -- client side configuration for our windshaft server
 
 */
 angular.module('transitIndicators')
-.factory('OTIWindshaftService', ['$location', 'windshaftConfig',
-        function ($location, windshaftConfig) {
+.factory('OTIMapService', ['$location', '$rootScope', 'leafletData', 'windshaftConfig',
+        function ($location, $rootScope, leafletData, windshaftConfig) {
 
     /**
      * Return windshaft hostname, including port, if configured in windshaftConfig.port
@@ -21,7 +21,41 @@ angular.module('transitIndicators')
         return windshaftHost;
     };
 
+    var _selectedTransitModes = '';
+
     var module = {};
+
+    module.Events = {
+        VisibleModesSelected: 'OTI:MapService:VisibleModesSelected',
+        AvailableModesUpdated: 'OTI:MapService:AvailableModesUpdated'
+    };
+
+    module.refreshLayers = function () {
+        leafletData.getLayers().then(function (layers) {
+            _.each(layers, function(layer) {
+                _.each(layer, function(sublayer) {
+                    if(sublayer.options.modes !== undefined) {
+                        sublayer.options.modes = _selectedTransitModes;
+                        if(sublayer.redraw) {
+                            sublayer.redraw();
+                        } else { // utfgrid
+                            sublayer._cache = {};
+                            sublayer._update();
+                        }
+                    }
+                });
+            });
+        });
+    };
+
+    module.setTransitModes = function (modes) {
+        _selectedTransitModes = modes;
+        $rootScope.$broadcast(module.Events.VisibleModesSelected, modes);
+    };
+
+    module.getTransitModes = function () {
+        return _selectedTransitModes;
+    };
 
     /**
      * Create windshaft urls for leaflet map
