@@ -32,6 +32,7 @@ angular.module('transitIndicators')
     };
     $scope.samplePeriodsError = false;
     $scope.configError = false;
+    $scope.configSuccess = false;
 
     /**
      * Helper setter for $scope.saveConfigButton
@@ -257,13 +258,17 @@ angular.module('transitIndicators')
     $scope.saveAllConfig = function () {
         var promises = [];
 
+        $scope.configSuccess = false;
+
         // make save button not clickable
         setSaveConfigButton(false);
 
         promises.push($scope.saveSamplePeriodsPromise());
         promises.push($scope.saveConfigPromise());
 
-        $q.all(promises)['finally'](function () {
+        $q.all(promises).then(function () {
+            $scope.configSuccess = true;
+        })['finally'](function () {
             // make button clickable again
             setSaveConfigButton(true);
         });

@@ -194,7 +194,12 @@
     </div>
 </div>
 
-<button ng-disabled="!saveConfigButton.enabled || !savePeriodsButton.enabled || samplePeriodsForm.$invalid || configForm.$invalid" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled && savePeriodsButton.enabled}">{{saveConfigButton.text | translate}}</button>
+<button
+    ng-disabled="!saveConfigButton.enabled || !savePeriodsButton.enabled || samplePeriodsForm.$invalid || configForm.$invalid"
+    class="btn"
+    ng-class="{'btn-primary': saveConfigButton.enabled && savePeriodsButton.enabled}"
+    ng-blur="configSuccess = false">{{saveConfigButton.text | translate}}</button>
 <span ng-show="configError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+<span ng-show="configSuccess" class="label label-success">{{ 'STATUS.SELECTIONS_SAVED' | translate }}</span>
 </form>
 </div>
