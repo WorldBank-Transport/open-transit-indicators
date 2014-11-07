@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService',
-            function ($scope, $timeout, OTIEvents, OTIIndicatorsService) {
+            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorJobModel',
+            function ($scope, $timeout, OTIEvents, OTIIndicatorsService, OTIIndicatorJobModel) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
@@ -19,10 +19,10 @@ angular.module('transitIndicators')
      * Submits a job for calculating indicators
      */
     $scope.calculateIndicators = function () {
-        var job = new OTIIndicatorsService.IndicatorJob({
+        var job = new OTIIndicatorJobModel({
             city_name: OTIIndicatorsService.selfCityName
         });
-        job.$save().then(function (data) {
+        job.$save().then(function () {
             $scope.jobStatus = null;
             $scope.calculationStatus = null;
             $scope.displayStatus = null;
@@ -63,7 +63,7 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing.
         // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorsService.IndicatorJob.search({ job_status: 'processing' })
+        OTIIndicatorJobModel.search({ job_status: 'processing' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
                     $scope.statusFetched = true;
@@ -75,12 +75,12 @@ angular.module('transitIndicators')
                 } else {
                     // filtering DRF booleans requires a ~capitalized~ string:
                     // http://www.django-rest-framework.org/api-guide/filtering
-                    OTIIndicatorsService.IndicatorJob.latest()
+                    OTIIndicatorJobModel.latest()
                         .$promise.then(function(latestData) {
                             if (latestData) {
                                 setCurrentJob([latestData]);
                             } else {
-                                OTIIndicatorsService.IndicatorJob.search({ job_status: 'error' })
+                                OTIIndicatorJobModel.search({ job_status: 'error' })
                                     .$promise.then(function(errorData) {
                                         if (errorData.length) {
                                             setCurrentJob(errorData);
