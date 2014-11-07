@@ -58,7 +58,7 @@ angular.module('transitIndicators')
             $scope.leaflet.legend = $rootScope.cache.transitLegend;
             return;
         }
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });

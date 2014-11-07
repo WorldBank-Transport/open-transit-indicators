@@ -6,8 +6,12 @@ OTIWindshaft -- client side configuration for our windshaft server
 
 */
 angular.module('transitIndicators')
-.factory('OTIMapService', ['$location', '$rootScope', 'leafletData', 'windshaftConfig',
-        function ($location, $rootScope, leafletData, windshaftConfig) {
+.factory('OTIMapService', ['$location', '$resource', '$rootScope', '$q',
+                           'leafletData', 'windshaftConfig',
+                           'OTIIndicatorsService', 'OTIMapStyleService',
+        function ($location, $resource, $rootScope, $q,
+                  leafletData, windshaftConfig,
+                  OTIIndicatorsService, OTIMapStyleService) {
 
     /**
      * Return windshaft hostname, including port, if configured in windshaftConfig.port
@@ -22,6 +26,7 @@ angular.module('transitIndicators')
     };
 
     var _selectedTransitModes = '';
+    var _availableTransitModes = [];
 
     var module = {};
 
@@ -55,6 +60,59 @@ angular.module('transitIndicators')
 
     module.getTransitModes = function () {
         return _selectedTransitModes;
+    };
+
+    module.setAvailableTransitModes = function (modes) {
+        _availableTransitModes = modes;
+        $rootScope.$broadcast(module.Events.AvailableModesUpdated, modes);
+    };
+
+    module.getAvailableTransitModes = function () {
+        return _availableTransitModes;
+    };
+
+    // retrieves map information from the server
+    module.getMapExtent = function() {
+        var r = $resource('/gt/utils/map-info');
+        var dfd = $q.defer();
+
+        var result = r.get({}, function() {
+            if (result && result.extent) {
+                dfd.resolve(result.extent);
+            } else {
+                dfd.reject('No map extent available');
+            }
+        });
+        return dfd.promise;
+    };
+
+    /**
+     * Return a legend object in the format expected by the
+     * oti-legend directive
+     * .style must be set after it returns
+     */
+    module.getLegendData = function () {
+        return OTIIndicatorsService.getRouteTypes().then(function (routetypes) {
+            var colors = [];
+            var labels = [];
+            var modes = [];
+            var colorRamp = OTIMapStyleService.routeTypeColorRamp();
+            _.chain(routetypes)
+                .filter(function(route) { return route.is_used; })
+                .each(function(route) {
+                    colors.push(colorRamp[route.route_type]);
+                    labels.push(route.description);
+                    modes.push({
+                        id: route.route_type,
+                        name: route.description
+                    });
+                });
+            module.setAvailableTransitModes(modes);
+            return {
+                colors: colors,
+                labels: labels
+            };
+        });
     };
 
     /**

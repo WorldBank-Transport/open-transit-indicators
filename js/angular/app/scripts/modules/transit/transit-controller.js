@@ -46,11 +46,9 @@ angular.module('transitIndicators')
     };
 
     var updateLegend = function () {
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
-            $rootScope.$broadcast(OTIMapService.Events.AvailableModesUpdated,
-                OTIIndicatorsMapService.modes);
             $scope.leaflet.legend = legend;
         });
     };
@@ -94,7 +92,7 @@ angular.module('transitIndicators')
     // This may not be the best place to update the legend on GTFS
     // update, but most of the other legend updating code was here
     $rootScope.$on(OTIEvents.Settings.Upload.GTFSDone, function () {
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $rootScope.cache.transitLegend.style = 'stacked';
             // only update cache so we don't show legend on the

@@ -161,10 +161,7 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         updateIndicatorLegend($scope.indicator);
-        OTIIndicatorsMapService.getLegendData().then(function() {
-            $rootScope.$broadcast(OTIMapService.Events.AvailableModesUpdated,
-                                  OTIIndicatorsMapService.modes);
-        });
+        OTIMapService.getLegendData();
     };
     $scope.init();
 }]);
