@@ -12,7 +12,7 @@
 </div>
 <!-- Cannot use ng-if for this form, as it prevents ng-clicks and the samplePeriodsForm object
      from binding -->
-<form ng-show="samplePeriods" ng-submit="saveSamplePeriods()" name="samplePeriodsForm" autocomplete="off">
+<form ng-show="samplePeriods" ng-submit="saveAllConfig()" name="samplePeriodsForm" autocomplete="off">
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
@@ -105,7 +105,6 @@
         </div>
     </div>
 </div>
-<button type="submit" ng-disabled="!savePeriodsButton.enabled || samplePeriodsForm.$invalid" class="btn" ng-class="{'btn-primary': savePeriodsButton.enabled}">{{savePeriodsButton.text | translate}}</button>
 <span ng-show="samplePeriodsError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
 </form>
 
@@ -119,7 +118,7 @@
         <h3 class="bg-danger">{{'SETTINGS.APP_CONFIG_NETWORK_ERROR' | translate}}</h3>
     </div>
 </div>
-<form ng-submit="saveConfig()" name="configForm" ng-show="config" autocomplete="off">
+<form ng-submit="saveAllConfig()" name="configForm" ng-show="config" autocomplete="off">
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-12">
@@ -195,7 +194,12 @@
     </div>
 </div>
 
-<button ng-disabled="!saveConfigButton.enabled" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled}">{{saveConfigButton.text | translate}}</button>
+<button
+    ng-disabled="!saveConfigButton.enabled || !savePeriodsButton.enabled || samplePeriodsForm.$invalid || configForm.$invalid"
+    class="btn"
+    ng-class="{'btn-primary': saveConfigButton.enabled && savePeriodsButton.enabled}"
+    ng-blur="configSuccess = false">{{saveConfigButton.text | translate}}</button>
 <span ng-show="configError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+<span ng-show="configSuccess" class="label label-success">{{ 'STATUS.SELECTIONS_SAVED' | translate }}</span>
 </form>
 </div>
