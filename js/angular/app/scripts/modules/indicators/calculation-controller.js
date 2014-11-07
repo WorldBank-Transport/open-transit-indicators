@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorJobModel',
-            function ($scope, $timeout, OTIEvents, OTIIndicatorsService, OTIIndicatorJobModel) {
+            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService', '$state', '$modal', 'OTIIndicatorJobModel',
+            function ($scope, $timeout, OTIEvents, OTIIndicatorsService, $state, $modal, OTIIndicatorJobModel) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
@@ -22,12 +22,25 @@ angular.module('transitIndicators')
         var job = new OTIIndicatorJobModel({
             city_name: OTIIndicatorsService.selfCityName
         });
-        job.$save().then(function () {
+        job.$save(function (data) {
             $scope.jobStatus = null;
             $scope.calculationStatus = null;
             $scope.displayStatus = null;
             $scope.currentJob = null;
             pollForUpdatedStatus();
+        }, function () {
+            $modal.open({
+                templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                controller: 'OTIYesNoModalController',
+                windowClass: 'yes-no-modal-window',
+                resolve: {
+                    getMessage: function() {
+                        return 'CALCULATION.NOT_CONFIGURED';
+                    }
+                }
+            }).result.then(function () {
+                $state.go('overview');
+            });
         });
     };
 

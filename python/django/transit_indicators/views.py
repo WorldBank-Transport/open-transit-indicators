@@ -100,8 +100,24 @@ class IndicatorJobViewSet(OTIAdminViewSet):
     lookup_field = 'id'
     serializer_class = IndicatorJobSerializer
     filter_fields = ('job_status',)
+
     def create(self, request):
         """Override request to handle kicking off celery task"""
+
+        try:
+            indicators_config = OTIIndicatorsConfig.objects.all()[0]
+            for attr in ['poverty_line', 'nearby_buffer_distance_m',
+                         'max_commute_time_s', 'max_walk_time_s',
+                         'avg_fare']:
+                assert indicators_config.__getattribute__(attr) > 0
+            assert indicators_config.city_boundary_id is not None
+            assert indicators_config.region_boundary_id is not None
+            assert SamplePeriod.objects.count() == 6
+        except AssertionError:
+            response = Response()
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return response
+
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
