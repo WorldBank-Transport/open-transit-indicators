@@ -36,6 +36,7 @@
     "leaflet-utfgrid": "danzel/Leaflet.utfgrid",
     "leaflet-label": "Leaflet/Leaflet.label",
     "leaflet-tilelayer-geojson": "glenrobertson/leaflet-tilelayer-geojson",
+    "leaflet.draw": "~0.2.3",
     "angularjs-nvd3-directives": "~0.0.7",
     "angular-leaflet-directive": "~0.7.9",
     "pace": "~1.0.1",
