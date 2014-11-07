@@ -3,10 +3,10 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIIndicatorsMapService', 'authService','leafletData', 'user',
+             'OTIEvents', 'OTIIndicatorsMapService', 'OTIMapService', 'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, mapService, authService, leafletData, user) {
+                      OTIEvents, OTIIndicatorsMapService, OTIMapService, authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -19,20 +19,6 @@ angular.module('transitIndicators')
     var mapStates = ['map', 'transit', 'scenarios'];
     // Add all scenario views to map states
     mapStates = mapStates.concat(_.map(config.scenarioViews, function (view) { return view.id; }));
-
-    $rootScope.user = user;
-
-    // Setup defaults for all leaflet maps:
-    // Includes: baselayers, center, bounds
-    $scope.leafletDefaults = config.leaflet;
-    $scope.leaflet = angular.extend({}, $scope.leafletDefaults);
-
-    $scope.activeState = $cookieStore.get('activeState');
-    if (!$scope.activeState) {
-        $state.go('transit');
-    }
-
-    $scope.languages = config.languages;
 
     $scope.selectLanguage = function(language) {
         $translate.use(language);
@@ -49,27 +35,40 @@ angular.module('transitIndicators')
                             $stateParams,
                             { reload: true, inherit: true, notify: true });
     };
-    // Make Angular respect language cookies on page reload
-    $translate.use($cookies.openTransitLanguage);
 
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
-        mapService.getMapInfo().then(function(mapInfo) {
-            if (mapInfo.extent) {
-                $scope.leaflet.bounds = mapInfo.extent;
-            } else {
-                // no extent; zoom out to world
+        OTIMapService.getMapExtent().then(function(extent) {
+                $scope.leaflet.bounds = extent;
+        }, function () {
                 $scope.leaflet.bounds = config.worldExtent;
-            }
         });
+    };
+
+    var initialize = function () {
+        // Setup defaults for all leaflet maps:
+        // Includes: baselayers, center, bounds
+        $scope.leafletDefaults = config.leaflet;
+        $scope.leaflet = angular.extend({}, $scope.leafletDefaults);
+
+        $scope.activeState = $cookieStore.get('activeState');
+        if (!$scope.activeState) {
+            $state.go('transit');
+        }
+
+        $scope.languages = config.languages;
+
+        $rootScope.user = user;
+
+        // Make Angular respect language cookies on page reload
+        $translate.use($cookies.openTransitLanguage);
+
+        $scope.modes = [];
+        zoomToDataExtent();
     };
 
     $scope.logout = function () {
         authService.logout();
-   };
-
-    $scope.init = function () {
-        zoomToDataExtent();
     };
 
     $scope.updateLeafletOverlays = function (newOverlays) {
@@ -85,6 +84,19 @@ angular.module('transitIndicators')
         $cookieStore.put('activeState', activeState);
     };
 
+    $scope.setMapModes = function (modes) {
+        OTIMapService.setTransitModes(modes);
+        OTIMapService.refreshLayers();
+    };
+
+    $scope.changePassword = function() {
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-password.html',
+            controller: 'OTIUserdataChangePasswordController',
+            size: 'sm'
+        });
+    };
+
     // zoom to the new extent whenever a GTFS file is uploaded
     $scope.$on(OTIEvents.Settings.Upload.GTFSDone, function() {
         zoomToDataExtent();
@@ -97,7 +109,7 @@ angular.module('transitIndicators')
         $scope.leaflet.bounds = config.worldExtent;
     });
 
-    $scope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState) {
+    $scope.$on('$stateChangeStart', function () {
         // Always clear the legend when going to a state, we will always need to redraw it with
         // the proper legend in the child state
 
@@ -128,47 +140,9 @@ angular.module('transitIndicators')
         setActiveState(activeState);
     });
 
-    $scope.modes = [];
-
-    $scope.setMapModes = function (modes) {
-        mapService.enabledModes = modes;
-        //_.each($scope.leaflet.layers.overlays, function(overlay) {
-        //    overlay.layerParams = {modes: modes};
-        //    console.log(overlay);
-        //});
-        leafletData.getLayers().then(function (layers) {
-            _.each(layers, function(layer) {
-                _.each(layer, function(sublayer) {
-                    if(sublayer.options.modes !== undefined) {
-                        sublayer.options.modes = modes;
-                        if(sublayer.redraw) {
-                            sublayer.redraw();
-                        } else { // utfgrid
-                            sublayer._cache = {};
-                            sublayer._update();
-                        }
-                    }
-                });
-            });
-        });
-        $rootScope.$broadcast(OTIEvents.Root.VisibleModesSelected, modes);
-    };
-
-    $scope.$on(OTIEvents.Root.AvailableModesUpdated, function(event, modes) {
+    $scope.$on(OTIMapService.Events.AvailableModesUpdated, function(event, modes) {
         $scope.modes = modes;
     });
 
-    $scope.setModes = function(modes) {
-        $scope.modes = modes;
-    };
-
-    $scope.changePassword = function() {
-        $modal.open({
-            templateUrl: 'scripts/modules/userdata/change-password.html',
-            controller: 'OTIUserdataChangePasswordController',
-            size: 'sm'
-        });
-    };
-
-    $scope.init();
+    initialize();
 }]);

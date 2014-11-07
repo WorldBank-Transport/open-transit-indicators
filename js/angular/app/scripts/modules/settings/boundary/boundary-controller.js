@@ -101,7 +101,7 @@ angular.module('transitIndicators')
      $scope.uploadRegion = {};
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.Config.query({}, function (configs) {
+        OTISettingsService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
                 console.error('Expected a single configuration, but found: ', configs);
                 return;

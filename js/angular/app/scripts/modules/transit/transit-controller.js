@@ -1,8 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['config', '$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService',
-            function (config, $scope, $rootScope, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService) {
+            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService',
+            'OTIIndicatorsMapService', 'OTIMapService',
+            function ($scope, $rootScope, OTIEvents, OTIIndicatorsService,
+                      OTIIndicatorsMapService, OTIMapService) {
 
     var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -15,40 +17,38 @@ angular.module('transitIndicators')
         boundary: {
             name: 'Boundary',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            url: OTIMapService.boundaryUrl(),
             visible: true,
             layerOptions: boundaryIndicator
         },
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSShapesUrl(),
+            url: OTIMapService.gtfsShapesUrl(),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
+            url: OTIMapService.gtfsStopsUrl('png'),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
+            url: OTIMapService.gtfsStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: { 'useJsonP': false,
-                             modes: OTIIndicatorsMapService.enabledModes }
+                             modes: OTIMapService.getTransitModes() }
         }
     };
 
     var updateLegend = function () {
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             legend.style = 'stacked';
             $rootScope.cache.transitLegend = legend;
-            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
-                OTIIndicatorsMapService.modes);
             $scope.leaflet.legend = legend;
         });
     };
@@ -92,7 +92,7 @@ angular.module('transitIndicators')
     // This may not be the best place to update the legend on GTFS
     // update, but most of the other legend updating code was here
     $rootScope.$on(OTIEvents.Settings.Upload.GTFSDone, function () {
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $rootScope.cache.transitLegend.style = 'stacked';
             // only update cache so we don't show legend on the

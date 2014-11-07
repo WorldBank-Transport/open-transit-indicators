@@ -14,9 +14,7 @@ angular.module('transitIndicators')
     };
 
     otiEvents.Root = {
-        MapExtentUpdated: 'OTIEvent:Root:MapExtentUpdated',
-        VisibleModesSelected: 'OTIEvent:Root:VisibleModesSelected',
-        AvailableModesUpdated: 'OTIEvent:Root:AvailableModesUpdated'
+        MapExtentUpdated: 'OTIEvent:Root:MapExtentUpdated'
     };
 
     otiEvents.Indicators = {

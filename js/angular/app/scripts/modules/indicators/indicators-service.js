@@ -79,20 +79,6 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Create windshaft urls for leaflet map
-     *
-     * @param indicator: otiIndicatorsService.Indicator instance
-     * @param filetype: String, either png or utfgrid
-     */
-    otiIndicatorsService.getIndicatorUrl = function (filetype) {
-        var url = otiIndicatorsService.getWindshaftHost();
-        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
-               '/{z}/{x}/{y}';
-        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
-        return url;
-    };
-
-    /**
      * Get the list of cities loaded into the app
      */
     otiIndicatorsService.getCities = function () {
