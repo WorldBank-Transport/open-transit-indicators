@@ -8,10 +8,10 @@ OTIWindshaft -- client side configuration for our windshaft server
 angular.module('transitIndicators')
 .factory('OTIMapService', ['$location', '$resource', '$rootScope', '$q',
                            'leafletData', 'windshaftConfig',
-                           'OTIIndicatorsService', 'OTIMapStyleService',
+                           'OTITypes', 'OTIMapStyleService',
         function ($location, $resource, $rootScope, $q,
                   leafletData, windshaftConfig,
-                  OTIIndicatorsService, OTIMapStyleService) {
+                  OTITypes, OTIMapStyleService) {
 
     /**
      * Return windshaft hostname, including port, if configured in windshaftConfig.port
@@ -92,7 +92,7 @@ angular.module('transitIndicators')
      * .style must be set after it returns
      */
     module.getLegendData = function () {
-        return OTIIndicatorsService.getRouteTypes().then(function (routetypes) {
+        return OTITypes.getRouteTypes().then(function (routetypes) {
             var colors = [];
             var labels = [];
             var modes = [];

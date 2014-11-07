@@ -2,11 +2,11 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsDataService',
-        ['OTIIndicatorsService', 'OTIMapStyleService',
-        function (OTIIndicatorsService, OTIMapStyleService) {
+        ['OTITypes', 'OTIMapStyleService',
+        function (OTITypes, OTIMapStyleService) {
 
     var routeTypes = {};
-    OTIIndicatorsService.getRouteTypes().then(function (data) {
+    OTITypes.getRouteTypes().then(function (data) {
         _.each(data, function (routeType) {
             routeTypes[routeType.route_type] = routeType.description;
         });

@@ -147,50 +147,6 @@ angular.module('transitIndicators')
         });
     };
 
-    otiIndicatorsService.getIndicatorTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getIndicatorTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getIndicatorAggregationTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-aggregation-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getIndicatorAggregationTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getSamplePeriodTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/sample-period-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getSamplePeriodTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getRouteTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/gtfs-route-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('getRouteTypes Error: ', error);
-            dfd.resolve([]);
-        });
-        return dfd.promise;
-    };
-
     otiIndicatorsService.getIndicatorDescriptionTranslationKey = function(key) {
         return 'INDICATOR_DESCRIPTION.' + key;
     };
