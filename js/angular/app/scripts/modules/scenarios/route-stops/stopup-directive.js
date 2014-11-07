@@ -1,7 +1,7 @@
 'use strict';
 /**
 
-A directive for dynically generating popovers on transit system stops
+A directive for dynamically generating popovers on transit system stops
 
 */
 

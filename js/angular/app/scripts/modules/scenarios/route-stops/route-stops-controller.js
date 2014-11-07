@@ -17,10 +17,6 @@ angular.module('transitIndicators')
     var drawControl = OTIDrawService.markerDrawControl;
     var markerController = OTIDrawService.markerController;
 
-    var someEvent = function (event) {
-        console.log(event);
-    };
-
 
     // $SCOPE
 
@@ -42,16 +38,15 @@ angular.module('transitIndicators')
 
     $scope.$on('$stateChangeStart', function () {
         leafletData.getMap().then(function (map) {
+            OTIDrawService.reset();
             map.removeControl(drawControl);
             map.off('draw:created', drawCreated);
-            map.off('click', someEvent);
         });
     });
 
     $scope.$watch('route.stops', function () {
         $scope.$emit('updateHeight');
     }, true);
-
 
     // INIT
 

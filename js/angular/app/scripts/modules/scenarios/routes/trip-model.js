@@ -73,15 +73,6 @@ angular.module('transitIndicators')
                 return stopTime;
             });
         },
-        fixStopOrder: function() {
-            this.stopTimes = function() {
-                var newOrder = [];
-                _.each(this.stopTimes, function(stopTime) {
-                    newOrder[stopTime.stopSequence-1] = stopTime;
-                });
-                return newOrder;
-            };
-        },
         // if index undefined, add to end of array
         addStopTime: function (stopTime, index) {
             index = typeof index !== 'undefined' ? index : this.stopTimes.length;
