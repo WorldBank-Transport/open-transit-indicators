@@ -6,6 +6,7 @@ import com.azavea.gtfs._
 
 import geotrellis.raster._
 import geotrellis.vector._
+import geotrellis.network._
 import geotrellis.network.graph._
 import geotrellis.transit.loader._
 import geotrellis.transit.loader.gtfs._
@@ -17,80 +18,144 @@ import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 
 import com.typesafe.config.ConfigFactory
 
-case class TravelshedParams(rasterExtent: RasterExtent, startTime: Int, duration: Int)
+case class TravelshedParams()
 
-/**
- * Trait used for travelshed indicators.
- */
-trait TravelshedGraph {
-  def travelshedDirecotry = TravelshedGraph.travelshedDirectory
-
-  def graph: TransitGraph
-  def index: SpatialIndex[Int]
-
-
-  def travelshedParams: TravelshedParams
+trait HasTravelshedGraph {
+  def hasTravelshedGraph: Boolean = travelshedGraph.isDefined
+  def travelshedGraph: Option[TravelshedGraph]
 }
 
+case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, startTime: Int, duration: Int)
+
 object TravelshedGraph extends Logging {
-  val config = ConfigFactory.load
-  val travelshedExtentBuffer = config.getDouble("opentransit.boundaries.travelshed-extent-buffer")
-  val travelshedDirectory = config.getString("opentransit.travelshed.directory")
+  // Meters that the travelshed should buffer out from the region envelope for creating the raster.
+  val travelshedExtentBuffer = 10.0
 
-  def params(regionBoundary: MultiPolygon, resolution: Double, startTime: Int, duration: Int): TravelshedParams = {
-    val extent = regionBoundary.envelope.buffer(travelshedExtentBuffer)
-    val cols = (extent.width / resolution).toInt
-    val rows = (extent.height / resolution).toInt
+  // Creates a graph of the transit system for the representative weekday of the periods.
+  def apply(
+    periods: Seq[SamplePeriod],
+    builder: TransitSystemBuilder,
+    regionBoundary: MultiPolygon, 
+    resolution: Double, 
+    startTime: Int, 
+    duration: Int
+  )(implicit session: Session): Option[TravelshedGraph] = {
+    SamplePeriod.getRepresentativeWeekday(periods).map { weekday =>
+      val system =
+        builder.systemOn(weekday)
 
-    TravelshedParams(RasterExtent(extent, cols, rows), startTime, duration)
-  }
-
-  // TODO: Only run for weekday.
-  def createGraph(systems: Map[SamplePeriod, TransitSystem])(implicit session: Session): (TransitGraph, SpatialIndex[Int]) = {
-    // Require period types to be distinct
-    if(systems.keys.map(_.periodType).toSeq.distinct.size != systems.keys.map(_.periodType).size) {
-      sys.error(s"Period Types in a set of SamplePeriods must be distinct")
-    }
-
-    info("Creating transit graph")
-    Timer.timedTask("Transit graph created") {
-      val osmParsedResults: ParseResult = 
-        Timer.timedTask("Parsed in OSM results") {
-          OsmParser.parseLines(RoadsTable.allRoads)
-        }
-
-      val systemResults: Seq[ParseResult] =
-        (systems.map { case (period, system) =>
-          Timer.timedTask(s"Parsed in results for period ${period.periodType}") {
-            // NOTE: periodType's must be distinct.
-            GtfsDateParser.parse(period.periodType, system)
+      info("Creating transit graph")
+      Timer.timedTask("Transit graph created") {
+        val osmParsedResult: ParseResult =
+          Timer.timedTask("Parsed in OSM results") {
+            OsmParser.parseLines(RoadsTable.allRoads)
           }
-        }).toSeq
 
-      val mergedSystemResult: ParseResult = 
-        Timer.timedTask("Parsed in merged systems") {
-          val mergedSystem = TransitSystem.merge(systems.values.toSeq)
-          GtfsDateParser.parse(IndicatorResultContainer.OVERALL_KEY.periodType, mergedSystem)
-        }
+        val systemResult: ParseResult =
+          GtfsDateParser.parse("transit", system)
 
-      val ParseResult(unpackedGraph, _, _) = 
-        Timer.timedTask("Merged parse results.") {
-          (Seq(osmParsedResults, mergedSystemResult) ++ systemResults).reduce(_.merge(_))
-        }
+        val ParseResult(unpackedGraph, _, _) =
+          Timer.timedTask("Merged parse results.") {
+            osmParsedResult.merge(systemResult)
+          }
 
-      val graph = 
-        Timer.timedTask("Packed graph") {
-          TransitGraph.pack(unpackedGraph)
-        }
+        val streetVertexIndex =
+          SpatialIndex(unpackedGraph.vertices.filter(_.vertexType == StreetVertex)) { v =>
+            (v.location.long, v.location.lat)
+          }
 
-      val index = 
-        Timer.timedTask("Created spatial index") {
-          SpatialIndex(0 until graph.vertexCount) { v =>
-            val l = graph.location(v)
-            (l.lat,l.long)
+        val stationVertices =
+          unpackedGraph.vertices.filter(_.vertexType == StationVertex).toSeq
+
+        val transferToStationDistance = 200
+
+        Timer.timedTask(s"Created transfer vertices.") {
+          var transferEdgeCount = 0
+          var noTransferEdgesCount = 0
+          for(v <- stationVertices) {
+//            println(s"LATLNG: ${v.location.lat}, ${v.location.long}")
+            val extent =
+              // vertex map coords are actually UTM, not lat\long
+              Extent(
+                v.location.long - transferToStationDistance,
+                v.location.lat - transferToStationDistance,
+                v.location.long + transferToStationDistance,
+                v.location.lat + transferToStationDistance
+              )
+
+            val nearest = {
+              val l = streetVertexIndex.pointsInExtent(extent)
+              val (px, py) = (v.location.long, v.location.lat)
+              if(l.isEmpty) { None }
+              else {
+                var n = l.head
+                var minDist = {
+                  val (x, y) = (n.location.long, n.location.lat)
+                  streetVertexIndex.measure.distance(x, y, px, py)
+                }
+                for(t <- l.tail) {
+                  val (x, y) = (t.location.long, t.location.lat)
+                  val d = streetVertexIndex.measure.distance(px, py, x, y)
+                  if(d < minDist) {
+                    n = t
+                    minDist = d
+                  }
+                }
+                Some(n)
+              }
+
+            }
+
+            nearest match {
+              case Some(nearest) =>
+                val duration = {
+                  val x = v.location.long - nearest.location.long
+                  val y = v.location.lat - nearest.location.lat
+                  Duration((math.sqrt(x*x + y*y) / Speeds.walking).toInt)
+                }
+
+                unpackedGraph.addEdge(v, WalkEdge(nearest, duration))
+                unpackedGraph.addEdge(nearest, WalkEdge(v, duration))
+                unpackedGraph.addEdge(v, BikeEdge(nearest, duration))
+                unpackedGraph.addEdge(nearest, BikeEdge(v, duration))
+                transferEdgeCount += 2
+              case _ =>
+                warn(s"NO TRANSFER EDGES CREATED FOR STATION ${v.name} at ${v.location}")
+                noTransferEdgesCount += 1
+            }
+          }
+          info(s"   $transferEdgeCount tranfer edges created")
+          if(noTransferEdgesCount > 0) {
+            warn(s"THERE WERE $noTransferEdgesCount STATIONS WITH NO TRANSFER EDGES.")
           }
         }
-      (graph, index)
+
+
+        val graph =
+          Timer.timedTask("Packed graph") {
+            TransitGraph.pack(unpackedGraph)
+          }
+
+        val index =
+          Timer.timedTask("Created spatial index") {
+            SpatialIndex(0 until graph.vertexCount) { v =>
+              val l = graph.location(v)
+//              println(s"${(l.long, l.lat)}")
+              (l.long,l.lat)
+            }
+          }
+
+        val extent = {
+          println(regionBoundary)
+          regionBoundary.envelope.buffer(travelshedExtentBuffer)
+        }
+        val cols = (extent.width / resolution).toInt
+        val rows = (extent.height / resolution).toInt
+
+        val rasterExtent = RasterExtent(extent, cols, rows)
+
+        TravelshedGraph(graph, index, rasterExtent, startTime, duration)
+      }
     }
   }
 }

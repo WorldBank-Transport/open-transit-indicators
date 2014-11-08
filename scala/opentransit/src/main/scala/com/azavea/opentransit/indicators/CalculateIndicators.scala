@@ -42,7 +42,10 @@ object CalculateIndicators {
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
-    val params = IndicatorParams(request, systemsByPeriod, dbByName)
+    // Injecting the builder is Bad. But I'm doing it anywa.
+    // Params should be refactored. So that this isn't necessary.
+    val params = IndicatorParams(request, systemsByPeriod, builder, dbByName)
+
     val indicators = Indicators.list(params)
     val travelshedIndicators = Indicators.travelshedIndicators(params)
 
@@ -157,14 +160,7 @@ object CalculateIndicators {
       val name = indicator.name
       trackStatus(name, JobStatus.Processing)
       try {
-        for(period <- periods) {
-          indicator(period.periodType, Main.rasterCache)
-        }
-
-        if(calculateAllTime) {
-          indicator(IndicatorResultContainer.OVERALL_KEY.periodType, Main.rasterCache)
-        }
-
+        indicator(Main.rasterCache)
         trackStatus(name, JobStatus.Complete)
       } catch {
         case e: Exception =>

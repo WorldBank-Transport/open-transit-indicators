@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 
 import scala.collection.mutable
 
-case class RasterCacheKey(name: String, mode: String)
+case class RasterCacheKey(name: String)
 
 class RasterCache(val system: ActorSystem) {
   implicit val timeout = Timeout(500 seconds)

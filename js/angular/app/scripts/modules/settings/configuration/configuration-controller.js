@@ -78,7 +78,7 @@ angular.module('transitIndicators')
     var setConfig = function (config) {
         $scope.config = config;
         if (config) {
-            $scope.arrive_by_time = config.arrive_by_time / 60 || 0;
+            $scope.arrive_by_time = config.arrive_by_time_s / 60 || 0;
             $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
             $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
         }

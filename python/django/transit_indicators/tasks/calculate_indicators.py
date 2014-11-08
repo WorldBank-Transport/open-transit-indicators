@@ -41,6 +41,11 @@ def run_demographics_indicators():
     has_features = DemographicDataFeature.objects.filter().count() > 0
     return is_complete(demographic_datasource) and has_features
 
+def run_job_indicators():
+    """ Helper funciton that returns True if jobs indicators can be run """
+    # TODO: Implement this for real.
+    True
+
 
 def run_indicator_calculation(indicator_job):
     """Initiate celery job which tells scala to calculate indicators"""
@@ -77,6 +82,7 @@ def run_indicator_calculation(indicator_job):
         'avg_fare': config.avg_fare,
         'nearby_buffer_distance_m': config.nearby_buffer_distance_m,
         'poverty_line': config.poverty_line,
+        'arrive_by_time_s': config.arrive_by_time_s,
         'max_commute_time_s': config.max_commute_time_s,
         'max_walk_time_s': config.max_walk_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
@@ -88,7 +94,8 @@ def run_indicator_calculation(indicator_job):
             'osm': run_osm_indicators(),
             'observed': run_realtime_indicators(),
             'city_bounds': bool(config.city_boundary),
-            'region_bounds': bool(config.region_boundary)
+            'region_bounds': bool(config.region_boundary),
+            'job_demographics': run_job_indicators()
         },
         'sample_periods': [
             {

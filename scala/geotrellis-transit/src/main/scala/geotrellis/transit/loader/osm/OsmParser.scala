@@ -26,6 +26,7 @@ object OsmParser {
         (points.head, points.tail.head)
       }
 
+//      println(p1)
       val v1 = StreetVertex(Location(p1.x, p2.y), "")
       val v2 = StreetVertex(Location(p1.x, p2.y), "")
       

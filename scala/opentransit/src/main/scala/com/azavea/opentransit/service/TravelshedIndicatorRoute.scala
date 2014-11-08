@@ -25,10 +25,10 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
     path("travelshed") {
       path("jobs") {
         path("breaks") {
-          parameters('periodType, 'numBreaks.as[Int]) { (periodType, numBreaks) =>
+          parameters('numBreaks.as[Int]) { (numBreaks) =>
             complete {
               val breaks =
-                Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name, periodType)) match {
+                Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name)) match {
                   case Some((tile, _)) =>
                     tile
                       .classBreaks(numBreaks)
@@ -43,14 +43,13 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
             'bbox,
             'width.as[Int],
             'height.as[Int],
-            'periodType,
             'breaks,
-            'colorRamp) { (bbox, width, height, periodType, breaksString, colorRampKey) =>
+            'colorRamp) { (bbox, width, height, breaksString, colorRampKey) =>
             val extent = Extent.fromString(bbox)
             val rasterExtent = RasterExtent(extent, width, height)
 
             val png: Png = 
-              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name, periodType)) match {
+              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name)) match {
                 case Some((tile, extent)) =>
                   val breaks = breaksString.split(",").map(_.toInt)
                   val ramp = {

@@ -69,7 +69,7 @@ object GtfsDateParser {
           arriving
 
         case Seq(stop) =>
-          Logger.warn(s"Ignoring trip with a single stop: ${stop.stop}")
+          Logger.warn(s"Ignoring trip ${trip.id} with a single stop (name = ${stop.stop.name}, id = ${stop.stop.id})")
       }
       count
     }
@@ -80,9 +80,8 @@ object GtfsDateParser {
     val (edges, namedLocations) =
       transitSystem.routes.foldLeft(0 -> NamedLocations.EMPTY) { (result, route) =>
 
-        val edges = Logger.timedCreate(s"Creating edges for Route '${route.shortName}'...", "Done creating edges.") { () =>
+        val edges = 
           route.trips.map(setEdges(_, stopsToVertices, name, g)).foldLeft(0)(_ + _)
-        }
 
         val namedLocations =
           NamedLocations(

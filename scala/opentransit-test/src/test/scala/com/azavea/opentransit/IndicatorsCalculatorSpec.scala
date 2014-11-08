@@ -3,6 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import com.azavea.gtfs.io.csv._
 import com.azavea.opentransit.io.GtfsIngest
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.indicators.parameters._
 
 import geotrellis.vector._
@@ -184,6 +185,9 @@ trait DemographicsSpec {this: IndicatorSpec =>
   trait DemographicsSpecParams extends Demographics {
     def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
       demographics.populationMetricForBuffer(buffer, columnName)
+
+      def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] = 
+        Seq()
   }
 }
 

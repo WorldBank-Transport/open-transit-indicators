@@ -17,22 +17,13 @@ case class Requirements(
   jobDemographics: Boolean
 )
 
-// Change startTime to arriveByTime
-case class TravelshedRequest(
-  /** Resolution of the travelshed raster, in meters */
-  resolution: Double,
-  /** What time you would start travelling, in seconds from midnight */
-  startTime: Int,
-  /** Maximum travel duration, in seconds */
-  duration: Int
-)
-
 // Calculation request parameters
 case class IndicatorCalculationRequest(
   token: String,
   id: Int,
   povertyLine: Double,
   nearbyBufferDistance: Double,
+  arriveByTime: Int,
   maxCommuteTime: Int,
   maxWalkTime: Int,
   cityBoundaryId: Int,
@@ -41,6 +32,5 @@ case class IndicatorCalculationRequest(
   gtfsDbName: String,
   auxDbName: String,
   samplePeriods: List[SamplePeriod],
-  paramsRequirements: Requirements,
-  travelshed: TravelshedRequest
+  paramsRequirements: Requirements
 ) extends Logging

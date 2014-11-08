@@ -94,20 +94,6 @@ package object json {
       }
   }
 
-  // TODO: Remove resolution
-  implicit object TravelshedRequestFormat extends RootJsonReader[TravelshedRequest] {
-    def read(value: JsValue): TravelshedRequest =
-      value.asJsObject.getFields(
-        "resolution",
-        "arrive_by_time",
-        "duration"
-      ) match {
-        case Seq(JsNumber(resolution), JsNumber(startTime), JsNumber(duration)) =>
-          TravelshedRequest(resolution.toDouble, startTime.toInt, duration.toInt)
-        case _ => throw new DeserializationException("TravelshedRequest expected.")
-      }
-  }
-
   // TODO: Remove TravelshedRequest
   implicit object IndicatorCalculationRequestFormat extends RootJsonReader[IndicatorCalculationRequest] {
     def read(value: JsValue): IndicatorCalculationRequest =
@@ -116,7 +102,7 @@ package object json {
         "id",
         "poverty_line",
         "nearby_buffer_distance_m",
-        "arrive_by_time",
+        "arrive_by_time_s",
         "max_commute_time_s",
         "max_walk_time_s",
         "city_boundary_id",
@@ -128,17 +114,16 @@ package object json {
         "params_requirements"
       ) match {
         case Seq(JsString(token), JsNumber(id), JsNumber(povertyLine),
-                 JsNumber(nearbyBufferDistance), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
+                 JsNumber(nearbyBufferDistance), JsNumber(arriveByTime), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
                  JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
                  JsNumber(averageFare), JsString(gtfsDbName), JsString(auxDbName),
-                 samplePeriodsJson, paramsRequirementsJson, travelshedJson) =>
+                 samplePeriodsJson, paramsRequirementsJson) =>
           val samplePeriods = samplePeriodsJson.convertTo[List[SamplePeriod]]
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
-          val travelshed = travelshedJson.convertTo[TravelshedRequest]
           IndicatorCalculationRequest(
             token, id.toInt, povertyLine.toDouble, nearbyBufferDistance.toDouble,
-            maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
-            averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements, travelshed
+            arriveByTime.toInt, maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
+            averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
       }
