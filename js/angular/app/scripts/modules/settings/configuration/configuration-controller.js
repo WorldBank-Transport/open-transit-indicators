@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIConfigurationController',
-        ['$scope', '$q', 'OTIConfigurationService',
-        function ($scope, $q, OTIConfigurationService) {
+        ['$scope', '$q', 'OTISettingsService', 'OTIConfigurationService',
+        function ($scope, $q, OTISettingsService, OTIConfigurationService) {
 
     // Datepicker Options
     $scope.datepickerFormat = 'dd MMMM yyyy';
@@ -35,6 +35,7 @@ angular.module('transitIndicators')
     };
     $scope.samplePeriodsError = false;
     $scope.configError = false;
+    $scope.configSuccess = false;
 
     /**
      * Helper setter for $scope.saveConfigButton
@@ -128,7 +129,7 @@ angular.module('transitIndicators')
      */
     var createDefaultPeriods = function () {
         var promises = [];
-        var SamplePeriod = OTIConfigurationService.SamplePeriod;
+        var SamplePeriod = OTISettingsService.samplePeriods;
 
         var morning = new SamplePeriod({type: 'morning'});
         morning.period_start = createWeekdayDateTime($scope.weekdayDate, 7);
@@ -193,15 +194,17 @@ angular.module('transitIndicators')
         $scope.setSidebarCheckmark('configuration', isValid);
     };
 
-    $scope.saveConfig = function () {
+    $scope.saveConfigPromise = function () {
+        var deferred = $q.defer();
         $scope.configError = false;
-        setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
-            setSaveConfigButton(true);
+            deferred.resolve();
         }, function () {
-            setSaveConfigButton(true);
+            deferred.reject();
             $scope.configError = true;
         });
+
+        return deferred.promise;
     };
 
     /**
@@ -213,13 +216,12 @@ angular.module('transitIndicators')
      * For weekend, we save 00:00:00-23:59:59 since API rejects a full 24 hours.
      *
      */
-    $scope.saveSamplePeriods = function () {
+    $scope.saveSamplePeriodsPromise = function () {
 
         if ($scope.samplePeriodsForm.$invalid) {
             return;
         }
 
-        setSavePeriodsButton(false);
         $scope.samplePeriodsError = false;
         var promises = [];
 
@@ -252,11 +254,27 @@ angular.module('transitIndicators')
         weekend.period_end = weekendDates[1];
         promises.push(weekend.$update());
 
-        $q.all(promises).then(function (data) {
-            setSavePeriodsButton(true);
-        }, function (error) {
-            setSavePeriodsButton(true);
+        return $q.all(promises).catch(function () {
             $scope.samplePeriodsError = true;
+        });
+    };
+
+    $scope.saveAllConfig = function () {
+        var promises = [];
+
+        $scope.configSuccess = false;
+
+        // make save button not clickable
+        setSaveConfigButton(false);
+
+        promises.push($scope.saveSamplePeriodsPromise());
+        promises.push($scope.saveConfigPromise());
+
+        $q.all(promises).then(function () {
+            $scope.configSuccess = true;
+        })['finally'](function () {
+            // make button clickable again
+            setSaveConfigButton(true);
         });
     };
 
@@ -297,7 +315,7 @@ angular.module('transitIndicators')
                       isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
     };
-    
+
     /**
      * Returns true if the given Date object is within the feed's service range
      */
@@ -306,11 +324,11 @@ angular.module('transitIndicators')
             console.log("missing service start and/or end!");
             return true;
         }
-        
+
         if (date && date >= $scope.serviceStart && date <= $scope.serviceEnd) {
             return true;
         }
-        
+
         return false;
     };
 
@@ -353,7 +371,7 @@ angular.module('transitIndicators')
     $scope.disableWeekday = function (date, mode) {
         return (mode === 'day' && OTIConfigurationService.isWeekday(date));
     };
-    
+
     /**
      * Get the start and end dates for the feed's service from the query response object.
      * Once it returns, use it to set default sample period to date within range.
@@ -365,7 +383,7 @@ angular.module('transitIndicators')
             $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
             $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
             var nextDay = null;
-            
+
             // if dates have not been chosen yet, default to second valid date in range
             if (!$scope.weekdayDate) {
                 nextDay = new Date($scope.serviceStart);
@@ -375,7 +393,7 @@ angular.module('transitIndicators')
                 }
                 $scope.weekdayDate = nextDay;
             }
-            
+
             if (!$scope.weekendDate) {
                 nextDay = new Date($scope.serviceStart);
                 nextDay.setDate(nextDay.getDate() + 1);
@@ -394,17 +412,17 @@ angular.module('transitIndicators')
             }
         }
     };
-    
+
     /**
      * Create a JS Date object from an ISO-formatted date string
      */
-    
+
     /**
      * Initialize config page with data
      */
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.Config.query({}, function (configs) {
+        OTISettingsService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
                 $scope.configLoadError = true;
                 return;
@@ -413,15 +431,15 @@ angular.module('transitIndicators')
         }, function () {
             $scope.configLoadError = true;
         });
-        
+
         // get service date range
         OTIConfigurationService.ServiceDates.get({}, function (data) {
             setServiceDateRange(data);
 
             // do not attempt to set default sample period until service date range found
-            OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
+            OTISettingsService.samplePeriods.get({type: 'morning'}, function () {
                 // Configs exist, set UI
-                OTIConfigurationService.SamplePeriod.query(function (data) {
+                OTISettingsService.samplePeriods.query(function (data) {
                     setSamplePeriods(data);
                 }, function () {
                     // Unable to make web request, so hide the samplePeriods form and show

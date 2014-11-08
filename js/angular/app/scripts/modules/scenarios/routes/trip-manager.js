@@ -17,10 +17,38 @@ list({
 */
 
 angular.module('transitIndicators')
-.factory('OTITripManager', ['$q', 'OTITripModel',
-         function ($q, OTITripModel) {
+.factory('OTITripManager', ['$q', 'OTITripModel', 'OTIFrequencyModel',
+         function ($q, OTITripModel, OTIFrequencyModel) {
+
+    var getId = function () {
+        var id = [];
+        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        for (var i = 0; i < 8; i++) {
+            id.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+        }
+        return id.join('');
+    };
+
+    var makeTrip = function () {
+        var trip = new OTITripModel();
+        trip.tripId = getId();
+        trip.routeId = _routeId;
+        trip.headsign = '';
+        trip.stopTimes = [];
+        trip.frequencies = [
+            // TODO: Set frequency start/end times == scenario sample period on create
+            new OTIFrequencyModel()
+        ];
+        trip.shape = {
+            type: SHAPE_TYPE,
+            coordinates: []
+        };
+        return trip;
+    };
 
     var SHAPE_TYPE = 'LineString';
+    var DEFAULT_TRIP_ID = 'BLANKTRIP';
 
     var _dbName = null;
     var _routeId = null;
@@ -30,17 +58,9 @@ angular.module('transitIndicators')
     var module = {};
 
     module.create = function () {
-        var trip = new OTITripModel();
-        trip.tripId = '';
-        trip.routeId = _routeId;
-        trip.headsign = '';
-        trip.stopTimes = [];
-        trip.frequencies = [];
-        trip.shape = {
-            type: SHAPE_TYPE,
-            coordinates: []
-        };
+        var trip = makeTrip();
         _trip = trip;
+        return trip;
     };
 
     module.get = function() {

@@ -2,24 +2,35 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource', 'OTIUploadService', '$rootScope',
-        function ($q, $http, $resource, OTIUploadService, $rootScope) {
+        ['$q', '$http', '$resource', 'OTISettingsService', '$rootScope',
+        function ($q, $http, $resource, OTISettingsService, $rootScope) {
 
     var otiIndicatorsService = {};
     var nullJob = 0;
+    var modalStatus = false;
     otiIndicatorsService.selfCityName = null;
 
-    otiIndicatorsService.Indicator = $resource('/api/indicators/:id/ ', {id: '@id'}, {
+    otiIndicatorsService.setModalStatus = function (isOpen) {
+        modalStatus = isOpen;
+    };
+
+    otiIndicatorsService.isModalOpen = function () {
+        return modalStatus;
+    };
+
+    otiIndicatorsService.Indicator = $resource('/api/indicators/:id/', {id: '@id'}, {
         'update': {
             method: 'PATCH',
-            url: '/api/indicators/:id/ '
+            url: '/api/indicators/:id/'
         }
+    }, {
+        stripTrailingSlashes: false
     });
 
     /**
      * Resource for indicator jobs
      */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/ ', {id: '@id'}, {
+    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/', {id: '@id'}, {
         search: {
             method: 'GET',
             isArray: true,
@@ -30,7 +41,8 @@ angular.module('transitIndicators')
             idArray: false,
             url: '/api/latest-calculation-job/'
         }
-
+    }, {
+        stripTrailingSlashes: false
     });
 
     /**
@@ -119,7 +131,7 @@ angular.module('transitIndicators')
      */
     otiIndicatorsService.getIndicatorCalcJob = function (callback) {
         var promises = []; // get the city name before using it to filter indicator CalcJobs
-        promises.push(OTIUploadService.cityName.get({}, function (data) {
+        promises.push(OTISettingsService.cityName.get({}, function (data) {
             otiIndicatorsService.selfCityName = data.city_name;
         }));
 

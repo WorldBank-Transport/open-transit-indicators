@@ -65,8 +65,8 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
 
     def write(obj: FrequencyRecord) = JsObject(
       "start" -> obj.start.toJson,
-      "end" -> obj.start.toJson,
-      "headway" -> obj.start.toJson
+      "end" -> obj.end.toJson,
+      "headway" -> obj.headway.toJson
     )
   }
 

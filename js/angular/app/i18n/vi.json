@@ -6,7 +6,8 @@
         "SETTINGS": "Cài đặt",
         "TRANSITMAP": "!Transit Map",
         "SCENARIO": "!Scenario",
-        "INDICATORS": "!Indicators"
+        "INDICATORS": "!Indicators",
+        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD"
     },
     "STATUS": {
         "CANCELLED": "Đã Hủy",
@@ -24,6 +25,9 @@
         "CANCEL": "Hủy bỏ",
         "SKIP": "Bỏ qua",
         "RETRY": "Thử lại"
+    },
+    "UNITS": {
+        "MINUTES": "Minutes"
     },
     "TERM": {
         "LANGUAGE": "!Language",
@@ -109,6 +113,7 @@
         "SHORT_NAME": "Short Name",
         "LONG_NAME": "Long Name",
         "DESCRIPTION": "Description",
+        "HEADWAY": "Headway",
         "INCOMPLETE_FORM": "Incomplete Form",
         "DATE_AND_TIME_RANGE": "Date and Time Range",
         "DT_RANGE_FROM": "from",
@@ -297,5 +302,13 @@
         "RESET_PASSWORD": "Đặt lại mật khẩu",
         "ADD_NEW_USER": "Thêm người dùng mới",
         "CONFIRM_PASSWORD": "Xác nhận mật khẩu"
+    },
+    "CHANGE_PW": {
+        "CHANGE_PASSWORD": "Change Password",
+        "PASSWORD_FIELD": "New password",
+        "PASSWORD_FIELD_AGAIN": "Confirm Password",
+        "SAVE": "@:STATUS.SAVE",
+        "CANCEL": "@:STATUS.CANCEL",
+        "INSTRUCTIONS": "Please enter a password 8 characters or more."
     }
 }

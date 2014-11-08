@@ -7,7 +7,7 @@ from transit_indicators.permissions import IsAuthenticatedAndAdminUserOrReadOnly
 class OTIBaseViewSet(viewsets.ModelViewSet):
     """Viewset permissions for OTI Model objects"""
     # Django Model Permissions includes IsAuthenticated
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated]
 
 
 class OTIAdminViewSet(viewsets.ModelViewSet):
@@ -17,4 +17,3 @@ class OTIAdminViewSet(viewsets.ModelViewSet):
 
     """
     permission_classes = [IsAuthenticatedAndAdminUserOrReadOnly]
-

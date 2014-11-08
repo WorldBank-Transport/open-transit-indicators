@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIRealtimeController',
-        ['$scope', 'OTIRealTimeService',
-        function ($scope, OTIRealTimeService) {
+        ['$scope', 'OTISettingsService',
+        function ($scope, OTISettingsService) {
 
     var clearUploadProblems = function () {
         $scope.uploadProblems = {
@@ -26,7 +26,7 @@ angular.module('transitIndicators')
             return;
         }
 
-        OTIRealTimeService.realtimeProblems.query({},
+        OTISettingsService.realtimeProblems.query({},
             function(data) {
                 $scope.uploadProblems.warnings = _.filter(data, function (problem) {
                     return problem.realtime === upload.id && problem.type === 'war';
@@ -37,7 +37,7 @@ angular.module('transitIndicators')
             });
     };
 
-    $scope.RealTimeUpload = OTIRealTimeService.realtimeUpload;
+    $scope.RealTimeUpload = OTISettingsService.realtimes;
     $scope.realtimeOptions = {
         uploadTimeoutMs: 10 * 60 * 1000
     };
@@ -65,7 +65,7 @@ angular.module('transitIndicators')
     $scope.init = function () {
 
         clearUploadProblems();
-        OTIRealTimeService.realtimeUpload.query({}, function (uploads) {
+        OTISettingsService.realtimes.query({}, function (uploads) {
             if (uploads.length > 0) {
                 var upload = uploads.pop();
                 setUpload(upload);

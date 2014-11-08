@@ -25,7 +25,7 @@ def run_scenario_creation(scenario):
     base_db_name = scenario.base_scenario.name if scenario.base_scenario else default_db_name
 
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
-    token = OTIUser.objects.get(username='oti-admin').auth_token.key
+    token = scenario.created_by.auth_token.key
     period = scenario.sample_period
     payload = json.dumps({
         'token': token,

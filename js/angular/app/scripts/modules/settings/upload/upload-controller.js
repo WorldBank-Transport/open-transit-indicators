@@ -30,8 +30,8 @@ angular.module('transitIndicators')
  * Main controller for OTI upload page
  */
 .controller('OTIUploadController',
-    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIUploadService', 'OTIEvents',
-    function ($scope, $rootScope, $timeout, $upload, OTIUploadService, OTIEvents) {
+    ['$scope', '$rootScope', '$timeout', '$upload', 'OTISettingsService', 'OTIEvents',
+    function ($scope, $rootScope, $timeout, $upload, OTISettingsService, OTIEvents) {
 
     $scope.cityName = null;
 
@@ -70,7 +70,7 @@ angular.module('transitIndicators')
             return;
         }
 
-        OTIUploadService.osmImportProblems.query(
+        OTISettingsService.osmProblems.query(
             {osmdata: osmImport.id},
             function(data) {
                 $scope.osmImportProblems.warnings = _.filter(data, function (problem) {
@@ -112,7 +112,7 @@ angular.module('transitIndicators')
                 viewOSMProblems(osmImport);
             } else if ($scope.Status.isPolling(osmImport.status)) {
                 $scope.timeoutIdOSM = $timeout(function () {
-                    osmImport = OTIUploadService.osmImport.get({id: osmImport.id}, function (data) {
+                    osmImport = OTISettingsService.osmData.get({id: osmImport.id}, function (data) {
                         $scope.osmImport = osmImport;
                         checkImport();
                     });
@@ -130,13 +130,13 @@ angular.module('transitIndicators')
      * @param gtfsfeed <object> angular resource for gtfs feed
      */
     var checkOSMImport = function(gtfsfeed) {
-        OTIUploadService.osmImport.query({gtfsfeed: gtfsfeed.id}, function(osmimports) {
+        OTISettingsService.osmData.query({gtfsfeed: gtfsfeed.id}, function(osmimports) {
             // If there is an OSM import, display it status, else create one
             if (osmimports.length > 0) {
                 viewOSMProblems(osmimports[0]);
                 $scope.osmImport = osmimports[0];
             } else {
-                OTIUploadService.osmImport.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
+                OTISettingsService.osmData.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
                     pollForOSMImport(osmImport);
                 });
             }
@@ -153,7 +153,7 @@ angular.module('transitIndicators')
             clearOsmImportProblems();
         }
 
-        OTIUploadService.osmImport.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
+        OTISettingsService.osmData.save({gtfsfeed: $scope.gtfsUpload.id}, function(osmImport) {
             $scope.osmImport = osmImport;
             pollForOSMImport(osmImport);
         });
@@ -172,7 +172,7 @@ angular.module('transitIndicators')
             return;
         }
 
-        OTIUploadService.gtfsProblems.query(
+        OTISettingsService.gtfsProblems.query(
             {gtfsfeed: upload.id},
             function(data) {
                 $scope.uploadProblems.warnings = _.filter(data, function (problem) {
@@ -214,7 +214,7 @@ angular.module('transitIndicators')
     $scope.saveCityName = function () {
         $scope.saveCityNameButton.enabled = false;
         $scope.saveCityNameButton.text = 'STATUS.SAVING';
-        OTIUploadService.cityName.save({'city_name': $scope.cityName}, function () {
+        OTISettingsService.cityName.save({'city_name': $scope.cityName}, function () {
             $scope.saveCityNameButton.enabled = true;
             $scope.saveCityNameButton.text = 'STATUS.SAVE';
         }, function (error) {
@@ -228,7 +228,7 @@ angular.module('transitIndicators')
                 console.log('error saving city name:');
                 console.log(error.data);
             }
-            
+
         });
     };
 
@@ -246,13 +246,13 @@ angular.module('transitIndicators')
     $scope.gtfsOptions = {
         uploadTimeoutMs: 90 * 60 * 1000
     };
-    $scope.GTFSUploads = OTIUploadService.gtfsUploads;
+    $scope.GTFSUploads = OTISettingsService.gtfsUploads;
     $scope.osmImport = {};
     $scope.osmImportProblems = {};
     clearUploadProblems();
 
     $scope.init = function () {
-        OTIUploadService.gtfsUploads.query({}, function (uploads) {
+        OTISettingsService.gtfsUploads.query({}, function (uploads) {
             if (uploads.length > 0) {
                 $scope.gtfsUpload = uploads.pop();
                 viewProblems();
@@ -266,7 +266,7 @@ angular.module('transitIndicators')
             }
         });
 
-        OTIUploadService.cityName.get({}, function (data) {
+        OTISettingsService.cityName.get({}, function (data) {
             $scope.cityName = data.city_name;
         });
     };
