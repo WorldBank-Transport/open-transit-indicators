@@ -21,7 +21,7 @@
         </div>
         <div ng-if="!isRouteNew" class="block">
             <label>{{'SCENARIO.REPRESENTATIVE_TRIP'|translate}}</label>
-            <select ng-model="selectedTripId" ng-options="tripId for tripId in trips" ng-change="getTrip()"></select>
+            <select ng-model="selected.tripId" ng-options="tripId for tripId in trips" ng-change="getTrip()"></select>
         </div>
         <div class="block">
             <label>{{'SCENARIO.HEADWAY'|translate}} ({{'UNITS.MINUTES'|translate}})</label>

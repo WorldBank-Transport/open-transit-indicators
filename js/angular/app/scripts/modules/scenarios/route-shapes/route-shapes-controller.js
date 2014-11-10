@@ -28,8 +28,8 @@ angular.module('transitIndicators')
 
     $scope.trip = OTITripManager.get();
 
-    $scope.delete = function () {
-        //$scope.trip.deleteShape();
+    $scope.deleteShape = function () {
+        $scope.trip.deleteShape();
         OTIDrawService.drawnItems.removeLayer(layerCache);
     };
 

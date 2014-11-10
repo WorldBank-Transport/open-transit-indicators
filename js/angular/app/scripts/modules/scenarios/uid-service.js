@@ -1,7 +1,5 @@
 'use strict';
 
-/* global L */
-
 angular.module('transitIndicators')
 .factory('OTIUIDService',
         [function () {

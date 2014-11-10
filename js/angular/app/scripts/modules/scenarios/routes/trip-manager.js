@@ -17,8 +17,13 @@ list({
 */
 
 angular.module('transitIndicators')
-.factory('OTITripManager', ['$q', 'OTITripModel', 'OTIFrequencyModel', 'leafletData', 'OTIDrawService', 'OTIStopService', 'OTIUIDService',
-         function ($q, OTITripModel, OTIFrequencyModel, leafletData, OTIDrawService, OTIStopService, OTIUIDService) {
+.factory('OTITripManager', [
+         '$q',
+         'leafletData',
+         'OTITripModel', 'OTIFrequencyModel', 'OTIDrawService', 'OTIStopService', 'OTIUIDService',
+         function ($q,
+                   leafletData,
+                   OTITripModel, OTIFrequencyModel, OTIDrawService, OTIStopService, OTIUIDService) {
 
     var makeTrip = function () {
         var trip = new OTITripModel();

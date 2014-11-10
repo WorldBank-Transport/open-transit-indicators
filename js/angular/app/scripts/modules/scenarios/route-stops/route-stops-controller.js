@@ -3,9 +3,13 @@
 /* global L */
 
 angular.module('transitIndicators')
-.controller('OTIScenariosRoutestopsController',
-            ['config', '$scope', '$state', '$stateParams', 'OTIRouteManager', 'OTITripManager', 'leafletData', 'OTIDrawService', 'OTIStopService', '$compile',
-            function (config, $scope, $state, $stateParams, OTIRouteManager, OTITripManager, leafletData, OTIDrawService, OTIStopService, $compile) {
+.controller('OTIScenariosRoutestopsController', [
+            '$scope', '$state', '$stateParams', '$compile',
+             'leafletData',
+            'config', 'OTIRouteManager', 'OTITripManager', 'OTIDrawService', 'OTIStopService',
+            function ($scope, $state, $stateParams, $compile,
+                      leafletData,
+                      config, OTIRouteManager, OTITripManager, OTIDrawService, OTIStopService) {
 
     // TODO: Click existing utfgrid stop to add to route
     // TODO: Refactor and cleanup marker add logic?
@@ -15,8 +19,6 @@ angular.module('transitIndicators')
     var layerHash = {};
 
     var drawControl = OTIDrawService.markerDrawControl;
-    var markerController = OTIDrawService.markerController;
-
 
     // $SCOPE
 

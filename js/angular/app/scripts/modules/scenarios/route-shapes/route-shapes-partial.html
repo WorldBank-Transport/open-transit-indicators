@@ -7,7 +7,7 @@
         <div class="col-xs-8">{{ 'SCENARIO.SHAPE_LENGTH'|translate}}:</div>
         <div class="col-xs-4">{{ trip.shape.shapeDistTraveled | number:2 }} {{'SCENARIO.SHAPE_UNITS'|translate}}</div>
     </div>
-    <div class="row" ng-if="route.shapes.length > 0">
+    <div class="row" ng-if="trip.shape.coordinates.length > 0">
         <div class="col-xs-12">
             <a class="button--small" ng-click="delete()">{{'TERM.DELETE'|translate}}</a>
         </div>

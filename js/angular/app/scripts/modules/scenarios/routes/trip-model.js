@@ -50,10 +50,6 @@ angular.module('transitIndicators')
         }
     });
 
-    function distance(p, q) {
-      return Math.sqrt(Math.pow(p[0] - q[0], 2) + Math.pow(p[1] - q[1], 2));
-    }
-
     angular.extend(module.prototype, {
 
         addFrequency: function (frequency, index) {
@@ -77,8 +73,16 @@ angular.module('transitIndicators')
             this.frequencies = [];
         },
 
-        // if index undefined, add to end of array
         makeShape: function (newCoords) {
+            // This function takes an array of coordinates (itself of the form [lat, long])
+            // and determines, for each pairing of head to tail, the shortest path which connects
+            // said head and tail. It then creates a new set of coordinates which joins together
+            // old and new coordinates as a line with the shortest possible, inferred connection
+
+            function distance(p, q) {
+              return Math.sqrt(Math.pow(p[0] - q[0], 2) + Math.pow(p[1] - q[1], 2));
+            }
+
             var oldCoords = this.shape.coordinates;
             if (oldCoords.length > 0) {
                 var head = oldCoords[0],
@@ -111,7 +115,7 @@ angular.module('transitIndicators')
             }
         },
         removeShape: function (index) {
-
+            this.shape.coordinates = [];
         },
         orderStops: function() {
             this.stopTimes = _.map(this.stopTimes, function(stopTime, index) {
