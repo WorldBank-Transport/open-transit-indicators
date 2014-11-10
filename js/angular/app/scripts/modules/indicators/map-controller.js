@@ -3,29 +3,22 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
         ['$cookieStore', '$rootScope', '$scope', '$state',
-         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-         'OTIMapStyleService', 'OTIMapService',
+         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorManager', 'OTIIndicatorModel',
+         'OTIIndicatorsMapService', 'OTIMapStyleService', 'OTIMapService',
         function ($cookieStore, $rootScope, $scope, $state,
-                  config, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService,
-                  OTIMapStyleService, OTIMapService) {
-
-    var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
-        calculation_job: 0,
-        type: 'num_stops',
-        sample_period: 'morning',
-        aggregation: 'route'
-    });
+                  config, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorManager, OTIIndicatorModel,
+                  OTIIndicatorsMapService, OTIMapStyleService, OTIMapService) {
 
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
     $scope.dropdown_type_open = false;
 
-    // Object used to configure the indicator displayed on the map
-    // Retrieve last selected indicator from session cookie, if available
-    $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
+
+    $scope.indicator = OTIIndicatorManager.getConfig();
 
     angular.extend($scope.indicator,
         { modes: OTIMapService.getTransitModes() });
+    OTIIndicatorManager.setConfig($scope.indicator);
 
     /* LEAFLET CONFIG */
     var overlays = {
@@ -75,26 +68,14 @@ angular.module('transitIndicators')
         }
     };
 
-    var setIndicator = function (indicator) {
-        angular.extend($scope.indicator, indicator);
-        $cookieStore.put('indicator', $scope.indicator);
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
-    };
-
     var updateIndicatorLegend = function (indicator) {
         var params = angular.extend({}, indicator, {
             'ordering': 'value'
         });
-        OTIIndicatorsService.query('GET', params).then(function (data) {
+        OTIIndicatorModel.search(params, function (data) {
             // Redraw new
             $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
         });
-    };
-
-    $scope.setIndicator = function (options) {
-        angular.extend($scope.indicator, options);
-        $scope.updateIndicatorLayers($scope.indicator);
-        $scope.indicator_dropdown_open = false;
     };
 
     /**
@@ -106,8 +87,6 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $scope.indicator.modes = OTIMapService.getTransitModes();
-        $cookieStore.put('indicator', $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -129,12 +108,12 @@ angular.module('transitIndicators')
 
     $scope.selectType = function (type) {
         $scope.dropdown_type_open = false;
-        setIndicator({type: type});
+        OTIIndicatorManager.setConfig({type: type});
     };
 
     $scope.selectAggregation = function (aggregation) {
         $scope.dropdown_aggregation_open = false;
-        setIndicator({aggregation: aggregation});
+        OTIIndicatorManager.setConfig({aggregation: aggregation});
     };
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
@@ -147,16 +126,16 @@ angular.module('transitIndicators')
         }
     });
 
-    $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {
+    $scope.$on(OTIIndicatorManager.Events.IndicatorConfigUpdated, function (event, indicator) {
         $scope.updateIndicatorLayers(indicator);
     });
 
-    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function (event, sample_period) {
-        setIndicator({sample_period: sample_period});
+    $scope.$on(OTIIndicatorManager.Events.SamplePeriodUpdated, function (event, sample_period) {
+        OTIIndicatorManager.setConfig({sample_period: sample_period});
     });
 
     $scope.$on(OTIEvents.Indicators.IndicatorCalcJobUpdated, function (event, calculation_job) {
-        setIndicator({calculation_job: calculation_job});
+        OTIIndicatorManager.setConfig({calculation_job: calculation_job});
     });
 
     $scope.init = function () {

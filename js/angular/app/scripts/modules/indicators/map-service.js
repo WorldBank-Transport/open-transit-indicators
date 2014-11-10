@@ -2,10 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsMapService',
-         ['$q', '$http', '$resource', '$location', 'windshaftConfig', 'OTIMapStyleService',
-	  'OTIIndicatorsService',
-          function ($q, $http, $resource, $location, windshaftConfig, OTIMapStyleService,
-		    OTIIndicatorsService) {
+         ['$q', 'OTIIndicatorModel',
+          function ($q, OTIIndicatorModel) {
 
     var otiMapService = {};
 
@@ -15,7 +13,7 @@ angular.module('transitIndicators')
      */
     otiMapService.getIndicatorFormattedValue = function(indicatorId) {
 	var dfd = $q.defer();
-	var result = OTIIndicatorsService.Indicator.get({id: indicatorId}, function () {
+	var result = OTIIndicatorModel.get({id: indicatorId}, function () {
 	    dfd.resolve(result);
 	});
 	return dfd.promise;

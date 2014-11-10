@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .factory('OTIIndicatorsService',
-        ['$q', '$http', '$resource', 'OTISettingsService', '$rootScope',
-        function ($q, $http, $resource, OTISettingsService, $rootScope) {
+        ['$q', '$http', '$resource', 'OTISettingsService',
+        function ($q, $http, $resource, OTISettingsService) {
 
     var otiIndicatorsService = {};
     var nullJob = 0;
@@ -16,48 +16,6 @@ angular.module('transitIndicators')
 
     otiIndicatorsService.isModalOpen = function () {
         return modalStatus;
-    };
-
-    otiIndicatorsService.Indicator = $resource('/api/indicators/:id/', {id: '@id'}, {
-        'update': {
-            method: 'PATCH',
-            url: '/api/indicators/:id/'
-        }
-    }, {
-        stripTrailingSlashes: false
-    });
-
-    /**
-     * This is here rather than as a 'search' method on Indicator because the function refused to
-     *  call the success/failure callbacks on function return as detailed here:
-     *  HTTP GET "class" actions: Resource.action([parameters], [success], [error])
-     * My guess is the redirect from the stripTrailingSlash is at work again...
-     * TODO: Filter out route aggregations in request
-     */
-    otiIndicatorsService.query = function (method, config) {
-        var dfd = $q.defer();
-        $http({
-            method: method,
-            url: '/api/indicators/',
-            params: config
-        }).success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('otiIndicatorsService.search():', error);
-            dfd.resolve([]);
-        });
-        return dfd.promise;
-    };
-
-    /**
-     * Thin wrapper for Indicator used in the controller for setting the map properties
-     */
-    otiIndicatorsService.IndicatorConfig = function (config) {
-        this.calculation_job = config.calculation_job || nullJob;
-        this.type = config.type;
-        this.sample_period = config.sample_period;
-        this.aggregation = config.aggregation;
-        this.modes = $rootScope.visibleModes || '';
     };
 
     /**
@@ -95,10 +53,6 @@ angular.module('transitIndicators')
             console.log('otiIndicatorsService.getIndicatorCalcJob error:');
             console.log(error);
         });
-    };
-
-    otiIndicatorsService.getIndicatorDescriptionTranslationKey = function(key) {
-        return 'INDICATOR_DESCRIPTION.' + key;
     };
 
     return otiIndicatorsService;

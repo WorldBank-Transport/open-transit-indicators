@@ -3,11 +3,13 @@ angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
             ['$scope', '$state', '$modal',
              'OTICityManager', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+             'OTIIndicatorModel', 'OTIIndicatorManager',
             function ($scope, $state, $modal,
-                      OTICityManager, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
+                      OTICityManager, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService,
+                      OTIIndicatorModel, OTIIndicatorManager) {
 
     $scope.updating = false;
-    $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
+    $scope.indicatorDetailKey = OTIIndicatorManager.getDescriptionTranslationKey;
     $scope.charts = OTIIndicatorsDataService.Charts;
     $scope.selfCityName = OTIIndicatorsService.selfCityName;
     var colors = OTIIndicatorsDataService.Colors;
@@ -33,7 +35,7 @@ angular.module('transitIndicators')
                     aggregation: 'mode,system',
                     calculation_job: calcJob
                 };
-                OTIIndicatorsService.query('GET', params).then(function (data) {
+                OTIIndicatorModel.search(params, function (data) {
                     // If there is no indicator data, ask to redirect to the calculation status page
                     // only if we're still on the data page
                     if (!data.length && $state.is('data') && !OTIIndicatorsService.isModalOpen()) {
@@ -91,7 +93,7 @@ angular.module('transitIndicators')
 
     $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
 
-    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function () {
+    $scope.$on(OTIIndicatorManager.Events.SamplePeriodUpdated, function () {
         getIndicatorData();
     });
 

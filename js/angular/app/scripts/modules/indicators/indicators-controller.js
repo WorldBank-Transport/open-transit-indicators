@@ -2,8 +2,12 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTITypes', 'cities',
-            function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, OTITypes, cities) {
+            ['$scope', '$cookieStore', '$modal',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorsService', 'OTITypes',
+             'cities',
+            function ($scope, $cookieStore, $modal,
+                      OTIEvents, OTIIndicatorManager, OTIIndicatorsService, OTITypes,
+                      cities) {
 
     $scope.dropdown_sample_period_open = false;
     $scope.indicatorCalcJob = 0;
@@ -11,7 +15,7 @@ angular.module('transitIndicators')
     $scope.aggregations = {};
     $scope.types = {};
     $scope.sample_periods = {};
-    $scope.sample_period = $cookieStore.get('sample_period') || 'morning';
+    $scope.sample_period = OTIIndicatorManager.getSamplePeriod();
 
     $scope.cities = cities;
     $scope.showingState = 'data';
@@ -68,8 +72,7 @@ angular.module('transitIndicators')
     $scope.selectSamplePeriod = function (sample_period) {
         $scope.dropdown_sample_period_open = false;
         $scope.sample_period = sample_period;
-        $cookieStore.put('sample_period', sample_period);
-        $scope.$broadcast(OTIEvents.Indicators.SamplePeriodUpdated, sample_period);
+        OTIIndicatorManager.setSamplePeriod(sample_period);
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
