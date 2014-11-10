@@ -32,6 +32,7 @@ angular.module('transitIndicators')
     };
     $scope.samplePeriodsError = false;
     $scope.configError = false;
+    $scope.configSuccess = false;
 
     /**
      * Helper setter for $scope.saveConfigButton
@@ -189,15 +190,17 @@ angular.module('transitIndicators')
         $scope.setSidebarCheckmark('configuration', isValid);
     };
 
-    $scope.saveConfig = function () {
+    $scope.saveConfigPromise = function () {
+        var deferred = $q.defer();
         $scope.configError = false;
-        setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
-            setSaveConfigButton(true);
+            deferred.resolve();
         }, function () {
-            setSaveConfigButton(true);
+            deferred.reject();
             $scope.configError = true;
         });
+
+        return deferred.promise;
     };
 
     /**
@@ -209,13 +212,12 @@ angular.module('transitIndicators')
      * For weekend, we save 00:00:00-23:59:59 since API rejects a full 24 hours.
      *
      */
-    $scope.saveSamplePeriods = function () {
+    $scope.saveSamplePeriodsPromise = function () {
 
         if ($scope.samplePeriodsForm.$invalid) {
             return;
         }
 
-        setSavePeriodsButton(false);
         $scope.samplePeriodsError = false;
         var promises = [];
 
@@ -248,11 +250,27 @@ angular.module('transitIndicators')
         weekend.period_end = weekendDates[1];
         promises.push(weekend.$update());
 
-        $q.all(promises).then(function (data) {
-            setSavePeriodsButton(true);
-        }, function (error) {
-            setSavePeriodsButton(true);
+        return $q.all(promises).catch(function () {
             $scope.samplePeriodsError = true;
+        });
+    };
+
+    $scope.saveAllConfig = function () {
+        var promises = [];
+
+        $scope.configSuccess = false;
+
+        // make save button not clickable
+        setSaveConfigButton(false);
+
+        promises.push($scope.saveSamplePeriodsPromise());
+        promises.push($scope.saveConfigPromise());
+
+        $q.all(promises).then(function () {
+            $scope.configSuccess = true;
+        })['finally'](function () {
+            // make button clickable again
+            setSaveConfigButton(true);
         });
     };
 
