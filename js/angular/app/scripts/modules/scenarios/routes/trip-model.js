@@ -73,13 +73,45 @@ angular.module('transitIndicators')
             this.frequencies = [];
         },
 
+        // This function returns km of line-length, given lat/longs using the haversine formula
+        // https://en.wikipedia.org/wiki/Haversine_formula
+        // http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
+        calculateDistance: function() {
+            function getDistanceFromLatLonInKm(line) {
+                var R = 6371; // Radius of the earth in km
+                var dLat = deg2rad(line[0][0] - line[1][0]);  // deg2rad below
+                var dLon = deg2rad(line[0][1] - line[1][1]);
+                var a =
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(deg2rad(line[0][0])) * Math.cos(deg2rad(line[1][0])) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                var d = R * c; // Distance in km
+                return d;
+            }
+
+            function deg2rad(deg) {
+                return deg * (Math.PI/180);
+            }
+
+            var latlngs = this.shape.coordinates;
+            var lines = _.zip(_.initial(latlngs), _.tail(latlngs));
+
+            this.shape.distance = _.chain(lines)
+                                 .map(getDistanceFromLatLonInKm)
+                                 .foldl(function(acc, num) { return acc + num; }, 0)
+                                 .value();
+            return this.shape.distance;
+
+        },
+
         makeShape: function (newCoords) {
             // This function takes an array of coordinates (itself of the form [lat, long])
             // and determines, for each pairing of head to tail, the shortest path which connects
             // said head and tail. It then creates a new set of coordinates which joins together
             // old and new coordinates as a line with the shortest possible, inferred connection
 
-            function distance(p, q) {
+            function eucDistance(p, q) {
               return Math.sqrt(Math.pow(p[0] - q[0], 2) + Math.pow(p[1] - q[1], 2));
             }
 
@@ -89,10 +121,10 @@ angular.module('transitIndicators')
                     last = oldCoords[oldCoords.length-1],
                     newHead = newCoords[0],
                     newLast = newCoords[newCoords.length-1],
-                    headHead = [distance(head, newHead), 'headHead'],
-                    headLast = [distance(head, newLast), 'headLast'],
-                    lastHead = [distance(last, newHead), 'lastHead'],
-                    lastLast = [distance(last, newLast), 'lastLast'],
+                    headHead = [eucDistance(head, newHead), 'headHead'],
+                    headLast = [eucDistance(head, newLast), 'headLast'],
+                    lastHead = [eucDistance(last, newHead), 'lastHead'],
+                    lastLast = [eucDistance(last, newLast), 'lastLast'],
                     combinations = [headHead, headLast, lastHead, lastLast];
                 var leastDistance = _.min(combinations, function(val) { return val[0]; });
 
@@ -113,9 +145,11 @@ angular.module('transitIndicators')
             } else {
               this.shape.coordinates = newCoords;
             }
+            this.calculateDistance();
         },
-        removeShape: function (index) {
+        clearShape: function () {
             this.shape.coordinates = [];
+            this.calculateDistance();
         },
         orderStops: function() {
             this.stopTimes = _.map(this.stopTimes, function(stopTime, index) {
