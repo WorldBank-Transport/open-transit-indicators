@@ -1,10 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorManager',
-            'OTIIndicatorsMapService', 'OTIMapService',
-            function ($scope, $rootScope, OTIEvents, OTIIndicatorManager,
-                      OTIIndicatorsMapService, OTIMapService) {
+            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorManager', 'OTIMapService',
+            function ($scope, $rootScope, OTIEvents, OTIIndicatorManager, OTIMapService) {
 
     var boundaryIndicator = OTIIndicatorManager.getConfig();
 

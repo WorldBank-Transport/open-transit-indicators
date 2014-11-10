@@ -3,11 +3,11 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
         ['$cookieStore', '$rootScope', '$scope', '$state',
-         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
-         'OTIIndicatorJobManager', 'OTIIndicatorsMapService', 'OTIMapStyleService', 'OTIMapService',
+         'leafletData', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
+         'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService',
         function ($cookieStore, $rootScope, $scope, $state,
-                  config, leafletData, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
-                  OTIIndicatorJobManager, OTIIndicatorsMapService, OTIMapStyleService, OTIMapService) {
+                  leafletData, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
+                  OTIIndicatorJobManager, OTIMapStyleService, OTIMapService) {
 
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
@@ -119,8 +119,7 @@ angular.module('transitIndicators')
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
         if (leafletEvent.data && leafletEvent.data.indicator_id) {
-            var formattedValue = OTIIndicatorsMapService.getIndicatorFormattedValue(leafletEvent.data.indicator_id);
-            formattedValue.then(function(indicator) {
+            OTIIndicatorModel.get({id: leafletEvent.data.indicator_id}, function (indicator) {
                 utfGridMarker(leafletEvent, indicator);
             });
         }

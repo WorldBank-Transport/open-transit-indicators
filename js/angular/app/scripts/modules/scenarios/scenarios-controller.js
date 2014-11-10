@@ -2,10 +2,10 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
             ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
-             'OTIIndicatorsMapService', 'OTIMapService', 'samplePeriods',
+             'OTIMapService', 'samplePeriods',
              'samplePeriodI18N', 'routeTypes',
              function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
-                       OTIIndicatorsMapService, OTIMapService, samplePeriods,
+                       OTIMapService, samplePeriods,
                        samplePeriodI18N, routeTypes)
 {
 

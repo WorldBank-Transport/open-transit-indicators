@@ -3,10 +3,10 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIIndicatorsMapService', 'OTIMapService', 'authService','leafletData', 'user',
+             'OTIEvents', 'OTIMapService', 'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, OTIIndicatorsMapService, OTIMapService, authService, leafletData, user) {
+                      OTIEvents, OTIMapService, authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
