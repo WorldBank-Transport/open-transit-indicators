@@ -57,7 +57,7 @@ object WeeklyServiceHours {
 class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSystemBuilder) {
   // Helper method to perform calculation (and ease testing).
   def calculate(firstDay: LocalDateTime): AggregatedResults = {
-    val routeResults = hoursByRoute(buildSystems(buildWeek(firstDay)))
+    val routeResults = hoursByRoute(firstDay)
     val modeResults = routeResults.groupBy { case (route, results) => route.routeType }
       .map { case (route, results) => (route, results.values.max) }.toMap
     val systemResult = Some(routeResults.values.max)        
@@ -65,7 +65,16 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
   }
 
   // Get total system hours per route for the representative week.
-  def hoursByRoute(weekSystems: Seq[TransitSystem]): Map[Route, Double] = {
+  def hoursByRoute(startDateTime: LocalDateTime): Map[Route, Double] = {
+    // returns transit system for given day of the week within the representative week
+    def buildDay(offset: Int = 0): TransitSystem = {
+      if (offset >= 7) throw new IllegalArgumentException("Starting day must not be more than one week out.")
+      else {
+        val startDay = startDateTime.plusDays(offset)
+        val period = SamplePeriod(offset, offset.toString, startDay, startDay.plusDays(1))
+        builder.systemBetween(period.start, period.end)
+      }
+    }
 
     def systemRouteHours(system: TransitSystem): Map[Route, Double] =
       if (system.routes.isEmpty) Map[Route, Double]()
@@ -106,25 +115,23 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
     }
 
     // sum the daily service windows for each route to get weekly hours for route
-    @tailrec
-    def sumRouteHours(systems: Seq[TransitSystem], soFar: Map[Route, Double]): Map[Route, Double] = {
-      if (systems.isEmpty) soFar
-      else {
-        val dayRoutes = systemRouteHours(systems.head)
-        val newMap = 
-          if (soFar.isEmpty) dayRoutes
-          else soFar ++ dayRoutes.map{ case (k, v) => k -> (v + soFar.getOrElse(k, 0.0)) }
-        sumRouteHours(systems.tail, newMap)
+    var hoursForRoutes = scala.collection.mutable.Map[Route, Double]()
+    val dayRoutes = (0 to 6).foreach{ dayOffset => 
+      val day = systemRouteHours(buildDay(dayOffset)) 
+      day.foreach{ case (k, v) => {
+        val newVal = v + hoursForRoutes.getOrElse(k, 0.0)
+        hoursForRoutes.update(k, newVal)
+        }
       }
     }
-
-    sumRouteHours(weekSystems, Map[Route, Double]())
+    hoursForRoutes.toMap // make immutable
   }
 
   // Get the representative weekday by finding it from the sample periods.
   def representativeWeekday: Option[LocalDateTime] = {
     // Recursively look through sample periods and return the first one that's for a weekday.
-    @tailrec def weekdayPeriod(samplePeriods: Seq[SamplePeriod]): Option[SamplePeriod] = {
+    @tailrec
+    def weekdayPeriod(samplePeriods: Seq[SamplePeriod]): Option[SamplePeriod] = {
       if (samplePeriods.isEmpty) None
       else {
         val firstPeriod = samplePeriods.head
@@ -143,21 +150,4 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
       case None => None
     }
   }
-
-  // returns periods for each day of the week starting on the given date
-  def buildWeek(startDateTime: LocalDateTime): Seq[SamplePeriod] = {
-    // recursively build list of periods for each day in week
-    @tailrec def buildDay(offset: Int, week: List[SamplePeriod]): Seq[SamplePeriod] = {
-      if (offset == 7) week else {
-        val startDay = startDateTime.plusDays(offset)
-        buildDay(offset + 1, 
-          week ++ List(SamplePeriod(offset, offset.toString, startDay, startDay.plusDays(1))))
-      }
-    }
-    buildDay(0, List())
-  }
-
-  // get a transit system for each day of the representative week
-  def buildSystems(days: Seq[SamplePeriod]): Seq[TransitSystem] =
-    days.map(day => builder.systemBetween(day.start, day.end))
 }

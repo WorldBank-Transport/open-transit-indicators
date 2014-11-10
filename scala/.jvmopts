@@ -1,5 +1,9 @@
 -Dfile.encoding=UTF8
--XX:MaxPermSize=4g
 -XX:-UseConcMarkSweepGC
 -XX:+UseGCOverheadLimit
 -XX:+CMSClassUnloadingEnabled
+-XX:+StartAttachListener
+-Xverify:none
+-Dcom.sun.management.jmxremote.port=3333
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote.authenticate=false
