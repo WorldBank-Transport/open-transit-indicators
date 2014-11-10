@@ -34,8 +34,25 @@ angular.module('transitIndicators')
             isArray: true,
             transformResponse: transformTrips,
             url: baseUrl
+        },
+        get: {
+          method: 'GET',
+          transformResponse: function(tripString) {
+            // convert lng,lat points into lat,lng - this is a fix for apparently
+            // broken geotrellis json conversion
+            var trip = angular.fromJson(tripString);
+            trip.shape.coordinates = _.map(
+                trip.shape.coordinates, function(lnglat) {
+                    return [lnglat[1], lnglat[0]];
+                });
+            return trip;
+          }
         }
     });
+
+    function distance(p, q) {
+      return Math.sqrt(Math.pow(p[0] - q[0], 2) + Math.pow(p[1] - q[1], 2));
+    }
 
     angular.extend(module.prototype, {
 
@@ -61,8 +78,37 @@ angular.module('transitIndicators')
         },
 
         // if index undefined, add to end of array
-        addShape: function (shape, index) {
+        makeShape: function (newCoords) {
+            var oldCoords = this.shape.coordinates;
+            if (oldCoords.length > 0) {
+                var head = oldCoords[0],
+                    last = oldCoords[oldCoords.length-1],
+                    newHead = newCoords[0],
+                    newLast = newCoords[newCoords.length-1],
+                    headHead = [distance(head, newHead), 'headHead'],
+                    headLast = [distance(head, newLast), 'headLast'],
+                    lastHead = [distance(last, newHead), 'lastHead'],
+                    lastLast = [distance(last, newLast), 'lastLast'],
+                    combinations = [headHead, headLast, lastHead, lastLast];
+                var leastDistance = _.min(combinations, function(val) { return val[0]; });
 
+                // create the shortest possible line
+                switch (leastDistance[1]) {
+                    case 'headHead':
+                        this.shape.coordinates = newCoords.reverse().concat(oldCoords);
+                        break;
+                    case 'headLast':
+                        this.shape.coordinates = newCoords.concat(oldCoords);
+                        break;
+                    case 'lastHead':
+                        this.shape.coordinates = oldCoords.concat(newCoords);
+                        break;
+                    case 'lastLast':
+                        this.shape.coordinates = oldCoords.concat(newCoords.reverse());
+                }
+            } else {
+              this.shape.coordinates = newCoords;
+            }
         },
         removeShape: function (index) {
 
@@ -85,11 +131,8 @@ angular.module('transitIndicators')
             return removed;
         },
         changeSequence: function (index, delta) {
-            console.log(delta)
             var newPosition = (index + delta > 0) ? index + delta : 0;
-            console.log(newPosition)
             var removed = this.stopTimes.splice(index, 1);
-            console.log(removed)
             this.stopTimes.splice(newPosition, 0, removed[0]);
             this.orderStops();
         }

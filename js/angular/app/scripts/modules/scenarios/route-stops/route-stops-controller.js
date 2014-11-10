@@ -36,7 +36,7 @@ angular.module('transitIndicators')
         mapStops();
     };
 
-    $scope.$on('$stateChangeStart', function () {
+    $scope.$on('$stateChangeStart', function (e) {
         leafletData.getMap().then(function (map) {
             OTIDrawService.reset();
             map.removeControl(drawControl);

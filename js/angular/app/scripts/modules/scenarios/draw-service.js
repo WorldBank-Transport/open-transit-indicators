@@ -56,19 +56,21 @@ angular.module('transitIndicators')
             }
         });
 
+    drawService.defaultPolylineOpts = {
+        metric: true,
+        shapeOptions: {
+            stroke: true,
+            color: '#41bcff',
+            weight: 5,
+            opacity: 0.9,
+            fill: false
+        }
+    };
+
     drawService.lineDrawControl = new L.Control.Draw({
         position: 'topright',
         draw: {
-            polyline: {
-                metric: true,
-                shapeOptions: {
-                    stroke: true,
-                    color: '#41bcff',
-                    weight: 5,
-                    opacity: 0.9,
-                    fill: false
-                }
-            },
+            polyline: drawService.defaultPolylineOpts,
             polygon: false,
             rectangle: false,
             circle: false,
