@@ -6,31 +6,18 @@ describe('Service: Indicators', function () {
     var typesService;
 
     beforeEach(module('transitIndicators'));
-    beforeEach(inject(function(_OTIIndicatorsService_, _OTITypes_) {
-        indicatorsService = _OTIIndicatorsService_;
+    beforeEach(inject(function(_OTIIndicatorManager_, _OTITypes_) {
+        indicatorsService = _OTIIndicatorManager_;
         typesService = _OTITypes_;
     }));
 
     describe('IndicatorsConfig tests', function () {
-        it('should have version, sample_period, type, aggregation properties', function () {
-            var indicator = new indicatorsService.IndicatorConfig({
-                calculation_job: 42,
-                type: 'test',
-                aggregation: 'system',
-                sample_period: 'morning'
-            });
+        it('should have version, sample_period, type, aggregation properties by default', function () {
+            var indicator = indicatorsService.getConfig();
             expect(indicator.calculation_job).toBeDefined();
             expect(indicator.type).toBeDefined();
             expect(indicator.aggregation).toBeDefined();
             expect(indicator.sample_period).toBeDefined();
-        });
-
-        it('should fail to initialize with an empty object', function () {
-            var indicator = new indicatorsService.IndicatorConfig({});
-            expect(indicator.calculation_job).toBe(0);
-            expect(indicator.type).not.toBeDefined();
-            expect(indicator.aggregation).not.toBeDefined();
-            expect(indicator.sample_period).not.toBeDefined();
         });
     });
 
