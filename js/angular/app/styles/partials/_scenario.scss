@@ -151,8 +151,17 @@
   -ms-transform: translate3d(0, 0, 0) !important;
 }
 
+.scenario-page-content table,thead,tbody {
+    width: 100%;
+    border-spacing: 0px;
+    display: block;
+}
 
-
+.scenario-page-content tbody {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
 .badge {
   background-color: $brand-primary;

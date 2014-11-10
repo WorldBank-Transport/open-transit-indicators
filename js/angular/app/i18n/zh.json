@@ -150,6 +150,7 @@
         "USE_THE_DRAW_TOOL": "使用画图工具在您的路线中添加形状。",
         "CONFIRM_TIMES": "确认时间",
         "WEVE_ESTIMATED_ARRIVAL_TIMES": "我们已估算每个站点的到站时间。",
+        "STOP_TIME_REQUIRED": "You must enter a stop time for each stop, using a format of HH:mm:ss",
         "PROTOTYPE_FINISHED": "原型完成",
         "SUCCESS": "Success!",
         "YOU_JUST_CREATE_ROUTE": "You just created the route:",
