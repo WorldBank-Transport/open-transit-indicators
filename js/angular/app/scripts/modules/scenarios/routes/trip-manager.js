@@ -17,22 +17,12 @@ list({
 */
 
 angular.module('transitIndicators')
-.factory('OTITripManager', ['$q', 'OTITripModel', 'OTIFrequencyModel', 'leafletData', 'OTIDrawService', 'OTIStopService',
-         function ($q, OTITripModel, OTIFrequencyModel, leafletData, OTIDrawService, OTIStopService) {
-
-    var getId = function () {
-        var id = [];
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (var i = 0; i < 8; i++) {
-            id.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-        }
-        return id.join('');
-    };
+.factory('OTITripManager', ['$q', 'OTITripModel', 'OTIFrequencyModel', 'leafletData', 'OTIDrawService', 'OTIStopService', 'OTIUIDService',
+         function ($q, OTITripModel, OTIFrequencyModel, leafletData, OTIDrawService, OTIStopService, OTIUIDService) {
 
     var makeTrip = function () {
         var trip = new OTITripModel();
-        trip.tripId = getId();
+        trip.tripId = OTIUIDService.getId();
         trip.routeId = _routeId;
         trip.headsign = '';
         trip.stopTimes = [];

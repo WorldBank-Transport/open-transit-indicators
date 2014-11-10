@@ -3,19 +3,9 @@
 /* global L */
 
 angular.module('transitIndicators')
-.factory('OTIStopService', ['OTIDrawService', function (OTIDrawService) {
+.factory('OTIStopService', ['OTIDrawService', 'OTIUIDService', function (OTIDrawService, OTIUIDService) {
 
     var module = {};
-
-    function getId() {
-        var id = [];
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (var i = 0; i < 8; i++) {
-            id.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-        }
-        return id.join('');
-    }
 
     module.StopTime = function() {
         this.arrivalTime = '';
@@ -25,7 +15,7 @@ angular.module('transitIndicators')
             lat: 0,
             long: 0,
             name: '',
-            stopId: getId()
+            stopId: OTIUIDService.getId()
         };
     };
 
