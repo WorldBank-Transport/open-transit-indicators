@@ -28,9 +28,9 @@ angular.module('transitIndicators')
 
     $scope.trip = OTITripManager.get();
 
-    $scope.deleteShape = function () {
-        $scope.trip.deleteShape();
-        OTIDrawService.drawnItems.removeLayer(layerCache);
+    $scope.clearShape = function () {
+        $scope.trip.clearShape();
+        mapTrip();
     };
 
     $scope.continue = function () {
@@ -89,6 +89,7 @@ angular.module('transitIndicators')
             });
             map.addLayer(OTIDrawService.drawnItems);
         });
+        $scope.trip.calculateDistance();
     };
 
     mapTrip();
