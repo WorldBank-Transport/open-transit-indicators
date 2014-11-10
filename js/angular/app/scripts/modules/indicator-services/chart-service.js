@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTIIndicatorsDataService',
+.factory('OTIIndicatorChartService',
         ['OTITypes', 'OTIMapStyleService',
         function (OTITypes, OTIMapStyleService) {
 
@@ -25,7 +25,7 @@ angular.module('transitIndicators')
     var routeTypeColorRamp = OTIMapStyleService.routeTypeColorRamp();
     var defaultColor = OTIMapStyleService.defaultColor;
 
-    var otiDataService = {};
+    var module = {};
 
     /// DEFAULT CHART FUNCTIONS
     var defaultTooltipFunction = function () {
@@ -83,7 +83,7 @@ angular.module('transitIndicators')
     };
 
     // Chart configuration
-    otiDataService.Charts = {
+    module.Charts = {
         pie: {
             xFunctionMode: defaultXFunctionMode,
             xFunctionRoute: defaultXFunctionRoute,
@@ -154,7 +154,7 @@ angular.module('transitIndicators')
         }
     };
 
-    otiDataService.IndicatorConfig = {
+    module.IndicatorConfig = {
         'affordability': {
             'mode': 'bar',
             'system': 'number'
@@ -265,7 +265,7 @@ angular.module('transitIndicators')
      * @param source data structure defined above
      * @return dest data structure defined above
      */
-    otiDataService.transformData = function (data, cities) {
+    module.transformData = function (data, cities) {
         var transformed = {};
         _.each(data, function (indicator) {
             if (!transformed[indicator.type]) {
@@ -315,11 +315,11 @@ angular.module('transitIndicators')
         return transformed;
     };
 
-    otiDataService.getChartTypeForIndicator = function (type) {
-        var config = otiDataService.IndicatorConfig;
+    module.getChartTypeForIndicator = function (type) {
+        var config = module.IndicatorConfig;
         var chartType = config && config[type] && config[type].mode ? config[type].mode : 'nodata';
         return chartType;
     };
 
-    return otiDataService;
+    return module;
 }]);

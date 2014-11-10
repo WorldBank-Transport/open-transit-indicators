@@ -2,21 +2,21 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
             ['$scope', '$state', '$modal',
-             'OTICityManager', 'OTIIndicatorsDataService',
+             'OTICityManager', 'OTIIndicatorChartService',
              'OTIIndicatorModel', 'OTIIndicatorManager', 'OTIIndicatorJobManager',
             function ($scope, $state, $modal,
-                      OTICityManager, OTIIndicatorsDataService,
+                      OTICityManager, OTIIndicatorChartService,
                       OTIIndicatorModel, OTIIndicatorManager, OTIIndicatorJobManager) {
 
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorManager.getDescriptionTranslationKey;
-    $scope.charts = OTIIndicatorsDataService.Charts;
+    $scope.charts = OTIIndicatorChartService.Charts;
     $scope.selfCityName = OTIIndicatorJobManager.getCurrentCity();
 
     $scope.chartData = {};
 
     var filterDataForChartType = function (data, type, aggregation) {
-        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        var chartType = OTIIndicatorChartService.getChartTypeForIndicator(type);
         if (chartType === 'nodata') {
             return data;
         }
@@ -53,7 +53,7 @@ angular.module('transitIndicators')
                         });
                     }
 
-                    var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
+                    var indicators = OTIIndicatorChartService.transformData(data, $scope.cities);
                     $scope.indicatorData = null;
                     $scope.chartData = {};
                     // Populate $scope.chartData, because filterDataForChartType
@@ -85,12 +85,12 @@ angular.module('transitIndicators')
     };
 
     $scope.getModePartialForIndicator = function (type) {
-        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        var chartType = OTIIndicatorChartService.getChartTypeForIndicator(type);
         var url = '/scripts/modules/indicators/charts/:charttype-mode-partial.html';
         return url.replace(':charttype', chartType);
     };
 
-    $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
+    $scope.indicatorConfig = OTIIndicatorChartService.IndicatorConfig;
 
     $scope.$on(OTIIndicatorManager.Events.SamplePeriodUpdated, function () {
         getIndicatorData();
