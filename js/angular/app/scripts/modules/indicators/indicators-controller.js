@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'cities',
-            function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, cities) {
+            ['$scope', '$cookieStore', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTITypes', 'cities',
+            function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, OTITypes, cities) {
 
     $scope.dropdown_sample_period_open = false;
     $scope.indicatorCalcJob = 0;
@@ -21,7 +21,7 @@ angular.module('transitIndicators')
         $scope.$broadcast(OTIEvents.Indicators.IndicatorCalcJobUpdated, calcJob);
     };
 
-    OTIIndicatorsService.getIndicatorTypes().then(function (data) {
+    OTITypes.getIndicatorTypes().then(function (data) {
         // filter indicator types to only show those for map display
         $scope.types = {};
         $scope.mapTypes = {};
@@ -33,20 +33,19 @@ angular.module('transitIndicators')
             }
         });
     });
-    OTIIndicatorsService.getIndicatorAggregationTypes().then(function (data) {
+    OTITypes.getIndicatorAggregationTypes().then(function (data) {
         $scope.aggregations = data;
     });
-    OTIIndicatorsService.getSamplePeriodTypes().then(function (data) {
+    OTITypes.getSamplePeriodTypes().then(function (data) {
         $scope.sample_periods = data;
     });
 
     $scope.openCityModal = function () {
         var modalCities = $scope.cities;
         OTIIndicatorsService.setModalStatus(true);
-        var cityModalInstance = $modal.open({
+        $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
-            size: 'sm',
             windowClass: 'indicators-city-modal-window',
             resolve: {
                 cities: function () {
