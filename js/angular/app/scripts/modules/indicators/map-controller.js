@@ -3,11 +3,11 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
         ['$cookieStore', '$rootScope', '$scope', '$state',
-         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorManager', 'OTIIndicatorModel',
-         'OTIIndicatorsMapService', 'OTIMapStyleService', 'OTIMapService',
+         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
+         'OTIIndicatorJobManager', 'OTIIndicatorsMapService', 'OTIMapStyleService', 'OTIMapService',
         function ($cookieStore, $rootScope, $scope, $state,
-                  config, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorManager, OTIIndicatorModel,
-                  OTIIndicatorsMapService, OTIMapStyleService, OTIMapService) {
+                  config, leafletData, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
+                  OTIIndicatorJobManager, OTIIndicatorsMapService, OTIMapStyleService, OTIMapService) {
 
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
@@ -134,7 +134,7 @@ angular.module('transitIndicators')
         OTIIndicatorManager.setConfig({sample_period: sample_period});
     });
 
-    $scope.$on(OTIEvents.Indicators.IndicatorCalcJobUpdated, function (event, calculation_job) {
+    $scope.$on(OTIIndicatorJobManager.Events.JobUpdated, function (event, calculation_job) {
         OTIIndicatorManager.setConfig({calculation_job: calculation_job});
     });
 

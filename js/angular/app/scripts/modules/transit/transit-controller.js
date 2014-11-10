@@ -1,17 +1,12 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorsService',
+            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorManager',
             'OTIIndicatorsMapService', 'OTIMapService',
-            function ($scope, $rootScope, OTIEvents, OTIIndicatorsService,
+            function ($scope, $rootScope, OTIEvents, OTIIndicatorManager,
                       OTIIndicatorsMapService, OTIMapService) {
 
-    var boundaryIndicator = new OTIIndicatorsService.IndicatorConfig({
-        calculation_job: 0,
-        type: 'num_stops',
-        sample_period: 'morning',
-        aggregation: 'route'
-    });
+    var boundaryIndicator = OTIIndicatorManager.getConfig();
 
     var overlays = {
         boundary: {

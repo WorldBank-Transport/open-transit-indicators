@@ -4,7 +4,8 @@ angular.module('transitIndicators')
 .factory('OTIIndicatorManager', ['$cookieStore', '$rootScope',
         function ($cookieStore, $rootScope) {
 
-    var nullJob = 0;
+    var _modalStatus = false;
+    var _nullJob = 0;
     var COOKIE_STORE_INDICATOR = 'OTIIndicatorManager:IndicatorConfig';
     var COOKIE_STORE_SAMPLE_PERIOD = 'OTIIndicatorManager:SamplePeriod';
 
@@ -12,7 +13,7 @@ angular.module('transitIndicators')
      * Thin wrapper for Indicator used in the controller for setting the map properties
      */
     function IndicatorConfig () {
-        this.calculation_job = nullJob;
+        this.calculation_job = _nullJob;
         this.type = 'num_stops';
         this.sample_period = 'morning';
         this.aggregation = 'route';
@@ -47,6 +48,15 @@ angular.module('transitIndicators')
         _samplePeriod = samplePeriod;
         $cookieStore.put(COOKIE_STORE_SAMPLE_PERIOD, _samplePeriod);
         $rootScope.$broadcast(module.Events.SamplePeriodUpdated, _samplePeriod);
+    };
+
+    // Not sure where else to put the modalStatus stuff, as it isn't really specific to CityModal either
+    module.setModalStatus = function (isOpen) {
+        _modalStatus = isOpen;
+    };
+
+    module.isModalOpen = function () {
+        return _modalStatus;
     };
 
     module.getDescriptionTranslationKey = function (key) {

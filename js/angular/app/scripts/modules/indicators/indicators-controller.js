@@ -3,10 +3,10 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
             ['$scope', '$cookieStore', '$modal',
-             'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorsService', 'OTITypes',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
              'cities',
             function ($scope, $cookieStore, $modal,
-                      OTIEvents, OTIIndicatorManager, OTIIndicatorsService, OTITypes,
+                      OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes,
                       cities) {
 
     $scope.dropdown_sample_period_open = false;
@@ -19,11 +19,6 @@ angular.module('transitIndicators')
 
     $scope.cities = cities;
     $scope.showingState = 'data';
-
-    var setIndicatorCalcJob = function (calcJob) {
-        $scope.indicatorCalcJob = calcJob;
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorCalcJobUpdated, calcJob);
-    };
 
     OTITypes.getIndicatorTypes().then(function (data) {
         // filter indicator types to only show those for map display
@@ -46,7 +41,7 @@ angular.module('transitIndicators')
 
     $scope.openCityModal = function () {
         var modalCities = $scope.cities;
-        OTIIndicatorsService.setModalStatus(true);
+        OTIIndicatorManager.setModalStatus(true);
         $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
@@ -65,7 +60,7 @@ angular.module('transitIndicators')
                 }
             }
         }).result.finally(function () {
-            OTIIndicatorsService.setModalStatus(false);
+            OTIIndicatorManager.setModalStatus(false);
         });
     };
 
@@ -80,8 +75,8 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
-        OTIIndicatorsService.getIndicatorCalcJob(function (calcJob) {
-            setIndicatorCalcJob(calcJob);
+        OTIIndicatorJobManager.getCurrentJob(function (calcJob) {
+            $scope.indicatorCalcJob = calcJob;
         });
     };
     $scope.init();
