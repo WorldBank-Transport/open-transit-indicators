@@ -43,6 +43,7 @@ class TransitSystemBuilderSpec extends FunSpec with Matchers {
       val builder = TransitSystemBuilder(records)
       val start = new LocalDateTime("2014-06-01T00:00:00.000")
       val end = new LocalDateTime("2014-06-01T08:00:00.000")
+      val trips = builder.systemBetween(start, end).routes
       builder.systemBetween(start, end).routes.find(_.id == "GLN") should be (None)
       builder.systemBetween(start, end).routes.find(_.id == "AIR") should not be (None)
     }
