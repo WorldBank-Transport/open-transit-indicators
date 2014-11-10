@@ -18,10 +18,12 @@
 */
 angular.module('transitIndicators')
 .controller('OTIYesNoModalController',
-            ['$scope', '$modalInstance', 'getMessage',
-            function ($scope, $modalInstance, message) {
+            ['$scope', '$modalInstance', 'getList', 'getMessage',
+            function ($scope, $modalInstance, list, message) {
 
   $scope.message = message;
+
+  $scope.list = list;
 
   $scope.yes = function () {
     $modalInstance.close();

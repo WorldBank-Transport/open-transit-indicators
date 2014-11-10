@@ -44,7 +44,8 @@ angular.module('transitIndicators')
                             resolve: {
                                 getMessage: function() {
                                     return 'CALCULATION.REDIRECT';
-                                }
+                                },
+                                getList: function() { return null; }
                             }
                         }).result.then(function() {
                             $state.go('calculation');

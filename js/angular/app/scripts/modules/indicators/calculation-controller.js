@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService', '$state', '$modal', 'OTIIndicatorJobModel',
-            function ($scope, $timeout, OTIEvents, OTIIndicatorsService, $state, $modal, OTIIndicatorJobModel) {
+            ['$scope', '$state', '$timeout', '$modal', 'OTIEvents', 'OTIIndicatorJobModel', 'OTIIndicatorsService',
+            function ($scope, $state, $timeout, $modal, OTIEvents,  OTIIndicatorJobModel, OTIIndicatorsService) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
@@ -14,6 +14,14 @@ angular.module('transitIndicators')
 
     // Used for hiding messages about job status until we know what it is
     $scope.statusFetched = false;
+
+    var configParamTranslations = {
+        'poverty_line': 'SETTINGS.POVERTY_LINE',
+        'nearby_buffer_distance_m': 'SETTINGS.DISTANCE_BUFFER',
+        'max_commute_time_s': 'SETTINGS.JOB_TRAVEL_TIME',
+        'max_walk_time_s': 'SETTINGS.MAX_WALK_TIME',
+        'avg_fare': 'SETTINGS.AVG_FARE'
+    };
 
     /**
      * Submits a job for calculating indicators
@@ -37,10 +45,15 @@ angular.module('transitIndicators')
                     resolve: {
                         getMessage: function() {
                             return 'CALCULATION.NOT_CONFIGURED';
+                        },
+                        getList: function() {
+                            return _.map(reason.data.items, function (item) {
+                                return configParamTranslations[item] || item;
+                            });
                         }
                     }
                 }).result.then(function () {
-                    $state.go('overview');
+                    $state.go('configuration');
                 });
             }
         });
