@@ -28,19 +28,21 @@ angular.module('transitIndicators')
             $scope.displayStatus = null;
             $scope.currentJob = null;
             pollForUpdatedStatus();
-        }, function () {
-            $modal.open({
-                templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
-                controller: 'OTIYesNoModalController',
-                windowClass: 'yes-no-modal-window',
-                resolve: {
-                    getMessage: function() {
-                        return 'CALCULATION.NOT_CONFIGURED';
+        }, function (reason) {
+            if (reason.data.error && reason.data.error === 'Invalid configuration') {
+                $modal.open({
+                    templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                    controller: 'OTIYesNoModalController',
+                    windowClass: 'yes-no-modal-window',
+                    resolve: {
+                        getMessage: function() {
+                            return 'CALCULATION.NOT_CONFIGURED';
+                        }
                     }
-                }
-            }).result.then(function () {
-                $state.go('overview');
-            });
+                }).result.then(function () {
+                    $state.go('overview');
+                });
+            }
         });
     };
 

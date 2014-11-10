@@ -114,7 +114,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
             assert indicators_config.region_boundary_id is not None
             assert SamplePeriod.objects.count() == 6
         except AssertionError:
-            response = Response()
+            response = Response({'error': 'Invalid configuration'})
             response.status_code = status.HTTP_400_BAD_REQUEST
             return response
 

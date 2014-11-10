@@ -91,7 +91,8 @@
         "OBTAINING": "Obtaining indicator calculation status",
         "STATUS": "Indicator calculation status",
         "EMPTY": "Indicators have not been calculated",
-        "REDIRECT": "No indicator data found. Go to the status page?"
+        "REDIRECT": "No indicator data found. Go to the status page?",
+        "NOT_CONFIGURED": "Not properly configured. Go to the configuration page?"
     },
     "SCENARIO": {
         "SCENARIO": "场景",
