@@ -17,22 +17,17 @@ list({
 */
 
 angular.module('transitIndicators')
-.factory('OTITripManager', ['$q', 'OTITripModel', 'OTIFrequencyModel',
-         function ($q, OTITripModel, OTIFrequencyModel) {
-
-    var getId = function () {
-        var id = [];
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (var i = 0; i < 8; i++) {
-            id.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-        }
-        return id.join('');
-    };
+.factory('OTITripManager', [
+         '$q',
+         'leafletData',
+         'OTITripModel', 'OTIFrequencyModel', 'OTIDrawService', 'OTIStopService', 'OTIUIDService',
+         function ($q,
+                   leafletData,
+                   OTITripModel, OTIFrequencyModel, OTIDrawService, OTIStopService, OTIUIDService) {
 
     var makeTrip = function () {
         var trip = new OTITripModel();
-        trip.tripId = getId();
+        trip.tripId = OTIUIDService.getId();
         trip.routeId = _routeId;
         trip.headsign = '';
         trip.stopTimes = [];
@@ -75,7 +70,7 @@ angular.module('transitIndicators')
             tripId: tripId
         };
         OTITripModel.get(params, function (trip) {
-            module.set(trip);
+            module.set(trip.orderStops());
             dfd.resolve(trip);
         }, function (error) {
             console.error('OTITripManager.retrieve(): Error ', tripId, error);
@@ -98,6 +93,10 @@ angular.module('transitIndicators')
 
     module.clear = function () {
         _trip = {};
+    };
+
+    module.removeStopTime = function(stop) {
+      _trip.removeStopTime(stop.stopSequence-1);
     };
 
     // Get trips for a given db_name, routeId, tripId

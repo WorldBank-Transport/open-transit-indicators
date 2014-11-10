@@ -3,12 +3,6 @@
     <p>
         {{'SCENARIO.CLICK_A_STOP_TO_ADD'|translate}}
     </p>
-    <div class="row" ng-repeat="s in route.stops">
-        <div class="col-xs-9">{{ s.stopName }}</div>
-        <div class="col-xs-3">
-            <a class="button--small" ng-click="deleteStop($index)">{{'TERM.DELETE'|translate}}</a>
-        </div>
-    </div>
 </div>
 <div class="scenario-page-buttons">
     <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
