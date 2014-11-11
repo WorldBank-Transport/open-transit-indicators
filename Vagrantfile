@@ -38,6 +38,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Nginx
   config.vm.network :forwarded_port, guest: 80, host: 8067
 
+  # JVM Profiling
+  config.vm.network :forwarded_port, guest: 3333, host: 3333
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
