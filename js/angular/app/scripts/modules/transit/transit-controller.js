@@ -10,7 +10,8 @@ angular.module('transitIndicators')
         calculation_job: 0,
         type: 'num_stops',
         sample_period: 'morning',
-        aggregation: 'route'
+        aggregation: 'route',
+        dbname: 'transit_indicators'
     });
 
     var overlays = {

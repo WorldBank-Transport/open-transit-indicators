@@ -61,6 +61,52 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Create windshaft urls for leaflet map
+     *
+     * @param indicator: otiIndicatorsService.Indicator instance
+     * @param filetype: String, either png or utfgrid
+     */
+    otiIndicatorsService.getIndicatorUrl = function (filetype) {
+        var url = otiIndicatorsService.getWindshaftHost();
+        url += '/tiles/{dbname}/{calculation_job}/{type}/{sample_period}/{aggregation}' +
+               '/{z}/{x}/{y}';
+        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
+        return url;
+    };
+
+    /**
+     * Get the list of cities loaded into the app
+     */
+    otiIndicatorsService.getCities = function () {
+        var dfd = $q.defer();
+        $http.get('/api/indicator-cities/').success(function (data) {
+            dfd.resolve(data.sort());
+        }).error(function(error) {
+            console.error('OTIIndicatorsService.getCities:', error);
+            dfd.resolve([]);
+        });
+        return dfd.promise;
+    };
+
+    /**
+     * Delete a chosen city
+     */
+    otiIndicatorsService.deleteCity = function (cityname) {
+        var dfd = $q.defer();
+        $http.delete('/api/indicator-cities/', {
+            params: {
+                city_name: cityname
+            }
+        }).success(function (data) {
+            dfd.resolve();
+        }).error(function (error) {
+            console.error('OTIIndicatorService.deleteCity:', error);
+            dfd.reject();
+        });
+        return dfd.promise;
+    };
+
+    /**
      * Get the current indicator calculation job
      *
      * @param callback: function to call after request is made, has a single argument 'calculation_job'
