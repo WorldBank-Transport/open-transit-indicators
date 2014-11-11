@@ -14,6 +14,7 @@
     <meta charset="utf-8">      <!-- required by d3.js -->
     <link rel="stylesheet" href="bower_components/angular/angular-csp.css" />
     <link rel="stylesheet" href="bower_components/pace/themes/blue/pace-theme-minimal.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.draw/dist/leaflet.draw.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -25,7 +26,6 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-    <link rel="stylesheet" href="scripts/prototype/leaflet.draw.css" />
   </head>
   <body ng-app="transitIndicators">
     <paceprogress ng-non-bindable></paceprogress>
@@ -82,7 +82,7 @@
     <script src="bower_components/angular-spinkit/build/angular-spinkit.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
-    <script type="text/javascript" src="scripts/prototype/leaflet.draw.js"></script>
+    <script type="text/javascript" src="bower_components/leaflet.draw/dist/leaflet.draw.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
@@ -148,7 +148,6 @@
         <script src="scripts/modules/settings/configuration/configuration-service.js"></script>
         <script src="scripts/modules/settings/users/users-controller.js"></script>
         <script src="scripts/modules/settings/upload/upload-controller.js"></script>
-        <script src="scripts/modules/scenarios/scenarios-prototype-directive.js"></script>
         <!-- endbuild -->
 </body>
 </html>
