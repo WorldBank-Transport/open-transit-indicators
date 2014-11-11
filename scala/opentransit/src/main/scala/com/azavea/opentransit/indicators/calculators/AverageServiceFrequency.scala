@@ -20,8 +20,7 @@ object AverageServiceFrequency extends Indicator
   def calculation(period: SamplePeriod) = {
     def map(trips: Seq[Trip]): Map[Stop, Seq[LocalDateTime]] =
       trips
-        .map(_.schedule)
-        .flatten
+        .flatMap(_.schedule)
         .groupBy(_.stop)
         .map { case (k, schedules) =>
           (k, schedules.map(_.arrivalTime))
@@ -39,7 +38,7 @@ object AverageServiceFrequency extends Indicator
       val (total, count) =
         stopSchedules
           .combineMaps
-          .map { case (stop, schedules) =>
+          .flatMap { case (stop, schedules) =>
             val orderedArrivalTimes = schedules.sorted
                 // Calculate the headways for each stop.
             orderedArrivalTimes
@@ -48,7 +47,6 @@ object AverageServiceFrequency extends Indicator
                 Seconds.secondsBetween(a1, a2).getSeconds
               }
           }
-          .flatten
           .foldLeft((0.0,0)) { case ((total, count), diff) =>
             (total + diff, count + 1) }
       if (count > 0) (total / count) / 60 else 0.0 // div60 for minutes

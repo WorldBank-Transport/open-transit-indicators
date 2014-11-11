@@ -115,7 +115,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
               listOfLists reduce (_ ++ _) // combine iterators from all schedulers
             }) reduce (_ ++ _)           // combine iterators from all dates
 
-          scheduledStops map { stops => Trip(tripRecord, stops, tripShapeIdToTripShape) }
+         scheduledStops map { stops => Trip(tripRecord, stops.toArray[ScheduledStop], tripShapeIdToTripShape) }
         }
 
         if(! routeIdToTrips.contains(tripRecord.routeId)) {
@@ -132,7 +132,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
             .get(record.id)
             .flatMap { trips =>
               if(trips.isEmpty) None
-              else Some(Route(record, trips, agencyIdToAgency))
+              else Some(Route(record, trips.toArray[Trip], agencyIdToAgency))
              }
          }
         .flatten

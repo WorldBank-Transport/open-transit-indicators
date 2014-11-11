@@ -28,24 +28,6 @@ angular.module('transitIndicators')
     });
 
     /**
-     * Resource for indicator jobs
-     */
-    otiIndicatorsService.IndicatorJob = $resource('/api/indicator-jobs/:id/', {id: '@id'}, {
-        search: {
-            method: 'GET',
-            isArray: true,
-            url: '/api/indicator-jobs/'
-        },
-        latest: {
-            method: 'GET',
-            idArray: false,
-            url: '/api/latest-calculation-job/'
-        }
-    }, {
-        stripTrailingSlashes: false
-    });
-
-    /**
      * This is here rather than as a 'search' method on Indicator because the function refused to
      *  call the success/failure callbacks on function return as detailed here:
      *  HTTP GET "class" actions: Resource.action([parameters], [success], [error])
@@ -76,52 +58,6 @@ angular.module('transitIndicators')
         this.sample_period = config.sample_period;
         this.aggregation = config.aggregation;
         this.modes = $rootScope.visibleModes || '';
-    };
-
-    /**
-     * Create windshaft urls for leaflet map
-     *
-     * @param indicator: otiIndicatorsService.Indicator instance
-     * @param filetype: String, either png or utfgrid
-     */
-    otiIndicatorsService.getIndicatorUrl = function (filetype) {
-        var url = otiIndicatorsService.getWindshaftHost();
-        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
-               '/{z}/{x}/{y}';
-        url += (filetype === 'utfgrid') ? '.grid.json?interactivity=value' : '.png';
-        return url;
-    };
-
-    /**
-     * Get the list of cities loaded into the app
-     */
-    otiIndicatorsService.getCities = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-cities/').success(function (data) {
-            dfd.resolve(data.sort());
-        }).error(function(error) {
-            console.error('OTIIndicatorsService.getCities:', error);
-            dfd.resolve([]);
-        });
-        return dfd.promise;
-    };
-
-    /**
-     * Delete a chosen city
-     */
-    otiIndicatorsService.deleteCity = function (cityname) {
-        var dfd = $q.defer();
-        $http.delete('/api/indicator-cities/', {
-            params: {
-                city_name: cityname
-            }
-        }).success(function (data) {
-            dfd.resolve();
-        }).error(function (error) {
-            console.error('OTIIndicatorService.deleteCity:', error);
-            dfd.reject();
-        });
-        return dfd.promise;
     };
 
     /**
@@ -159,50 +95,6 @@ angular.module('transitIndicators')
             console.log('otiIndicatorsService.getIndicatorCalcJob error:');
             console.log(error);
         });
-    };
-
-    otiIndicatorsService.getIndicatorTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getIndicatorTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getIndicatorAggregationTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/indicator-aggregation-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getIndicatorAggregationTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getSamplePeriodTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/sample-period-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTIIndicatorService.getSamplePeriodTypes', error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    };
-
-    otiIndicatorsService.getRouteTypes = function () {
-        var dfd = $q.defer();
-        $http.get('/api/gtfs-route-types/').success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('getRouteTypes Error: ', error);
-            dfd.resolve([]);
-        });
-        return dfd.promise;
     };
 
     otiIndicatorsService.getIndicatorDescriptionTranslationKey = function(key) {

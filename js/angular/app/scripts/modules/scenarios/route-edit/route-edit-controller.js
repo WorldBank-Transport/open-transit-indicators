@@ -8,7 +8,7 @@ angular.module('transitIndicators')
 
     var setTrip = function (trip) {
         $scope.trip = trip;
-        if (trip.getFrequency) {
+        if (trip.getFrequency(0)) {
             var headwaySeconds = $scope.trip.getFrequency(0).headway;
             $scope.headwayMins = Math.floor(headwaySeconds / 60);
         }
@@ -28,21 +28,22 @@ angular.module('transitIndicators')
     };
 
     $scope.getTrip = function () {
-        OTITripManager.retrieve($scope.selectedTripId).then(function (trip) {
+        OTITripManager.retrieve($scope.selected.tripId).then(function (trip) {
             setTrip(trip);
         });
     };
 
     $scope.setHeadway = function () {
         var frequency = $scope.trip.getFrequency(0);
-        frequency.headway = Math.floor($scope.headwayMins* 60);
-        $scope.trip.addFrequency(frequency);
+        $scope.trip.addFrequency(frequency !== null ? frequency : {
+            headway: Math.floor($scope.headwayMins*60)
+        });
     };
 
     var initialize = function () {
         $scope.selectedRouteType = 0;
         $scope.route = OTIRouteManager.get();
-        $scope.selectedTripId = '';
+        $scope.selected = { tripId: '' };
         $scope.headwayMins = DEFAULT_HEADWAY_MINS;
         $scope.trips = [];
 

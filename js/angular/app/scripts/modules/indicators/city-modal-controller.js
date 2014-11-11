@@ -2,8 +2,10 @@
 
 angular.module('transitIndicators')
 .controller('OTICityModalController',
-        ['$scope', '$rootScope', '$modalInstance', '$upload', '$translate', 'OTIEvents', 'OTIIndicatorsService', 'cities', 'userScenarios', 'otherScenarios',
-        function($scope, $rootScope, $modalInstance, $upload, $translate, OTIEvents, OTIIndicatorsService, cities, userScenarios, otherScenarios) {
+        ['$scope', '$modalInstance', '$rootScope', '$translate', '$upload',
+         'OTICityManager', 'cities', 'userScenarios', 'otherScenarios',
+        function($scope, $modalInstance, $rootScope, $translate, $upload,
+                 OTICityManager, cities, userScenarios, otherScenarios) {
 
     $scope.cities = cities;
 
@@ -26,10 +28,10 @@ angular.module('transitIndicators')
     // City controls
 
     $scope.remove = function (city) {
-        OTIIndicatorsService.deleteCity(city).then(function () {
+        OTICityManager.delete(city).then(function () {
             var index = $scope.cities.indexOf(city);
             $scope.cities.splice(index, 1);
-            $rootScope.$broadcast(OTIEvents.Indicators.CitiesUpdated, $scope.cities);
+            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         });
     };
 
@@ -78,7 +80,7 @@ angular.module('transitIndicators')
             $scope.uploadProgress = 1;
             $scope.cities.push(cityName);
             $scope.cities.sort();
-            $rootScope.$broadcast(OTIEvents.Indicators.CitiesUpdated, $scope.cities);
+            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         }).error(function (data, status) {
             $scope.uploading = false;
             $scope.uploadProgress = 1;

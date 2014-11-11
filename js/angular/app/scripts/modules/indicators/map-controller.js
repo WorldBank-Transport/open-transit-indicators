@@ -2,8 +2,12 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService', 'OTIMapStyleService', '$rootScope',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService, OTIMapStyleService, $rootScope) {
+        ['$cookieStore', '$rootScope', '$scope', '$state',
+         'config', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
+         'OTIMapStyleService', 'OTIMapService',
+        function ($cookieStore, $rootScope, $scope, $state,
+                  config, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService,
+                  OTIMapStyleService, OTIMapService) {
 
     var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
         calculation_job: 0,
@@ -21,28 +25,28 @@ angular.module('transitIndicators')
     $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
 
     angular.extend($scope.indicator,
-        { modes: OTIIndicatorsMapService.enabledModes });
+        { modes: OTIMapService.getTransitModes() });
 
     /* LEAFLET CONFIG */
     var overlays = {
         indicator: {
             name: 'GTFS Indicator',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            url: OTIMapService.indicatorUrl('png'),
             visible: true,
             layerOptions: $scope.indicator
         },
         boundary: {
             name: 'Boundary',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getBoundaryUrl(),
+            url: OTIMapService.boundaryUrl(),
             visible: true,
             layerOptions: $scope.indicator
         },
         utfgrid: {
             name: 'GTFS Indicator Interactivity',
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            url: OTIMapService.indicatorUrl('utfgrid'),
             visible: true,
             // When copied to the internal L.Utfgrid class, these options end up on
             //  layer.options, same as for TileLayers
@@ -67,7 +71,8 @@ angular.module('transitIndicators')
                     popupAnchor:  [0, 0]
                 }
             };
-            $scope.leaflet.markers.push(marker);};
+            $scope.leaflet.markers.push(marker);
+        }
     };
 
     var setIndicator = function (indicator) {
@@ -101,8 +106,8 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $scope.indicator.modes = OTIIndicatorsMapService.enabledModes;
-        $cookieStore.put("indicator", $scope.indicator);
+        $scope.indicator.modes = OTIMapService.getTransitModes();
+        $cookieStore.put('indicator', $scope.indicator);
         leafletData.getMap().then(function(map) {
             map.eachLayer(function (layer) {
                 // layer is one of the indicator overlays -- only redraw them
@@ -134,10 +139,12 @@ angular.module('transitIndicators')
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
-	var formattedValue = OTIIndicatorsMapService.getIndicatorFormattedValue(leafletEvent.data.indicator_id).then(
-	    function(indicator) {
-		utfGridMarker(leafletEvent, indicator);
-	    });
+        if (leafletEvent.data && leafletEvent.data.indicator_id) {
+            var formattedValue = OTIIndicatorsMapService.getIndicatorFormattedValue(leafletEvent.data.indicator_id);
+            formattedValue.then(function(indicator) {
+                utfGridMarker(leafletEvent, indicator);
+            });
+        }
     });
 
     $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {
@@ -154,10 +161,7 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         updateIndicatorLegend($scope.indicator);
-        OTIIndicatorsMapService.getLegendData().then(function(legenddata) {
-            $rootScope.$broadcast(OTIEvents.Root.AvailableModesUpdated,
-                                  OTIIndicatorsMapService.modes);
-        });
+        OTIMapService.getLegendData();
     };
     $scope.init();
 }]);

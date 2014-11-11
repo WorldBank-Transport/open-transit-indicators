@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$scope', '$timeout', 'OTIEvents', 'OTIIndicatorsService',
-            function ($scope, $timeout, OTIEvents, OTIIndicatorsService) {
+            ['$scope', '$state', '$timeout', '$modal', 'OTIEvents', 'OTIIndicatorJobModel', 'OTIIndicatorsService',
+            function ($scope, $state, $timeout, $modal, OTIEvents,  OTIIndicatorJobModel, OTIIndicatorsService) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
@@ -15,19 +15,47 @@ angular.module('transitIndicators')
     // Used for hiding messages about job status until we know what it is
     $scope.statusFetched = false;
 
+    var configParamTranslations = {
+        'poverty_line': 'SETTINGS.POVERTY_LINE',
+        'nearby_buffer_distance_m': 'SETTINGS.DISTANCE_BUFFER',
+        'max_commute_time_s': 'SETTINGS.JOB_TRAVEL_TIME',
+        'max_walk_time_s': 'SETTINGS.MAX_WALK_TIME',
+        'avg_fare': 'SETTINGS.AVG_FARE'
+    };
+
     /**
      * Submits a job for calculating indicators
      */
     $scope.calculateIndicators = function () {
-        var job = new OTIIndicatorsService.IndicatorJob({
+        var job = new OTIIndicatorJobModel({
             city_name: OTIIndicatorsService.selfCityName
         });
-        job.$save().then(function (data) {
+        job.$save(function (data) {
             $scope.jobStatus = null;
             $scope.calculationStatus = null;
             $scope.displayStatus = null;
             $scope.currentJob = null;
             pollForUpdatedStatus();
+        }, function (reason) {
+            if (reason.data.error && reason.data.error === 'Invalid configuration') {
+                $modal.open({
+                    templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                    controller: 'OTIYesNoModalController',
+                    windowClass: 'yes-no-modal-window',
+                    resolve: {
+                        getMessage: function() {
+                            return 'CALCULATION.NOT_CONFIGURED';
+                        },
+                        getList: function() {
+                            return _.map(reason.data.items, function (item) {
+                                return configParamTranslations[item] || item;
+                            });
+                        }
+                    }
+                }).result.then(function () {
+                    $state.go('configuration');
+                });
+            }
         });
     };
 
@@ -63,7 +91,7 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing.
         // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorsService.IndicatorJob.search({ job_status: 'processing' })
+        OTIIndicatorJobModel.search({ job_status: 'processing' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
                     $scope.statusFetched = true;
@@ -75,12 +103,12 @@ angular.module('transitIndicators')
                 } else {
                     // filtering DRF booleans requires a ~capitalized~ string:
                     // http://www.django-rest-framework.org/api-guide/filtering
-                    OTIIndicatorsService.IndicatorJob.latest()
+                    OTIIndicatorJobModel.latest()
                         .$promise.then(function(latestData) {
                             if (latestData) {
                                 setCurrentJob([latestData]);
                             } else {
-                                OTIIndicatorsService.IndicatorJob.search({ job_status: 'error' })
+                                OTIIndicatorJobModel.search({ job_status: 'error' })
                                     .$promise.then(function(errorData) {
                                         if (errorData.length) {
                                             setCurrentJob(errorData);

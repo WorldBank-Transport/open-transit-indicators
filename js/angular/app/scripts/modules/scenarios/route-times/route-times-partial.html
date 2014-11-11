@@ -3,17 +3,28 @@
     <p>
         {{'SCENARIO.WEVE_ESTIMATED_ARRIVAL_TIMES'|translate}}
     </p>
-    <table>
-        <tr ng-repeat="(i, stop) in route.stops">
+    <form name="tripStopTimesForm">
+    <table class="block">
+        <tr ng-repeat="(i, stopTime) in trip.stopTimes">
             <td><span class="badge">{{ i + 1 }}</span></td>
-            <td>{{ stop.stopName }}</td>
-            <td><input type="time" class="time" placeholder="HH:mm"
-                       ng-model="stop.stopTime.arrivalTime"
-                       ng-change="stop.stopTime.departureTime = stop.stopTime.arrivalTime"/></td>
+            <td>{{ stopTime.stop.name }}</td>
+            <td><ng-form name="stopTimeForm">
+                <input type="text" class="time" placeholder="HH:mm:ss"
+                       name="stopTime"
+                       required
+                       ng-pattern="/\d\d:\d\d:\d\d/"
+                       ng-model="stopTime.arrivalTime"
+                       ng-change="stopTime.departureTime = stopTime.arrivalTime; updateHeight()"/>
+                </ng-form>
+            </td>
         </tr>
     </table>
+    </form>
+    <div ng-show="tripStopTimesForm.$invalid">
+        <span class="text-danger">{{'SCENARIO.STOP_TIME_REQUIRED'|translate}}</span>
+    </div>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small default" ng-class="{'button--inactive': tripStopTimesForm.$invalid}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>

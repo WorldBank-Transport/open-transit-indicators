@@ -9,15 +9,15 @@ class DatabaseGtfsRecords(implicit session: Session)
        with GtfsTables { self: Profile =>
   import profile.simple._
 
-  def agencies: Seq[Agency] = agenciesTable.list
-  def stops: Seq[Stop] = stopsTable.list
-  def routeRecords: Seq[RouteRecord] = routeRecordsTable.list
-  def tripRecords: Seq[TripRecord] = tripRecordsTable.list
-  def stopTimeRecords: Seq[StopTimeRecord] = stopTimeRecordsTable.list
-  def calendarRecords: Seq[CalendarRecord] = calendarRecordsTable.list
-  def calendarDateRecords: Seq[CalendarDateRecord] = calendarDateRecordsTable.list
-  def tripShapes: Seq[TripShape] = tripShapesTable.list
-  def frequencyRecords: Seq[FrequencyRecord] = frequencyRecordsTable.list
+  def agencies: Seq[Agency] = agenciesTable.list.toArray[Agency]
+  def stops: Seq[Stop] = stopsTable.list.toArray[Stop]
+  def routeRecords: Seq[RouteRecord] = routeRecordsTable.list.toArray[RouteRecord]
+  def tripRecords: Seq[TripRecord] = tripRecordsTable.list.toArray[TripRecord]
+  def stopTimeRecords: Seq[StopTimeRecord] = stopTimeRecordsTable.list.toArray[StopTimeRecord]
+  def calendarRecords: Seq[CalendarRecord] = calendarRecordsTable.list.toArray[CalendarRecord]
+  def calendarDateRecords: Seq[CalendarDateRecord] = calendarDateRecordsTable.list.toArray[CalendarDateRecord]
+  def tripShapes: Seq[TripShape] = tripShapesTable.list.toArray[TripShape]
+  def frequencyRecords: Seq[FrequencyRecord] = frequencyRecordsTable.list.toArray[FrequencyRecord]
 
   def force: GtfsRecords =
     new GtfsRecords {

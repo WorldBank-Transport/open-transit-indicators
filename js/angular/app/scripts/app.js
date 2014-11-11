@@ -51,9 +51,9 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/indicators-partial.html',
             controller: 'OTIIndicatorsController',
             resolve: {
-               OTIIndicatorsService: 'OTIIndicatorsService',
-               cities: function (OTIIndicatorsService) {
-                    return OTIIndicatorsService.getCities();
+               OTICityManager: 'OTICityManager',
+               cities: function (OTICityManager) {
+                    return OTICityManager.list();
                }
             }
         })
@@ -82,16 +82,16 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/scenarios/scenarios-partial.html',
             controller: 'OTIScenariosController',
             resolve: {
-                OTIIndicatorsService: 'OTIIndicatorsService',
+                OTITypes: 'OTITypes',
                 OTISettingsService: 'OTISettingsService',
                 samplePeriods: function (OTISettingsService) {
                     return OTISettingsService.samplePeriods.query();
                 },
-                samplePeriodI18N: function (OTIIndicatorsService) {
-                    return OTIIndicatorsService.getSamplePeriodTypes();
+                samplePeriodI18N: function (OTITypes) {
+                    return OTITypes.getSamplePeriodTypes();
                 },
-                routeTypes: function (OTIIndicatorsService) {
-                    return OTIIndicatorsService.getRouteTypes();
+                routeTypes: function (OTITypes) {
+                    return OTITypes.getRouteTypes();
                 }
             }
         })

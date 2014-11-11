@@ -1,8 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
-            ['$scope', '$state', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
-            function ($scope, $state, $modal, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
+            ['$scope', '$state', '$modal',
+             'OTICityManager', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+            function ($scope, $state, $modal,
+                      OTICityManager, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
 
     $scope.updating = false;
     $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
@@ -42,7 +44,8 @@ angular.module('transitIndicators')
                             resolve: {
                                 getMessage: function() {
                                     return 'CALCULATION.REDIRECT';
-                                }
+                                },
+                                getList: function() { return null; }
                             }
                         }).result.then(function() {
                             $state.go('calculation');
@@ -92,7 +95,7 @@ angular.module('transitIndicators')
         getIndicatorData();
     });
 
-    $scope.$on(OTIEvents.Indicators.CitiesUpdated, function () {
+    $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
         getIndicatorData();
     });
 

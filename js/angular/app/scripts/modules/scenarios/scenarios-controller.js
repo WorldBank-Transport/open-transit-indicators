@@ -2,10 +2,10 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
             ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
-             'OTIIndicatorsMapService', 'samplePeriods',
+             'OTIIndicatorsMapService', 'OTIMapService', 'samplePeriods',
              'samplePeriodI18N', 'routeTypes',
              function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
-                       OTIIndicatorsMapService, samplePeriods,
+                       OTIIndicatorsMapService, OTIMapService, samplePeriods,
                        samplePeriodI18N, routeTypes)
 {
 
@@ -15,25 +15,25 @@ angular.module('transitIndicators')
         gtfs_shapes: {
             name: 'Transit Routes',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSShapesUrl(),
+            url: OTIMapService.gtfsShapesUrl(),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops: {
             name: 'Transit Stops',
             type: 'xyz',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('png'),
+            url: OTIMapService.gtfsStopsUrl('png'),
             visible: true,
-            layerParams: { modes: OTIIndicatorsMapService.enabledModes }
+            layerParams: { modes: OTIMapService.getTransitModes() }
         },
         gtfs_stops_utfgrid: {
             name: 'Transit Stops Interactivity',
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getGTFSStopsUrl('utfgrid'),
+            url: OTIMapService.gtfsStopsUrl('utfgrid'),
             visible: true,
             pluginOptions: {
                 useJsonP: false,
-                modes: OTIIndicatorsMapService.enabledModes
+                modes: OTIMapService.getTransitModes()
             }
         }
     };
@@ -58,7 +58,7 @@ angular.module('transitIndicators')
             $scope.leaflet.legend = $rootScope.cache.transitLegend;
             return;
         }
-        OTIIndicatorsMapService.getLegendData().then(function (legend) {
+        OTIMapService.getLegendData().then(function (legend) {
             $rootScope.cache.transitLegend = legend;
             $scope.leaflet.legend = legend;
         });
