@@ -7,6 +7,10 @@ import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
 import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
+import com.azavea.opentransit.JobStatusWithMessage
+import com.azavea.opentransit.JobStatusWithMessage._
+import com.azavea.opentransit.JobStatusType
+import com.azavea.opentransit.JobStatusType._
 import com.azavea.opentransit.indicators.parameters._
 import com.azavea.opentransit.indicators.calculators._
 import com.azavea.opentransit.indicators.WeeklyServiceHours._
@@ -146,7 +150,7 @@ object CalculateIndicators {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          trackStatus(indicator.name, JobStatus.Failed)
+          trackStatus(indicator.name, JobStatusWithMessage(JobStatusType.Failed, e.getMessage))
         }
       }
     }

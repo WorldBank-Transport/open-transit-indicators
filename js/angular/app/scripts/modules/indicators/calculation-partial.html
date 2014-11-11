@@ -17,11 +17,12 @@
 <div ng-repeat="(indicator, status) in calculationStatus" class="calculation-table">
     <div class="calculation-row">
         <div class="calculation-cell indicators-label">
-            <span ng-if="status === 'submitted'" class="glyphicon glyphicon-minus"></span>
-            <span ng-if="status === 'processing'" class="glyphicon glyphicon-flash"></span>
-            <span ng-if="status === 'complete'" class="glyphicon glyphicon-ok"></span>
-            <span ng-if="status === 'error'" class="glyphicon glyphicon-remove"></span>
-            <span class="calculation-status {{ status }}">{{ types[indicator] }}</span>
+            <span ng-if="status.status === 'submitted'" class="glyphicon glyphicon-minus"></span>
+            <span ng-if="status.status === 'processing'" class="glyphicon glyphicon-flash"></span>
+            <span ng-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span>
+            <span ng-if="status.status === 'error'" class="glyphicon glyphicon-remove"></span>
+            <span class="calculation-status {{ status.status }}">{{ types[indicator] }}</span>
+            <span class="label label-danger" ng-if="status.msg != ''">{{ status.msg }}</span>
         </div>
     </div>
 </div>
