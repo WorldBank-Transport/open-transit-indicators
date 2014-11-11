@@ -1,6 +1,6 @@
 package com.azavea.opentransit.indicators.parameters
 
-import com.azavea.gtfs.{TransitSystem, Stop}
+import com.azavea.gtfs.{TransitSystem, Stop, ScheduledStop, Trip}
 
 import com.azavea.opentransit._
 import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable, DemographicsTable }
@@ -58,9 +58,9 @@ object IndicatorParams {
     }
 
     new IndicatorParams {
-      def observedStopsByTrip(period: SamplePeriod) =
+      def observedStopsByTrip(period: SamplePeriod): Map[String, Array[(ScheduledStop, ScheduledStop)]] =
         observedStopTimes.observedStopsByTrip(period)
-      def observedTripById(period: SamplePeriod) =
+      def observedTripById(period: SamplePeriod): Map[String, Trip] =
         observedStopTimes.observedTripById(period)
 
       def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)

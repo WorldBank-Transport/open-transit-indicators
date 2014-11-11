@@ -16,7 +16,7 @@ class DwellTimePerformance(params: ObservedStopTimes) extends Indicator with Agg
   val name = "dwell_time"
 
   def calculation(period: SamplePeriod) = {
-    val observedTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+    val observedTrips: Map[String, Array[(ScheduledStop, ScheduledStop)]] =
       params.observedStopsByTrip(period)
     def map(trip: Trip): Seq[Double] = {
       observedTrips(trip.id).map { case (sched, obsvd) =>

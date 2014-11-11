@@ -25,7 +25,7 @@ class TravelTimePerformance(params: ObservedStopTimes)
 
   def calculation(period: SamplePeriod) = {
     // Grab a map from trip ID to the tuple of scheduled stop values and observed stop values
-    val observedTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+    val observedTrips: Map[String, Array[(ScheduledStop, ScheduledStop)]] =
       params.observedStopsByTrip(period)
 
     def map(trip: Trip): Option[Seq[Double]] = {

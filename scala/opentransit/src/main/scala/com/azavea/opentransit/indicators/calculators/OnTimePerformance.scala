@@ -19,7 +19,7 @@ class OnTimePerformance(params: ObservedStopTimes)
   val name = "on_time_perf"
 
   def calculation(period: SamplePeriod) = {
-    val zippedStopsByTrip: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+    val zippedStopsByTrip: Map[String, Array[(ScheduledStop, ScheduledStop)]] =
       params.observedStopsByTrip(period)
 
     def map(trip: Trip): Seq[Double] =
