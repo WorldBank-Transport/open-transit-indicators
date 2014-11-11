@@ -32,10 +32,17 @@ CREATE OR REPLACE FUNCTION empty_gtfs() RETURNS trigger AS $empty_gtfs$
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeed_id_seq RESTART WITH 1';
         EXECUTE 'ALTER SEQUENCE datasources_gtfsfeedproblem_id_seq RESTART WITH 1';
 
+        EXECUTE 'DELETE FROM transit_indicators_sampleperiod';
+        EXECUTE 'ALTER SEQUENCE transit_indicators_sampleperiod_id_seq RESTART WITH 1';
+
         EXECUTE 'DELETE FROM planet_osm_line';
         EXECUTE 'DELETE FROM planet_osm_point';
         EXECUTE 'DELETE FROM planet_osm_polygon';
         EXECUTE 'DELETE FROM planet_osm_roads';
+        EXECUTE 'DELETE FROM planet_osm_nodes';
+        EXECUTE 'DELETE FROM planet_osm_rels';
+        EXECUTE 'DELETE FROM planet_osm_ways';
+
         RETURN NULL;
     END;
 $empty_gtfs$ LANGUAGE plpgsql;
