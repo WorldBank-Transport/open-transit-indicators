@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTIRouteManager', ['$q', 'OTIRouteModel',
-         function ($q, OTIRouteModel) {
+.factory('OTIRouteManager', ['$q', 'OTIRouteModel', 'OTIScenarioManager', 'OTIUIDService',
+         function ($q, OTIRouteModel, OTIScenarioManager, OTIUIDService) {
 
     var route = {};
     var routes = [];
@@ -10,7 +10,12 @@ angular.module('transitIndicators')
     var module = {};
 
     module.create = function () {
-        route = new OTIRouteModel();
+        var scenario = OTIScenarioManager.get();
+        route = new OTIRouteModel({
+            db_name: scenario.db_name,
+            id: OTIUIDService.getId(),
+            isNew: true
+        });
     };
 
     module.get = function() {
@@ -27,7 +32,7 @@ angular.module('transitIndicators')
      * @return Boolean True if the stored route is new, False if it was retrieved from the API
      */
     module.isNew = function () {
-        return !(route.id);
+        return !!(route.isNew);
     };
 
     module.clear = function () {

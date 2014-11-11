@@ -19,13 +19,13 @@
                 <a ng-repeat="type in routeTypes" class="button--small btn-group" ng-model="route.routeType" btn-radio="type.route_type">{{ type.description }}</a><br />
             </div>
         </div>
-        <div ng-if="!isRouteNew" class="block">
+        <div ng-if="trips.length > 0" class="block">
             <label>{{'SCENARIO.REPRESENTATIVE_TRIP'|translate}}</label>
             <select ng-model="selected.tripId" ng-options="tripId for tripId in trips" ng-change="getTrip()"></select>
         </div>
         <div class="block">
             <label>{{'SCENARIO.HEADWAY'|translate}} ({{'UNITS.MINUTES'|translate}})</label>
-            <input type="number" ng-model="headwayMins" min="1" max="1440" ng-change="setHeadway()"></select>
+            <input type="number" ng-model="selected.headwayMins" min="1" max="1440" ng-change="setHeadway()"></select>
         </div>
     </form>
 </div>
