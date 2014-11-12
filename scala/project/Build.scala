@@ -94,7 +94,9 @@ object Build extends Build {
           "org.scalatest" %% "scalatest" % "2.1.5" % "test",
           "org.scala-lang" % "scala-compiler" % "2.10.3",
           "ch.qos.logback" % "logback-classic" % "1.1.1",
-          "org.clapper" %% "grizzled-slf4j" % "1.0.2"
+          "org.clapper" %% "grizzled-slf4j" % "1.0.2",
+
+          "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT"
         )
        )
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)

@@ -132,7 +132,20 @@ angular.module('transitIndicators').constant('config', {
                     }
                 }
             },
-            overlays: {}
+            overlays: {
+                jobs_indicator: {
+                    name: 'Jobs Indicator',
+                    type: 'wms',
+                    url: 'travelshed/jobs/render',
+                    visible: true,
+                    layerParams: {
+//                      colorRamp: ramps.getColorRamp(),
+                      format: 'image/png',
+//                      transparent: true
+                    }
+                }
+
+            }
         },
         markers: [],
         legend: {},

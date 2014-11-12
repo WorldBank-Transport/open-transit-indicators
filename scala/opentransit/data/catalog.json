@@ -1,0 +1,13 @@
+{
+"catalog": "Catalog of OTI Data",
+"stores": [
+  {
+   "store": "data:fs",
+   "params": {
+     "type": "fs",
+     "path": "data",
+     "cacheAll": "no"
+    }
+  }
+ ]
+}

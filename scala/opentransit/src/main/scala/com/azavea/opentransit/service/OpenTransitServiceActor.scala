@@ -48,6 +48,7 @@ trait OpenTransitService
   with ScenarioGtfsRoute
   with MapInfoRoute
   with ServiceDateRangeRoute
+  with TravelshedIndicatorRoute
 { self: DatabaseInstance with DjangoClientComponent =>
 
   def openTransitRoute =
@@ -62,6 +63,9 @@ trait OpenTransitService
       } ~
       pathPrefix("scenarios") {
         scenariosRoute
+      } ~
+      pathPrefix("travelshed") {
+        travelshedIndicatorRoute
       }
     }
 }

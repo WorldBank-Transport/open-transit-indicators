@@ -6,8 +6,11 @@ import com.azavea.opentransit.indicators.parameters._
 import com.azavea.gtfs.Timer
 
 import geotrellis.vector._
+import geotrellis.vector.reproject._
 import geotrellis.raster._
+import geotrellis.raster.reproject._
 import geotrellis.slick._
+import geotrellis.proj4._
 
 import geotrellis.network._
 import geotrellis.network.graph._
@@ -22,20 +25,20 @@ trait TravelshedIndicator {
 }
 
 object JobsTravelshedIndicator {
-  val name = "jobs"
+  val name = "jobs_travelshed"
 }
 
 class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics) extends TravelshedIndicator with Logging {
   def name = JobsTravelshedIndicator.name
 
   def apply(rasterCache: RasterCache): Unit = {
-    val (graph, index, rasterExtent, startTime, duration) = {
+    val (graph, index, rasterExtent, startTime, duration, crs) = {
       val tg = params.travelshedGraph.get
 
       val startTime: Time = Time(tg.startTime)
       val duration: Duration = Duration(tg.duration)
 
-      (tg.graph, tg.index, tg.rasterExtent, startTime, duration)
+      (tg.graph, tg.index, tg.rasterExtent, startTime, duration, tg.crs)
     }
 
     val features: Array[MultiPolygonFeature[Double]] =
@@ -155,10 +158,31 @@ class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics
             tile.setDouble(col, row, sum)
           }
         }
-//      }
     }
     
-    // Process the completed tile.
-    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name), (tile, rasterExtent.extent))
+    // Reproject
+    println(s"Reprojecting to WebMercator from $crs")
+    val (rTile, rExtent) = 
+      try {
+        geotrellis.raster.io.arg.ArgWriter(TypeDouble).write(s"reproject-exception.arg", tile, rasterExtent.extent, "reproject-exception")
+        val f = new java.io.File("reproject-exception.arg")
+        println(s"WROTE to ${f.getAbsolutePath}")
+        tile.reproject(rasterExtent.extent, crs, WebMercator)
+      } catch {
+        case e: Exception =>
+          println("ALALALALA")
+          System.err.println("1")
+          System.err.println(e)
+          System.err.println("\n2")
+          System.err.println(e.getMessage())
+          System.err.println("\n3")
+          System.err.println(e.getLocalizedMessage())
+          System.err.println("\n4")
+          System.err.println(e.getCause())
+          System.err.println("\n6")
+          e.printStackTrace()
+          sys.error("AHHH")
+      }
+    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name), (rTile, rExtent))
   }
 }

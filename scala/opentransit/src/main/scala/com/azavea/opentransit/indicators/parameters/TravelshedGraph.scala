@@ -6,6 +6,7 @@ import com.azavea.gtfs._
 
 import geotrellis.raster._
 import geotrellis.vector._
+import geotrellis.proj4._
 import geotrellis.network._
 import geotrellis.network.graph._
 import geotrellis.transit.loader._
@@ -25,9 +26,23 @@ trait HasTravelshedGraph {
   def travelshedGraph: Option[TravelshedGraph]
 }
 
-case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, startTime: Int, duration: Int)
+case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, startTime: Int, duration: Int, crs: CRS)
 
 object TravelshedGraph extends Logging {
+  def findTransform(transitSystem: TransitSystem): CRS = {
+    val srid =
+      (for(
+        route <- transitSystem.routes.headOption;
+        trip <- route.trips.headOption;
+        tripShape <- trip.tripShape
+      ) yield { tripShape.line.srid }) match {
+        case Some(i) => i
+        case None => sys.error(s"Transit system is required to have an SRID")
+      }
+
+    CRS.fromName(s"EPSG:${srid}")
+  }
+
   // Meters that the travelshed should buffer out from the region envelope for creating the raster.
   val travelshedExtentBuffer = 10.0
 
@@ -44,7 +59,10 @@ object TravelshedGraph extends Logging {
       val system =
         builder.systemOn(weekday)
 
-      info("Creating transit graph")
+      val crs =
+        findTransform(system)
+
+      info(s"Creating transit graph for $weekday")
       Timer.timedTask("Transit graph created") {
         val osmParsedResult: ParseResult =
           Timer.timedTask("Parsed in OSM results") {
@@ -154,7 +172,7 @@ object TravelshedGraph extends Logging {
 
         val rasterExtent = RasterExtent(extent, cols, rows)
 
-        TravelshedGraph(graph, index, rasterExtent, startTime, duration)
+        TravelshedGraph(graph, index, rasterExtent, startTime, duration, crs)
       }
     }
   }

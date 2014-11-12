@@ -132,3 +132,4 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
     SamplePeriod.getRepresentativeWeekday(periods)
       .map { date => date.toLocalDateTime(new LocalTime(0, 0)) }
 }
+
