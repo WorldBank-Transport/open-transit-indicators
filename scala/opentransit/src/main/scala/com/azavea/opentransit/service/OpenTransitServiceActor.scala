@@ -55,8 +55,8 @@ trait OpenTransitService
     pathPrefix("gt") {
       pathPrefix("utils") {
         ingestRoute ~
-          mapInfoRoute ~
-          serviceDateRangeRoute
+        mapInfoRoute ~
+        serviceDateRangeRoute
       } ~
       pathPrefix("indicators") {
         indicatorsRoute

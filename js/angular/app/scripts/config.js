@@ -136,7 +136,7 @@ angular.module('transitIndicators').constant('config', {
                 jobs_indicator: {
                     name: 'Jobs Indicator',
                     type: 'wms',
-                    url: 'travelshed/jobs/render',
+                    url: 'gt/travelshed/jobs/render',
                     visible: true,
                     layerParams: {
 //                      colorRamp: ramps.getColorRamp(),

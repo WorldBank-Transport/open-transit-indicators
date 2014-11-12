@@ -12,7 +12,7 @@ import spray.http._
 
 import spray.json._
 import spray.httpx.SprayJsonSupport._
-import DefaultJsonProtocol._
+//import DefaultJsonProtocol._
 
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import scala.slick.jdbc.JdbcBackend.Session
@@ -24,7 +24,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
 
   // Endpoint for obtaining map info (just extent for now)
   def travelshedIndicatorRoute =
-    path("jobs") {
+    pathPrefix("jobs") {
       // path("breaks") {
       //   parameters('numBreaks.as[Int]) { (numBreaks) =>
       //     complete {
@@ -39,36 +39,44 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
       //     }
       //   }
       // } ~
-      path("render") {
-        parameters(
-          'bbox,
-          'width.as[Int],
-          'height.as[Int],
-          'breaks,
-          'colorRamp) { (bbox, width, height, breaksString, colorRampKey) =>
-          val extent = Extent.fromString(bbox)
-          val rasterExtent = RasterExtent(extent, width, height)
+      path("ping") {
+        get {
+          complete { "pong" }
+        }
+      } ~
+      path("render") { 
+        get {
+          parameters(
+            'BBOX,
+            'WIDTH.as[Int],
+            'HEIGHT.as[Int]) { (bbox, width, height) =>
+            val colorRampKey = "asdf"
+            val requestExtent = Extent.fromString(bbox)
+            val rasterExtent = RasterExtent(requestExtent, width, height)
 
-          val png: Png =
-            Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name)) match {
-              case Some((tile, extent)) =>
-                val breaks = tile.classBreaks(numberOfClassBreaks)
-//                val breaks = breaksString.split(",").map(_.toInt)
-                val ramp = {
-                  val cr = ColorRampMap.getOrElse(colorRampKey, ColorRamps.BlueToRed)
-                  if(cr.toArray.length < breaks.length) { cr.interpolate(breaks.length) }
-                  else { cr }
-                }
+            val png: Png =
+              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name)) match {
+                case Some((tile, extent)) =>
+                  println(s"GOT TILE with extent $extent (intersection with $requestExtent: ${extent.intersection(requestExtent)})")
+                  val breaks = tile.classBreaks(numberOfClassBreaks)
+                  println(s" BREAKS: ${breaks.toSeq}")
+                  //                val breaks = breaksString.split(",").map(_.toInt)
+                  val ramp = {
+                    val cr = ColorRampMap.getOrElse(colorRampKey, ColorRamps.BlueToRed)
+                    if(cr.toArray.length < breaks.length) { cr.interpolate(breaks.length) }
+                    else { cr }
+                  }
 
-                tile
-                  .warp(extent, rasterExtent)
-                  .renderPng(ramp, breaks)
-              case _ =>
-                ArrayTile.empty(TypeByte, width, height).renderPng
+                  tile
+                    .warp(extent, rasterExtent)
+                    .renderPng(ramp, breaks)
+                case _ =>
+                  ArrayTile.empty(TypeByte, width, height).renderPng
+              }
+
+            respondWithMediaType(MediaTypes.`image/png`) {
+              complete(png.bytes)
             }
-
-          respondWithMediaType(MediaTypes.`image/png`) {
-            complete(png.bytes)
           }
         }
       }
