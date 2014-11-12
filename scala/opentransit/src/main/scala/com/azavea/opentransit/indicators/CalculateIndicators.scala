@@ -48,7 +48,8 @@ object CalculateIndicators {
     val builder = TransitSystemBuilder(gtfsRecords)
 
     val calculateAllTime = request.samplePeriods.length != periods.length
-
+    val allGeometries = mutable.Map[SamplePeriod, SystemLineGeometries]()
+    val allBuffers = mutable.Map[SamplePeriod, SystemBufferGeometries]()
     val resultHolder = mutable.Map[Indicator, mutable.Map[SamplePeriod, AggregatedResults]]()
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
@@ -80,9 +81,27 @@ object CalculateIndicators {
             val periodResults =
               indicator.calculation(period)(system)
 
+            val periodGeometry: SystemLineGeometries = {
+              println(s"Creating System Geometries for period ${period.periodType}...")
+              val systemGeometry =
+                timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+                  SystemLineGeometries(system)
+                }
+              systemGeometry
+            }
 
+            val periodBuffers = {
+              println(s"Creating stop buffer geometries for period ${period.periodType}...")
+              val systemBuffers : Projected[MultiPolygon] =
+                timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+                  params.bufferForPeriod(period)
+                }
+              SystemBufferGeometries(system, systemBuffers)
+            }
+
+            allBuffers(period) = periodBuffers
+            allGeometries(period) = periodGeometry
             resultHolder(indicator)(period) = periodResults
-
             trackStatus(indicator.name, JobStatus.Complete)
           }
         } catch {
@@ -94,49 +113,22 @@ object CalculateIndicators {
         }
       }
 
-      val periodGeometries = periods.map { period =>
-        println(s"Creating System Geometries for period ${period.periodType}...")
-        val systemGeometries =
-          timedTask(s"Calculated system geometries for period ${period.periodType}.") {
-            SystemLineGeometries(builder.systemBetween(period.start, period.end))
-          }
-        period -> systemGeometries
-      }.toMap
-
-      val periodBuffers = periods.map { period =>
-        println(s"Creating stop buffer geometries for period ${period.periodType}...")
-        val systemBuffers : Projected[MultiPolygon] =
-          timedTask(s"Calculated system geometries for period ${period.periodType}.") {
-            params.bufferForPeriod(period)
-          }
-        period -> SystemBufferGeometries(builder.systemBetween(period.start, period.end), systemBuffers)
-      }.toMap
-
-
-      // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
-      lazy val overallLineGeometries = {
-        println("Calculating overall system geometries...")
-        timedTask("Calculated overall system geometries.") {
-          SystemLineGeometries.merge(periodGeometries.values.toSeq)
-        }
-      }
       println(s"""Calculating indicators ${if (calculateAllTime) "with" else "without" } alltime.""")
       // This indicator only needs to be calculated when there's a full set of sample periods
       if (calculateAllTime) {
         println("Done processing periodic indicators; going to calculate weekly service hours...")
         timedTask("Processed indicator: hours_service") {
-
           WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
         println("Done processing indicators in CalculateIndicators")
       }
 
       resultHolder.map { case (indicator, periodToResults) =>
         val periodIndicatorResults: Seq[ContainerGenerator] =
-          periods.map { period =>
+          periodToResults.map { case (period, result) =>
             val periodResults = periodToResults(period)
             val (results, geometries) = (periodResults, indicator match {
-              case (_:CoverageRatioStopsBuffer | _:WeightedServiceFrequency | _:Accessibility) => periodBuffers
-              case _ => periodGeometry
+              case (_:CoverageRatioStopsBuffer | _:WeightedServiceFrequency | _:Accessibility) => allBuffers(period)
+              case _ => allGeometries(period)
             })
             PeriodIndicatorResult.createContainerGenerators(indicator.name,
                                                             period,
@@ -156,10 +148,16 @@ object CalculateIndicators {
               OverallIndicatorResult.createContainerGenerators(indicator.name,
                                                                overallResults,
                                                                overallLineGeometries)
-
             statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
           }
         }
+      }
+    }
+    // This is lazy so it isn't generated if not needed (i.e. in the case of no alltime period)
+    lazy val overallLineGeometries: SystemGeometries = {
+      println("Calculating overall system geometries...")
+      timedTask("Calculated overall system geometries.") {
+        SystemLineGeometries.merge(allGeometries.values.toSeq)
       }
     }
   }

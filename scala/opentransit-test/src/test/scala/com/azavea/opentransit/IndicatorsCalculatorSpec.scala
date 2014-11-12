@@ -17,7 +17,7 @@ import org.scalatest._
 
 import scala.slick.jdbc.JdbcBackend.Session
 import scala.util.{Try, Success, Failure}
-
+import scala.collection.mutable
 
 trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
   /** It's horrible to load the data for each test. But I'm done pulling my hair
@@ -80,14 +80,15 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
   def septaOverall(indicator: Indicator): AggregatedResults =
     PeriodResultAggregator({
-      val results = periods.map { period => {
+      val resultHolder = mutable.Map[SamplePeriod, AggregatedResults]()
+      val results = periods.map { period =>
         val calculation = indicator.calculation(period)
         val transitSystem = systems(period)
         val results = calculation(transitSystem)
-        (period, results)}
+        resultHolder(period) = results
       }
-      results.toMap}
-    )
+      resultHolder
+    })
 
 
   def findRouteById(routes: Iterable[Route], id: String): Option[Route] =
@@ -103,7 +104,7 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
 trait StopBuffersSpec {this: IndicatorSpec =>
   val stopBuffers = db withSession { implicit session =>
-    StopBuffers(systems, 500, db)
+    StopBuffers(systems(period), 500, db)
   }
   trait StopBuffersSpecParams extends StopBuffers {
     def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
@@ -156,12 +157,12 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
   }
 
   trait ObservedStopTimeSpecParams extends ObservedStopTimes {
-    def observedTripById(period: SamplePeriod): Map[String, Trip] =
-      observedTripMapping(period)
+    def observedTripById(tripId: String): Trip =
+      observedTripMapping(period)(tripId)
 
     // Testing, so just return the same period every time.
-    def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
-      observedPeriodTrips
+    def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
+      observedPeriodTrips(tripId)
   }
 }
 
