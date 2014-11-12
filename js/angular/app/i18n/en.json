@@ -177,7 +177,19 @@
         "START_OVER": "Start Over",
         "HEADER_NAME": "Name",
         "HEADER_LAST_MODIFIED": "Last Modified",
-        "TIME_PERIOD": "Time Period"
+        "TIME_PERIOD": "Time Period",
+        "CONFIRM_NAVIGATION": "Navigating away from this page will undo any changes you have made to this route. Are you sure you want to continue?",
+        "ROUTE_SAVING": "Saving route...",
+        "ROUTE_ERROR": "Error!",
+        "ROUTE_ERROR_DESC": "Your route could not be created. Resolve the following errors:",
+        "ROUTE_UNKNOWN_ERROR": "There was an unknown error saving your route. Please return to the routes list and try again.",
+        "ROUTE_ERRORS": {
+            "NO_SHAPES": "No route shape",
+            "NO_STOPTIMES": "No route stop times",
+            "NO_STOPS": "No route stops",
+            "NO_FREQUENCY": "No route headway",
+            "MISSING_STOPS": "Some stops are missing stop times"
+        }
     },
     "INDICATOR_DESCRIPTION": {
         "access_index" : "",

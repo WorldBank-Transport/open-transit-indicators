@@ -26,8 +26,9 @@ angular.module('transitIndicators')
                    OTITripModel, OTIFrequencyModel, OTIDrawService, OTIStopService, OTIUIDService) {
 
     var makeTrip = function () {
-        var trip = new OTITripModel();
-        trip.tripId = OTIUIDService.getId();
+        var trip = new OTITripModel({
+            tripId: OTIUIDService.getId()
+        });
         trip.routeId = _routeId;
         trip.headsign = '';
         trip.stopTimes = [];
@@ -43,7 +44,6 @@ angular.module('transitIndicators')
     };
 
     var SHAPE_TYPE = 'LineString';
-    var DEFAULT_TRIP_ID = 'BLANKTRIP';
 
     var _dbName = null;
     var _routeId = null;

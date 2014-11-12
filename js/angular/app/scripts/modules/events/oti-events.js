@@ -1,4 +1,11 @@
 'use strict';
+/**
+
+// TODO: Refactor these event objects to their respective modules, following the pattern
+in indicator-services folder. The global events object is silly, each module should define
+its own events.
+
+*/
 angular.module('transitIndicators')
 .factory('OTIEvents', [function () {
     var otiEvents = {};
@@ -15,12 +22,6 @@ angular.module('transitIndicators')
 
     otiEvents.Root = {
         MapExtentUpdated: 'OTIEvent:Root:MapExtentUpdated'
-    };
-
-    otiEvents.Indicators = {
-        IndicatorCalcJobUpdated: 'OTIIndicatorsService:IndicatorCalcJobUpdated',
-        IndicatorUpdated: 'OTIIndicatorsService:IndicatorUpdated',
-        SamplePeriodUpdated: 'OTIIndicatorsService:SamplePeriodUpdated'
     };
 
     otiEvents.Auth = {

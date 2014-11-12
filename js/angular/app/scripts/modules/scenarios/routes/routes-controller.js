@@ -4,9 +4,9 @@ angular.module('transitIndicators')
             ['$scope', '$state', 'OTIScenarioManager', 'OTIRouteManager',
             function ($scope, $state, OTIScenarioManager, OTIRouteManager) {
 
+    var scenario = OTIScenarioManager.get();
     $scope.filteredRoutes = [];
-    $scope.scenario = OTIScenarioManager.get();
-    OTIRouteManager.list({db_name: $scope.scenario.db_name}).then(function (routes) {
+    OTIRouteManager.list({db_name: scenario.db_name}).then(function (routes) {
         $scope.filteredRoutes = routes;
     });
 

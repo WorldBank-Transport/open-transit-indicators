@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$scope', '$state', '$timeout', '$modal', 'OTIEvents', 'OTIIndicatorJobModel', 'OTIIndicatorsService',
-            function ($scope, $state, $timeout, $modal, OTIEvents,  OTIIndicatorJobModel, OTIIndicatorsService) {
+            ['$modal', '$scope', '$state', '$timeout', 'OTIIndicatorJobManager', 'OTIIndicatorJobModel',
+            function ($modal, $scope, $state, $timeout, OTIIndicatorJobManager, OTIIndicatorJobModel) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
@@ -28,7 +28,7 @@ angular.module('transitIndicators')
      */
     $scope.calculateIndicators = function () {
         var job = new OTIIndicatorJobModel({
-            city_name: OTIIndicatorsService.selfCityName
+            city_name: OTIIndicatorJobManager.getCurrentCity()
         });
         job.$save(function (data) {
             $scope.jobStatus = null;

@@ -1,11 +1,32 @@
 <div class="scenario-page-content">
-    <h3>{{'SCENARIO.SUCCESS'|translate}}</h3>
-    <p>
-        {{'SCENARIO.YOU_JUST_CREATE_ROUTE'|translate}} {{ route.routeShortName }}
-    </p>
+    <div ng-if="status === statuses.SAVED">
+        <h3>{{'SCENARIO.SUCCESS'|translate}}</h3>
+        <p>
+            {{'SCENARIO.YOU_JUST_CREATE_ROUTE'|translate}}
+        </p>
+    </div>
+    <div ng-if="status === statuses.ERROR">
+        <h3>{{'SCENARIO.ROUTE_ERROR'|translate}}</h3>
+        <p>
+            {{'SCENARIO.ROUTE_UNKNOWN_ERROR'|translate}}
+        </p>
+    </div>
+    <div ng-if="status === statuses.SAVING">
+        <p>
+            <wave-spinner></wave-spinner>
+            <span class="text-center">{{'SCENARIO.ROUTE_SAVING'|translate}}</span>
+        </p>
+    </div>
+    <div ng-if="status === statuses.INVALID">
+        <h3>{{'SCENARIO.ROUTE_ERROR'|translate}}</h3>
+        <p>{{'SCENARIO.ROUTE_ERROR_DESC'|translate}}</p>
+        <ul ng-repeat="error in validation.errors">
+            <li>{{error|translate}}</li>
+        </ul>
+    </div>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-click="list()">{{'SCENARIO.SCENARIO'|translate}}</a> /
-    <a class="button--small" ng-click="routes()">{{'SCENARIO.ROUTE'|translate}}</a> /
+    <a class="button--small default" ng-click="goWithConfirmationTo('list')">{{'SCENARIO.SCENARIO'|translate}}</a> /
+    <a class="button--small" ng-click="goWithConfirmationTo('routes')">{{'SCENARIO.ROUTE'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>

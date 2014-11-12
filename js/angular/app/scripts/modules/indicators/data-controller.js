@@ -2,20 +2,21 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsDataController',
             ['$scope', '$state', '$modal',
-             'OTICityManager', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsDataService',
+             'OTICityManager', 'OTIIndicatorChartService',
+             'OTIIndicatorModel', 'OTIIndicatorManager', 'OTIIndicatorJobManager',
             function ($scope, $state, $modal,
-                      OTICityManager, OTIEvents, OTIIndicatorsService, OTIIndicatorsDataService) {
+                      OTICityManager, OTIIndicatorChartService,
+                      OTIIndicatorModel, OTIIndicatorManager, OTIIndicatorJobManager) {
 
     $scope.updating = false;
-    $scope.indicatorDetailKey = OTIIndicatorsService.getIndicatorDescriptionTranslationKey;
-    $scope.charts = OTIIndicatorsDataService.Charts;
-    $scope.selfCityName = OTIIndicatorsService.selfCityName;
-    var colors = OTIIndicatorsDataService.Colors;
+    $scope.indicatorDetailKey = OTIIndicatorManager.getDescriptionTranslationKey;
+    $scope.charts = OTIIndicatorChartService.Charts;
+    $scope.selfCityName = OTIIndicatorJobManager.getCurrentCity();
 
     $scope.chartData = {};
 
     var filterDataForChartType = function (data, type, aggregation) {
-        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        var chartType = OTIIndicatorChartService.getChartTypeForIndicator(type);
         if (chartType === 'nodata') {
             return data;
         }
@@ -27,16 +28,16 @@ angular.module('transitIndicators')
         var period = $scope.sample_period;
         if (period) {
 
-            OTIIndicatorsService.getIndicatorCalcJob(function (calcJob) {
+            OTIIndicatorJobManager.getCurrentJob(function (calcJob) {
                 var params = {
                     sample_period: period,
                     aggregation: 'mode,system',
                     calculation_job: calcJob
                 };
-                OTIIndicatorsService.query('GET', params).then(function (data) {
+                OTIIndicatorModel.search(params, function (data) {
                     // If there is no indicator data, ask to redirect to the calculation status page
                     // only if we're still on the data page
-                    if (!data.length && $state.is('data') && !OTIIndicatorsService.isModalOpen()) {
+                    if (!data.length && $state.is('data') && !OTIIndicatorManager.isModalOpen()) {
                         $modal.open({
                             templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
                             controller: 'OTIYesNoModalController',
@@ -52,7 +53,7 @@ angular.module('transitIndicators')
                         });
                     }
 
-                    var indicators = OTIIndicatorsDataService.transformData(data, $scope.cities);
+                    var indicators = OTIIndicatorChartService.transformData(data, $scope.cities);
                     $scope.indicatorData = null;
                     $scope.chartData = {};
                     // Populate $scope.chartData, because filterDataForChartType
@@ -84,14 +85,14 @@ angular.module('transitIndicators')
     };
 
     $scope.getModePartialForIndicator = function (type) {
-        var chartType = OTIIndicatorsDataService.getChartTypeForIndicator(type);
+        var chartType = OTIIndicatorChartService.getChartTypeForIndicator(type);
         var url = '/scripts/modules/indicators/charts/:charttype-mode-partial.html';
         return url.replace(':charttype', chartType);
     };
 
-    $scope.indicatorConfig = OTIIndicatorsDataService.IndicatorConfig;
+    $scope.indicatorConfig = OTIIndicatorChartService.IndicatorConfig;
 
-    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function () {
+    $scope.$on(OTIIndicatorManager.Events.SamplePeriodUpdated, function () {
         getIndicatorData();
     });
 

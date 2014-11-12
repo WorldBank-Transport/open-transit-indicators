@@ -2,24 +2,22 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'OTITypes', 'cities',
-            function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, OTITypes, cities) {
+            ['$scope', '$cookieStore', '$modal',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
+             'cities',
+            function ($scope, $cookieStore, $modal,
+                      OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes,
+                      cities) {
 
     $scope.dropdown_sample_period_open = false;
-    $scope.indicatorCalcJob = 0;
 
     $scope.aggregations = {};
     $scope.types = {};
     $scope.sample_periods = {};
-    $scope.sample_period = $cookieStore.get('sample_period') || 'morning';
+    $scope.sample_period = OTIIndicatorManager.getSamplePeriod();
 
     $scope.cities = cities;
     $scope.showingState = 'data';
-
-    var setIndicatorCalcJob = function (calcJob) {
-        $scope.indicatorCalcJob = calcJob;
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorCalcJobUpdated, calcJob);
-    };
 
     OTITypes.getIndicatorTypes().then(function (data) {
         // filter indicator types to only show those for map display
@@ -42,7 +40,7 @@ angular.module('transitIndicators')
 
     $scope.openCityModal = function () {
         var modalCities = $scope.cities;
-        OTIIndicatorsService.setModalStatus(true);
+        OTIIndicatorManager.setModalStatus(true);
         $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
@@ -61,15 +59,14 @@ angular.module('transitIndicators')
                 }
             }
         }).result.finally(function () {
-            OTIIndicatorsService.setModalStatus(false);
+            OTIIndicatorManager.setModalStatus(false);
         });
     };
 
     $scope.selectSamplePeriod = function (sample_period) {
         $scope.dropdown_sample_period_open = false;
         $scope.sample_period = sample_period;
-        $cookieStore.put('sample_period', sample_period);
-        $scope.$broadcast(OTIEvents.Indicators.SamplePeriodUpdated, sample_period);
+        OTIIndicatorManager.setSamplePeriod(sample_period);
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
@@ -77,8 +74,11 @@ angular.module('transitIndicators')
     });
 
     $scope.init = function () {
-        OTIIndicatorsService.getIndicatorCalcJob(function (calcJob) {
-            setIndicatorCalcJob(calcJob);
+        OTIIndicatorJobManager.getCurrentJob(function (calcJob) {
+            // TODO: Refactor getCurrentJob to return a promise so that we can resolve it in the state
+            //          then set it here via setConfig,
+            //          and remove the other getCurrentJob calls in the child controllers
+            OTIIndicatorManager.setConfig({calculation_job: calcJob});
         });
     };
     $scope.init();
