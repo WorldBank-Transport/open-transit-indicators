@@ -42,8 +42,6 @@ case class IndicatorJob(
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
-  val config = ConfigFactory.load
-  val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
   // Endpoint for triggering indicator calculations
   //
@@ -56,11 +54,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
             TaskQueue.execute { // async
-              val gtfsRecords =
-                dbByName(request.gtfsDbName) withSession { implicit session =>
-                  GtfsRecords.fromDatabase(dbGeomNameUtm)
-                }
-              CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager with IndicatorsTable {
+              CalculateIndicators(request, dbByName, new CalculationStatusManager with IndicatorsTable {
 
                 def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
                   val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))

@@ -102,3 +102,4 @@ tags
 /scala/.ensime_cache/build.sbt
 /scala/.ensime_cache/project/build.properties
 /scala/TAGS
+/scala/.lib
