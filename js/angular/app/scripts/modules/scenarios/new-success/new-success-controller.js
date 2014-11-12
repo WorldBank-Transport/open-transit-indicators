@@ -39,12 +39,6 @@ angular.module('transitIndicators')
         }
     };
 
-    $scope.modes = function () {
-        if ($scope.scenario.isComplete()) {
-            $state.go('routes');
-        }
-    };
-
     $scope.back = function () {
         if ($scope.timeoutId) {
             $timeout.cancel($scope.timeoutId);

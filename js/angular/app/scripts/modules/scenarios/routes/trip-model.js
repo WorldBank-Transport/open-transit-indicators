@@ -3,6 +3,20 @@
 angular.module('transitIndicators')
 .factory('OTITripModel', ['$resource', function ($resource) {
 
+    function OTITripValidationError() {
+        this.isValid = true;
+        this.errors = [];
+    }
+
+    /** Add an error to the object, setting isValid to false
+     *
+     *  @param messageKey String An angular ui translate key to pass to UI for translation/display
+     */
+    OTITripValidationError.prototype.addError = function (messageKey) {
+        this.isValid = false;
+        this.errors.push(messageKey);
+    };
+
     // This takes the function signature of the angular transformResponse functions
     // @param tripsString String data returned from endpoint
     // @param headers Headers sent with the response
@@ -147,34 +161,71 @@ angular.module('transitIndicators')
             }
             this.calculateDistance();
         },
+
         clearShape: function () {
             this.shape.coordinates = [];
             this.calculateDistance();
         },
+
         orderStops: function() {
             this.stopTimes = _.map(this.stopTimes, function(stopTime, index) {
                 stopTime.stopSequence = index + 1;
                 return stopTime;
             });
         },
+
         // if index undefined, add to end of array
         addStopTime: function (stopTime, index) {
             index = typeof index !== 'undefined' ? index : this.stopTimes.length;
             this.stopTimes.splice(index, 0, stopTime);
             this.orderStops();
         },
+
         removeStopTime: function (index) {
             var removed = this.stopTimes.splice(index, 1);
             this.orderStops();
             return removed;
         },
+
         changeSequence: function (index, delta) {
             var newPosition = (index + delta > 0) ? index + delta : 0;
             var removed = this.stopTimes.splice(index, 1);
             this.stopTimes.splice(newPosition, 0, removed[0]);
             this.orderStops();
-        }
+        },
 
+        validate: function () {
+            var validation = new OTITripValidationError();
+
+            // Validate shape exists
+            if (!(this.shape && this.shape.coordinates && this.shape.coordinates.length)) {
+                validation.addError('SCENARIO.ROUTE_ERRORS.NO_SHAPES');
+            }
+
+            // Validate stopTimes exists
+            if (!(this.stopTimes && this.stopTimes.length)) {
+                validation.addError('SCENARIO.ROUTE_ERRORS.NO_STOPTIMES');
+            }
+
+            // Validate each stopTime has a stop
+            var missingStops = false;
+            _.each(this.stopTimes, function (stopTime) {
+                if (!(stopTime.stop && stopTime.stop.lat && stopTime.stop.long)) {
+                    missingStops = true;
+                }
+            });
+            if (missingStops) {
+                validation.addError('SCENARIO.ROUTE_ERRORS.MISSING_STOPS');
+            }
+
+            // Validate at least one frequency exists
+            var freq = this.getFrequency(0);
+            if (!(freq && freq.headway && freq.start && freq.end)) {
+                validation.addError('SCENARIO.ROUTE_ERRORS.NO_FREQUENCY');
+            }
+
+            return validation;
+        }
     });
 
     return module;
