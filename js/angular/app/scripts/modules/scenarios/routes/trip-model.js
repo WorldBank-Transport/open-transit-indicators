@@ -33,6 +33,15 @@ angular.module('transitIndicators')
         });
     };
 
+    // Leaflet expects lat/lng, scala API gives lng/lat
+    // Swap in $resource transform functions
+    var swapLatLng = function (trip) {
+        trip.shape.coordinates = _.map(trip.shape.coordinates, function (lnglat) {
+            return [lnglat[1], lnglat[0]];
+        });
+        return trip;
+    };
+
     var baseUrl = '/gt/scenarios/:db_name/routes/:routeId/trips';
     var url = baseUrl + '/:tripId';
     var module = $resource(url, {
@@ -40,6 +49,12 @@ angular.module('transitIndicators')
         routeId: '@routeId',
         tripId: '@tripId'
     }, {
+        save: {
+            method: 'POST',
+            transformRequest: function (trip) {
+                return angular.toJson(swapLatLng(trip));
+            }
+        },
         // Model specific override of get()
         // Takes the list endpoint which is a 2dArray of grouped trips
         //  and returns via transformResponse a single array of representative trips
@@ -55,11 +70,7 @@ angular.module('transitIndicators')
             // convert lng,lat points into lat,lng - this is a fix for apparently
             // broken geotrellis json conversion
             var trip = angular.fromJson(tripString);
-            trip.shape.coordinates = _.map(
-                trip.shape.coordinates, function(lnglat) {
-                    return [lnglat[1], lnglat[0]];
-                });
-            return trip;
+            return swapLatLng(trip);
           }
         }
     });
