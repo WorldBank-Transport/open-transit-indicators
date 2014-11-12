@@ -24,14 +24,11 @@ class TravelTimePerformance(params: ObservedStopTimes)
   val name = "travel_time"
 
   def calculation(period: SamplePeriod) = {
-    // Grab a map from trip ID to the tuple of scheduled stop values and observed stop values
-    val observedTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
-      params.observedStopsByTrip(period)
 
     def map(trip: Trip): Option[Seq[Double]] = {
       // Sort the tuples out (so that they might be accurately compared, one to the next)
       val (schedTimes, obsTimes): (Seq[ScheduledStop], Seq[ScheduledStop]) =
-        observedTrips(trip.id).sortBy { case (sched, obsvd) =>
+        params.observedStopsByTrip(trip.id).sortBy { case (sched, obsvd) =>
           sched.arrivalTime // Order stops by scheduled arrival time
         }.unzip // unzip so that we are left with two ordered lists - scheduled and observed stops
 

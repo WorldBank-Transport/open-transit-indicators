@@ -38,7 +38,10 @@ trait IndicatorParams extends Boundaries
                          with ObservedStopTimes
 
 object IndicatorParams {
-  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem],
+  def apply(
+    request: IndicatorCalculationRequest,
+    system: TransitSystem,
+    period: SamplePeriod,
     dbByName: String => Database): IndicatorParams = {
 
     // Grab references to each of the databases, so they can be used as needed
@@ -47,21 +50,18 @@ object IndicatorParams {
 
     // Stop buffers are based on stops, which are in the gtfs db
     val stopBuffers = gtfsDb withSession { implicit session =>
-      StopBuffers(systems, request.nearbyBufferDistance, gtfsDb)
+      StopBuffers(system, request.nearbyBufferDistance, gtfsDb)
     }
 
     // Observed data and demographics are in the aux db
-    val (observedStopTimes, demographics) = auxDb withSession { implicit session =>
-      val observed = ObservedStopTimes(systems, auxDb, request.paramsRequirements.observed)
-      val demographics = Demographics(auxDb)
-      (observed, demographics)
-    }
+    val observedStopTimes = ObservedStopTimes(system, period, auxDb, request.paramsRequirements.observed)
+    val demographics = Demographics(auxDb)
 
     new IndicatorParams {
-      def observedStopsByTrip(period: SamplePeriod) =
-        observedStopTimes.observedStopsByTrip(period)
-      def observedTripById(period: SamplePeriod) =
-        observedStopTimes.observedTripById(period)
+      def observedStopsByTrip(tripId: String) =
+        observedStopTimes.observedStopsByTrip(tripId)
+      def observedTripById(tripId: String) =
+        observedStopTimes.observedTripById(tripId)
 
       def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
       def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)

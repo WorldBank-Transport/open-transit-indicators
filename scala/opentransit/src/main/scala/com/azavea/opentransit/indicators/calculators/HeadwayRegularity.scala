@@ -19,11 +19,10 @@ class HeadwayRegularity(params: ObservedStopTimes)
   val name = "regularity_headways"
 
   def calculation(period: SamplePeriod) = {
-    val observedTrips: Map[String, Trip] = params.observedTripById(period)
 
     def map(trips: Seq[Trip]): Double = {
       val scheduledHeadway = tripsToHeadway(trips)
-      val observedHeadway = tripsToHeadway(trips.map { trip => observedTrips(trip.id) }.toSeq)
+      val observedHeadway = tripsToHeadway(trips.map { trip => params.observedTripById(trip.id) }.toSeq)
       (scheduledHeadway - observedHeadway).abs.toDouble / 60 // div60 for minutes
     }
 

@@ -25,7 +25,7 @@ trait StopBuffers {
 }
 
 object StopBuffers {
-  def apply(systems: Map[SamplePeriod, TransitSystem], bufferDistance: Double, db: DatabaseDef): StopBuffers = {
+  def apply(system: TransitSystem, bufferDistance: Double, db: DatabaseDef): StopBuffers = {
 
     // Get buffers up front from database
     val stopMap = db withSession { implicit session =>
@@ -54,7 +54,6 @@ object StopBuffers {
 
     // Calculate combined buffers for entire period
     def calcBufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] = {
-      val system = systems(period)
       val allStops =
         for(
           route <- system.routes;
