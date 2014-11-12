@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIIndicatorsCalculationController',
-            ['$modal', '$scope', '$state', '$timeout', 'OTIEvents', 'OTIIndicatorJobManager', 'OTIIndicatorJobModel',
-            function ($modal, $scope, $state, $timeout, OTIEvents, OTIIndicatorJobManager, OTIIndicatorJobModel) {
+            ['$modal', '$scope', '$state', '$timeout', 'OTIIndicatorJobManager', 'OTIIndicatorJobModel',
+            function ($modal, $scope, $state, $timeout, OTIIndicatorJobManager, OTIIndicatorJobModel) {
 
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
