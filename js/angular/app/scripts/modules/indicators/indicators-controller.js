@@ -10,7 +10,6 @@ angular.module('transitIndicators')
                       cities) {
 
     $scope.dropdown_sample_period_open = false;
-    $scope.indicatorCalcJob = 0;
 
     $scope.aggregations = {};
     $scope.types = {};
@@ -76,7 +75,10 @@ angular.module('transitIndicators')
 
     $scope.init = function () {
         OTIIndicatorJobManager.getCurrentJob(function (calcJob) {
-            $scope.indicatorCalcJob = calcJob;
+            // TODO: Refactor getCurrentJob to return a promise so that we can resolve it in the state
+            //          then set it here via setConfig,
+            //          and remove the other getCurrentJob calls in the child controllers
+            OTIIndicatorManager.setConfig({calculation_job: calcJob});
         });
     };
     $scope.init();
