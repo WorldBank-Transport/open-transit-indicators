@@ -2,11 +2,28 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosRouteeditController',
             ['config', '$filter', '$scope', '$state', '$stateParams',
-             'OTIRouteManager', 'OTIScenarioManager', 'OTITripManager', 'OTIDrawService',
+             'OTIRouteManager', 'OTIScenarioManager', 'OTITripManager', 'OTITypes', 'OTIDrawService',
             function (config, $filter, $scope, $state, $stateParams,
-                      OTIRouteManager, OTIScenarioManager, OTITripManager, OTIDrawService) {
+                      OTIRouteManager, OTIScenarioManager, OTITripManager, OTITypes, OTIDrawService) {
 
     var DEFAULT_HEADWAY_MINS = 10;
+    var scenario = null;
+
+    var setFrequency = function () {
+        $scope.frequency = {
+            start: '00:00:00',
+            end: '23:59:00',
+            headway: DEFAULT_HEADWAY_MINS * 60
+        };
+        OTITypes.SamplePeriod.get({
+            'samplePeriod': scenario.sample_period
+        }, function (data) {
+            var start = new Date(data.period_start);
+            var end = new Date(data.period_end);
+            $scope.frequency.start = $filter('date')(start, 'HH:mm:ss');
+            $scope.frequency.end = $filter('date')(end, 'HH:mm:ss');
+        });
+    };
 
     var setTrip = function (trip) {
         $scope.trip = trip;
@@ -45,6 +62,7 @@ angular.module('transitIndicators')
     };
 
     var initialize = function () {
+        scenario = OTIScenarioManager.get();
         $scope.selectedRouteType = 0;
         $scope.route = OTIRouteManager.get();
         $scope.selected = {
@@ -53,11 +71,7 @@ angular.module('transitIndicators')
         };
         $scope.trips = [];
 
-        $scope.frequency = {
-            start: '00:00:00',
-            end: '23:59:00',
-            headway: DEFAULT_HEADWAY_MINS * 60
-        };
+        setFrequency();
 
         // Assume new trip until user overrides with their own
         OTITripManager.setRouteId($scope.route.id);
@@ -67,7 +81,6 @@ angular.module('transitIndicators')
             $scope.$emit('updateHeight');
         });
         setTrip(trip);
-        var scenario = OTIScenarioManager.get();
         OTITripManager.setScenarioDbName(scenario.db_name);
 
         OTIDrawService.reset();

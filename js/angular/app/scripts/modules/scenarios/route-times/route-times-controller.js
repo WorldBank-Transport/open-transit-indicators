@@ -43,16 +43,6 @@ angular.module('transitIndicators')
         });
     };
 
-    var setFrequencyStartEnd = function () {
-        var frequency = $scope.trip.getFrequency(0);
-        var stopTimes = $scope.trip.stopTimes;
-        var firstStop = stopTimes[0];
-        var lastStop = stopTimes[stopTimes.length - 1];
-        frequency.start = firstStop.arrivalTime;
-        frequency.end = lastStop.departureTime;
-        $scope.trip.addFrequency(frequency);
-    };
-
     $scope.updateHeight = function () {
         $scope.$emit('updateHeight');
     };
@@ -60,7 +50,6 @@ angular.module('transitIndicators')
     // $SCOPE
     $scope.continue = function () {
         if ($scope.tripStopTimesForm.$valid) {
-            setFrequencyStartEnd();
             $state.go('route-done');
             leafletData.getMap().then(function (map) {
                 map.removeLayer(OTIDrawService.drawnItems);

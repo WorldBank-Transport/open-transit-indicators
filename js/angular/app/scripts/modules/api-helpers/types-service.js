@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTITypes', ['$http', '$q',
-        function ($http, $q) {
+.factory('OTITypes', ['$http', '$q', '$resource',
+        function ($http, $q, $resource) {
 
     var module = {};
 
@@ -44,6 +44,12 @@ angular.module('transitIndicators')
         });
         return dfd.promise;
     };
+
+    module.SamplePeriod = $resource('/api/sample-periods/:samplePeriod/', {
+        'samplePeriod': '@samplePeriod'
+    }, null, {
+        stripTrailingSlashes: false
+    });
 
     module.getRouteTypes = function () {
         var dfd = $q.defer();
