@@ -25,12 +25,24 @@ trait CalculationStatusManager {
 }
 
 object CalculateIndicators {
+  val config = ConfigFactory.load
+  val dbGeomNameUtm = config.getString("database.geom-name-utm")
+
   /** Computes all indicators, and sends results and intermediate statuses to the
     * CalculationStatusManager object. The CalculationStatusManager methods should
     * be thread safe.
     */
-  def apply(request: IndicatorCalculationRequest, gtfsRecords: GtfsRecords,
-    dbByName: String => Database, statusManager: CalculationStatusManager): Unit = {
+  def apply(
+    request: IndicatorCalculationRequest,
+    dbByName: String => Database,
+    statusManager: CalculationStatusManager
+  ): Unit = {
+
+    // This is where GTFS Records are gathered
+    val gtfsRecords =
+      dbByName(request.gtfsDbName) withSession { implicit session =>
+        GtfsRecords.fromDatabase(dbGeomNameUtm)
+      }
 
     // The alltime period needs special handling. If it's requested, process it separately.
     val periods = request.samplePeriods.filter(_.periodType != "alltime")
