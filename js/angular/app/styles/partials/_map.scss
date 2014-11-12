@@ -38,6 +38,12 @@
     padding-right: 2rem;
 }
 
+/* fix for line drawing on scenario map */
+svg.leaflet-zoom-animated {
+    width: inherit !important;
+    height: inherit !important;
+}
+
 /* Legend CSS from:
 https://www.mapbox.com/tilemill/docs/guides/advanced-legends/
 
