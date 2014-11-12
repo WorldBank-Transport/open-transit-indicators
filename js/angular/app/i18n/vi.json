@@ -92,7 +92,8 @@
         "STATUS": "Indicator calculation status",
         "EMPTY": "Indicators have not been calculated",
         "REDIRECT": "No indicator data found. Go to the status page?",
-        "NOT_CONFIGURED": "The following options are not properly configured. Go to the configuration page?"
+        "NOT_CONFIGURED": "The following options are not properly configured. Go to the configuration page?",
+        "OSM_DATA": "OpenStreetMap Data"
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
