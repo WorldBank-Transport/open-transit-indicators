@@ -50,7 +50,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
             'BBOX,
             'WIDTH.as[Int],
             'HEIGHT.as[Int]) { (bbox, width, height) =>
-            val colorRampKey = "asdf"
+
             val requestExtent = Extent.fromString(bbox)
             val rasterExtent = RasterExtent(requestExtent, width, height)
 
@@ -62,7 +62,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
                   println(s" BREAKS: ${breaks.toSeq}")
                   //                val breaks = breaksString.split(",").map(_.toInt)
                   val ramp = {
-                    val cr = ColorRampMap.getOrElse(colorRampKey, ColorRamps.BlueToRed)
+                    val cr = ColorRamps.BlueToRed
                     if(cr.toArray.length < breaks.length) { cr.interpolate(breaks.length) }
                     else { cr }
                   }

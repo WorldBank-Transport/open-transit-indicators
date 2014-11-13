@@ -107,7 +107,7 @@ object IndicatorParams {
           TravelshedGraph(
             systems.keys.toSeq, 
             builder,
-            200,  // TODO: How do we decide on the resolution?
+            250,  // TODO: How do we decide on the resolution?
             request.arriveByTime - request.maxCommuteTime,
             request.maxCommuteTime
           )

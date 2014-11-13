@@ -40,6 +40,8 @@ class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics
 
       (tg.graph, tg.index, tg.rasterExtent, startTime, duration, tg.crs)
     }
+    
+    println(s"RUNNING JOB INDICATORS FOR START TIME $startTime WITH $duration TRAVEL TIME")
 
     val features: Array[MultiPolygonFeature[Double]] =
       params.jobsDemographics.toArray
@@ -65,9 +67,7 @@ class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics
       val envelope = feature.geom.envelope
       val contained = index.pointsInExtent(envelope).toArray
       val containedLen = contained.size
-//      println(feature)
       cfor(0)(_ < containedLen, _ + 1) { i =>
-//        println(s"WE HAVE A WINNER!")
         val v = contained(i)
         vertexToPolyId(v) = polyIndex
       }
@@ -85,7 +85,10 @@ class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics
 
     val tile = ArrayTile.empty(TypeDouble, cols, rows)
 
-  //  return
+    var minCol = cols
+    var minRow = rows
+    var maxCol = 0
+    var maxRow = 0
 
     info(s"Running shortest path query. $rasterExtent. $rows, $cols")
     Timer.timedTask(s"Created the jobs indicator tile") {
@@ -155,34 +158,25 @@ class JobsTravelshedIndicator(params: HasTravelshedGraph with RegionDemographics
               }
             }
 
-            tile.setDouble(col, row, sum)
+            if(sum > 0) { 
+              if(col < minCol) { minCol = col }
+              if(row < minRow) { minRow = row }
+              if(col > maxCol) { maxCol = col }
+              if(row > maxRow) { maxRow = row }
+
+              tile.setDouble(col, row, sum) 
+            }
           }
         }
     }
     
     // Reproject
-    println(s"Reprojecting to WebMercator from $crs")
+    val gridBounds = GridBounds(minCol, minRow, maxCol, maxRow)
+    println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator with grid bounds $gridBounds.")
     val (rTile, rExtent) = 
-      try {
-        geotrellis.raster.io.arg.ArgWriter(TypeDouble).write(s"reproject-exception.arg", tile, rasterExtent.extent, "reproject-exception")
-        val f = new java.io.File("reproject-exception.arg")
-        println(s"WROTE to ${f.getAbsolutePath}")
-        tile.reproject(rasterExtent.extent, crs, WebMercator)
-      } catch {
-        case e: Exception =>
-          println("ALALALALA")
-          System.err.println("1")
-          System.err.println(e)
-          System.err.println("\n2")
-          System.err.println(e.getMessage())
-          System.err.println("\n3")
-          System.err.println(e.getLocalizedMessage())
-          System.err.println("\n4")
-          System.err.println(e.getCause())
-          System.err.println("\n6")
-          e.printStackTrace()
-          sys.error("AHHH")
-      }
+      tile.warp(rasterExtent.extent, rasterExtent.extentFor(gridBounds)).reproject(rasterExtent.extent, crs, WebMercator)
+
+    println(s"Reproject to extent $rExtent")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name), (rTile, rExtent))
   }
 }

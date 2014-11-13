@@ -93,11 +93,12 @@ object TravelshedGraph extends Logging {
             (x, y)
           }
 
-        val extent = Extent(xmin, ymin, xmax, ymax)
+        val extent = Extent(ymin, xmin, ymax, xmax)
         val cols = (extent.width / resolution).toInt
         val rows = (extent.height / resolution).toInt
 
         val rasterExtent = RasterExtent(extent, cols, rows)
+        println(s"THE REAFD FLADFK DAFAD FAF ADFDAF  $rasterExtent")
 
         val stationVertices =
           unpackedGraph.vertices.filter(_.vertexType == StationVertex).toSeq
@@ -163,7 +164,6 @@ object TravelshedGraph extends Logging {
             warn(s"THERE WERE $noTransferEdgesCount STATIONS WITH NO TRANSFER EDGES.")
           }
         }
-
 
         val graph =
           Timer.timedTask("Packed graph") {
