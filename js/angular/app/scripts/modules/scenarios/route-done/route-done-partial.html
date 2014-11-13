@@ -2,7 +2,7 @@
     <div ng-if="status === statuses.SAVED">
         <h3>{{'SCENARIO.SUCCESS'|translate}}</h3>
         <p>
-            {{'SCENARIO.YOU_JUST_CREATE_ROUTE'|translate}}
+            {{'SCENARIO.YOU_JUST_CREATE_ROUTE'|translate}} {{ route.longName }}
         </p>
     </div>
     <div ng-if="status === statuses.ERROR">
@@ -28,5 +28,5 @@
 <div class="scenario-page-buttons">
     <a class="button--small default" ng-click="goWithConfirmationTo('list')">{{'SCENARIO.SCENARIO'|translate}}</a> /
     <a class="button--small" ng-click="goWithConfirmationTo('routes')">{{'SCENARIO.ROUTE'|translate}}</a> /
-    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+    <a class="button--small" ng-class="{'button--inactive': status===statuses.SAVED}" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>
