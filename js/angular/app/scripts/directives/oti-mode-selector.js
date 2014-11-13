@@ -18,7 +18,7 @@ angular.module('transitIndicators')
             scope.pickMode = function (mode) {
                 if (mode === null) {
                     scope.updatemap('');
-                    scope.choice = "All Modes";
+                    scope.choice = 'All Modes';
                     return;
                 }
                 scope.updatemap(mode.id);

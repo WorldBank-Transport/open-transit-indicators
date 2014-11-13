@@ -60,7 +60,8 @@
         "IMPORT": "Import",
         "EXPORT": "Export",
         "CREATE": "Create",
-        "CALCULATE_INDICATORS": "Calculate Indicators"
+        "NO_DATA": "No Data Available",
+        "UPDATING_INDICATORS": "Updating Indicators..."
     },
     "INDICATOR": {
         "num_stops": "Num stops per route",

@@ -59,7 +59,9 @@
         "LOAD": "Load",
         "IMPORT": "Import",
         "EXPORT": "Export",
-        "CREATE": "Create"
+        "CREATE": "Create",
+        "NO_DATA": "No Data Available",
+        "UPDATING_INDICATORS": "Updating Indicators..."
     },
     "INDICATOR": {
         "num_stops": "Số điểm dừng mỗi tuyến",
