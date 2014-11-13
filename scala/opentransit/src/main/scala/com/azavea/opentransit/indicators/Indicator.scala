@@ -47,7 +47,6 @@ object Indicators {
       new JobsTravelshedIndicator(params) requires (
         settings.hasJobDemographics, 
         settings.hasOsm, 
-        settings.hasRegionBounds,
         params.hasTravelshedGraph
       )
     ).flatMap { case (indicator, requirements) => if(requirements.fulfilled) Some(indicator) else None }

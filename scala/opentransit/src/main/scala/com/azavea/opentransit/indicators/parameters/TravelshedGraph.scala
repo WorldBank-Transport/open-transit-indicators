@@ -50,7 +50,6 @@ object TravelshedGraph extends Logging {
   def apply(
     periods: Seq[SamplePeriod],
     builder: TransitSystemBuilder,
-    regionBoundary: MultiPolygon, 
     resolution: Double, 
     startTime: Int, 
     duration: Int
@@ -77,10 +76,28 @@ object TravelshedGraph extends Logging {
             osmParsedResult.merge(systemResult)
           }
 
+        var xmin = Double.MaxValue
+        var ymin = Double.MaxValue
+        var xmax = Double. MinValue
+        var ymax = Double.MinValue
+
         val streetVertexIndex =
           SpatialIndex(unpackedGraph.vertices.filter(_.vertexType == StreetVertex)) { v =>
-            (v.location.long, v.location.lat)
+            val x = v.location.long
+            val y = v.location.lat
+
+            if(x < xmin) { xmin = x }
+            if(x > xmax) { xmax = x }
+            if(y < ymin) { ymin = y }
+            if(y > ymax) { ymax = y }
+            (x, y)
           }
+
+        val extent = Extent(xmin, ymin, xmax, ymax)
+        val cols = (extent.width / resolution).toInt
+        val rows = (extent.height / resolution).toInt
+
+        val rasterExtent = RasterExtent(extent, cols, rows)
 
         val stationVertices =
           unpackedGraph.vertices.filter(_.vertexType == StationVertex).toSeq
@@ -157,19 +174,9 @@ object TravelshedGraph extends Logging {
           Timer.timedTask("Created spatial index") {
             SpatialIndex(0 until graph.vertexCount) { v =>
               val l = graph.location(v)
-//              println(s"${(l.long, l.lat)}")
               (l.long,l.lat)
             }
           }
-
-        val extent = {
-          println(regionBoundary)
-          regionBoundary.envelope.buffer(travelshedExtentBuffer)
-        }
-        val cols = (extent.width / resolution).toInt
-        val rows = (extent.height / resolution).toInt
-
-        val rasterExtent = RasterExtent(extent, cols, rows)
 
         TravelshedGraph(graph, index, rasterExtent, startTime, duration, crs)
       }
