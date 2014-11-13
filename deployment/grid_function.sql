@@ -53,9 +53,10 @@ BEGIN
     PERFORM UpdateGeometrySRID('public', 'demographic_grid', 'geom', (SELECT Find_SRID('public', 'gtfs_stops', 'geom')));
 
     -- Reproject original polygons to UTM
-    ALTER TABLE datasources_demographicdatafeature ADD COLUMN utm_geom geometry(MultiPolygon, 4326);   
+    ALTER TABLE datasources_demographicdatafeature DROP COLUMN utm_geom;
+    ALTER TABLE datasources_demographicdatafeature ADD COLUMN utm_geom geometry(MultiPolygon, 4326);
     SELECT UpdateGeometrySRID('datasources_demographicdatafeature','utm_geom', (SELECT Find_SRID('public', 'gtfs_stops', 'geom')));
-    UPDATE datasources_demographicdatafeature SET utm_geom = ST_Transform(geom, (SELECT Find_SRID('public', 'gtfs_stops', 'geom'))); 
+    UPDATE datasources_demographicdatafeature SET utm_geom = ST_Transform(geom, (SELECT Find_SRID('public', 'gtfs_stops', 'geom')));
     
 END;
 $$ LANGUAGE plpgsql;

@@ -85,13 +85,12 @@ object TravelshedGraph extends Logging {
         val stationVertices =
           unpackedGraph.vertices.filter(_.vertexType == StationVertex).toSeq
 
-        val transferToStationDistance = 200
+        val transferToStationDistance = 500
 
         Timer.timedTask(s"Created transfer vertices.") {
           var transferEdgeCount = 0
           var noTransferEdgesCount = 0
           for(v <- stationVertices) {
-//            println(s"LATLNG: ${v.location.lat}, ${v.location.long}")
             val extent =
               // vertex map coords are actually UTM, not lat\long
               Extent(

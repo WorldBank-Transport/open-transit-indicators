@@ -22,6 +22,16 @@ angular.module('transitIndicators')
 
     /* LEAFLET CONFIG */
     var overlays = {
+        jobs_indicator: {
+            name: 'Jobs Indicator',
+            type: 'wms',
+            url: 'gt/travelshed/jobs/render',
+            visible: true,
+            layerParams: {
+                format: 'image/png',
+            },
+            layerOptions: { opacity: 0.7 }
+        },
         indicator: {
             name: 'GTFS Indicator',
             type: 'xyz',

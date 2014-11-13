@@ -131,20 +131,6 @@ angular.module('transitIndicators').constant('config', {
                         continuousWorld: true
                     }
                 }
-            },
-            overlays: {
-                jobs_indicator: {
-                    name: 'Jobs Indicator',
-                    type: 'wms',
-                    url: 'gt/travelshed/jobs/render',
-                    visible: true,
-                    layerParams: {
-//                      colorRamp: ramps.getColorRamp(),
-                      format: 'image/png',
-//                      transparent: true
-                    }
-                }
-
             }
         },
         markers: [],
