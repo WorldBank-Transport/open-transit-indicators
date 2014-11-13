@@ -146,6 +146,7 @@
         "ADD_SHAPE": "Add Shape",
         "TIME_TABLE": "时间表",
         "ADD_STOPS": "添加站点",
+        "ADD_STOP_QUESTION": "Add stop:",
         "CLICK_A_STOP_TO_ADD": "单击一个站点以将其添加到该路线中，或使用站点工具在地图上设置新站点。",
         "CONTINUE": "继续",
         "USE_THE_DRAW_TOOL": "使用画图工具在您的路线中添加形状。",

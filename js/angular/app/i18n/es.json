@@ -146,6 +146,7 @@
         "ADD_SHAPE": "Add Shape",
         "TIME_TABLE": "Time Table",
         "ADD_STOPS": "Add Stops",
+        "ADD_STOP_QUESTION": "Add stop:",
         "CLICK_A_STOP_TO_ADD": "Click on a stop to add it to this route or use the stop tool to place new stops on the map.",
         "CONTINUE": "Continue",
         "USE_THE_DRAW_TOOL": "Use the draw tool to add a shape to your route.",

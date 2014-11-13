@@ -35,6 +35,12 @@ angular.module('transitIndicators')
         AvailableModesUpdated: 'OTI:MapService:AvailableModesUpdated'
     };
 
+    module.closePopup = function () {
+        leafletData.getMap().then(function (map) {
+            map.closePopup();
+        });
+    };
+
     module.refreshLayers = function () {
         leafletData.getLayers().then(function (layers) {
             _.each(layers, function(layer) {
