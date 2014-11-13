@@ -59,7 +59,7 @@ angular.module('transitIndicators')
                 // Log error to bottom of assign fields section
                 addLoadAlert({
                     type: 'danger',
-                    msg: 'STATUS.INVALID_SELECTIONS: asdf' + $scope.uploadDemographic.status
+                    msg: 'STATUS.INVALID_SELECTIONS'
                 });
             } else {
                 addLoadAlert({
