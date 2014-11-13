@@ -1,6 +1,7 @@
 import django_filters
 
 from django.conf import settings
+from django.db import connection, ProgrammingError
 
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
@@ -113,6 +114,11 @@ class IndicatorJobViewSet(OTIAdminViewSet):
                 failures.append(attr)
         if not SamplePeriod.objects.count() == 6:
             failures.append('sample_periods')
+        try:
+            with connection.cursor() as c:
+                c.execute('''SELECT COUNT(*) FROM planet_osm_line''')
+        except ProgrammingError:
+            failures.append('osm_data')
 
         if len(failures) > 0:
             response = Response({'error': 'Invalid configuration',

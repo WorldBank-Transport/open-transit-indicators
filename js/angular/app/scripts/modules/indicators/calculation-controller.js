@@ -20,7 +20,8 @@ angular.module('transitIndicators')
         'nearby_buffer_distance_m': 'SETTINGS.DISTANCE_BUFFER',
         'max_commute_time_s': 'SETTINGS.JOB_TRAVEL_TIME',
         'max_walk_time_s': 'SETTINGS.MAX_WALK_TIME',
-        'avg_fare': 'SETTINGS.AVG_FARE'
+        'avg_fare': 'SETTINGS.AVG_FARE',
+        'osm_data': 'CALCULATION.OSM_DATA'
     };
 
     /**
