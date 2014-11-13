@@ -41,9 +41,11 @@ class HeadwayRegularity(params: ObservedStopTimes)
     val headways: Seq[Double] =
       trips.map { trip =>
         trip.schedule
-          .groupBy(_.stop.id).toMap
-      }.combineMaps
-        .flatMap { case (k, groupedStops) =>
+          .groupBy(_.stop.id)
+      }.combineMaps.mapValues(arrivals =>
+        arrivals.sortWith((a,b) =>
+          a.arrivalTime.compareTo(b.arrivalTime) < 0)
+      ).flatMap { case (k, groupedStops) =>
           groupedStops.zip(groupedStops.tail).map { case (a, b) =>
             Seconds.secondsBetween(a.arrivalTime, b.arrivalTime).getSeconds.toDouble
           }
