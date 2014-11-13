@@ -87,7 +87,17 @@ class IndicatorSerializer(serializers.ModelSerializer):
     sample_period = serializers.SlugRelatedField(slug_field='type')
     calculation_job = serializers.SlugRelatedField(slug_field='id')
     city_name = serializers.SerializerMethodField('get_city_name')
-    formatted_value = serializers.CharField(source='formatted_value', read_only=True)
+    formatted_value = serializers.SerializerMethodField('get_formatted_value')
+
+    def get_formatted_value(self, obj):
+        """Display value for units"""
+        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(obj.type, None) if obj.type else None
+        if obj.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
+            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
+            return u"%s" % round(obj.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
+        elif units:
+            return u"%s %s" % (round(obj.value, 2), units)
+        return u"%s" % round(obj.value, 2)
 
     def get_city_name(self, obj):
         return obj.calculation_job.city_name
@@ -122,7 +132,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type',
-                  'city_bounded', 'value', 'calculation_job', 'city_name', 'the_geom')
+                  'city_bounded', 'value', 'calculation_job', 'city_name', 'the_geom', 'formatted_value')
         read_only_fields = ('id',)
         write_only_fields = ('the_geom',)
 

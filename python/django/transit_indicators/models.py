@@ -447,17 +447,6 @@ class Indicator(models.Model):
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
 
-    @property
-    def formatted_value(self):
-        """Display value for units"""
-        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
-        if self.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
-            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
-            self.formatted_value = u"%s" % round(self.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
-        elif units:
-            return u"%s %s" % (round(self.value, 2), units)
-        return u"%s" % round(self.value, 2)
-
     # Cached geometry for this indicator only used by Windshaft
     the_geom = models.GeometryField(srid=4326, null=True)
 
