@@ -40,7 +40,7 @@
             <div ng-if="displayIndicator(citydata, type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(citydata, type, 'system')">{{ citydata.system[0].values[0].value || ('TERM.NO_DATA' | translate) }}</span>
+            <span ng-if="displayIndicator(citydata, type, 'system')">{{ citydata.system[0].values[0].formatted_value || ('TERM.NO_DATA' | translate) }}</span>
         </div>
     </div>
 </div>

@@ -85,6 +85,7 @@ target
 lib
 tmp
 *.class
+*.jar
 
 /js/angular/app/styles/main.css
 
