@@ -24,11 +24,16 @@ angular.module('transitIndicators')
                     });
                 }, POLLING_TIMEOUT_MS);
             } else if ($scope.scenario.isComplete()) {
-                OTITripManager.setScenarioDbName($scope.scenario.db_name);
+                onScenarioComplete($scope.scenario);
             }
             $scope.$emit('updateHeight');
         };
         checkUpload();
+    };
+
+    var onScenarioComplete = function (scenario) {
+        OTITripManager.setScenarioDbName(scenario.db_name);
+        // TODO: Update leaflet map to point to scenario db
     };
 
     $scope.scenario = OTIScenarioManager.get();
