@@ -57,11 +57,17 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
               CalculateIndicators(request, dbByName, new CalculationStatusManager with IndicatorsTable {
 
                 def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
-                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
-                  dbByName(request.gtfsDbName) withTransaction { implicit session =>
-                    import PostgresDriver.simple._
-                      indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
+                  try {
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
+                    dbByName(request.gtfsDbName) withTransaction { implicit session =>
+                      import PostgresDriver.simple._
+                        indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
+                      }
+                  } catch {
+                    case e: java.sql.SQLException => {
+                      println(e.getNextException())
                     }
+                  }
                 }
                 def statusChanged(status: Map[String, JobStatus]) = {
                   djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
