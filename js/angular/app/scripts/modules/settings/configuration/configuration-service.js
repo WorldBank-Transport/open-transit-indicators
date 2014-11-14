@@ -32,8 +32,6 @@ angular.module('transitIndicators')
             return (day === 0 || day === 6);
         },
 
-
-
         createDateFromISO: function (str) {
             if (!str) {
                 return null;

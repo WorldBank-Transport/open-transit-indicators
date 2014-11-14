@@ -1,4 +1,6 @@
 import django_filters
+from datetime import datetime, time
+import pytz
 
 from django.conf import settings
 from django.db import connection, ProgrammingError
@@ -95,6 +97,26 @@ class IndicatorFilter(django_filters.FilterSet):
                   'route_type', 'city_bounded', 'calculation_job', 'city_name']
 
 
+"""Helper function to check that sample periods fall within the GTFS calendar date range.
+    Returns true if all are valid.
+"""
+def valid_sample_periods():
+    periods = SamplePeriod.objects.all()
+    if len(periods) != 6:
+        return False
+    cursor = connection.cursor()
+    cursor.execute('SELECT MIN(start_date), MAX(end_date) FROM gtfs_calendar;')
+    start, end = cursor.fetchone()
+    # model datetimes are stored as UTC; turn the date objects returned into UTC datetimes
+    calendar_start = datetime.combine(start, time.min).replace(tzinfo=pytz.UTC)
+    calendar_end = datetime.combine(end, time.max).replace(tzinfo=pytz.UTC)
+    for period in periods:
+        if period.type != 'alltime':
+            if period.period_start < calendar_start or period.period_end > calendar_end:
+                return False
+    return True
+
+
 class IndicatorJobViewSet(OTIAdminViewSet):
     """Viewset for IndicatorJobs"""
     model = IndicatorJob
@@ -112,7 +134,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
                      'avg_fare']:
             if not indicators_config.__getattribute__(attr) > 0:
                 failures.append(attr)
-        if not SamplePeriod.objects.count() == 6:
+        if not valid_sample_periods():
             failures.append('sample_periods')
         try:
             with connection.cursor() as c:
