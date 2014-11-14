@@ -1,7 +1,9 @@
 <div class="scenario-page-content">
     <form name="newRoute" novalidate>
-        <h3>{{'SCENARIO.NEW_ROUTE'|translate}}</h3>
-        <p>{{'SCENARIO.ADD_A_NEW_ROUTE'|translate}}</p>
+        <h3 ng-if="route.isNew" translate="SCENARIO.NEW_ROUTE"></h3>
+        <p ng-if="route.isNew" translate="SCENARIO.ADD_A_NEW_ROUTE"></p>
+        <h3 ng-if="!route.isNew" translate="SCENARIO.EDIT_ROUTE"></h3>
+        <p ng-if="!route.isNew" translate="SCENARIO.EDIT_ROUTE_INST1"></p>
         <div class="block">
             <label>{{'SCENARIO.SHORT_NAME'|translate}}</label>
             <input type="text" ng-model="route.shortName" required placeholder="1" />
