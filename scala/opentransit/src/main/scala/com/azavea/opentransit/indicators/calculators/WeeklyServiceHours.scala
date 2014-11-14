@@ -22,14 +22,18 @@ object WeeklyServiceHours {
     weeklyHours.calculate(firstDay)
   }
 
-  def apply(periods: Seq[SamplePeriod], builder: TransitSystemBuilder, 
-    overallGeometries: SystemGeometries, statusManager: CalculationStatusManager, 
-    trackStatus:(String, JobStatus) => Unit): Unit = {
+  def apply(
+    periods: Seq[SamplePeriod],
+    builder: TransitSystemBuilder,
+    overallGeometries: SystemGeometries,
+    statusManager: CalculationStatusManager,
+    trackStatus: (String, JobStatus) => Unit
+  ): Unit = {
 
     try {
       val weeklyHours = new WeeklyServiceHours(periods, builder)
 
-      val firstDay = weeklyHours.representativeWeekday.getOrElse({ 
+      val firstDay = weeklyHours.representativeWeekday.getOrElse({
         println("No representative weekday found!  Not calculating weekly service hours.")
         return
       })
@@ -41,7 +45,7 @@ object WeeklyServiceHours {
       val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
         name, overallResults, overallGeometries)
       statusManager.indicatorFinished(results)
-      
+
       trackStatus(name, JobStatus.Complete)
       println("Done processing weekly service hours!")
     } catch {
@@ -60,7 +64,7 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
     val routeResults = hoursByRoute(firstDay)
     val modeResults = routeResults.groupBy { case (route, results) => route.routeType }
       .map { case (route, results) => (route, results.values.max) }.toMap
-    val systemResult = Some(routeResults.values.max)        
+    val systemResult = Some(routeResults.values.max)
     AggregatedResults(routeResults, modeResults, systemResult)
   }
 

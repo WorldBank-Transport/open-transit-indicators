@@ -128,6 +128,8 @@ object CalculateIndicators {
 
       // Do the calculation
       for(indicator <- Indicators.list(params)) {
+        trackStatus(indicator.name, JobStatus.Processing)
+        statusManager.statusChanged(Map(indicator.name -> JobStatus.Processing))
         singleCalculation(indicator, period, system, resultHolder)
       }
     }
@@ -163,6 +165,8 @@ object CalculateIndicators {
                                                            geomSoFar: SystemLineGeometries)
         statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
       }
+      trackStatus(indicatorName, JobStatus.Complete)
+      statusManager.statusChanged(Map(indicatorName -> JobStatus.Complete))
     }
   }
 
