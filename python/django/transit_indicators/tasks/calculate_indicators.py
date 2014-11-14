@@ -45,8 +45,6 @@ def run_demographics_indicators():
 def run_indicator_calculation(indicator_job):
     """Initiate celery job which tells scala to calculate indicators"""
     logger.debug('Starting indicator job: %s for city %s', indicator_job, indicator_job.city_name)
-    indicator_job.job_status = IndicatorJob.StatusChoices.PROCESSING
-    indicator_job.save()
 
     # Set db names and sample periods based on whether or not this is a scenario calculation.
     # There are two databases references:
