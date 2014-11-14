@@ -83,6 +83,7 @@ project/target
 resources/application.conf
 target
 lib
+.lib
 tmp
 *.class
 *.jar
