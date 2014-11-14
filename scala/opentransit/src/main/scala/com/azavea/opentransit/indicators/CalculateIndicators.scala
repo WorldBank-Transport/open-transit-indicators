@@ -54,9 +54,14 @@ object CalculateIndicators {
       val status = mutable.Map[String, JobStatus]() ++
         Indicators.list(params).map(indicator => (indicator.name, JobStatus.Submitted))
 
+      def sendStatus = statusManager.statusChanged(status.toMap)
+
+      // Send initial status to quickly inform the UI what indicators are being calculated
+      sendStatus
+
       (indicatorName: String, newStatus: JobStatus) => {
         status(indicatorName) = newStatus
-        statusManager.statusChanged(status.toMap)
+        sendStatus
       }
     }
 
