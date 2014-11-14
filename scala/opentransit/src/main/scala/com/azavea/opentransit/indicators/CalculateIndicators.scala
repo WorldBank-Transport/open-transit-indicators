@@ -48,6 +48,25 @@ object CalculateIndicators {
     }
   }
 
+  def runWeeklySvcHours(
+    periods: Seq[SamplePeriod],
+    builder: TransitSystemBuilder,
+    geomSoFar: SystemLineGeometries,
+    statusManager: CalculationStatusManager,
+    calculateAllTime: Boolean,
+    trackStatus: (String, JobStatus) => Unit
+  ): Unit = {
+    println(s"""Calculating indicators ${if (calculateAllTime) "with" else "without" } alltime.""")
+    // This indicator only needs to be calculated when there's a full set of sample periods
+    if (calculateAllTime) {
+      println("Done processing periodic indicators; going to calculate weekly service hours...")
+      timedTask("Processed indicator: hours_service") {
+        WeeklyServiceHours(periods, builder, geomSoFar, statusManager, trackStatus) }
+      println("Done processing indicators in CalculateIndicators")
+    }
+  }
+
+
   def genSysGeom(system: TransitSystem,
     period: SamplePeriod,
     mergedGeoms: SystemLineGeometries
@@ -97,6 +116,8 @@ object CalculateIndicators {
     var geomSoFar = new SystemLineGeometries(Map(), Map(), MultiLine.EMPTY)
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
+    runWeeklySvcHours(periods, builder, geomSoFar, statusManager, calculateAllTime, trackStatus)
+
     for (period <- periods) {
       println(s"Calculating indicators in period: ${period.periodType}...")
       val system = builder.systemBetween(period.start, period.end)
@@ -109,15 +130,6 @@ object CalculateIndicators {
       for(indicator <- Indicators.list(params)) {
         singleCalculation(indicator, period, system, resultHolder)
       }
-    }
-
-    println(s"""Calculating indicators ${if (calculateAllTime) "with" else "without" } alltime.""")
-    // This indicator only needs to be calculated when there's a full set of sample periods
-    if (calculateAllTime) {
-      println("Done processing periodic indicators; going to calculate weekly service hours...")
-      timedTask("Processed indicator: hours_service") {
-        WeeklyServiceHours(periods, builder, geomSoFar, statusManager, trackStatus) }
-      println("Done processing indicators in CalculateIndicators")
     }
 
     resultHolder.map { case (indicatorName, periodToResults) =>
