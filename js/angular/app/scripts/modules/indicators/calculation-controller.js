@@ -73,6 +73,8 @@ angular.module('transitIndicators')
 
         if ($scope.jobStatus === 'processing') {
             $scope.displayStatus = 'STATUS.PROCESSING';
+        } else if ($scope.jobStatus === 'queued') {
+            $scope.displayStatus = 'STATUS.QUEUED';
         } else if ($scope.jobStatus === 'complete') {
             $scope.displayStatus = 'STATUS.COMPLETE';
         } else if ($scope.jobStatus === 'error') {
@@ -90,9 +92,9 @@ angular.module('transitIndicators')
      * Queries for the most recent status, so it can be displayed
      */
     var pollForUpdatedStatus = function() {
-        // First check if there's a job that's currently processing.
+        // First check if there's a job that's currently processing or queued.
         // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorJobModel.search({ job_status: 'processing' })
+        OTIIndicatorJobModel.search({ job_status: 'queued,processing' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
                     $scope.statusFetched = true;

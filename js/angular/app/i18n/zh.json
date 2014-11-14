@@ -14,6 +14,7 @@
         "COMPLETE": "已完成",
         "FAILED": "失败",
         "PROCESSING": "处理",
+        "QUEUED": "Queued",
         "SUBMITTED": "已提交",
         "TERMINATED": "已终止",
         "TIMEOUT": "任务已超时。请稍后再试。",

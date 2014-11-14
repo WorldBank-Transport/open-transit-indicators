@@ -14,6 +14,7 @@
         "COMPLETE": "Hoàn tất",
         "FAILED": "Thất bại",
         "PROCESSING": "Đang xử lý",
+        "QUEUED": "Queued",
         "SUBMITTED": "Đã gửi",
         "TERMINATED": "Đã hủy",
         "TIMEOUT": "Hết thời hạn, thử lại sau",

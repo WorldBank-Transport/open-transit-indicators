@@ -14,6 +14,7 @@
         "COMPLETE": "Complete",
         "FAILED": "Failed",
         "PROCESSING": "Processing",
+        "QUEUED": "Queued",
         "SUBMITTED": "Submitted",
         "TERMINATED": "Terminated",
         "TIMEOUT": "Job timed out. Try again later.",
