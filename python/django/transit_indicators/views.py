@@ -97,6 +97,23 @@ class IndicatorFilter(django_filters.FilterSet):
                   'route_type', 'city_bounded', 'calculation_job', 'city_name']
 
 
+def job_status_filter(queryset, values):
+    """Action/filter used to allow choosing multiple job statuses"""
+    if not values:
+        return queryset
+    split_values = values.split(',')
+    return queryset.filter(job_status__in=split_values)
+
+
+class JobStatusFilter(django_filters.FilterSet):
+    """Custom filter for job status"""
+
+    job_status = django_filters.CharFilter(name="job_status", action=job_status_filter)
+
+    class Meta:
+        model = IndicatorJob
+
+
 """Helper function to check that sample periods fall within the GTFS calendar date range.
     Returns true if all are valid.
 """
@@ -122,7 +139,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
     model = IndicatorJob
     lookup_field = 'id'
     serializer_class = IndicatorJobSerializer
-    filter_fields = ('job_status',)
+    filter_class = JobStatusFilter
 
     def create(self, request):
         """Override request to handle kicking off celery task"""
