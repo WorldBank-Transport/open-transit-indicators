@@ -1,10 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosNewsuccessController',
-            ['config', '$scope', '$state', '$timeout', 'OTIScenarioManager', 'OTIScenarioModel',
-             'OTITripManager',
-            function (config, $scope, $state, $timeout, OTIScenarioManager, OTIScenarioModel,
-                      OTITripManager) {
+            ['config', '$scope', '$state', '$timeout', 'OTIIndicatorJobManager', 'OTIIndicatorJobModel',
+             'OTIScenarioManager', 'OTIScenarioModel', 'OTITripManager',
+            function (config, $scope, $state, $timeout, OTIIndicatorJobManager, OTIIndicatorJobModel,
+                      OTIScenarioManager, OTIScenarioModel, OTITripManager) {
 
     var checkScenarioCreate = function (scenario) {
 
@@ -49,6 +49,21 @@ angular.module('transitIndicators')
             $timeout.cancel($scope.timeoutId);
         }
         $state.go('list');
+    };
+
+    $scope.saving = false;
+
+    $scope.calculateIndicators = function () {
+        var job = new OTIIndicatorJobModel({
+            city_name: $scope.scenario.name,
+            scenario: $scope.scenario.id
+        });
+        $scope.saving = true;
+        job.$save(function () {
+            $state.go('list');
+        }, function () {
+            $scope.saving = false;
+        });
     };
 
     if ($scope.scenario) {

@@ -194,7 +194,8 @@
             "NO_STOPS": "No route stops",
             "NO_FREQUENCY": "No route headway",
             "MISSING_STOPS": "Some stops are missing stop times"
-        }
+        },
+        "FINISH_AND_CALC": "Finish and Calculate Indicators"
     },
     "INDICATOR_DESCRIPTION": {
         "access_index": "",
