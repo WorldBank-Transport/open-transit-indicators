@@ -13,7 +13,8 @@ case class Requirements(
   osm: Boolean,
   observed: Boolean,
   cityBounds: Boolean,
-  regionBounds: Boolean
+  regionBounds: Boolean,
+  jobDemographics: Boolean
 )
 
 // Calculation request parameters
@@ -22,6 +23,7 @@ case class IndicatorCalculationRequest(
   id: Int,
   povertyLine: Double,
   nearbyBufferDistance: Double,
+  arriveByTime: Int,
   maxCommuteTime: Int,
   maxWalkTime: Int,
   cityBoundaryId: Int,

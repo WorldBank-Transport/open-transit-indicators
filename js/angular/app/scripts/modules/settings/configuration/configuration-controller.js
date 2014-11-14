@@ -22,6 +22,9 @@ angular.module('transitIndicators')
     $scope.serviceStart = null;
     $scope.serviceEnd = null;
 
+    $scope.arrive_by_time = null;
+    $scope.max_commute_time_min = null;
+
     $scope.savePeriodsButton = {
         text: 'STATUS.SAVE',
         enabled: true
@@ -76,6 +79,7 @@ angular.module('transitIndicators')
     var setConfig = function (config) {
         $scope.config = config;
         if (config) {
+            $scope.arrive_by_time = config.arrive_by_time_s / 60 || 0;
             $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
             $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
         }
@@ -454,6 +458,9 @@ angular.module('transitIndicators')
                     $scope.samplePeriodsLoadError = true;
                     $scope.samplePeriods = {};
                 });
+
+              // Set default arrive_by_time to 9:00 AM.
+              $scope.arrive_by_time = 9;
             });
         });
     };

@@ -1,9 +1,9 @@
 package com.azavea.opentransit.indicators.parameters
 
-import com.azavea.gtfs.{TransitSystem, Stop}
+import com.azavea.gtfs._
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable, DemographicsTable }
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.indicators._
 
 import geotrellis.slick._
@@ -22,7 +22,8 @@ case class IndicatorSettings(
   hasOsm: Boolean,
   hasObserved: Boolean,
   hasCityBounds: Boolean,
-  hasRegionBounds: Boolean
+  hasRegionBounds: Boolean,
+  hasJobDemographics: Boolean
 )
 
 // Do not change by period or scenario
@@ -36,7 +37,6 @@ trait IndicatorParams extends Boundaries
                          with StaticParams
                          with Demographics
                          with ObservedStopTimes
-
 object IndicatorParams {
   def apply(
     request: IndicatorCalculationRequest,
@@ -83,7 +83,8 @@ object IndicatorParams {
           hasOsm = request.paramsRequirements.osm,
           hasObserved = request.paramsRequirements.observed,
           hasCityBounds = request.paramsRequirements.cityBounds,
-          hasRegionBounds = request.paramsRequirements.regionBounds
+          hasRegionBounds = request.paramsRequirements.regionBounds,
+          hasJobDemographics = request.paramsRequirements.jobDemographics
         )
 
       // Boundaries and OSM data -- all in the aux db

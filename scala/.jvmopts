@@ -1,9 +1,8 @@
 -Dfile.encoding=UTF8
--XX:-UseConcMarkSweepGC
--XX:+UseGCOverheadLimit
--XX:+CMSClassUnloadingEnabled
+-XX:+UseParallelGC
 -XX:+StartAttachListener
 -Xverify:none
+-XX:+HeapDumpOnOutOfMemoryError
 -Dcom.sun.management.jmxremote
 -Dcom.sun.management.jmxremote.port=3333
 -Dcom.sun.management.jmxremote.ssl=false

@@ -66,7 +66,7 @@ trait ProductionDjangoClient extends DjangoClient{
 
   def processResponse(request: HttpRequest) {
     pipeline(request).map(_.entity.asString) onComplete {
-      case Success(response) => println(response)
+      case Success(response) =>
       case Failure(error) => println("An error has occured: " + error.getMessage)
     }
   }

@@ -5,14 +5,14 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
-import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.indicators.parameters._
-import com.azavea.opentransit.indicators.calculators._
+import com.azavea.opentransit.indicators.travelshed._
 import com.azavea.opentransit.indicators.WeeklyServiceHours._
+import com.azavea.opentransit.indicators.calculators._
 import geotrellis.vector._
 import geotrellis.slick._
-import com.azavea.opentransit.indicators.parameters._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
@@ -36,6 +36,7 @@ object CalculateIndicators {
     stateHolder: mutable.Map[String, mutable.Map[SamplePeriod, AggregatedResults]]
   ): Unit = {
     try {
+      println(s"Processing indicator ${indicator.name}")
       timedTask(s"Processed indicator ${indicator.name} in period ${period.periodType}") {
         stateHolder.getOrElseUpdate(indicator.name, mutable.Map())
         stateHolder(indicator.name)(period) = indicator.calculation(period)(system)
@@ -51,7 +52,7 @@ object CalculateIndicators {
   def runWeeklySvcHours(
     periods: Seq[SamplePeriod],
     builder: TransitSystemBuilder,
-    geomSoFar: SystemLineGeometries,
+    overallLineGeoms: SystemLineGeometries,
     statusManager: CalculationStatusManager,
     calculateAllTime: Boolean,
     trackStatus: (String, JobStatus) => Unit
@@ -61,18 +62,62 @@ object CalculateIndicators {
     if (calculateAllTime) {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
-        WeeklyServiceHours(periods, builder, geomSoFar, statusManager, trackStatus) }
+        WeeklyServiceHours(periods, builder, overallLineGeoms, statusManager, trackStatus) }
       println("Done processing indicators in CalculateIndicators")
     }
   }
 
+  def runTravelshed(
+    periods: Seq[SamplePeriod],
+    builder: TransitSystemBuilder,
+    request: IndicatorCalculationRequest,
+    db: Database,
+    trackStatus: (String, JobStatus) => Unit
+  ): Unit = {
+    // Run travelshed indicators
+    val reqs = request.paramsRequirements
+    // Alright, we needto decide whether or not the jobs field of demographics must be set for
+    // any demographics indicators to be run or if a more granular approach to demographics data
+    // is worth exploring IF SO TODO: set request.paramsRequirements.jobDemographics based upon whether
+    // or not the demographics data has job information
+    if(reqs.demographics && reqs.osm) {
+      db withSession { implicit session: Session =>
+        TravelshedGraph(
+          periods,
+          builder,
+          100,  // TODO: How do we decide on the resolution?
+          request.arriveByTime - request.maxCommuteTime,
+          request.maxCommuteTime
+        )
+      } match {
+        case Some(travelshedGraph) =>
+          val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db))
+          val name = indicator.name
+          trackStatus(name, JobStatus.Processing)
+          try {
+            println("Calculating travelshed indicator...")
+            timedTask("Processed indicator: Travelshed") {
+              indicator(Main.rasterCache)
+              trackStatus(name, JobStatus.Complete)
+            }
+          } catch {
+            case e: Exception =>
+              println(e.getMessage)
+              println(e.getStackTrace.mkString("\n"))
 
-  def genSysGeom(system: TransitSystem,
-    period: SamplePeriod,
-    mergedGeoms: SystemLineGeometries
+              trackStatus(name, JobStatus.Failed)
+          }
+        case None =>
+          println("Could not create travelshed graph")
+      }
+    }
+  }
+
+  def genSysGeom(
+    system: TransitSystem
   ): SystemLineGeometries = {
     val periodGeometry: SystemLineGeometries =
-        timedTask(s"Calculated system geometries for period ${period.periodType}.") {
+        timedTask(s"Calculated system geometries.") {
           SystemLineGeometries(system)
         }
     periodGeometry
@@ -113,17 +158,22 @@ object CalculateIndicators {
     // can remove as much as possible after each iteration
     val resultHolder = mutable.Map[String, mutable.Map[SamplePeriod, AggregatedResults]]()
     val allBuffers = mutable.Map[SamplePeriod, SystemBufferGeometries]()
-    var geomSoFar = new SystemLineGeometries(Map(), Map(), MultiLine.EMPTY)
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
-    runWeeklySvcHours(periods, builder, geomSoFar, statusManager, calculateAllTime, trackStatus)
+    println("running travelshed")
+    runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
+    println("notrunning travelshed")
+
+    val periodGeoms = periods.map { period =>
+      period ->  genSysGeom(builder.systemBetween(period.start, period.end))
+    }.toMap
+    val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
+    runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
 
     for (period <- periods) {
       println(s"Calculating indicators in period: ${period.periodType}...")
       val system = builder.systemBetween(period.start, period.end)
       val params = IndicatorParams(request, system, period, dbByName)
-      val periodGeometry = genSysGeom(system, period, geomSoFar)
-      geomSoFar = SystemLineGeometries.merge(Seq(periodGeometry, geomSoFar))
       allBuffers(period) = genSysBuffers(system, period, params)
 
       // Do the calculation
@@ -133,6 +183,8 @@ object CalculateIndicators {
         singleCalculation(indicator, period, system, resultHolder)
       }
     }
+println(1)
+println(2)
 
     resultHolder.map { case (indicatorName, periodToResults) =>
       val periodIndicatorResults: Seq[ContainerGenerator] =
@@ -145,7 +197,7 @@ object CalculateIndicators {
               "system_access" |
               "system_access_low"
             ) => allBuffers(period)
-            case _ => geomSoFar
+            case _ => periodGeoms(period)
           })
           PeriodIndicatorResult.createContainerGenerators(indicatorName,
                                                           period,
@@ -154,17 +206,22 @@ object CalculateIndicators {
         }
         .toSeq
         .flatten
+println(3)
 
       if (!calculateAllTime) {
+println(4)
         statusManager.indicatorFinished(periodIndicatorResults)
       } else {
+println(5)
         val overallResults: AggregatedResults = PeriodResultAggregator(periodToResults)
         val overallIndicatorResults: Seq[ContainerGenerator] =
           OverallIndicatorResult.createContainerGenerators(indicatorName,
                                                            overallResults,
-                                                           geomSoFar: SystemLineGeometries)
+                                                           overallLineGeoms: SystemLineGeometries)
+println(6)
         statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
       }
+println(7)
       trackStatus(indicatorName, JobStatus.Complete)
       statusManager.statusChanged(Map(indicatorName -> JobStatus.Complete))
     }
@@ -179,7 +236,6 @@ object CalculateIndicators {
     dbByName: String => Database,
     statusManager: CalculationStatusManager
   ): Unit = {
-
 
     // This is where GTFS Records are gathered
     val gtfsRecords =
