@@ -6,19 +6,29 @@ angular.module('transitIndicators')
 .controller('OTIScenariosRoutestopsController', [
             '$scope', '$state', '$stateParams', '$compile',
              'leafletData',
-            'config', 'OTIRouteManager', 'OTITripManager', 'OTIDrawService', 'OTIStopService',
+            'config', 'OTIMapService', 'OTIRouteManager', 'OTITripManager', 'OTIDrawService', 'OTIStopService',
             function ($scope, $state, $stateParams, $compile,
                       leafletData,
-                      config, OTIRouteManager, OTITripManager, OTIDrawService, OTIStopService) {
+                      config, OTIMapService, OTIRouteManager, OTITripManager, OTIDrawService, OTIStopService) {
 
     // TODO: Click existing utfgrid stop to add to route
     // TODO: Refactor and cleanup marker add logic?
 
     // LOCAL
 
-    var layerHash = {};
-
     var drawControl = OTIDrawService.markerDrawControl;
+
+    var showStopAddPopup = function (stopTime) {
+        leafletData.getMap().then(function (map) {
+            var element = $compile('<stop-add stop-time="stopTime"></stop-add>')($scope);
+            $scope.stopTime = stopTime;
+            L.popup({
+                minWidth: 100
+            }).setLatLng([stopTime.stop.lat, stopTime.stop.long])
+            .setContent(element[0])
+            .openOn(map);
+        });
+    };
 
     // $SCOPE
 
@@ -38,7 +48,15 @@ angular.module('transitIndicators')
         mapStops();
     };
 
-    $scope.$on('$stateChangeStart', function (e) {
+    $scope.addStopTime = function (stopTime) {
+        $scope.trip.addStopTime(stopTime);
+        addStopToMap(stopTime);
+        OTIMapService.closePopup();
+    };
+
+    $scope.closePopup = OTIMapService.closePopup;
+
+    $scope.$on('$stateChangeStart', function () {
         leafletData.getMap().then(function (map) {
             OTIDrawService.reset();
             map.removeControl(drawControl);
@@ -46,9 +64,20 @@ angular.module('transitIndicators')
         });
     });
 
-    $scope.$watch('route.stops', function () {
-        $scope.$emit('updateHeight');
-    }, true);
+    $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
+        if (!leafletEvent.data) {
+            return;
+        }
+        var text = leafletEvent.data.stop_routes;
+        var latLng = leafletEvent.latlng;
+        var match = text.match(/<strong>(.*)<\/strong>/i);
+        var stopName = match.length > 0 ? match[1] : '';
+        var stopTime = new OTIStopService.StopTime();
+        stopTime.stop.name = stopName;
+        stopTime.stop.lat = latLng.lat;
+        stopTime.stop.long = latLng.lng;
+        showStopAddPopup(stopTime);
+    });
 
     // INIT
 
@@ -67,7 +96,7 @@ angular.module('transitIndicators')
 
     // Add a stop and attach directive
     var addStopToMap = function(stopTime) {
-        var e = $compile('<stopup stop-time="stopTime" oti-trip="$scope.trip"></stopup>')($scope);
+        var e = $compile('<stopup stop-time="stopTime"></stopup>')($scope);
         var marker = new L.Marker([stopTime.stop.lat, stopTime.stop.long], {
            icon: OTIDrawService.getCircleIcon(stopTime.stopSequence.toString())
         });

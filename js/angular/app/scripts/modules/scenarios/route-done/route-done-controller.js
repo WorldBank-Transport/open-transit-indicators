@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIScenariosRoutedoneController',
-            ['$modal', '$scope', '$state', 'OTIScenarioManager', 'OTITripManager',
-            function ($modal, $scope, $state, OTIScenarioManager, OTITripManager) {
+            ['$modal', '$scope', '$state', 'OTIRouteManager', 'OTIScenarioManager', 'OTITripManager',
+            function ($modal, $scope, $state, OTIRouteManager, OTIScenarioManager, OTITripManager) {
 
     // LOCAL
 
@@ -21,6 +21,7 @@ angular.module('transitIndicators')
 
         scenario = OTIScenarioManager.get();
         $scope.trip = OTITripManager.get();
+        $scope.route = OTIRouteManager.get();
         $scope.validation = $scope.trip.validate();
         if ($scope.validation.isValid) {
             $scope.status = statuses.SAVING;
@@ -66,7 +67,9 @@ angular.module('transitIndicators')
     };
 
     $scope.back = function () {
-        $state.go('route-times');
+        if ($scope.status !== statuses.SAVED) {
+            $state.go('route-times');
+        }
     };
 
     // INIT

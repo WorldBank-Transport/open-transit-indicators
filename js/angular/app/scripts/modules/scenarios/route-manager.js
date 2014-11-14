@@ -40,7 +40,7 @@ angular.module('transitIndicators')
     };
 
     module.filter = function (routeType) {
-        if (routeType === -1) {
+        if (routeType === '' || routeType === -1) {
             return routes;
         }
         return _.filter(routes, function (r) {
