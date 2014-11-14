@@ -329,7 +329,7 @@ class IndicatorsTestCase(TestCase):
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,calculation_job,city_bounded,city_name,id,route_id,route_type,sample_period,type,value\r\nsystem,9,True,My City,5,,,morning,num_routes,42.0\r\n'
+        csv_response = 'aggregation,calculation_job,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value\r\nsystem,9,True,My City,42.0,5,,,morning,num_routes,42.0\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
