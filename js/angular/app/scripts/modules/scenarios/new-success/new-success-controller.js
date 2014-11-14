@@ -51,16 +51,18 @@ angular.module('transitIndicators')
         $state.go('list');
     };
 
+    $scope.saving = false;
+
     $scope.calculateIndicators = function () {
-        console.log($scope.scenario);
         var job = new OTIIndicatorJobModel({
             city_name: $scope.scenario.name,
             scenario: $scope.scenario.id
         });
+        $scope.saving = true;
         job.$save(function () {
             $state.go('list');
         }, function () {
-            // some UI feedback here
+            $scope.saving = false;
         });
     };
 

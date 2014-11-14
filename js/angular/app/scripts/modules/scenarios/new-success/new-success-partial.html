@@ -14,5 +14,5 @@
 <div class="scenario-page-buttons">
     <a class="button--small" ng-class="{'button--inactive': !scenario.isComplete()}" ng-click="routes()">{{'SCENARIO.ROUTES'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a> /
-    <a class="button--small" ng-click="calculateIndicators()">{{'SCENARIO.FINISH_AND_CALC'|translate}}</a>
+    <a class="button--small" ng-class="{'button--inactive': saving}" ng-disabled="saving" ng-click="calculateIndicators()">{{'SCENARIO.FINISH_AND_CALC'|translate}}</a>
 </div>
