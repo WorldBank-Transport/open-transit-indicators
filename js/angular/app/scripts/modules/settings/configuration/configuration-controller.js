@@ -183,6 +183,10 @@ angular.module('transitIndicators')
 
         $scope.weekdayDate = morningStart.toISOString();
         $scope.weekendDate = weekendStart.toISOString();
+
+        // now values are set, trigger validation
+        $scope.validateWeekday();
+        $scope.validateWeekend();
     };
 
     var setSidebarCheckmark = function () {
@@ -378,6 +382,7 @@ angular.module('transitIndicators')
         if (serviceDates !== null) {
             $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
             $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
+            $scope.serviceEnd.setDate($scope.serviceEnd.getDate() + 1);
             var nextDay = null;
 
             // if dates have not been chosen yet, default to second valid date in range

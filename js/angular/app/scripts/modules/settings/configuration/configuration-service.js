@@ -32,17 +32,15 @@ angular.module('transitIndicators')
             return (day === 0 || day === 6);
         },
 
+
+
         createDateFromISO: function (str) {
             if (!str) {
                 return null;
             }
 
            var dt = new Date(str);
-
-           // explicitly set time part for local time zone
-           dt.setHours(0);
-           dt.setMinutes(0);
-           dt.setSeconds(0);
+           dt = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), 0, 0, 0);
            return dt;
         },
 
