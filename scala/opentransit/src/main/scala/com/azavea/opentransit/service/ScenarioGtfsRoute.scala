@@ -12,6 +12,7 @@ import org.joda.time._
 import org.joda.time.format.PeriodFormatterBuilder
 import spray.http._
 import spray.httpx.SprayJsonSupport
+import scala.slick.jdbc.{StaticQuery => Q}
 
 import spray.json.DefaultJsonProtocol
 import spray.json._
@@ -194,6 +195,10 @@ object ScenarioGtfsRoute {
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
     pattern.shape map { tables.tripShapesTable.insert }
+    (Q.u +
+      s"UPDATE gtfs_stops SET geom = ST_Transform(the_geom, Find_SRID('public','gtfs_stops','geom')) WHERE geom is null;").execute
+    (Q.u +
+      s"UPDATE gtfs_shape_geoms SET geom = ST_Transform(the_geom, Find_SRID('public','gtfs_shape_geoms','geom')) WHERE geom is null;").execute
   }
 
   private def buildTripPattern(trip: TripRecord)(implicit s: Session): TripTuple = {
