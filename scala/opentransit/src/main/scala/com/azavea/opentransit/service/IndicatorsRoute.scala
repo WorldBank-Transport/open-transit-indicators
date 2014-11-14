@@ -42,8 +42,6 @@ case class IndicatorJob(
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
-  val config = ConfigFactory.load
-  val dbGeomNameUtm = config.getString("database.geom-name-utm")
 
   // Endpoint for triggering indicator calculations
   //
@@ -56,18 +54,20 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
         entity(as[IndicatorCalculationRequest]) { request =>
           complete {
             TaskQueue.execute { // async
-              val gtfsRecords =
-                dbByName(request.gtfsDbName) withSession { implicit session =>
-                  GtfsRecords.fromDatabase(dbGeomNameUtm)
-                }
-              CalculateIndicators(request, gtfsRecords, dbByName, new CalculationStatusManager with IndicatorsTable {
+              CalculateIndicators(request, dbByName, new CalculationStatusManager with IndicatorsTable {
 
                 def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
-                  val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
-                  dbByName(request.gtfsDbName) withTransaction { implicit session =>
-                    import PostgresDriver.simple._
-                      indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
+                  try {
+                    val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
+                    dbByName(request.gtfsDbName) withTransaction { implicit session =>
+                      import PostgresDriver.simple._
+                        indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
+                      }
+                  } catch {
+                    case e: java.sql.SQLException => {
+                      println(e.getNextException())
                     }
+                  }
                 }
                 def statusChanged(status: Map[String, JobStatus]) = {
                   djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
