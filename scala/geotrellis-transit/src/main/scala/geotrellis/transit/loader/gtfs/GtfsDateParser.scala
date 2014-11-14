@@ -42,7 +42,7 @@ object GtfsDateParser {
       if(stopsToVertices.contains(stop)) {
         stopsToVertices(stop)
       } else {
-        val v = StationVertex(Location(stop.point.geom.y, stop.point.geom.x), stop.name)
+        val v = StationVertex(Location(stop.point.geom.y, stop.point.geom.x), stop.name.intern)
         stopsToVertices(stop) = v
         graph += v
         v
@@ -50,6 +50,7 @@ object GtfsDateParser {
 
     def setEdges(trip: Trip, stopsToVertices: mutable.Map[Stop, Vertex], service: String, graph: MutableGraph): Int = {
       var count = 0
+
       trip.schedule.sliding(2).foreach { 
         case Seq(departing, arriving) =>
           val departingVertex = getVertex(departing.stop, stopsToVertices, graph)
@@ -57,14 +58,14 @@ object GtfsDateParser {
 
           graph
             .edges(departingVertex)
-            .addEdge({
+            .addEdge(
               TransitEdge(
                 arrivingVertex,
-                service,
+                service.intern,
                 geotrellis.network.Time(getSimulationTime(departing.departureTime)),
                 geotrellis.network.Duration(getLocalDuration(departing.departureTime, arriving.arrivalTime))
               )
-            })
+            )
           count += 1
           arriving
 

@@ -7,11 +7,13 @@ import com.azavea.gtfs._
 import geotrellis.raster._
 import geotrellis.vector._
 import geotrellis.proj4._
+import geotrellis.network
 import geotrellis.network._
 import geotrellis.network.graph._
 import geotrellis.transit.loader._
 import geotrellis.transit.loader.gtfs._
 import geotrellis.transit.loader.osm._
+import com.github.nscala_time.time.Imports._
 
 import grizzled.slf4j.Logging
 
@@ -55,9 +57,13 @@ object TravelshedGraph extends Logging {
     duration: Int
   )(implicit session: Session): Option[TravelshedGraph] = {
     SamplePeriod.getRepresentativeWeekday(periods).map { weekday =>
+      val startDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(startTime - 1))
+      val endDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(startTime + duration + 1))
+      info(s"Building system...")
       val system =
-        builder.systemOn(weekday)
+        builder.systemBetween(startDateTime, endDateTime)
 
+      info(s"System built.")
       val crs =
         findTransform(system)
 
@@ -146,7 +152,7 @@ object TravelshedGraph extends Logging {
                 val duration = {
                   val x = v.location.long - nearest.location.long
                   val y = v.location.lat - nearest.location.lat
-                  Duration((math.sqrt(x*x + y*y) / Speeds.walking).toInt)
+                  network.Duration((math.sqrt(x*x + y*y) / Speeds.walking).toInt)
                 }
 
                 unpackedGraph.addEdge(v, WalkEdge(nearest, duration))

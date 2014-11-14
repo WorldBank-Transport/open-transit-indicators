@@ -28,6 +28,7 @@ object TravelshedCreationTest {
       Database.forURL(s"jdbc:postgresql:transit_indicators", driver = "org.postgresql.Driver",
         user = "transit_indicators", password = "transit_indicators")
 
+    println("Creating records...")
     val records = {
       val config = ConfigFactory.load
       val dbGeomNameUtm = config.getString("database.geom-name-utm")
@@ -37,6 +38,8 @@ object TravelshedCreationTest {
         GtfsRecords.fromDatabase(dbGeomNameUtm).force
       }
     }
+
+    println("Creating system builder...")
     val systemBuilder = TransitSystemBuilder(records)
 
     val periods =
@@ -62,11 +65,6 @@ object TravelshedCreationTest {
           new LocalDateTime("2014-05-02T23:59:59.999"))
       )
 
-    val systems =
-      periods.map { period =>
-        (period, systemBuilder.systemBetween(period.start, period.end))
-      }.toMap
-
     val params = 
       new HasTravelshedGraph with Boundaries with RegionDemographics {
         val (cityBoundary, regionBoundary) = 
@@ -83,7 +81,7 @@ object TravelshedCreationTest {
         val travelshedGraph = {
           db withSession { implicit session =>
             TravelshedGraph(
-              systems.keys.toSeq,
+              periods,
               systemBuilder,
 //              regionBoundary,
               200,
