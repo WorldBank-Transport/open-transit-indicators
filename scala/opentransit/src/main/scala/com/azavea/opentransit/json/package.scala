@@ -16,12 +16,34 @@ import geotrellis.vector.json._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
 
-object JobStatus extends Enumeration {
-  type JobStatus = Value
+object JobStatusType extends Enumeration {
+  type JobStatusType = Value
   val Submitted = Value("queued")
   val Processing = Value("processing")
   val Complete = Value("complete")
   val Failed = Value("error")
+}
+
+import JobStatusType._
+
+case class JobStatusWithMessage(statustype: JobStatusType, msg: String = "") {
+  def equals(o: JobStatusWithMessage) = { statustype == o.statustype }
+  override def hashCode = statustype.hashCode
+  override def toString = statustype.toString
+  def getJsonWithMsg = {
+    JsObject(
+      "status" -> JsString(statustype.toString),
+      "msg" -> JsString(msg)
+    )
+  }
+}
+
+object JobStatus extends Enumeration {
+  type JobStatus = JobStatusWithMessage
+  val Submitted = JobStatusWithMessage(JobStatusType.Submitted)
+  val Processing = JobStatusWithMessage(JobStatusType.Processing)
+  val Complete = JobStatusWithMessage(JobStatusType.Complete)
+  val Failed = JobStatusWithMessage(JobStatusType.Failed)
 }
 
 package object json {
@@ -206,7 +228,7 @@ package object json {
       val jobStatus = if (isComplete) (
         if (job.status.forall(s => s._2 != JobStatus.Failed)) JobStatus.Complete else JobStatus.Failed)
         else JobStatus.Processing
-      val calculationStatus = job.status.map { case(k, v) => (k, v.toString)}.toMap
+      val calculationStatus = job.status.map { case(k, v) => (k, v.getJsonWithMsg)}.toMap
 
       JsObject(
         "id" -> JsNumber(job.id),
