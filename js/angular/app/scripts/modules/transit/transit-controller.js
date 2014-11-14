@@ -1,42 +1,12 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTITransitController',
-            ['$scope', '$rootScope', 'OTIEvents', 'OTIIndicatorManager', 'OTIMapService',
-            function ($scope, $rootScope, OTIEvents, OTIIndicatorManager, OTIMapService) {
+            ['$scope', '$rootScope', 'OTIEvents', 'OTIMapService', 'OTITransitMapService',
+            function ($scope, $rootScope, OTIEvents, OTIMapService, OTITransitMapService) {
 
-    var boundaryIndicator = OTIIndicatorManager.getConfig();
-
-    var overlays = {
-        boundary: {
-            name: 'Boundary',
-            type: 'xyz',
-            url: OTIMapService.boundaryUrl(),
-            visible: true,
-            layerOptions: boundaryIndicator
-        },
-        gtfs_shapes: {
-            name: 'Transit Routes',
-            type: 'xyz',
-            url: OTIMapService.gtfsShapesUrl(),
-            visible: true,
-            layerParams: { modes: OTIMapService.getTransitModes() }
-        },
-        gtfs_stops: {
-            name: 'Transit Stops',
-            type: 'xyz',
-            url: OTIMapService.gtfsStopsUrl('png'),
-            visible: true,
-            layerParams: { modes: OTIMapService.getTransitModes() }
-        },
-        gtfs_stops_utfgrid: {
-            name: 'Transit Stops Interactivity',
-            type: 'utfGrid',
-            url: OTIMapService.gtfsStopsUrl('utfgrid'),
-            visible: true,
-            pluginOptions: { 'useJsonP': false,
-                             modes: OTIMapService.getTransitModes() }
-        }
-    };
+    // Every map view should reset to the base scenario on load
+    OTIMapService.setScenario();
+    var overlays = OTITransitMapService.createTransitMapOverlayConfig();
 
     var updateLegend = function () {
         OTIMapService.getLegendData().then(function (legend) {
@@ -54,8 +24,10 @@ angular.module('transitIndicators')
         updateLegend();
     };
 
-    $scope.updateLeafletOverlays(overlays);
-    setLegend();
+    var initialize = function () {
+        $scope.updateLeafletOverlays(overlays);
+        setLegend();
+    };
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function (event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
@@ -86,10 +58,12 @@ angular.module('transitIndicators')
     // update, but most of the other legend updating code was here
     $rootScope.$on(OTIEvents.Settings.Upload.GTFSDone, function () {
         OTIMapService.getLegendData().then(function (legend) {
-            $rootScope.cache.transitLegend = legend;
-            $rootScope.cache.transitLegend.style = 'stacked';
             // only update cache so we don't show legend on the
             // settings view
+            $rootScope.cache.transitLegend = legend;
+            $rootScope.cache.transitLegend.style = 'stacked';
         });
     });
+
+    initialize();
 }]);

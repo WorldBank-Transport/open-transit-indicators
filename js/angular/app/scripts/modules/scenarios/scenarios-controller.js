@@ -2,41 +2,16 @@
 angular.module('transitIndicators')
 .controller('OTIScenariosController',
             ['config', '$scope', '$rootScope', '$state', '$stateParams', 'OTIEvents',
-             'OTIMapService', 'samplePeriods',
+             'OTIMapService', 'OTITransitMapService', 'samplePeriods',
              'samplePeriodI18N', 'routeTypes',
              function (config, $scope, $rootScope, $state, $stateParams, OTIEvents,
-                       OTIMapService, samplePeriods,
+                       OTIMapService, OTITransitMapService, samplePeriods,
                        samplePeriodI18N, routeTypes)
 {
 
     // PRIVATE
 
-    var overlays = {
-        gtfs_shapes: {
-            name: 'Transit Routes',
-            type: 'xyz',
-            url: OTIMapService.gtfsShapesUrl(),
-            visible: true,
-            layerParams: { modes: OTIMapService.getTransitModes() }
-        },
-        gtfs_stops: {
-            name: 'Transit Stops',
-            type: 'xyz',
-            url: OTIMapService.gtfsStopsUrl('png'),
-            visible: true,
-            layerParams: { modes: OTIMapService.getTransitModes() }
-        },
-        gtfs_stops_utfgrid: {
-            name: 'Transit Stops Interactivity',
-            type: 'utfGrid',
-            url: OTIMapService.gtfsStopsUrl('utfgrid'),
-            visible: true,
-            pluginOptions: {
-                useJsonP: false,
-                modes: OTIMapService.getTransitModes()
-            }
-        }
-    };
+    var overlays = OTITransitMapService.createTransitMapOverlayConfig();
 
     var isReverseView = function (fromState, toState) {
         var views = config.scenarioViews;

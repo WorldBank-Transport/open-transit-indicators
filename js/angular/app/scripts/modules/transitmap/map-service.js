@@ -6,12 +6,12 @@ OTIWindshaft -- client side configuration for our windshaft server
 
 */
 angular.module('transitIndicators')
-.factory('OTIMapService', ['$location', '$resource', '$rootScope', '$q',
+.factory('OTIMapService', ['$cookieStore', '$location', '$resource', '$rootScope', '$q',
                            'leafletData', 'windshaftConfig',
-                           'OTITypes', 'OTIMapStyleService',
-        function ($location, $resource, $rootScope, $q,
+                           'OTIIndicatorManager', 'OTITypes', 'OTIMapStyleService',
+        function ($cookieStore, $location, $resource, $rootScope, $q,
                   leafletData, windshaftConfig,
-                  OTITypes, OTIMapStyleService) {
+                  OTIIndicatorManager, OTITypes, OTIMapStyleService) {
 
     /**
      * Return windshaft hostname, including port, if configured in windshaftConfig.port
@@ -25,14 +25,19 @@ angular.module('transitIndicators')
         return windshaftHost;
     };
 
+    var BASE_SCENARIO = 'transit_indicators';
     var _selectedTransitModes = '';
     var _availableTransitModes = [];
+    var _scenario = BASE_SCENARIO;
 
     var module = {};
 
+    module.overlays = {};
+
     module.Events = {
         VisibleModesSelected: 'OTI:MapService:VisibleModesSelected',
-        AvailableModesUpdated: 'OTI:MapService:AvailableModesUpdated'
+        AvailableModesUpdated: 'OTI:MapService:AvailableModesUpdated',
+        ScenarioUpdated: 'OTI:MapService:ScenarioUpdated'
     };
 
     module.closePopup = function () {
@@ -41,22 +46,47 @@ angular.module('transitIndicators')
         });
     };
 
+    module.BASE_SCENARIO = BASE_SCENARIO;
+
     module.refreshLayers = function () {
-        leafletData.getLayers().then(function (layers) {
-            _.each(layers, function(layer) {
-                _.each(layer, function(sublayer) {
-                    if(sublayer.options.modes !== undefined) {
-                        sublayer.options.modes = _selectedTransitModes;
-                        if(sublayer.redraw) {
-                            sublayer.redraw();
-                        } else { // utfgrid
-                            sublayer._cache = {};
-                            sublayer._update();
+        leafletData.getMap().then(function (map) {
+            map.eachLayer(function (layer) {
+                if(layer && layer.options) {
+                    var redraw = false;
+                    if (layer.options.modes !== undefined) {
+                        layer.options.modes = _selectedTransitModes;
+                        redraw = true;
+                    }
+                    if (layer.options.type ) {
+                        var indicator = OTIIndicatorManager.getConfig();
+                        angular.extend(layer.options, indicator);
+                        redraw = true;
+                    }
+                    if (layer.options.scenario) {
+                        layer.options.scenario = module.getScenario();
+                        redraw = true;
+                    }
+                    if (redraw) {
+                        if (layer.redraw) {         // leaflet tile layer
+                            layer.redraw();
+                        } else if (layer._update) { // leaflet utfgrid layer
+                            layer._cache = {};
+                            layer._update();
                         }
                     }
-                });
+                }
             });
         });
+    };
+
+    module.setScenario = function (scenario) {
+        _scenario = scenario || BASE_SCENARIO;
+        $rootScope.$broadcast(module.Events.ScenarioUpdated, _scenario);
+        module.refreshLayers();
+    };
+
+    module.getScenario = function () {
+        return _scenario;
     };
 
     module.setTransitModes = function (modes) {
@@ -128,7 +158,7 @@ angular.module('transitIndicators')
      */
     module.indicatorUrl = function (filetype) {
         var url = getWindshaftHost();
-        url += '/tiles/transit_indicators/{calculation_job}/{type}/{sample_period}/{aggregation}' +
+        url += '/tiles/{scenario}/{calculation_job}/{type}/{sample_period}/{aggregation}' +
                '/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=indicator_id&modes={modes}' : '.png?modes={modes}';
         return url;
@@ -140,7 +170,7 @@ angular.module('transitIndicators')
      */
     module.gtfsShapesUrl = function () {
         var url = getWindshaftHost();
-        url += '/tiles/transit_indicators/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png?modes={modes}';
+        url += '/tiles/{scenario}/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png?modes={modes}';
         return url;
     };
 
@@ -153,7 +183,7 @@ angular.module('transitIndicators')
      */
     module.gtfsStopsUrl = function (filetype) {
         var url = getWindshaftHost();
-        url += '/tiles/transit_indicators/0/gtfs_stops/morning/route/{z}/{x}/{y}';
+        url += '/tiles/{scenario}/0/gtfs_stops/morning/route/{z}/{x}/{y}';
         url += (filetype === 'utfgrid') ? '.grid.json?interactivity=stop_routes&modes={modes}'
                 : '.png?modes={modes}';
         return url;
@@ -164,7 +194,7 @@ angular.module('transitIndicators')
      */
     module.boundaryUrl = function () {
         var url = getWindshaftHost();
-        url += '/tiles/transit_indicators/0/datasources_boundary/morning/route/{z}/{x}/{y}.png';
+        url += '/tiles/' + BASE_SCENARIO + '/0/datasources_boundary/morning/route/{z}/{x}/{y}.png';
         return url;
     };
 
