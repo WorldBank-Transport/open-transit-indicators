@@ -18,7 +18,7 @@ import grizzled.slf4j.Logging
   */
 trait ObservedStopTimes {
   // Map of Trip IDs to Sequence of tuples of (scheduled, observed)
-  def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]]
+  def observedStopsByTrip(period: SamplePeriod): Map[String, Array[(ScheduledStop, ScheduledStop)]]
   def observedTripById(period: SamplePeriod):  Map[String, Trip]
 }
 
@@ -52,7 +52,7 @@ object ObservedStopTimes {
       }.toMap
 
 
-    lazy val observedPeriodTrips: Map[SamplePeriod, Map[String, Seq[(ScheduledStop, ScheduledStop)]]] =
+    lazy val observedPeriodTrips: Map[SamplePeriod, Map[String, Array[(ScheduledStop, ScheduledStop)]]] =
       periods.map { period =>
         (period -> {
           val scheduledTrips = scheduledSystems(period).routes.flatMap(_.trips)
@@ -65,7 +65,7 @@ object ObservedStopTimes {
                 observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
               for (s <- trip.schedule)
                 yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
-            }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
+            }.toArray[(ScheduledStop, ScheduledStop)]) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
           }.toMap
         }) // Seq[(Period, Map[String, Seq[(ScheduledStop, ScheduledStop)]])]
       }.toMap
@@ -73,14 +73,14 @@ object ObservedStopTimes {
 
     if (hasObserved) {
       new ObservedStopTimes {
-        def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+        def observedStopsByTrip(period: SamplePeriod): Map[String, Array[(ScheduledStop, ScheduledStop)]] =
           observedPeriodTrips(period)
         def observedTripById(period: SamplePeriod): Map[String, Trip] =
           observedTrips(period)
       }
     } else {
       new ObservedStopTimes {
-        def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+        def observedStopsByTrip(period: SamplePeriod): Map[String, Array[(ScheduledStop, ScheduledStop)]] =
           Map()
         def observedTripById(period: SamplePeriod): Map[String, Trip] =
           Map()

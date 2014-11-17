@@ -140,7 +140,7 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
     .toMap
   }
 
-  lazy val observedPeriodTrips: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
+  lazy val observedPeriodTrips: Map[String, Array[(ScheduledStop, ScheduledStop)]] = {
     val scheduledTrips = system.routes.map(_.trips).flatten
     val observedTrips = observedTripMapping(period)
     scheduledTrips.map { trip =>
@@ -151,7 +151,7 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
           observedTrips(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
         for (s <- trip.schedule)
           yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
-      }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
+      }.toArray[(ScheduledStop, ScheduledStop)]) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
     }.toMap
   }
 
@@ -160,7 +160,7 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
       observedTripMapping(period)
 
     // Testing, so just return the same period every time.
-    def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
+    def observedStopsByTrip(period: SamplePeriod): Map[String, Array[(ScheduledStop, ScheduledStop)]] =
       observedPeriodTrips
   }
 }
