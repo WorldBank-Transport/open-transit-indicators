@@ -3,9 +3,11 @@
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
             ['$scope', '$cookieStore', '$modal',
+             'authService',
              'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
              'cities',
             function ($scope, $cookieStore, $modal,
+                      authService,
                       OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes,
                       cities) {
 
@@ -38,6 +40,9 @@ angular.module('transitIndicators')
         $scope.sample_periods = data;
     });
 
+    var userScenarios = [];
+    var otherScenarios = [];
+
     $scope.openCityModal = function () {
         var modalCities = $scope.cities;
         OTIIndicatorManager.setModalStatus(true);
@@ -50,12 +55,10 @@ angular.module('transitIndicators')
                     return modalCities;
                 },
                 userScenarios: function () {
-                    // TODO: Send user-defined scenarios here once scenarios are implemented
-                    return [];
+                    return userScenarios;
                 },
                 otherScenarios: function () {
-                    // TODO: Send other user's scenarios here once scenarios are implemented
-                    return [];
+                    return otherScenarios;
                 }
             }
         }).result.finally(function () {
@@ -79,6 +82,27 @@ angular.module('transitIndicators')
             //          then set it here via setConfig,
             //          and remove the other getCurrentJob calls in the child controllers
             OTIIndicatorManager.setConfig({calculation_job: calcJob});
+        });
+        OTIIndicatorJobManager.getJobs().then(function (jobs) {
+            jobs = _.chain(jobs)
+                   .where({ job_status: 'complete' })
+                   .groupBy(function (job) { return job.city_name; })
+                   .values()
+                   .map(function (jobs) {
+                       return _.max(jobs, function (job) {
+                           return job.id; // return most recent
+                       });
+                   }).value();
+            console.log(jobs);
+            userScenarios = _.where(jobs, function(job) {
+                return job.created_by === $scope.user.id &&
+                       job.scenario !== null;
+            });
+            console.log(userScenarios);
+            otherScenarios = _.where(jobs, function(job) {
+                return job.created_by !== $scope.user.id &&
+                       job.scenario !== null;
+            });
         });
     };
     $scope.init();
