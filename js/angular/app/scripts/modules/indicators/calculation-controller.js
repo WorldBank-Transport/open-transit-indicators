@@ -19,7 +19,7 @@ angular.module('transitIndicators')
         'poverty_line': 'SETTINGS.POVERTY_LINE',
         'nearby_buffer_distance_m': 'SETTINGS.DISTANCE_BUFFER',
         'max_commute_time_s': 'SETTINGS.JOB_TRAVEL_TIME',
-        'max_walk_time_s': 'SETTINGS.MAX_WALK_TIME',
+        'arrive_by_time_s': 'SETTINGS.JOB_ARRIVE_BY_TIME',
         'avg_fare': 'SETTINGS.AVG_FARE',
         'osm_data': 'CALCULATION.OSM_DATA'
     };
