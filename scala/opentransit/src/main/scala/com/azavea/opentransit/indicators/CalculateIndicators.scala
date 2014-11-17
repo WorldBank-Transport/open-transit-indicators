@@ -204,7 +204,7 @@ object CalculateIndicators {
       }
     }
 
-    println("Calculating weekly service hours"
+    println("Calculating weekly service hours")
     runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
 
     resultHolder.map { case (indicatorName, periodToResults) =>
