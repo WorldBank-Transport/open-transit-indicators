@@ -1,12 +1,33 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosListController',
-            ['$scope', '$state', 'OTIMapService', 'OTIScenarioManager',
-             function ($scope, $state, OTIMapService, OTIScenarioManager)
+            ['$interval', '$scope', '$state',
+            'OTIIndicatorJobManager', 'OTIMapService', 'OTIScenarioManager',
+             function ($interval, $scope, $state,
+             OTIIndicatorJobManager, OTIMapService, OTIScenarioManager)
 {
 
     // Number of scenarios to list at any given time
     var pageSize = 5;
+
+    var indicatorJobsPollTimer;
+
+    // Update IndicatorJob status
+    var getIndicatorJobs = function () {
+        var indexed = _.chain($scope.myScenarios)
+                      .flatten(true)
+                      .indexBy(function(scenario) { return scenario.id; })
+                      .value();
+        OTIIndicatorJobManager.getJobs($scope.user.id).then(function (result) {
+            _.chain(result)
+            .sortBy(function (job) { return job.id; })
+            .each(function(job) {
+                if (indexed[job.scenario]) {
+                    indexed[job.scenario].indicator_job_status = job.job_status;
+                }
+            });
+        });
+    };
 
     // Function that gets scenarios for a user
     var getMyScenarios = function () {
@@ -15,8 +36,17 @@ angular.module('transitIndicators')
                 return Math.floor(index/pageSize);
             }).toArray().value();
             $scope.$emit('updateHeight');
+            getIndicatorJobs();
+            indicatorJobsPollTimer = $interval(getIndicatorJobs, 10000); // 10 sec
         });
     };
+
+    $scope.$on('$destroy', function () {
+        if (indicatorJobsPollTimer !== undefined) {
+            $interval.cancel(indicatorJobsPollTimer);
+            indicatorJobsPollTimer = undefined;
+        }
+    });
 
     // Function that gets scenarios for colleagues
     var getColleagueScenarios = function () {

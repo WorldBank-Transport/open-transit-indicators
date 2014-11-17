@@ -17,6 +17,22 @@ angular.module('transitIndicators')
         return _currentCityName;
     };
 
+    module.getJobs = function (userId) {
+        var deferred = $q.defer();
+
+        $http.get('/api/indicator-jobs/', {
+            params: {
+                created_by: userId
+            }
+        }).then(function (result) {
+            deferred.resolve(_.sortBy(result.data, function(job) { return job.id; }));
+        }, function () {
+            deferred.reject([]);
+        });
+
+        return deferred.promise;
+    };
+
     module.getCurrentJob = function (callback) {
         var promises = []; // get the city name before using it to filter indicator CalcJobs
         promises.push(OTISettingsService.cityName.get({}, function (data) {
