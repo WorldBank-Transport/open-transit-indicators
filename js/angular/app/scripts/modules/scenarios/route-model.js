@@ -15,6 +15,9 @@ angular.module('transitIndicators')
             params: {
                 db_name: '@db_name'
             }
+        },
+        update: {
+            method: 'PATCH'
         }
     });
 
