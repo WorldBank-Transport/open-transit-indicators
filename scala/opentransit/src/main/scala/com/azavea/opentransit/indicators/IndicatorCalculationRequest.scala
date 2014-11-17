@@ -25,7 +25,6 @@ case class IndicatorCalculationRequest(
   nearbyBufferDistance: Double,
   arriveByTime: Int,
   maxCommuteTime: Int,
-  maxWalkTime: Int,
   cityBoundaryId: Int,
   regionBoundaryId: Int,
   averageFare: Double,
