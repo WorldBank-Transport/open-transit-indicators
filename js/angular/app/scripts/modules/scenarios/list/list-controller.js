@@ -18,7 +18,7 @@ angular.module('transitIndicators')
                       .flatten(true)
                       .indexBy(function(scenario) { return scenario.id; })
                       .value();
-        OTIIndicatorJobManager.getMyJobs().then(function (result) {
+        OTIIndicatorJobManager.getJobs().then(function (result) {
             _.chain(result)
             .sortBy(function (job) { return job.id; })
             .each(function(job) {

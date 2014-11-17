@@ -17,19 +17,23 @@ angular.module('transitIndicators')
         return _currentCityName;
     };
 
-    module.getMyJobs = function () {
+    module.getJobs = function (userId) {
         var deferred = $q.defer();
 
+        if(!userId) {
+            userId = authService.getUserId();
+        }
+
         $http.get('/api/indicator-jobs/', {
-            created_by: authService.getUserId()
+            created_by: userId
         }).then(function (result) {
-            deferred.resolve(_.sortBy(result.data, function(job) { return job.id; }))
+            deferred.resolve(_.sortBy(result.data, function(job) { return job.id; }));
         }, function () {
-            deferred.reject();
+            deferred.reject([]);
         });
 
         return deferred.promise;
-    }
+    };
 
     module.getCurrentJob = function (callback) {
         var promises = []; // get the city name before using it to filter indicator CalcJobs

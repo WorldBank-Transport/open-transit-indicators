@@ -23,7 +23,7 @@
                     }"></span>
             </div>
             <div class="col-xs-4">{{ scenario.name }}</div>
-            <div class="col-xs-2">{{ scenario.create_date | date:'MM/dd/yy' }}</div>
+            <div class="col-xs-2">{{ scenario.create_date | date:'shortDate' }}</div>
             <div class="col-xs-4">
                 <a class="button--small default" ng-click="edit(scenario)">{{'TERM.LOAD'|translate}}</a> /
                 <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
@@ -58,7 +58,7 @@
             <!-- TODO make this not look bad -->
             <div class="col-xs-2">{{ scenario.created_by }}</div>
             <div class="col-xs-4">{{ scenario.name }}</div>
-            <div class="col-xs-4">{{ scenario.create_date | date:'yyyy/MM/dd' }}</div>
+            <div class="col-xs-4">{{ scenario.create_date | date:'shortDate' }}</div>
             <div class="col-xs-2">
                 <a class="button--small default" ng-click="edit(scenario)">{{'TERM.COPY'|translate}}</a> /
                 <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
