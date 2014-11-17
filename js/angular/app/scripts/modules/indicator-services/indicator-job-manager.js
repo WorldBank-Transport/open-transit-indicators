@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTIIndicatorJobManager', ['$http', '$q', '$rootScope', 'OTISettingsService',
-        function ($http, $q, $rootScope, OTISettingsService) {
+.factory('OTIIndicatorJobManager', ['$http', '$q', '$rootScope', 'authService', 'OTISettingsService',
+        function ($http, $q, $rootScope, authService, OTISettingsService) {
 
     var _currentCityName = '';
     var _nullJob = 0;
@@ -16,6 +16,20 @@ angular.module('transitIndicators')
     module.getCurrentCity = function () {
         return _currentCityName;
     };
+
+    module.getMyJobs = function () {
+        var deferred = $q.defer();
+
+        $http.get('/api/indicator-jobs/', {
+            created_by: authService.getUserId()
+        }).then(function (result) {
+            deferred.resolve(_.sortBy(result.data, function(job) { return job.id; }))
+        }, function () {
+            deferred.reject();
+        });
+
+        return deferred.promise;
+    }
 
     module.getCurrentJob = function (callback) {
         var promises = []; // get the city name before using it to filter indicator CalcJobs

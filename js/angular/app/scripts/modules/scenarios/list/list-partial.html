@@ -9,12 +9,21 @@
           <div class="text-center">{{'SCENARIO.NO_SCENARIOS_AVAILABLE'|translate}}</div>
         </div>
         <div class="row" ng-show="myScenarios.length > 0">
+            <div class="col-xs-1">&nbsp;</div>
             <div class="col-xs-4 text-muted">{{'SCENARIO.HEADER_NAME'|translate}}</div>
-            <div class="col-xs-8 text-muted">{{'SCENARIO.HEADER_LAST_MODIFIED'|translate}}</div>
+            <div class="col-xs-6 text-muted">{{'SCENARIO.HEADER_LAST_MODIFIED'|translate}}</div>
         </div>
         <div class="row" ng-show="myScenarios.length > 0" ng-repeat="scenario in myScenarios[myScenarioPage]">
+            <div class="col-xs-1">
+                <span class="glyphicon" ng-class="{
+                        'glyphicon-ok': scenario.indicator_job_status === 'complete',
+                        'glyphicon-remove': scenario.indicator_job_status === 'error',
+                        'glyphicon-flash': scenario.indicator_job_status === 'processing',
+                        'glyphicon-minus': scenario.indicator_job_status === 'queued'
+                    }"></span>
+            </div>
             <div class="col-xs-4">{{ scenario.name }}</div>
-            <div class="col-xs-4">{{ scenario.create_date | date:'yyyy/MM/dd' }}</div>
+            <div class="col-xs-2">{{ scenario.create_date | date:'MM/dd/yy' }}</div>
             <div class="col-xs-4">
                 <a class="button--small default" ng-click="edit(scenario)">{{'TERM.LOAD'|translate}}</a> /
                 <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
