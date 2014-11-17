@@ -55,7 +55,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
                      'nearby_buffer_distance_m': 500.0,
                      'max_commute_time_s': 3600,
                      'max_walk_time_s': 600,
-                     'avg_fare': 500}
+                     'avg_fare': 500,
+                     'arrive_by_time_s': 900}
 
     def test_config_crud(self):
         """Test admin user CRUD operations on OTIIndicatorsConfig.
