@@ -54,7 +54,6 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.data = {'poverty_line': 256.36,
                      'nearby_buffer_distance_m': 500.0,
                      'max_commute_time_s': 3600,
-                     'max_walk_time_s': 600,
                      'avg_fare': 500,
                      'arrive_by_time_s': 900}
 
@@ -79,11 +78,11 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertDictContainsSubset(self.data, response.data)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(new_max_walk_time, response.data['max_walk_time_s'])
+        self.assertEqual(new_arrive_by_time, response.data['arrive_by_time_s'])
 
         # DELETE
         response = self.client.delete(detail_url)
@@ -120,8 +119,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertDictContainsSubset(self.data, response.data)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -141,8 +140,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -165,7 +164,7 @@ class OTIIndicatorsConfigTestCase(TestCase):
         check_negative_number(self.data, 'avg_fare')
         check_negative_number(self.data, 'nearby_buffer_distance_m')
         check_negative_number(self.data, 'max_commute_time_s')
-        check_negative_number(self.data, 'max_walk_time_s')
+        check_negative_number(self.data, 'arrive_by_time_s')
 
 
 class SamplePeriodsTestCase(TestCase):

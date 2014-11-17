@@ -126,7 +126,6 @@ package object json {
         "nearby_buffer_distance_m",
         "arrive_by_time_s",
         "max_commute_time_s",
-        "max_walk_time_s",
         "city_boundary_id",
         "region_boundary_id",
         "avg_fare",
@@ -136,7 +135,7 @@ package object json {
         "params_requirements"
       ) match {
         case Seq(JsString(token), JsNumber(id), JsNumber(povertyLine),
-                 JsNumber(nearbyBufferDistance), JsNumber(arriveByTime), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
+                 JsNumber(nearbyBufferDistance), JsNumber(arriveByTime), JsNumber(maxCommuteTime),
                  JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
                  JsNumber(averageFare), JsString(gtfsDbName), JsString(auxDbName),
                  samplePeriodsJson, paramsRequirementsJson) =>
@@ -144,7 +143,7 @@ package object json {
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
             token, id.toInt, povertyLine.toDouble, nearbyBufferDistance.toDouble,
-            arriveByTime.toInt, maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
+            arriveByTime.toInt, maxCommuteTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
             averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")

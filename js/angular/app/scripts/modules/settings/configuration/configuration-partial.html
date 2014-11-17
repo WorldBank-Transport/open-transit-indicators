@@ -166,7 +166,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="row">
-                <div class="col-sm-5">
+                <div class="col-sm-9">
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_ARRIVE_BY_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_ARRIVE_BY_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
@@ -189,21 +189,6 @@
                     <input type="number" name="max_commute_time_min"
                            ng-model="max_commute_time_min" min="0"
                            ng-change="config.max_commute_time_s = max_commute_time_min * 60">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="settingsmodal-fieldgroup">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="row">
-                <div class="col-sm-9">
-                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MAX_WALK_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
-                </div>
-                <div class="col-sm-3">
-                    <input type="number" name="max_walk_time_min" ng-model="max_walk_time_min"
-                           min="0" ng-change="config.max_walk_time_s = max_walk_time_min * 60">
                 </div>
             </div>
         </div>

@@ -76,11 +76,6 @@ class OTIIndicatorsConfig(models.Model):
     # locations.
     max_commute_time_s = models.PositiveIntegerField()
 
-    # TODO: geotrellis-transit does not support max durations by specific mode.
-    # Maximum allowable walk time (seconds). Also used by the job accessibility indicator
-    # when generating its travelshed.
-    max_walk_time_s = models.PositiveIntegerField()
-
     # Setting related_name to '+' prevents Django from creating the reverse
     # relationship, which prevents a conflict because otherwise each Boundary
     # would have two fields named 'otiindicatorsconfig_set'. If we wanted, we

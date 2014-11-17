@@ -147,8 +147,7 @@ class IndicatorJobViewSet(OTIAdminViewSet):
         indicators_config = OTIIndicatorsConfig.objects.all()[0]
         failures = []
         for attr in ['poverty_line', 'nearby_buffer_distance_m',
-                     'max_commute_time_s', 'max_walk_time_s',
-                     'avg_fare']:
+                     'max_commute_time_s', 'avg_fare', 'arrive_by_time_s']:
             if not indicators_config.__getattribute__(attr) > 0:
                 failures.append(attr)
         if not valid_sample_periods():

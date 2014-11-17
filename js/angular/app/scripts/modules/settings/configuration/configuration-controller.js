@@ -81,7 +81,6 @@ angular.module('transitIndicators')
         if (config) {
             $scope.arrive_by_time = config.arrive_by_time_s / 60 || 0;
             $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
-            $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
         }
     };
 
@@ -325,7 +324,7 @@ angular.module('transitIndicators')
      */
     var isInServiceRange = function (date) {
         if (!$scope.serviceStart || !$scope.serviceEnd) {
-            console.log("missing service start and/or end!");
+            console.log('missing service start and/or end!');
             return true;
         }
 
