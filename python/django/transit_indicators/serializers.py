@@ -143,6 +143,20 @@ class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
         """ Raises a ValidationError if num < 0 """
         if num < 0:
             raise serializers.ValidationError("Must be >= 0")
+    
+    def validate_arrive_by_time_s(self, attrs, source):
+        """ Make sure that the arrive by time is non-negative and below 24 hours"""
+        seconds_in_day = 60 * 60 * 24
+        num = attrs[source]
+        self.raise_if_lt_0(num)
+        if num >= seconds_in_day:
+            raise serializers.ValidationError("Must be < %s" % seconds_in_day)
+        return attrs
+
+    def validate_max_commute_time_s(self, attrs, source):
+        """ Make sure that duration time is non-negative."""
+        self.raise_if_lt_0(attrs[source])
+        return attrs
 
     def validate_poverty_line(self, attrs, source):
         """ Make sure poverty_line >= 0 """

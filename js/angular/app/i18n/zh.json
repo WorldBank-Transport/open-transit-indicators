@@ -273,7 +273,8 @@
             "AVG_FARE": "公交系统中单向旅程的平均票价（以当地货币计）。",
             "DISTANCE_BUFFER": "距离被认为可达的车站或公交站点的最远距离（单位：米）。",
             "JOB_TRAVEL_TIME": "从工作可达性角度考虑的最大通勤时间（单位：分钟）。",
-            "MAX_WALK_TIME": "通勤时间中花在行走上的最长时间（单位：分钟）。"
+            "MAX_WALK_TIME": "通勤时间中花在行走上的最长时间（单位：分钟）。",
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
         }
     },
     "SETTINGS": {
@@ -296,6 +297,7 @@
         "AVG_FARE": "平均票价（以当地货币计）",
         "DISTANCE_BUFFER": "距离缓冲（单位：米）",
         "JOB_TRAVEL_TIME": "工作交通时间（单位：分钟）",
+        "JOB_ARRIVE_BY_TIME": "Arrive By Time",
         "MAX_WALK_TIME": "最长行走时间（单位：分钟）",
         "DEMOGRAPHIC_DESCRIPTION": "人口统计数据用于计算与人口密度和目的地（如工作目的地）数据有关的指标。在完成数据上传后，与两个人口度量指标有关的属性以及与目的地数目有关的属性将被反映在本界面中。示例数据集将是一个多边形Shapefile文件，其中每个多边形都具有工作年龄人口数目、低收入人口数目和工作数目方面的属性。",
         "DEMOGRAPHIC_DATA": "人口统计数据",

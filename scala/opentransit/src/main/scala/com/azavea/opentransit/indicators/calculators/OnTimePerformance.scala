@@ -19,12 +19,10 @@ class OnTimePerformance(params: ObservedStopTimes)
   val name = "on_time_perf"
 
   def calculation(period: SamplePeriod) = {
-    val zippedStopsByTrip: Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
-      params.observedStopsByTrip(period)
 
     def map(trip: Trip): Seq[Double] =
       for {
-        (sched, obs) <- zippedStopsByTrip(trip.id)
+        (sched, obs) <- params.observedStopsByTrip(trip.id)
         deviation = Seconds.secondsBetween(sched.arrivalTime, obs.arrivalTime).getSeconds
       } yield deviation.abs.toDouble
 

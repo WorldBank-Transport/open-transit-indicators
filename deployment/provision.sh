@@ -72,7 +72,7 @@ VHOST_NAME=$DB_NAME
 
 SPRAY_PORT=8001
 SPRAY_HOST="http://127.0.0.1:$SPRAY_PORT"
-OTI_CATALOG="$OTI_ROOT/data/catalog.json"
+OTI_CATALOG_ROOT="$SCALA_OTI_ROOT/data"
 SBT_MEM_MB=7168      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
@@ -249,7 +249,7 @@ else
         sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
         sed -i '/effective_cache_size =/c\effective_cache_size = 2GB' postgresql.conf
         sed -i '/#work_mem =/c\work_mem = 64MB' postgresql.conf
-        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 512MB' postgresql.conf
+        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 32MB' postgresql.conf
         sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
         service postgresql restart
     popd
@@ -574,7 +574,7 @@ popd
 echo 'Setting up geotrellis'
 
 gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-opentransit.catalog = \"$OTI_CATALOG\"
+opentransit.catalog = \"$OTI_CATALOG_ROOT/catalog.json\"
 opentransit.spray.port = \"$SPRAY_PORT\"
 database.geom-name-lat-lng = \"the_geom\"
 database.geom-name-utm = \"geom\"

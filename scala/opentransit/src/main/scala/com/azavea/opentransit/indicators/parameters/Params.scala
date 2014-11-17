@@ -1,9 +1,9 @@
 package com.azavea.opentransit.indicators.parameters
 
-import com.azavea.gtfs.{TransitSystem, Stop}
+import com.azavea.gtfs._
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable, DemographicsTable }
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.indicators._
 
 import geotrellis.slick._
@@ -22,7 +22,8 @@ case class IndicatorSettings(
   hasOsm: Boolean,
   hasObserved: Boolean,
   hasCityBounds: Boolean,
-  hasRegionBounds: Boolean
+  hasRegionBounds: Boolean,
+  hasJobDemographics: Boolean
 )
 
 // Do not change by period or scenario
@@ -36,9 +37,11 @@ trait IndicatorParams extends Boundaries
                          with StaticParams
                          with Demographics
                          with ObservedStopTimes
-
 object IndicatorParams {
-  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem],
+  def apply(
+    request: IndicatorCalculationRequest,
+    system: TransitSystem,
+    period: SamplePeriod,
     dbByName: String => Database): IndicatorParams = {
 
     // Grab references to each of the databases, so they can be used as needed
@@ -47,21 +50,18 @@ object IndicatorParams {
 
     // Stop buffers are based on stops, which are in the gtfs db
     val stopBuffers = gtfsDb withSession { implicit session =>
-      StopBuffers(systems, request.nearbyBufferDistance, gtfsDb)
+      StopBuffers(system, request.nearbyBufferDistance, gtfsDb)
     }
 
     // Observed data and demographics are in the aux db
-    val (observedStopTimes, demographics) = auxDb withSession { implicit session =>
-      val observed = ObservedStopTimes(systems, auxDb, request.paramsRequirements.observed)
-      val demographics = Demographics(auxDb)
-      (observed, demographics)
-    }
+    val observedStopTimes = ObservedStopTimes(system, period, auxDb, request.paramsRequirements.observed)
+    val demographics = Demographics(auxDb)
 
     new IndicatorParams {
-      def observedStopsByTrip(period: SamplePeriod) =
-        observedStopTimes.observedStopsByTrip(period)
-      def observedTripById(period: SamplePeriod) =
-        observedStopTimes.observedTripById(period)
+      def observedStopsByTrip(tripId: String) =
+        observedStopTimes.observedStopsByTrip(tripId)
+      def observedTripById(tripId: String) =
+        observedStopTimes.observedTripById(tripId)
 
       def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
       def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
@@ -83,7 +83,8 @@ object IndicatorParams {
           hasOsm = request.paramsRequirements.osm,
           hasObserved = request.paramsRequirements.observed,
           hasCityBounds = request.paramsRequirements.cityBounds,
-          hasRegionBounds = request.paramsRequirements.regionBounds
+          hasRegionBounds = request.paramsRequirements.regionBounds,
+          hasJobDemographics = request.paramsRequirements.jobDemographics
         )
 
       // Boundaries and OSM data -- all in the aux db

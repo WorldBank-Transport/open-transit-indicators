@@ -22,14 +22,18 @@ object WeeklyServiceHours {
     weeklyHours.calculate(firstDay)
   }
 
-  def apply(periods: Seq[SamplePeriod], builder: TransitSystemBuilder, 
-    overallGeometries: SystemGeometries, statusManager: CalculationStatusManager, 
-    trackStatus:(String, JobStatus) => Unit): Unit = {
+  def apply(
+    periods: Seq[SamplePeriod],
+    builder: TransitSystemBuilder,
+    overallGeometries: SystemGeometries,
+    statusManager: CalculationStatusManager,
+    trackStatus: (String, JobStatus) => Unit
+  ): Unit = {
 
     try {
       val weeklyHours = new WeeklyServiceHours(periods, builder)
 
-      val firstDay = weeklyHours.representativeWeekday.getOrElse({ 
+      val firstDay = weeklyHours.representativeWeekday.getOrElse({
         println("No representative weekday found!  Not calculating weekly service hours.")
         return
       })
@@ -41,7 +45,7 @@ object WeeklyServiceHours {
       val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
         name, overallResults, overallGeometries)
       statusManager.indicatorFinished(results)
-      
+
       trackStatus(name, JobStatus.Complete)
       println("Done processing weekly service hours!")
     } catch {
@@ -60,7 +64,7 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
     val routeResults = hoursByRoute(firstDay)
     val modeResults = routeResults.groupBy { case (route, results) => route.routeType }
       .map { case (route, results) => (route, results.values.max) }.toMap
-    val systemResult = Some(routeResults.values.max)        
+    val systemResult = Some(routeResults.values.max)
     AggregatedResults(routeResults, modeResults, systemResult)
   }
 
@@ -128,26 +132,8 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
   }
 
   // Get the representative weekday by finding it from the sample periods.
-  def representativeWeekday: Option[LocalDateTime] = {
-    // Recursively look through sample periods and return the first one that's for a weekday.
-    @tailrec
-    def weekdayPeriod(samplePeriods: Seq[SamplePeriod]): Option[SamplePeriod] = {
-      if (samplePeriods.isEmpty) None
-      else {
-        val firstPeriod = samplePeriods.head
-        if (samplePeriodIsWeekday(firstPeriod)) Some(firstPeriod) 
-        else weekdayPeriod(samplePeriods.tail)
-      }
-    }
-
-    def samplePeriodIsWeekday(period: SamplePeriod): Boolean = {
-      period.periodType != "alltime" && period.periodType != "weekend"
-    }
-
-    // start each day at midnight
-    weekdayPeriod(periods) match {
-      case Some(p) => Some(p.start.withTime(0, 0, 0, 0))
-      case None => None
-    }
-  }
+  def representativeWeekday: Option[LocalDateTime] = 
+    SamplePeriod.getRepresentativeWeekday(periods)
+      .map { date => date.toLocalDateTime(new LocalTime(0, 0)) }
 }
+

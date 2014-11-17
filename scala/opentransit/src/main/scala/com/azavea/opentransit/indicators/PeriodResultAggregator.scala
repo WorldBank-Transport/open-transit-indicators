@@ -1,5 +1,7 @@
 package com.azavea.opentransit.indicators
 
+import scala.collection.mutable
+
 import com.azavea.gtfs._
 
 import org.joda.time.Seconds
@@ -11,7 +13,7 @@ object PeriodResultAggregator {
   private def calculateOverall[T](maps: Seq[Map[T, Double]]): Map[T, Double] =
     maps.combineMaps.map { case (k, v) => (k, calculateOverall(v)) }.toMap
 
-  def apply(periodResults: Map[SamplePeriod, AggregatedResults]): AggregatedResults = {
+  def apply(periodResults: mutable.Map[SamplePeriod, AggregatedResults]): AggregatedResults = {
     val periods = periodResults.keys
 
     // Set the period multipliers, which weights the results

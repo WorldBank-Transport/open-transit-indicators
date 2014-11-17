@@ -274,7 +274,8 @@
             "AVG_FARE": "The average fare for a one-way trip on the transit system, in local currency.",
             "DISTANCE_BUFFER": "The farthest distance in meters from a station or stop that is considered accessible.",
             "JOB_TRAVEL_TIME": "The maximum commute time in minutes to be considered for job accessibility.",
-            "MAX_WALK_TIME": "A maximum subset of the commute time in minutes dedicated to walking."
+            "MAX_WALK_TIME": "A maximum subset of the commute time in minutes dedicated to walking.",
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
         }
     },
     "SETTINGS": {
@@ -297,6 +298,7 @@
         "AVG_FARE": "Average Fare (local currency)",
         "DISTANCE_BUFFER": "Distance Buffer (meters)",
         "JOB_TRAVEL_TIME": "Job Travel Time (minutes)",
+        "JOB_ARRIVE_BY_TIME": "Arrive By Time",
         "MAX_WALK_TIME": "Maximum Walk Time (minutes)",
         "DEMOGRAPHIC_DESCRIPTION": "Demographic data is used to calculate indicators related to population density and destination (e.g. jobs) data. Attributes related to two population metrics and to destination counts can be mapped in this interface after the data is uploaded. An example dataset would be a polygon Shapefile with each polygon having attributes for working-age population count, low-income population count, and job count.",
         "DEMOGRAPHIC_DATA": "Demographic Data",

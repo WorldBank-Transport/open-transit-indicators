@@ -1,7 +1,7 @@
 package com.azavea.opentransit.indicators.parameters
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.database.DemographicsTable
+import com.azavea.opentransit.database._
 
 import geotrellis.slick._
 import geotrellis.vector._
@@ -13,15 +13,11 @@ trait Demographics {
 }
 
 object Demographics {
-  def apply(db: DatabaseDef): Demographics = {
-    def getPopulationMetric(buffer: Projected[MultiPolygon], columnName:String): Double =
-      db withSession {implicit session =>
-        DemographicsTable.getPopMetric(buffer, columnName)
-      }
+  def apply(db: DatabaseDef): Demographics =
     new Demographics {
-      def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName:String): Double = {
-        getPopulationMetric(buffer, columnName)
-      }
+      def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName:String): Double =
+        db withSession { implicit session =>
+          DemographicsTable.getPopMetric(buffer, columnName)
+        }
     }
-  }
 }

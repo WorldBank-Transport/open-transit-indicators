@@ -3,6 +3,7 @@ package com.azavea.opentransit.indicators
 import com.azavea.gtfs._
 import com.azavea.gtfs.io.csv._
 import com.azavea.opentransit.io.GtfsIngest
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.indicators.parameters._
 
 import geotrellis.vector._
@@ -17,7 +18,7 @@ import org.scalatest._
 
 import scala.slick.jdbc.JdbcBackend.Session
 import scala.util.{Try, Success, Failure}
-
+import scala.collection.mutable
 
 trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
   /** It's horrible to load the data for each test. But I'm done pulling my hair
@@ -80,14 +81,15 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
   def septaOverall(indicator: Indicator): AggregatedResults =
     PeriodResultAggregator({
-      val results = periods.map { period => {
+      val resultHolder = mutable.Map[SamplePeriod, AggregatedResults]()
+      val results = periods.map { period =>
         val calculation = indicator.calculation(period)
         val transitSystem = systems(period)
         val results = calculation(transitSystem)
-        (period, results)}
+        resultHolder(period) = results
       }
-      results.toMap}
-    )
+      resultHolder
+    })
 
 
   def findRouteById(routes: Iterable[Route], id: String): Option[Route] =
@@ -103,7 +105,7 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
 
 trait StopBuffersSpec {this: IndicatorSpec =>
   val stopBuffers = db withSession { implicit session =>
-    StopBuffers(systems, 500, db)
+    StopBuffers(systems(period), 500, db)
   }
   trait StopBuffersSpecParams extends StopBuffers {
     def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
@@ -156,12 +158,12 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
   }
 
   trait ObservedStopTimeSpecParams extends ObservedStopTimes {
-    def observedTripById(period: SamplePeriod): Map[String, Trip] =
-      observedTripMapping(period)
+    def observedTripById(tripId: String): Trip =
+      observedTripMapping(period)(tripId)
 
     // Testing, so just return the same period every time.
-    def observedStopsByTrip(period: SamplePeriod): Map[String, Seq[(ScheduledStop, ScheduledStop)]] =
-      observedPeriodTrips
+    def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
+      observedPeriodTrips(tripId)
   }
 }
 
@@ -184,6 +186,9 @@ trait DemographicsSpec {this: IndicatorSpec =>
   trait DemographicsSpecParams extends Demographics {
     def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
       demographics.populationMetricForBuffer(buffer, columnName)
+
+      def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] = 
+        Seq()
   }
 }
 
