@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTIIndicatorJobManager', ['$http', '$q', '$rootScope', 'authService', 'OTISettingsService',
-        function ($http, $q, $rootScope, authService, OTISettingsService) {
+.factory('OTIIndicatorJobManager', ['$http', '$q', '$rootScope', 'OTISettingsService',
+        function ($http, $q, $rootScope, OTISettingsService) {
 
     var _currentCityName = '';
     var _nullJob = 0;
@@ -20,12 +20,10 @@ angular.module('transitIndicators')
     module.getJobs = function (userId) {
         var deferred = $q.defer();
 
-        if(!userId) {
-            userId = authService.getUserId();
-        }
-
         $http.get('/api/indicator-jobs/', {
-            created_by: userId
+            params: {
+                created_by: userId
+            }
         }).then(function (result) {
             deferred.resolve(_.sortBy(result.data, function(job) { return job.id; }));
         }, function () {
