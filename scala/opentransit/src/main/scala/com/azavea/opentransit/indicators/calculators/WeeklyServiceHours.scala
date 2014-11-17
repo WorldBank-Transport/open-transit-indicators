@@ -128,26 +128,8 @@ class WeeklyServiceHours(val periods: Seq[SamplePeriod], val builder: TransitSys
   }
 
   // Get the representative weekday by finding it from the sample periods.
-  def representativeWeekday: Option[LocalDateTime] = {
-    // Recursively look through sample periods and return the first one that's for a weekday.
-    @tailrec
-    def weekdayPeriod(samplePeriods: Seq[SamplePeriod]): Option[SamplePeriod] = {
-      if (samplePeriods.isEmpty) None
-      else {
-        val firstPeriod = samplePeriods.head
-        if (samplePeriodIsWeekday(firstPeriod)) Some(firstPeriod) 
-        else weekdayPeriod(samplePeriods.tail)
-      }
-    }
-
-    def samplePeriodIsWeekday(period: SamplePeriod): Boolean = {
-      period.periodType != "alltime" && period.periodType != "weekend"
-    }
-
-    // start each day at midnight
-    weekdayPeriod(periods) match {
-      case Some(p) => Some(p.start.withTime(0, 0, 0, 0))
-      case None => None
-    }
-  }
+  def representativeWeekday: Option[LocalDateTime] = 
+    SamplePeriod.getRepresentativeWeekday(periods)
+      .map { date => date.toLocalDateTime(new LocalTime(0, 0)) }
 }
+

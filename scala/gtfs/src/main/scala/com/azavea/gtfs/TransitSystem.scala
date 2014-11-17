@@ -5,6 +5,42 @@ package com.azavea.gtfs
     that generates the schedules between a start
     time and an end time. */
 trait TransitSystem {
-  val routes: Seq[Route]
-  def routes(routeType: RouteType): Seq[Route]
+  def routes: Seq[Route]
+}
+
+object TransitSystem {
+  def merge(systems: Seq[TransitSystem]): TransitSystem = {
+    val mergedRoutes: Seq[Route] = 
+      systems
+        .flatMap(_.routes)
+        .groupBy(_.id)
+        .map { case (routeId, routes) =>
+          val tokenRoute = routes.head
+          val mergedTrips = 
+            routes
+              .flatMap(_.trips)
+              .groupBy { trip => (trip.id, trip.schedule.head.arrivalTime) }
+              .map(_._2.head)
+              .toSeq
+
+          new Route {
+            def id = tokenRoute.id
+            def shortName = tokenRoute.shortName
+            def longName = tokenRoute.longName
+            def description = tokenRoute.description
+            def url = tokenRoute.url
+            def color = tokenRoute.color
+            def textColor = tokenRoute.textColor
+            def routeType = tokenRoute.routeType
+            def agency = tokenRoute.agency
+
+            def trips = mergedTrips
+          }
+         }
+        .toSeq
+
+    new TransitSystem {
+      def routes: Seq[Route] = mergedRoutes
+    }
+  }
 }

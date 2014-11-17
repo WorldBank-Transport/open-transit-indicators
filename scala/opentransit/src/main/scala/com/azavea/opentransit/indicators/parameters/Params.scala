@@ -1,9 +1,9 @@
 package com.azavea.opentransit.indicators.parameters
 
-import com.azavea.gtfs.{TransitSystem, Stop}
+import com.azavea.gtfs._
 
 import com.azavea.opentransit._
-import com.azavea.opentransit.database.{ BoundariesTable, RoadsTable, DemographicsTable }
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.indicators._
 
 import geotrellis.slick._
@@ -22,7 +22,8 @@ case class IndicatorSettings(
   hasOsm: Boolean,
   hasObserved: Boolean,
   hasCityBounds: Boolean,
-  hasRegionBounds: Boolean
+  hasRegionBounds: Boolean,
+  hasJobDemographics: Boolean
 )
 
 // Do not change by period or scenario
@@ -35,10 +36,14 @@ trait IndicatorParams extends Boundaries
                          with RoadLength
                          with StaticParams
                          with Demographics
+                         with RegionDemographics
                          with ObservedStopTimes
-
+                         with HasTravelshedGraph
 object IndicatorParams {
-  def apply(request: IndicatorCalculationRequest, systems: Map[SamplePeriod, TransitSystem],
+  def apply(
+    request: IndicatorCalculationRequest, 
+    systems: Map[SamplePeriod, TransitSystem],
+    builder: TransitSystemBuilder,
     dbByName: String => Database): IndicatorParams = {
 
     // Grab references to each of the databases, so they can be used as needed
@@ -51,10 +56,11 @@ object IndicatorParams {
     }
 
     // Observed data and demographics are in the aux db
-    val (observedStopTimes, demographics) = auxDb withSession { implicit session =>
+    val (observedStopTimes, demographics, regionDemographics_) = auxDb withSession { implicit session =>
       val observed = ObservedStopTimes(systems, auxDb, request.paramsRequirements.observed)
       val demographics = Demographics(auxDb)
-      (observed, demographics)
+      val regionDemographics = RegionDemographics(auxDb)
+      (observed, demographics, regionDemographics)
     }
 
     new IndicatorParams {
@@ -71,6 +77,8 @@ object IndicatorParams {
 
       def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
         demographics.populationMetricForBuffer(buffer, columnName)
+      def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] = 
+        regionDemographics_.regionDemographics(featureFunc)
 
       val settings =
         IndicatorSettings(
@@ -83,7 +91,8 @@ object IndicatorParams {
           hasOsm = request.paramsRequirements.osm,
           hasObserved = request.paramsRequirements.observed,
           hasCityBounds = request.paramsRequirements.cityBounds,
-          hasRegionBounds = request.paramsRequirements.regionBounds
+          hasRegionBounds = request.paramsRequirements.regionBounds,
+          hasJobDemographics = request.paramsRequirements.jobDemographics
         )
 
       // Boundaries and OSM data -- all in the aux db
@@ -91,6 +100,18 @@ object IndicatorParams {
         (Boundaries.cityBoundary(request.cityBoundaryId),
           Boundaries.cityBoundary(request.regionBoundaryId),
           RoadLength.totalRoadLength)
+      }
+
+      val travelshedGraph = {
+        gtfsDb withSession { implicit session =>
+          TravelshedGraph(
+            systems.keys.toSeq, 
+            builder,
+            100,  // TODO: How do we decide on the resolution?
+            request.arriveByTime - request.maxCommuteTime,
+            request.maxCommuteTime
+          )
+        }
       }
     }
   }

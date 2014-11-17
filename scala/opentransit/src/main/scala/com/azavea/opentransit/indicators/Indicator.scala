@@ -4,102 +4,53 @@ import com.azavea.gtfs._
 import scala.collection.mutable
 import com.azavea.opentransit.indicators.calculators._
 import com.azavea.opentransit.indicators.parameters._
+import com.azavea.opentransit.indicators.travelshed._
 
 object Indicators {
-  // The case class in the second position of each tuple specifies requirements
-  private def filteredIndicators(params: IndicatorParams): List[Indicator] = {
-    case class Requires(requirements: Boolean*)
+  case class Requirements(requirements: Boolean*) { val fulfilled = requirements.foldLeft(true)(_ && _) }
+  implicit class RequiresWrapper[T](val indicator: T) { 
+    def requires(requirements: Boolean*): (T, Requirements) = (indicator, Requirements(requirements: _*))
+   }
+  implicit def indicatorWithRequirements[T](indicator: T): (T, Requirements) = (indicator, Requirements())
+
+  def list(params: IndicatorParams): List[Indicator] = {
     val settings = params.settings
 
-    List( // Tuples of requirements and params-requiring indicators
-      (
-        AverageServiceFrequency,
-        Requires()
-      ),
-      (
-        Length,
-        Requires()
-      ),
-      (
-        NumRoutes,
-        Requires()
-      ),
-      (
-        NumStops,
-        Requires()
-      ),
-      (
-        TimeTraveledStops,
-        Requires()
-      ),
-      (
-        InterstopDistance,
-        Requires()
-      ),
-      (
-        StopsToLength,
-        Requires()
-      ),
-      (
-        new RatioLinesRoads(params),
-        Requires(settings.hasOsm)
-      ),
-      (
-        new CoverageRatioStopsBuffer(params),
-        Requires(settings.hasCityBounds)
-      ),
-      (
-        new TransitNetworkDensity(params),
-        Requires(settings.hasRegionBounds)
-      ),
-      (
-        new HeadwayRegularity(params),
-        Requires(settings.hasObserved)
-      ),
-      (
-        new TravelTimePerformance(params),
-        Requires(settings.hasObserved)
-      ),
-      (
-        new OnTimePerformance(params),
-        Requires(settings.hasObserved)
-      ),
-      (
-        new DwellTimePerformance(params),
-        Requires(settings.hasObserved)
-      ),
-      (
-        new RatioSuburbanLines(params),
-        Requires(settings.hasCityBounds)
-      ),
-      (
-        new AllWeightedServiceFrequency(params),
-        Requires(settings.hasDemographics)
-      ),
-      (
-        new LowIncomeWeightedServiceFrequency(params),
-        Requires(settings.hasDemographics)
-      ),
-      (
-        new AllAccessibility(params),
-        Requires(settings.hasDemographics)
-      ),
-      (
-        new LowIncomeAccessibility(params),
-        Requires(settings.hasDemographics)
-      ),
-      (
-        new Affordability(params),
-        Requires()
-      )
-    ).map { case (indicator: Indicator, reqs: Requires) =>
-      if (reqs.requirements.foldLeft(true)(_ && _)) Some(indicator) else None
-    }.flatten
+    List[(Indicator, Requirements)]( 
+      AverageServiceFrequency,
+      Length,
+      NumRoutes,
+      NumStops,
+      TimeTraveledStops,
+      InterstopDistance,
+      StopsToLength,
+      new RatioLinesRoads(params) requires settings.hasOsm,
+      new CoverageRatioStopsBuffer(params) requires settings.hasCityBounds,
+      new TransitNetworkDensity(params) requires settings.hasRegionBounds,
+      new HeadwayRegularity(params) requires settings.hasObserved,
+      new TravelTimePerformance(params) requires settings.hasObserved,
+      new OnTimePerformance(params) requires settings.hasObserved,
+      new DwellTimePerformance(params) requires settings.hasObserved,
+      new RatioSuburbanLines(params) requires settings.hasCityBounds,
+      new AllWeightedServiceFrequency(params) requires settings.hasDemographics,
+      new LowIncomeWeightedServiceFrequency(params) requires settings.hasDemographics,
+      new AllAccessibility(params) requires settings.hasDemographics,
+      new LowIncomeAccessibility(params) requires settings.hasDemographics,
+      new Affordability(params)
+    ).flatMap { case (indicator, requirements) => if(requirements.fulfilled) Some(indicator) else None }
   }
 
+  def travelshedIndicators(params: IndicatorParams): List[TravelshedIndicator] = {
+    val settings = params.settings
 
-  def list(params: IndicatorParams): List[Indicator] =
-    filteredIndicators(params)
+    List[(TravelshedIndicator, Requirements)]( 
+      new JobsTravelshedIndicator(params) requires (
+        settings.hasJobDemographics, 
+        settings.hasOsm, 
+        params.hasTravelshedGraph
+      )
+    ).flatMap { case (indicator, requirements) => if(requirements.fulfilled) Some(indicator) else None }
+  }
 }
 
 trait Indicator { self: AggregatesBy =>

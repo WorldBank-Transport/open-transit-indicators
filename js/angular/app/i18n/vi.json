@@ -273,7 +273,8 @@
             "AVG_FARE": "Giá vé trung bình cho một lượt đi trong hệ thống, tính bằng tiền Việt Nam",
             "DISTANCE_BUFFER": "Khoảng cách xa nhất tính bằng mét từ một bến hoặc một điểm dừng có thể đến được",
             "JOB_TRAVEL_TIME": "Thời gian hành trình tối đa tính bằng ‘phút’ cần thiết để thực hiện một lượt đi",
-            "MAX_WALK_TIME": "Thời gian đi bộ tối đa tính bằng ‘phút’"
+            "MAX_WALK_TIME": "Thời gian đi bộ tối đa tính bằng ‘phút’",
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
         }
     },
     "SETTINGS": {
@@ -296,6 +297,7 @@
         "AVG_FARE": "Mức giá trung bình (VND)",
         "DISTANCE_BUFFER": "Khoảng cách bao phủ (m)",
         "JOB_TRAVEL_TIME": "Thời gian hành trình (phút)",
+        "JOB_ARRIVE_BY_TIME": "Arrive By Time",
         "MAX_WALK_TIME": "Thời gian đi bộ tối đa(phút)",
         "DEMOGRAPHIC_DESCRIPTION": "Dữ liệu nhân khẩu được dùng để tính toán chỉ dẫn liên quan đến dữ liệu mật độ dân cư và điểm đến (ví dụ: các công việc). Các thuộc tính liên quan tới hai dạng thông kê dân số và số lượng điểm đến có thể được vẽ lên trên giao diện này sau khi dữ liệu được tải lên. Ví dụ cho dạng dữ liệu này là một tệp tin định dạng shapefile dạng vùng chứa các thuộc tính về số lượng dân cư trong độ tuổi đi làm, số lượng dân cư thu thập nhấp, và số lượng công việc.",
         "DEMOGRAPHIC_DATA": "Dữ liệu nhân khẩu",

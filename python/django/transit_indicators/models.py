@@ -67,11 +67,16 @@ class OTIIndicatorsConfig(models.Model):
     # bus stop."
     nearby_buffer_distance_m = models.FloatField()
 
+    # The time to arrive to a location by for use in calculating travelsheds.
+    # This is in 'seconds from midnight'.
+    arrive_by_time_s = models.PositiveIntegerField()
+
     # The maximum allowable commute time (seconds). Used by the job accessibility
     # indicator to generate a travelshed for access to designated job
     # locations.
     max_commute_time_s = models.PositiveIntegerField()
 
+    # TODO: geotrellis-transit does not support max durations by specific mode.
     # Maximum allowable walk time (seconds). Also used by the job accessibility indicator
     # when generating its travelshed.
     max_walk_time_s = models.PositiveIntegerField()
@@ -341,6 +346,7 @@ class Indicator(models.Model):
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
+        JOBS_TRAVELSHED = 'jobs_travelshed'
 
         class Units(object):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
@@ -375,7 +381,8 @@ class Indicator(models.Model):
                             TIME_TRAVELED_STOPS: Units.MINUTES,
                             TRAVEL_TIME: Units.MINUTES,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
-                            WEEKDAY_END_FREQ: Units.MINUTES
+                            WEEKDAY_END_FREQ: Units.MINUTES,
+                            JOBS_TRAVELSHED: Units.SECONDS
         }
 
         # indicators to display on the map
@@ -419,6 +426,7 @@ class Indicator(models.Model):
             (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
             (TRAVEL_TIME, _(u'Travel Time Performance')),
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
+            (JOBS_TRAVELSHED, _(u'Number of jobs that can be reached by an area.'))
         )
 
     # Slice of time used for calculating this indicator

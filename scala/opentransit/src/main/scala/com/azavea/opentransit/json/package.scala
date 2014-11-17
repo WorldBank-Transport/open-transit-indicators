@@ -91,13 +91,14 @@ package object json {
       }
   }
 
-  implicit object RequirementsJsonProtocol extends RootJsonFormat[Requirements] {
+  implicit object RequirementsJsonFormat extends RootJsonFormat[Requirements] {
     def write(r: Requirements): JsObject = JsObject(
       "demographics" -> JsBoolean(r.demographics),
       "osm" -> JsBoolean(r.osm),
       "observed" -> JsBoolean(r.observed),
       "city_bounds" -> JsBoolean(r.cityBounds),
-      "region_bounds" -> JsBoolean(r.regionBounds)
+      "region_bounds" -> JsBoolean(r.regionBounds),
+      "job_demographics" -> JsBoolean(r.jobDemographics)
     )
 
     def read(v: JsValue): Requirements =
@@ -110,36 +111,20 @@ package object json {
       ) match {
         case Seq(JsBoolean(demographics), JsBoolean(osm), JsBoolean(observed),
                  JsBoolean(cityBounds), JsBoolean(regionBounds)) =>
-          Requirements(demographics, osm, observed, cityBounds, regionBounds)
+          Requirements(demographics, osm, observed, cityBounds, regionBounds, true) // TODO: Read job_demographics from JSON after Django is sending it.
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")
       }
   }
 
-  implicit object IndicatorCalculationRequestFormat extends RootJsonFormat[IndicatorCalculationRequest] {
-    import RequirementsJsonProtocol._
-    def write(request: IndicatorCalculationRequest) =
-      JsObject(
-        "token" -> JsString(request.token),
-        "id" -> JsNumber(request.id),
-        "poverty_line" -> JsNumber(request.povertyLine),
-        "nearby_buffer_distance_m" -> JsNumber(request.nearbyBufferDistance),
-        "max_commute_time_s" -> JsNumber(request.maxCommuteTime),
-        "max_walk_time_s" -> JsNumber(request.maxWalkTime),
-        "city_boundary_id" -> JsNumber(request.cityBoundaryId),
-        "region_boundary_id" -> JsNumber(request.regionBoundaryId),
-        "avg_fare" -> JsNumber(request.averageFare),
-        "gtfs_db_name" -> JsString(request.gtfsDbName),
-        "aux_db_name" -> JsString(request.auxDbName),
-        "sample_periods" -> request.samplePeriods.toJson,
-        "params_requirements" -> request.paramsRequirements.toJson
-      )
-
+  // TODO: Remove TravelshedRequest
+  implicit object IndicatorCalculationRequestFormat extends RootJsonReader[IndicatorCalculationRequest] {
     def read(value: JsValue): IndicatorCalculationRequest =
       value.asJsObject.getFields(
         "token",
         "id",
         "poverty_line",
         "nearby_buffer_distance_m",
+        "arrive_by_time_s",
         "max_commute_time_s",
         "max_walk_time_s",
         "city_boundary_id",
@@ -151,7 +136,7 @@ package object json {
         "params_requirements"
       ) match {
         case Seq(JsString(token), JsNumber(id), JsNumber(povertyLine),
-                 JsNumber(nearbyBufferDistance), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
+                 JsNumber(nearbyBufferDistance), JsNumber(arriveByTime), JsNumber(maxCommuteTime), JsNumber(maxWalkTime),
                  JsNumber(cityBoundaryId), JsNumber(regionBoundaryId),
                  JsNumber(averageFare), JsString(gtfsDbName), JsString(auxDbName),
                  samplePeriodsJson, paramsRequirementsJson) =>
@@ -159,7 +144,7 @@ package object json {
           val paramsRequirements = paramsRequirementsJson.convertTo[Requirements]
           IndicatorCalculationRequest(
             token, id.toInt, povertyLine.toDouble, nearbyBufferDistance.toDouble,
-            maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
+            arriveByTime.toInt, maxCommuteTime.toInt, maxWalkTime.toInt, cityBoundaryId.toInt, regionBoundaryId.toInt,
             averageFare.toDouble, gtfsDbName, auxDbName, samplePeriods, paramsRequirements
           )
         case _ => throw new DeserializationException("IndicatorCalculationRequest expected.")

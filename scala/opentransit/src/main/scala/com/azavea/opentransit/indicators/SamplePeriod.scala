@@ -10,3 +10,10 @@ case class SamplePeriod(
 ) {
   def period: Period = new Period(start, end)
 }
+
+object SamplePeriod {
+  def getRepresentativeWeekday(periods: Seq[SamplePeriod]): Option[LocalDate] =
+    periods
+      .find { p => p.periodType != "alltime" && p.periodType != "weekend" }
+      .map { p => p.start.toLocalDate }
+}

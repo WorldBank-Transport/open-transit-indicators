@@ -1,3 +1,5 @@
+.idea
+
 *.py[cod]
 
 # C extensions
@@ -81,10 +83,12 @@ project/plugins/project
 project/plugins/target
 project/target
 resources/application.conf
+scala/opentransit/data/data
 target
 lib
 .lib
 tmp
+.lib
 *.class
 *.jar
 

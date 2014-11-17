@@ -2,6 +2,7 @@ package com.azavea.opentransit.indicators.parameters
 
 import com.azavea.opentransit.database.BoundariesTable
 
+import geotrellis.raster._
 import geotrellis.slick._
 import geotrellis.vector._
 

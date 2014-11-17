@@ -131,8 +131,7 @@ angular.module('transitIndicators').constant('config', {
                         continuousWorld: true
                     }
                 }
-            },
-            overlays: {}
+            }
         },
         markers: [],
         legend: {},

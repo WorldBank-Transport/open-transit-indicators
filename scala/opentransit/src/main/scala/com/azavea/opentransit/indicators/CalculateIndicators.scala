@@ -5,18 +5,17 @@ import scala.slick.jdbc.JdbcBackend.{Database, Session, DatabaseDef}
 
 import com.azavea.gtfs._
 import com.azavea.gtfs.Timer.timedTask
-import com.azavea.opentransit.JobStatus
+import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.JobStatusWithMessage
 import com.azavea.opentransit.JobStatusWithMessage._
 import com.azavea.opentransit.JobStatusType
 import com.azavea.opentransit.JobStatusType._
 import com.azavea.opentransit.indicators.parameters._
-import com.azavea.opentransit.indicators.calculators._
 import com.azavea.opentransit.indicators.WeeklyServiceHours._
+import com.azavea.opentransit.indicators.calculators._
 import geotrellis.vector._
 import geotrellis.slick._
-import com.azavea.opentransit.indicators.parameters._
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Seconds
@@ -47,12 +46,17 @@ object CalculateIndicators {
         (period, builder.systemBetween(period.start, period.end))
       }.toMap
 
-    val params = IndicatorParams(request, systemsByPeriod, dbByName)
+    // Injecting the builder is Bad. But I'm doing it anywa.
+    // Params should be refactored. So that this isn't necessary.
+    val params = IndicatorParams(request, systemsByPeriod, builder, dbByName)
+
+    val indicators = Indicators.list(params)
+    val travelshedIndicators = Indicators.travelshedIndicators(params)
 
     // Helper for tracking indicator calculation status
     val trackStatus = {
       val status = mutable.Map[String, JobStatus]() ++
-        Indicators.list(params).map(indicator => (indicator.name, JobStatus.Submitted))
+        (indicators.map(_.name) ++ travelshedIndicators.map(_.name)).map((_, JobStatus.Submitted))
 
       def sendStatus = statusManager.statusChanged(status.toMap)
 
@@ -126,7 +130,7 @@ object CalculateIndicators {
             periods
               .map { period =>
                 val (results, geometries) = (periodResults(period), indicator match {
-                  case (_:CoverageRatioStopsBuffer | _:WeightedServiceFrequency | _:Accessibility) => periodBuffers(period)
+                  case (_: CoverageRatioStopsBuffer | _: WeightedServiceFrequency | _: Accessibility) => periodBuffers(period)
                   case _ => periodGeometries(period)
                 })
                 PeriodIndicatorResult.createContainerGenerators(indicator.name,
@@ -159,5 +163,30 @@ object CalculateIndicators {
         }
       }
     }
+    // This indicator only needs to be calculated when there's a full set of sample periods
+    if (calculateAllTime) {
+      println("Done processing periodic indicators; going to calculate weekly service hours...")
+      timedTask("Processed indicator: hours_service") {
+        WeeklyServiceHours(periods, builder, overallLineGeometries, statusManager, trackStatus) }
+      println("Done processing indicators in CalculateIndicators")
+    }
+
+    // Run travelshed indicators
+    for(indicator <- travelshedIndicators) {
+      val name = indicator.name
+      trackStatus(name, JobStatus.Processing)
+      try {
+        indicator(Main.rasterCache)
+        trackStatus(name, JobStatus.Complete)
+      } catch {
+        case e: Exception =>
+          println(e.getMessage)
+          println(e.getStackTrace.mkString("\n"))
+
+          trackStatus(name, JobStatus.Failed)
+      }
+    }
+
+    println("Done processing indicators in CalculateIndicators")
   }
 }
