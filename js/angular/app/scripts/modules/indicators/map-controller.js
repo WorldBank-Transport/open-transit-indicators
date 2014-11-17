@@ -13,8 +13,9 @@ angular.module('transitIndicators')
     $scope.dropdown_aggregation_open = false;
     $scope.dropdown_type_open = false;
 
-
+    OTIMapService.setScenario();
     $scope.indicator = OTIIndicatorManager.getConfig();
+    var layerOptions = angular.extend($scope.indicator, {scenario: OTIMapService.getScenario()});
 
     angular.extend($scope.indicator,
         { modes: OTIMapService.getTransitModes() });
@@ -27,14 +28,14 @@ angular.module('transitIndicators')
             type: 'xyz',
             url: OTIMapService.indicatorUrl('png'),
             visible: true,
-            layerOptions: $scope.indicator
+            layerOptions: layerOptions
         },
         boundary: {
             name: 'Boundary',
             type: 'xyz',
             url: OTIMapService.boundaryUrl(),
             visible: true,
-            layerOptions: $scope.indicator
+            layerOptions: layerOptions
         },
         utfgrid: {
             name: 'GTFS Indicator Interactivity',
@@ -87,22 +88,7 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        leafletData.getMap().then(function(map) {
-            map.eachLayer(function (layer) {
-                // layer is one of the indicator overlays -- only redraw them
-                if (layer && layer.options && layer.options.type) {
-                    angular.extend(layer.options, indicator);
-                    if (layer.redraw) {
-                        layer.redraw();
-                    } else if (layer._update) {
-                        // Temporary hack for Leaflet.Utfgrid. It doesn't have a redraw function
-                        layer._cache = {};
-                        layer._update();
-                    }
-                }
-            });
-        });
-
+        OTIMapService.refreshLayers();
         updateIndicatorLegend(indicator);
     };
 

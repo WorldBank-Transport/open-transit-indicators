@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosListController',
-            ['$scope', '$state', 'OTIScenarioManager',
-             function ($scope, $state, OTIScenarioManager)
+            ['$scope', '$state', 'OTIMapService', 'OTIScenarioManager',
+             function ($scope, $state, OTIMapService, OTIScenarioManager)
 {
 
     // Number of scenarios to list at any given time
@@ -50,4 +50,5 @@ angular.module('transitIndicators')
 
     getMyScenarios();
     getColleagueScenarios();
+    OTIMapService.setScenario();
 }]);

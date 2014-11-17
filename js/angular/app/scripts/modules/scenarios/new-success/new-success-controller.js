@@ -1,9 +1,11 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosNewsuccessController',
-            ['config', '$scope', '$state', '$timeout', 'OTIScenarioManager', 'OTIScenarioModel',
+            ['config', '$scope', '$state', '$timeout',
+             'OTIMapService', 'OTIScenarioManager', 'OTIScenarioModel', 'OTITransitMapService',
              'OTITripManager',
-            function (config, $scope, $state, $timeout, OTIScenarioManager, OTIScenarioModel,
+            function (config, $scope, $state, $timeout,
+                      OTIMapService, OTIScenarioManager, OTIScenarioModel, OTITransitMapService,
                       OTITripManager) {
 
     var checkScenarioCreate = function (scenario) {
@@ -24,16 +26,14 @@ angular.module('transitIndicators')
                     });
                 }, POLLING_TIMEOUT_MS);
             } else if ($scope.scenario.isComplete()) {
-                onScenarioComplete($scope.scenario);
+                OTITripManager.setScenarioDbName($scope.scenario.db_name);
+                // Calling setScenario refreshes the layers with the new database configured,
+                //  without updating the $scope overlay config (since only the layer params change)
+                OTIMapService.setScenario($scope.scenario.db_name);
             }
             $scope.$emit('updateHeight');
         };
         checkUpload();
-    };
-
-    var onScenarioComplete = function (scenario) {
-        OTITripManager.setScenarioDbName(scenario.db_name);
-        // TODO: Update leaflet map to point to scenario db
     };
 
     $scope.scenario = OTIScenarioManager.get();
