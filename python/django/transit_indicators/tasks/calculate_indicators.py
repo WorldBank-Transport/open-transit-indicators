@@ -82,7 +82,7 @@ def run_indicator_calculation(indicator_job):
         'poverty_line': config.poverty_line,
         'arrive_by_time_s': config.arrive_by_time_s,
         'max_commute_time_s': config.max_commute_time_s,
-        'max_walk_time_s': config.max_walk_time_s,
+        'arrive_by_time_s': config.arrive_by_time_s,
         'city_boundary_id': config.city_boundary.id if config.city_boundary else 0,
         'region_boundary_id': config.region_boundary.id if config.region_boundary else 0,
         'gtfs_db_name': gtfs_db_name,
