@@ -41,6 +41,8 @@ angular.module('transitIndicators')
             // Create the route if it doesn't exist in the DB and create it
             if ($scope.route.isNew) {
                 $scope.route.$create();
+            } else {
+                $scope.route.$update();
             }
             $state.go('route-stops');
         }
