@@ -166,7 +166,7 @@ object CalculateIndicators {
     val trackStatus = {
       val reqs = request.paramsRequirements
       val travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
-        if (reqs.jobDemographics)
+        if (reqs.demographics)
           mutable.Map("alltime" -> mutable.Map(JobsTravelshedIndicator.name -> JobStatus.Submitted))
         else mutable.Map()
       val weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
@@ -223,7 +223,6 @@ object CalculateIndicators {
       }
     }
 
-    println("Calculating weekly service hours")
     runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
 
     resultHolder.map { case (indicatorName, periodToResults) =>

@@ -16,6 +16,5 @@ object TaskQueue {
           throw(e)
       }
     }
-    System.gc()
   }
 }
