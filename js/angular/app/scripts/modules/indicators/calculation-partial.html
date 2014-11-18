@@ -19,16 +19,19 @@
     <thead>
       <tr>
         <th></th>
-        <th colspan="4"><ANY translate>CALCULATION.ALL_TIME</ANY></th>
+        <th><ANY translate>CALCULATION.ALL_TIME</ANY></th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-rpeat="indicator in calculationStatus" class="calculation-row">
-        <td class="indicators-label">indicators</td>
-        <td ng-if="indicator.alltime.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.alltime.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.alltime.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-      </tr>
+        <tr ng-repeat="(indicator, calc) in allTimeCalculations" class="calculation-row">
+          <td class="indicators-label calculation-status">{{ types[indicator] }}</td>
+            <td>
+                <span ng-if="calc.status === 'processing'" class="glyphicon glyphicon-flash"></span>
+                <span ng-if="calc.status === 'complete'" class="glyphicon glyphicon-ok"></span>
+                <span ng-if="calc.status === 'error'" class="glyphicon glyphicon-remove"></span>
+                <span class="label label-danger" ng-if="calc[period].msg != ''">{{ calc[period].msg }}</span>
+            </td>
+        </tr>
     </tbody>
   </table>
   <table class="table">
@@ -38,37 +41,20 @@
         <th><ANY translate>CALCULATION.MORNING</ANY></th>
         <th><ANY translate>CALCULATION.MIDDAY</ANY></th>
         <th><ANY translate>CALCULATION.EVENING</ANY></th>
+        <th><ANY translate>CALCULATION.NIGHT</ANY></th>
         <th><ANY translate>CALCULATION.WEEKEND</ANY></th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-rpeat="indicator in calculationStatus" class="calculation-row">
-        <td class="indicators-label">indicators</td>
-
-        <td ng-if="indicator.morning.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.morning.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.morning.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-
-        <td ng-if="indicator.midday.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.midday.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.midday.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-
-        <td ng-if="indicator.evening.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.evening.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.evening.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-
-        <td ng-if="indicator.night.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.night.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.night.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-
-        <td ng-if="indicator.weekend.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
-        <td ng-if="indicator.weekend.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
-        <td ng-if="indicator.weekend.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
-        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
-        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
-        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
-        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
-      </tr>
+        <tr ng-repeat="(indicator, calc) in periodicCalculations" class="calculation-row">
+            <td class="calculation-status {{ calc[period].status }}">{{ types[indicator] }}</td>
+            <td ng-repeat="period in periods">
+                <span ng-if="calc.evening.status === 'processing'" class="glyphicon glyphicon-flash"></span>
+                <span ng-if="calc[period].status === 'complete'" class="glyphicon glyphicon-ok"></span>
+                <span ng-if="calc[period].status === 'error'" class="glyphicon glyphicon-remove"></span>
+                <span class="label label-danger" ng-if="calc[period].msg != ''">{{ calc[period].msg }}</span>
+            </td>
+        </tr>
     </tbody>
   </table>
 </div>
@@ -79,8 +65,6 @@
             <span ng-if="status.status === 'processing'" class="glyphicon glyphicon-flash"></span>
             <span ng-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span>
             <span ng-if="status.status === 'error'" class="glyphicon glyphicon-remove"></span>
-            <span class="calculation-status {{ status.status }}">{{ types[indicator] }}</span>
-            <span class="label label-danger" ng-if="status.msg != ''">{{ status.msg }}</span>
         </div>
     </div>
 </div>
