@@ -68,8 +68,8 @@ object CalculateIndicators {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
         WeeklyServiceHours(periods, builder, overallLineGeoms, statusManager, trackStatus) }
-      println("Done processing indicators in CalculateIndicators")
     }
+    System.gc()
   }
 
   def runTravelshed(
@@ -123,6 +123,7 @@ object CalculateIndicators {
   def genSysGeom(
     system: TransitSystem
   ): SystemLineGeometries = {
+    System.gc()
     val periodGeometry: SystemLineGeometries =
         timedTask(s"Calculated system geometries.") {
           SystemLineGeometries(system)
@@ -238,10 +239,13 @@ object CalculateIndicators {
             ) => allBuffers(period)
             case _ => periodGeoms(period)
           })
-          PeriodIndicatorResult.createContainerGenerators(indicatorName,
-                                                          period,
-                                                          results,
-                                                          geometries)
+          val containerGenerators = PeriodIndicatorResult.createContainerGenerators(
+            indicatorName,
+            period,
+            results,
+            geometries
+          )
+          containerGenerators
         }
         .toSeq
         .flatten
@@ -280,5 +284,6 @@ object CalculateIndicators {
     val builder = TransitSystemBuilder(gtfsRecords)
 
     runAllCalculations(builder, dbByName, periods, request, statusManager)
+    println("Done processing indicators in CalculateIndicators")
   }
 }

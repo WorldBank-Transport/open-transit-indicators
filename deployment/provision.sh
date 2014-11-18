@@ -245,11 +245,11 @@ else
     echo "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
     sysctl -p
     pushd /etc/postgresql/9.1/main
-        sed -i '/shared_buffers =/c\shared_buffers = 756MB' postgresql.conf
+        sed -i '/shared_buffers =/c\shared_buffers = 256MB' postgresql.conf
         sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
-        sed -i '/effective_cache_size =/c\effective_cache_size = 2GB' postgresql.conf
-        sed -i '/#work_mem =/c\work_mem = 64MB' postgresql.conf
-        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 32MB' postgresql.conf
+        sed -i '/effective_cache_size =/c\effective_cache_size = 1GB' postgresql.conf
+        sed -i '/#work_mem =/c\work_mem = 16MB' postgresql.conf
+        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 16MB' postgresql.conf
         sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
         service postgresql restart
     popd
