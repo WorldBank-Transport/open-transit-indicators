@@ -89,7 +89,7 @@ APP_EMAIL="$APP_USERNAME@azavea.com"
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
-GUNICORN_WORKERS=8
+GUNICORN_WORKERS=4
 GUNICORN_CONNECTIONS=500
 GUNICORN_TIMEOUT=600
 
@@ -101,7 +101,7 @@ case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS="--max-requests 100" # force gunicorn to reload code
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # force gunicorn to reload code
         WEB_USER="vagrant"
         ;;
     "production")
@@ -109,7 +109,7 @@ case "$INSTALL_TYPE" in
         # Should be set to $ANGULAR_ROOT/dist
         # Change once issue #161 is resolved
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS=""
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # prevent memory leaks in gunicorn app
         WEB_PORT='80'
         WEB_USER=`logname`
         ;;
