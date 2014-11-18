@@ -3,11 +3,20 @@
 angular.module('transitIndicators')
 .controller('OTICityModalController',
         ['$scope', '$modalInstance', '$rootScope', '$translate', '$upload',
-         'OTICityManager', 'cities', 'userScenarios', 'otherScenarios',
+         'OTICityManager', 'completeIndicatorJobs', 'cities',
         function($scope, $modalInstance, $rootScope, $translate, $upload,
-                 OTICityManager, cities, userScenarios, otherScenarios) {
+                 OTICityManager, completeIndicatorJobs, cities) {
 
     $scope.cities = cities;
+
+    $scope.userScenarios = _.filter(completeIndicatorJobs, function(job) {
+        return job.created_by === $scope.user.id &&
+               job.scenario && !_.find($scope.cities, function(x) { return x === job; });
+    });
+    $scope.otherScenarios = _.filter(completeIndicatorJobs, function(job) {
+        return job.created_by !== $scope.user.id &&
+               job.scenario && !_.find($scope.cities, function(x) { return x === job; });
+    });
 
     // Translation strings
     $scope.translations = {
@@ -27,24 +36,33 @@ angular.module('transitIndicators')
 
     // City controls
 
-    $scope.remove = function (city) {
-        OTICityManager.delete(city).then(function () {
-            var index = $scope.cities.indexOf(city);
+    $scope.remove = function (job) {
+        var index = $scope.cities.indexOf(job);
+        if(job.scenario !== null) {
             $scope.cities.splice(index, 1);
-            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
-        });
+            if (job.created_by === $scope.user.id) {
+                $scope.userScenarios.push(job);
+            } else {
+                $scope.otherScenarios.push(job);
+            }
+        } else { // TODO: find correct behavior
+//        OTICityManager.delete(city).then(function () {
+//            var index = $scope.cities.indexOf(city);
+//            $scope.cities.splice(index, 1);
+//        });
+        }
+        $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
     };
 
     // Scenario controls
 
     $scope.addCityDropdownIsOpen = false;
-    // Arrays of 'scenario' objects, current stub in partial only uses a 'name' property
-    $scope.userScenarios = userScenarios || [];
-    $scope.otherScenarios = otherScenarios || [];
 
     $scope.addScenario = function (scenario) {
-        // TODO: Implement once scenarios are implemented
-        console.log('Selected scenario:', scenario.name);
+        $scope.userScenarios = _.without($scope.userScenarios, scenario);
+        $scope.otherScenarios = _.without($scope.otherScenarios, scenario);
+        $scope.cities.push(scenario);
+        $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
     };
 
     // Import City File Upload

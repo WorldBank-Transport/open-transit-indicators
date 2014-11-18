@@ -251,8 +251,8 @@ angular.module('transitIndicators')
             max: <number>,
             min: <number>
         },
-        "cities": {
-            "<city_name>": {
+        "indicator_jobs": {
+            "<id>": {
                 "<aggregation>": [{
                     key: '<route_type|route_id>',
                     values: [OTIIndicatorService.Indicator]
@@ -265,36 +265,36 @@ angular.module('transitIndicators')
      * @param source data structure defined above
      * @return dest data structure defined above
      */
-    module.transformData = function (data, cities) {
+    module.transformData = function (data, indicator_jobs) {
         var transformed = {};
         _.each(data, function (indicator) {
             if (!transformed[indicator.type]) {
                 transformed[indicator.type] = {
-                    cities: {}
+                    indicator_jobs: {}
                 };
             }
 
             // Calculate max/min for each indicator type
-            if (!transformed[indicator.type].cities[indicator.city_name]) {
+            if (!transformed[indicator.type].indicator_jobs[indicator.calculation_job]) {
                 var indicatorCities = {};
                 // The cities must be set in this object, even if there is no data for that indicator,
                 //  so that we can loop them in the template. If we loop in the template via
                 //  $scope.cities rather than this object, we lose the 2-way binding and updates
                 //  to the indicatorData object no longer update the view.
-                _.each(cities, function (city) {
-                    indicatorCities[city] = {};
+                _.each(indicator_jobs, function (city) {
+                    indicatorCities[city.id] = { city_name: city.city_name };
                 });
-                transformed[indicator.type].cities = indicatorCities;
+                transformed[indicator.type].indicator_jobs = indicatorCities;
             }
 
             // Set the indicator into it's proper location
-            if (!transformed[indicator.type].cities[indicator.city_name][indicator.aggregation]) {
-                transformed[indicator.type].cities[indicator.city_name][indicator.aggregation] = [{
+            if (!transformed[indicator.type].indicator_jobs[indicator.calculation_job][indicator.aggregation]) {
+                transformed[indicator.type].indicator_jobs[indicator.calculation_job][indicator.aggregation] = [{
                     key: indicator.aggregation,
                     values: []
                 }];
             }
-            transformed[indicator.type].cities[indicator.city_name][indicator.aggregation][0].values.push(indicator);
+            transformed[indicator.type].indicator_jobs[indicator.calculation_job][indicator.aggregation][0].values.push(indicator);
 
             // Calculate min/max values of indicator type/aggregation so that
             //  we can properly scale the graphs
