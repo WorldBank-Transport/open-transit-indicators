@@ -45,6 +45,7 @@ object WeeklyServiceHours {
       val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
         name, overallResults, overallGeometries)
       statusManager.indicatorFinished(results)
+      trackStatus("alltime", name, JobStatus.Complete)
 
       println("Done processing weekly service hours!")
     } catch {

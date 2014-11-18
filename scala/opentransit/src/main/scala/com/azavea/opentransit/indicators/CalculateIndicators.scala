@@ -86,6 +86,7 @@ object CalculateIndicators {
     // is worth exploring IF SO TODO: set request.paramsRequirements.jobDemographics based upon whether
     // or not the demographics data has job information
     if(reqs.demographics && reqs.osm) {
+      println("Now running travelshed")
       db withSession { implicit session: Session =>
         TravelshedGraph(
           periods,
@@ -103,8 +104,8 @@ object CalculateIndicators {
             println("Calculating travelshed indicator...")
             timedTask("Processed indicator: Travelshed") {
               indicator(Main.rasterCache)
-              trackStatus("alltime", name, JobStatus.Complete)
             }
+            trackStatus("alltime", name, JobStatus.Complete)
           } catch {
             case e: Exception =>
               println(e.getMessage)
@@ -159,23 +160,16 @@ object CalculateIndicators {
     request: IndicatorCalculationRequest,
     statusManager: CalculationStatusManager
   ): Unit = {
-    // Each of these holds data collected over the course of iteration so that the GC
-    // can remove as much as possible after each iteration
-    val resultHolder = mutable.Map[String, mutable.Map[SamplePeriod, AggregatedResults]]()
-    val allBuffers = mutable.Map[SamplePeriod, SystemBufferGeometries]()
-    val periodGeoms = periods.map { period =>
-      period ->  genSysGeom(builder.systemBetween(period.start, period.end))
-    }.toMap
-    val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
     val calculateAllTime = request.samplePeriods.length != periods.length
-
     // Helper for tracking indicator calculation status
     val trackStatus = {
       val reqs = request.paramsRequirements
-      val travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] = if (reqs.jobDemographics)
+      val travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (reqs.jobDemographics)
           mutable.Map("alltime" -> mutable.Map(JobsTravelshedIndicator.name -> JobStatus.Submitted))
         else mutable.Map()
-      val weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] = if (calculateAllTime)
+      val weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (calculateAllTime)
           mutable.Map("alltime" -> mutable.Map(WeeklyServiceHours.name -> JobStatus.Submitted))
         else mutable.Map()
 
@@ -200,10 +194,18 @@ object CalculateIndicators {
         sendStatus
       }
     }
+    // Each of these holds data collected over the course of iteration so that the GC
+    // can remove as much as possible after each iteration
+    val resultHolder = mutable.Map[String, mutable.Map[SamplePeriod, AggregatedResults]]()
+    val allBuffers = mutable.Map[SamplePeriod, SystemBufferGeometries]()
+    val periodGeoms = periods.map { period =>
+      period ->  genSysGeom(builder.systemBetween(period.start, period.end))
+    }.toMap
+    val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
+
 
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
-    println("Now running travelshed")
     runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
 
     for (period <- periods) {

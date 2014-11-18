@@ -8,7 +8,8 @@ angular.module('transitIndicators')
     var POLL_INTERVAL_MILLIS = 5000;
 
     $scope.jobStatus = null;
-    $scope.calculationStatus = null;
+    $scope.allTimeCalculations = null;
+    $scope.periodicCalculations = null;
     $scope.displayStatus = null;
     $scope.currentJob = null;
 
@@ -33,7 +34,8 @@ angular.module('transitIndicators')
         });
         job.$save(function (data) {
             $scope.jobStatus = null;
-            $scope.calculationStatus = null;
+            $scope.allTimeCalculationd = null;
+            $scope.periodicCalculations = null;
             $scope.displayStatus = null;
             $scope.currentJob = null;
             pollForUpdatedStatus();
