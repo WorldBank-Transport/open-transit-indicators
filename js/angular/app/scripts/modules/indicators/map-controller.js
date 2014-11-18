@@ -12,6 +12,8 @@ angular.module('transitIndicators')
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
     $scope.dropdown_type_open = false;
+    $scope.dropdown_indicatorjob_selection_open = false;
+    $scope.selectedCity = _.findWhere($scope.cities, {id: OTIIndicatorManager.getConfig().calculation_job });
 
     OTIMapService.setScenario();
     $scope.indicator = OTIIndicatorManager.getConfig();
@@ -58,6 +60,12 @@ angular.module('transitIndicators')
         }
     };
     $scope.updateLeafletOverlays(overlays);
+
+    // Set calculation job
+    $scope.selectCity = function (city) {
+        $scope.selectedCity = city;
+        OTIIndicatorManager.setConfig({ calculation_job: city.id });
+    };
 
     // Create utfgrid popup from leaflet event
     var utfGridMarker = function (leafletEvent, indicator) {

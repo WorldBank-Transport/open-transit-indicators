@@ -2,13 +2,13 @@
     <div class="indicator-controls">
         <div class="indicator-control">
             <div>Indicator Selection:</div>
-            <div class="btn-group" dropdown is-open="dropdown_aggregation_open">
+            <div class="btn-group" dropdown is-open="dropdown_indicatorjob_selection_open">
                 <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
-                    {{ selectedCity.name }} <span class="caret"></span>
+                    {{ selectedCity.city_name }} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat="(key, value) in cities">
-                        <a ng-click="selectCity(key)"> {{ value }}</a>
+                    <li ng-repeat="city in cities">
+                        <a ng-click="selectCity(city)"> {{ city.city_name }}</a>
                     </li>
                 </ul>
             </div>
