@@ -38,7 +38,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   id: Int,
-  status: Map[String, JobStatus]
+  status: Map[String, Map[String, JobStatus]]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
@@ -62,7 +62,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
           }
         }
       }
-      def statusChanged(status: Map[String, JobStatus]) = {
+      def statusChanged(status: Map[String, Map[String, JobStatus]]) = {
         djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
       }
     })
@@ -87,13 +87,6 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
-                try {
-                  djangoClient.updateIndicatorJob(request.token,
-                    IndicatorJob(request.id, Map("alltime" -> JobStatus.Failed)))
-                } catch {
-                  case ex: Exception =>
-                    println("Failed to set failure status for indicator calculation job!")
-                }
             }
             Accepted -> JsObject(
               "success" -> JsBoolean(true),

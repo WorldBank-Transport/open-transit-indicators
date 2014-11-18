@@ -14,6 +14,64 @@
       {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
     </span>
 </div>
+<div class="calculation-table">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th colspan="4"><ANY translate>CALCULATION.ALL_TIME</ANY></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-rpeat="indicator in calculationStatus" class="calculation-row">
+        <td class="indicators-label">indicators</td>
+        <td ng-if="indicator.alltime.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.alltime.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.alltime.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th><ANY translate>CALCULATION.MORNING</ANY></th>
+        <th><ANY translate>CALCULATION.MIDDAY</ANY></th>
+        <th><ANY translate>CALCULATION.EVENING</ANY></th>
+        <th><ANY translate>CALCULATION.WEEKEND</ANY></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-rpeat="indicator in calculationStatus" class="calculation-row">
+        <td class="indicators-label">indicators</td>
+
+        <td ng-if="indicator.morning.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.morning.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.morning.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+
+        <td ng-if="indicator.midday.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.midday.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.midday.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+
+        <td ng-if="indicator.evening.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.evening.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.evening.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+
+        <td ng-if="indicator.night.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.night.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.night.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+
+        <td ng-if="indicator.weekend.status === 'processing'"><span class="glyphicon glyphicon-flash"></span></td>
+        <td ng-if="indicator.weekend.status === 'complete'"><span class="glyphicon glyphicon-ok"></span></td>
+        <td ng-if="indicator.weekend.status === 'error'"><span class="glyphicon glyphicon-remove"></span></td>
+        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
+        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
+        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
+        <td><span n-if="status.status === 'complete'" class="glyphicon glyphicon-ok"></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <div ng-repeat="(indicator, status) in calculationStatus" class="calculation-table">
     <div class="calculation-row">
         <div class="calculation-cell indicators-label">

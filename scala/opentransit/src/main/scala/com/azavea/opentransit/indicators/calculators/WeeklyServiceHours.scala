@@ -27,7 +27,7 @@ object WeeklyServiceHours {
     builder: TransitSystemBuilder,
     overallGeometries: SystemGeometries,
     statusManager: CalculationStatusManager,
-    trackStatus: (String, JobStatus) => Unit
+    trackStatus: (String, String, JobStatus) => Unit
   ): Unit = {
 
     try {
@@ -39,20 +39,19 @@ object WeeklyServiceHours {
       })
 
       println("Representative weekday found; going to calculate weekly service hours.")
-      trackStatus(name, JobStatus.Processing)
+      trackStatus("alltime", name, JobStatus.Processing)
 
       val overallResults = weeklyHours.calculate(firstDay)
       val results: Seq[ContainerGenerator] = OverallIndicatorResult.createContainerGenerators(
         name, overallResults, overallGeometries)
       statusManager.indicatorFinished(results)
 
-      trackStatus(name, JobStatus.Complete)
       println("Done processing weekly service hours!")
     } catch {
         case e: Exception => {
           println(e.getMessage)
           println(e.getStackTrace.mkString("\n"))
-          statusManager.statusChanged(Map(name -> JobStatus.Failed))
+          trackStatus("alltime", name, JobStatus.Failed)
         }
     }
   }
