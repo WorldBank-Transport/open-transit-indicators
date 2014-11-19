@@ -15,11 +15,11 @@
     </span>
 </div>
 <div class="calculation-table">
-  <table ng-if="allTimeCalculations !== null">
+  <table ng-if="!_.isEmpty(allTimeCalculations)">
     <thead>
       <tr>
         <th></th>
-        <th><ANY translate>CALCULATION.ALL_TIME</ANY></th>
+        <th translate>CALCULATION.ALL_TIME</th>
       </tr>
     </thead>
     <tbody>
@@ -34,15 +34,15 @@
         </tr>
     </tbody>
   </table>
-  <table ng-if="periodicCalculations !== null">
+  <table ng-if="!_.isEmpty(periodicCalculations)">
     <thead>
       <tr>
         <th></th>
-        <th><ANY translate>CALCULATION.MORNING</ANY></th>
-        <th><ANY translate>CALCULATION.MIDDAY</ANY></th>
-        <th><ANY translate>CALCULATION.EVENING</ANY></th>
-        <th><ANY translate>CALCULATION.NIGHT</ANY></th>
-        <th><ANY translate>CALCULATION.WEEKEND</ANY></th>
+        <th translate>CALCULATION.MORNING</th>
+        <th translate>CALCULATION.MIDDAY</th>
+        <th translate>CALCULATION.EVENING</th>
+        <th translate>CALCULATION.NIGHT</th>
+        <th translate>CALCULATION.WEEKEND</th>
       </tr>
     </thead>
     <tbody>

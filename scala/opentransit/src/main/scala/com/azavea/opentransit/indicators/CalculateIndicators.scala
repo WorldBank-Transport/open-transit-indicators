@@ -164,25 +164,37 @@ object CalculateIndicators {
     val calculateAllTime = request.samplePeriods.length != periods.length
     // Helper for tracking indicator calculation status
     val trackStatus = {
-      val reqs = request.paramsRequirements
-      val travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+      def reqs = request.paramsRequirements
+      lazy val indicatorNames = satisfiedIndicators(request, builder, periods.head, dbByName)
+      def travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
         if (reqs.demographics)
           mutable.Map("alltime" -> mutable.Map(JobsTravelshedIndicator.name -> JobStatus.Submitted))
         else mutable.Map()
-      val weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+      def weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
         if (calculateAllTime)
           mutable.Map("alltime" -> mutable.Map(WeeklyServiceHours.name -> JobStatus.Submitted))
+        else mutable.Map()
+      def allTimeAggregationStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (calculateAllTime)
+          mutable.Map() ++ Seq("alltime" ->
+            mutable.Map(
+              Seq(WeeklyServiceHours.name -> JobStatus.Submitted) ++
+              indicatorNames.map { name =>
+                name -> JobStatus.Submitted
+              }: _*
+            )
+          )
         else mutable.Map()
 
       val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++
         periods.map { period =>
           period.periodType ->
             mutable.Map(
-              satisfiedIndicators(request, builder, periods.head, dbByName).map { name =>
+              indicatorNames.map { name =>
                 name -> JobStatus.Submitted
               }: _* // This construct is stupid. It is also the correct syntax for making this kind of map
             )
-        } ++ travelshedStatus ++ weeklyHoursStatus
+        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus
 
 
       def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
@@ -252,11 +264,13 @@ object CalculateIndicators {
       if (!calculateAllTime) {
         statusManager.indicatorFinished(periodIndicatorResults)
       } else {
+        trackStatus("alltime", indicatorName, JobStatus.Processing)
         val overallResults: AggregatedResults = PeriodResultAggregator(periodToResults)
         val overallIndicatorResults: Seq[ContainerGenerator] =
           OverallIndicatorResult.createContainerGenerators(indicatorName,
                                                            overallResults,
                                                            overallLineGeoms: SystemLineGeometries)
+        trackStatus("alltime", indicatorName, JobStatus.Complete)
         statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
       }
     }
