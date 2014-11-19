@@ -3,9 +3,9 @@
 angular.module('transitIndicators')
 .controller('OTICityModalController',
         ['$scope', '$modalInstance', '$rootScope', '$translate', '$upload',
-         'OTICityManager', 'completeIndicatorJobs', 'cities',
+         'OTICityManager', 'OTIIndicatorJobManager', 'completeIndicatorJobs', 'cities',
         function($scope, $modalInstance, $rootScope, $translate, $upload,
-                 OTICityManager, completeIndicatorJobs, cities) {
+                 OTICityManager, OTIIndicatorJobManager, completeIndicatorJobs, cities) {
 
     $scope.cities = cities;
 
@@ -34,6 +34,12 @@ angular.module('transitIndicators')
         $modalInstance.close();
     };
 
+    var saveLoadedScenarios = function () {
+        OTIIndicatorJobManager.setLoadedScenarios(_.chain($scope.cities)
+                                                  .pluck('scenario')
+                                                  .without(null).value());
+    };
+
     // City controls
 
     $scope.remove = function (job) {
@@ -52,6 +58,7 @@ angular.module('transitIndicators')
 //        });
         }
         $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
+        saveLoadedScenarios();
     };
 
     // Scenario controls
@@ -63,6 +70,7 @@ angular.module('transitIndicators')
         $scope.otherScenarios = _.without($scope.otherScenarios, scenario);
         $scope.cities.push(scenario);
         $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
+        saveLoadedScenarios();
     };
 
     // Import City File Upload

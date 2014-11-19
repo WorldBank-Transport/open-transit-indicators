@@ -2,11 +2,11 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['$cookieStore', '$rootScope', '$scope', '$state',
-         'leafletData', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
+        ['$scope', '$state',
+         'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
          'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService',
-        function ($cookieStore, $rootScope, $scope, $state,
-                  leafletData, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
+        function ($scope, $state,
+                  OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
                   OTIIndicatorJobManager, OTIMapStyleService, OTIMapService) {
 
     $scope.$state = $state;
@@ -138,12 +138,23 @@ angular.module('transitIndicators')
     });
 
     $scope.$on(OTIIndicatorJobManager.Events.JobUpdated, function (event, calculation_job) {
-        OTIIndicatorManager.setConfig({calculation_job: calculation_job});
+        OTIIndicatorManager.setConfig({calculation_job: calculation_job, city_name: ''}); // TODO: add city name
     });
 
     $scope.init = function () {
+        if($scope.cities.length > 0) {
+            if (!$scope.selectedCity) {
+                $scope.selectedCity = $scope.cities[0];
+            }
+            $scope.selectCity($scope.selectedCity);
+        }
         updateIndicatorLegend($scope.indicator);
         OTIMapService.getLegendData();
     };
+
+    $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
+        $scope.init();
+    });
+
     $scope.init();
 }]);

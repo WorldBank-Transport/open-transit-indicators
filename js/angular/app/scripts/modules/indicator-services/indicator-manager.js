@@ -18,6 +18,7 @@ angular.module('transitIndicators')
         this.sample_period = 'morning';
         this.aggregation = 'route';
         this.modes = '';
+        this.city_name = '';
     }
 
     var _config = $cookieStore.get(COOKIE_STORE_INDICATOR) || new IndicatorConfig();

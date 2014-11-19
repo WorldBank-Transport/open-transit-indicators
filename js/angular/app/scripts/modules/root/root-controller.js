@@ -3,10 +3,10 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIMapService', 'authService','leafletData', 'user',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIMapService', 'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, OTIMapService, authService, leafletData, user) {
+                      OTIEvents, OTIIndicatorManager, OTIMapService, authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -87,6 +87,7 @@ angular.module('transitIndicators')
     $scope.setMapModes = function (modes) {
         OTIMapService.setTransitModes(modes);
         OTIMapService.refreshLayers();
+        OTIIndicatorManager.setConfig({ modes: modes });
     };
 
     $scope.changePassword = function() {

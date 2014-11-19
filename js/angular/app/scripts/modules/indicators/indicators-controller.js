@@ -2,13 +2,12 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', '$modal',
+            ['$rootScope', '$scope', '$cookieStore', '$modal',
              'authService',
-             'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
-            function ($scope, $cookieStore, $modal,
+             'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
+            function ($rootScope, $scope, $cookieStore, $modal,
                       authService,
-                      OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes
-                      ) {
+                      OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes) {
 
     $scope.dropdown_sample_period_open = false;
 
@@ -88,8 +87,10 @@ angular.module('transitIndicators')
                        });
                    }).value();
             $scope.cities = _.filter(completeIndicatorJobs, function(job) {
-                return job.scenario === null;
+                return job.scenario === null ||
+                       OTIIndicatorJobManager.isLoaded(job.scenario);
             });
+            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         });
     };
     $scope.init();
