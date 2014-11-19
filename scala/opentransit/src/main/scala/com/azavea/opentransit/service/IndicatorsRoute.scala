@@ -42,6 +42,8 @@ case class IndicatorJob(
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
+  val config = ConfigFactory.load
+  val mainDbName = config.getString("database.name")
 
   def handleIndicatorsRequest(
     request: IndicatorCalculationRequest,
@@ -52,7 +54,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
       def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
         try {
           val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
-          dbByName("transit_indicators") withTransaction { implicit session =>
+          dbByName(mainDbName) withTransaction { implicit session =>
             import PostgresDriver.simple._
               indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
             }
