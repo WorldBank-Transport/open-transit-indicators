@@ -65,7 +65,7 @@ def run_validate_gtfs(gtfsfeed_id):
         gtfsfeed.source_file,
         problems=problems,
         extra_validation=False,
-        memory_db=True,
+        memory_db=False,
         check_duplicate_trips=True,
         gtfs_factory=gtfs_factory)
 

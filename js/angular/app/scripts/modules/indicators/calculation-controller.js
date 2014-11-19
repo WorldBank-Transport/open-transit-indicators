@@ -86,12 +86,10 @@ angular.module('transitIndicators')
         $scope.jobStatus = job.job_status;
         var calculationStatus = angular.fromJson(job.calculation_status);
         if (calculationStatus) {
-            $scope.allTimeCalculations = calculationStatus.alltime || null;
+            $scope.allTimeCalculations = calculationStatus.alltime || {};
             delete calculationStatus.alltime;
             $scope.periods = _.keys(calculationStatus);
             $scope.periodicCalculations = reorderKeys(calculationStatus);
-            console.log($scope.allTimeCalculations)
-            console.log($scope.periodicCalculations)
         }
 
         if ($scope.jobStatus === 'processing') {
