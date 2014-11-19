@@ -207,12 +207,29 @@ package object json {
   implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
     def write(job: IndicatorJob) = {
       // A job is complete if nothing is processing or submitted
-      val isComplete = job.status.forall(s =>
-        s._2 != JobStatus.Processing && s._2 != JobStatus.Submitted)
-      val jobStatus = if (isComplete) (
-        if (job.status.forall(s => s._2 != JobStatus.Failed)) JobStatus.Complete else JobStatus.Failed)
-        else JobStatus.Processing
-      val calculationStatus = job.status.map { case(k, v) => (k, v.getJsonWithMsg)}.toMap
+      val isComplete =
+        job.status.map { case (period, indicatorResult) =>
+          indicatorResult.forall { result =>
+            result._2 != JobStatus.Processing && result._2 != JobStatus.Submitted
+          }
+        }.foldLeft(true)(_ && _)
+
+      val isSuccess =
+        job.status.map { case (period, indicatorResult) =>
+          indicatorResult.forall { s => s._2 != JobStatus.Failed }
+        }.foldLeft(true)(_ && _)
+
+      val jobStatus =
+        if (isComplete) {
+          if (isSuccess) JobStatus.Complete else JobStatus.Failed
+        } else {
+          JobStatus.Processing
+        }
+      val calculationStatus = job.status.map { case (periodType, indicatorStatus) =>
+        (periodType, indicatorStatus.map { case (indicatorName, status) =>
+          (indicatorName, status.getJsonWithMsg)
+        }.toMap)
+      }.toMap
 
       JsObject(
         "id" -> JsNumber(job.id),

@@ -25,7 +25,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 trait CalculationStatusManager {
   def indicatorFinished(containerGenerators: Seq[ContainerGenerator]): Unit
-  def statusChanged(status: Map[String, JobStatus]): Unit
+  def statusChanged(status: Map[String, Map[String, JobStatus]]): Unit
 }
 
 object CalculateIndicators {
@@ -60,7 +60,7 @@ object CalculateIndicators {
     overallLineGeoms: SystemLineGeometries,
     statusManager: CalculationStatusManager,
     calculateAllTime: Boolean,
-    trackStatus: (String, JobStatus) => Unit
+    trackStatus: (String, String, JobStatus) => Unit
   ): Unit = {
     println(s"""Calculating indicators ${if (calculateAllTime) "with" else "without" } alltime.""")
     // This indicator only needs to be calculated when there's a full set of sample periods
@@ -68,8 +68,8 @@ object CalculateIndicators {
       println("Done processing periodic indicators; going to calculate weekly service hours...")
       timedTask("Processed indicator: hours_service") {
         WeeklyServiceHours(periods, builder, overallLineGeoms, statusManager, trackStatus) }
-      println("Done processing indicators in CalculateIndicators")
     }
+    System.gc()
   }
 
   def runTravelshed(
@@ -77,7 +77,7 @@ object CalculateIndicators {
     builder: TransitSystemBuilder,
     request: IndicatorCalculationRequest,
     db: Database,
-    trackStatus: (String, JobStatus) => Unit
+    trackStatus: (String, String, JobStatus) => Unit
   ): Unit = {
     // Run travelshed indicators
     val reqs = request.paramsRequirements
@@ -86,6 +86,7 @@ object CalculateIndicators {
     // is worth exploring IF SO TODO: set request.paramsRequirements.jobDemographics based upon whether
     // or not the demographics data has job information
     if(reqs.demographics && reqs.osm) {
+      println("Now running travelshed")
       db withSession { implicit session: Session =>
         TravelshedGraph(
           periods,
@@ -98,19 +99,19 @@ object CalculateIndicators {
         case Some(travelshedGraph) =>
           val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db))
           val name = indicator.name
-          trackStatus(name, JobStatus.Processing)
+          trackStatus("alltime", name, JobStatus.Processing)
           try {
             println("Calculating travelshed indicator...")
             timedTask("Processed indicator: Travelshed") {
               indicator(Main.rasterCache)
-              trackStatus(name, JobStatus.Complete)
             }
+            trackStatus("alltime", name, JobStatus.Complete)
           } catch {
             case e: Exception =>
               println(e.getMessage)
               println(e.getStackTrace.mkString("\n"))
 
-              trackStatus(name, JobStatus.Failed)
+              trackStatus("alltime", name, JobStatus.Failed)
           }
         case None =>
           println("Could not create travelshed graph")
@@ -122,6 +123,7 @@ object CalculateIndicators {
   def genSysGeom(
     system: TransitSystem
   ): SystemLineGeometries = {
+    System.gc()
     val periodGeometry: SystemLineGeometries =
         timedTask(s"Calculated system geometries.") {
           SystemLineGeometries(system)
@@ -159,6 +161,52 @@ object CalculateIndicators {
     request: IndicatorCalculationRequest,
     statusManager: CalculationStatusManager
   ): Unit = {
+    val calculateAllTime = request.samplePeriods.length != periods.length
+    // Helper for tracking indicator calculation status
+    val trackStatus = {
+      def reqs = request.paramsRequirements
+      lazy val indicatorNames = satisfiedIndicators(request, builder, periods.head, dbByName)
+      def travelshedStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (reqs.demographics)
+          mutable.Map("alltime" -> mutable.Map(JobsTravelshedIndicator.name -> JobStatus.Submitted))
+        else mutable.Map()
+      def weeklyHoursStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (calculateAllTime)
+          mutable.Map("alltime" -> mutable.Map(WeeklyServiceHours.name -> JobStatus.Submitted))
+        else mutable.Map()
+      def allTimeAggregationStatus: mutable.Map[String, mutable.Map[String, JobStatus]] =
+        if (calculateAllTime)
+          mutable.Map() ++ Seq("alltime" ->
+            mutable.Map(
+              Seq(WeeklyServiceHours.name -> JobStatus.Submitted) ++
+              indicatorNames.map { name =>
+                name -> JobStatus.Submitted
+              }: _*
+            )
+          )
+        else mutable.Map()
+
+      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++
+        periods.map { period =>
+          period.periodType ->
+            mutable.Map(
+              indicatorNames.map { name =>
+                name -> JobStatus.Submitted
+              }: _* // This construct is stupid. It is also the correct syntax for making this kind of map
+            )
+        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus
+
+
+      def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
+
+      // Send initial status to quickly inform the UI what indicators are being calculated
+      sendStatus
+
+      (periodType: String, indicatorName: String, state: JobStatus) => {
+        status(periodType)(indicatorName) = state
+        sendStatus
+      }
+    }
     // Each of these holds data collected over the course of iteration so that the GC
     // can remove as much as possible after each iteration
     val resultHolder = mutable.Map[String, mutable.Map[SamplePeriod, AggregatedResults]]()
@@ -168,27 +216,9 @@ object CalculateIndicators {
     }.toMap
     val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
 
-    // Helper for tracking indicator calculation status
-    val trackStatus = {
-      val status = mutable.Map[String, JobStatus]() ++
-        satisfiedIndicators(request, builder, periods.head, dbByName)
-          .map(name => (name, JobStatus.Submitted))
 
-      def sendStatus = statusManager.statusChanged(status.toMap)
-
-      // Send initial status to quickly inform the UI what indicators are being calculated
-      sendStatus
-
-      (indicatorName: String, newStatus: JobStatus) => {
-        status(indicatorName) = newStatus
-        sendStatus
-      }
-    }
-
-    val calculateAllTime = request.samplePeriods.length != periods.length
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
-    println("Now running travelshed")
     runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
 
     for (period <- periods) {
@@ -199,12 +229,12 @@ object CalculateIndicators {
 
       // Do the calculation
       for(indicator <- Indicators.list(params)) {
-        trackStatus(indicator.name, JobStatus.Processing)
+        trackStatus(period.periodType, indicator.name, JobStatus.Processing)
         singleCalculation(indicator, period, system, resultHolder)
+        trackStatus(period.periodType, indicator.name, JobStatus.Complete)
       }
     }
 
-    println("Calculating weekly service hours")
     runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
 
     resultHolder.map { case (indicatorName, periodToResults) =>
@@ -220,10 +250,13 @@ object CalculateIndicators {
             ) => allBuffers(period)
             case _ => periodGeoms(period)
           })
-          PeriodIndicatorResult.createContainerGenerators(indicatorName,
-                                                          period,
-                                                          results,
-                                                          geometries)
+          val containerGenerators = PeriodIndicatorResult.createContainerGenerators(
+            indicatorName,
+            period,
+            results,
+            geometries
+          )
+          containerGenerators
         }
         .toSeq
         .flatten
@@ -231,15 +264,15 @@ object CalculateIndicators {
       if (!calculateAllTime) {
         statusManager.indicatorFinished(periodIndicatorResults)
       } else {
+        trackStatus("alltime", indicatorName, JobStatus.Processing)
         val overallResults: AggregatedResults = PeriodResultAggregator(periodToResults)
         val overallIndicatorResults: Seq[ContainerGenerator] =
           OverallIndicatorResult.createContainerGenerators(indicatorName,
                                                            overallResults,
                                                            overallLineGeoms: SystemLineGeometries)
+        trackStatus("alltime", indicatorName, JobStatus.Complete)
         statusManager.indicatorFinished(periodIndicatorResults ++ overallIndicatorResults)
       }
-      trackStatus(indicatorName, JobStatus.Complete)
-      statusManager.statusChanged(Map(indicatorName -> JobStatus.Complete))
     }
     System.gc()
   }
@@ -264,5 +297,6 @@ object CalculateIndicators {
     val builder = TransitSystemBuilder(gtfsRecords)
 
     runAllCalculations(builder, dbByName, periods, request, statusManager)
+    println("Done processing indicators in CalculateIndicators")
   }
 }

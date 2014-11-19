@@ -38,10 +38,12 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 case class IndicatorJob(
   id: Int,
-  status: Map[String, JobStatus]
+  status: Map[String, Map[String, JobStatus]]
 )
 
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
+  val config = ConfigFactory.load
+  val mainDbName = config.getString("database.name")
 
   def handleIndicatorsRequest(
     request: IndicatorCalculationRequest,
@@ -52,7 +54,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
       def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
         try {
           val indicatorResultContainers = containerGenerators.map(_.toContainer(request.id))
-          dbByName(request.gtfsDbName) withTransaction { implicit session =>
+          dbByName(mainDbName) withTransaction { implicit session =>
             import PostgresDriver.simple._
               indicatorsTable.forceInsertAll(indicatorResultContainers:_*)
             }
@@ -62,7 +64,7 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
           }
         }
       }
-      def statusChanged(status: Map[String, JobStatus]) = {
+      def statusChanged(status: Map[String, Map[String, JobStatus]]) = {
         djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
       }
     })
@@ -87,13 +89,6 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
-                try {
-                  djangoClient.updateIndicatorJob(request.token,
-                    IndicatorJob(request.id, Map("alltime" -> JobStatus.Failed)))
-                } catch {
-                  case ex: Exception =>
-                    println("Failed to set failure status for indicator calculation job!")
-                }
             }
             Accepted -> JsObject(
               "success" -> JsBoolean(true),

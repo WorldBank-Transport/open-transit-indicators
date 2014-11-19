@@ -89,7 +89,7 @@ APP_EMAIL="$APP_USERNAME@azavea.com"
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
-GUNICORN_WORKERS=8
+GUNICORN_WORKERS=4
 GUNICORN_CONNECTIONS=500
 GUNICORN_TIMEOUT=600
 
@@ -101,7 +101,7 @@ case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS="--max-requests 100" # force gunicorn to reload code
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # force gunicorn to reload code
         WEB_USER="vagrant"
         ;;
     "production")
@@ -109,7 +109,7 @@ case "$INSTALL_TYPE" in
         # Should be set to $ANGULAR_ROOT/dist
         # Change once issue #161 is resolved
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS=""
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # prevent memory leaks in gunicorn app
         WEB_PORT='80'
         WEB_USER=`logname`
         ;;
@@ -245,11 +245,11 @@ else
     echo "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
     sysctl -p
     pushd /etc/postgresql/9.1/main
-        sed -i '/shared_buffers =/c\shared_buffers = 756MB' postgresql.conf
+        sed -i '/shared_buffers =/c\shared_buffers = 256MB' postgresql.conf
         sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
-        sed -i '/effective_cache_size =/c\effective_cache_size = 2GB' postgresql.conf
-        sed -i '/#work_mem =/c\work_mem = 64MB' postgresql.conf
-        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 32MB' postgresql.conf
+        sed -i '/effective_cache_size =/c\effective_cache_size = 1GB' postgresql.conf
+        sed -i '/#work_mem =/c\work_mem = 16MB' postgresql.conf
+        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 16MB' postgresql.conf
         sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
         service postgresql restart
     popd

@@ -108,3 +108,4 @@ tags
 /scala/.ensime_cache/project/build.properties
 /scala/TAGS
 /scala/.lib
+/scala/opentransit/.attach*

@@ -8,7 +8,8 @@ angular.module('transitIndicators')
     var POLL_INTERVAL_MILLIS = 5000;
 
     $scope.jobStatus = null;
-    $scope.calculationStatus = null;
+    $scope.allTimeCalculations = {};
+    $scope.periodicCalculations = {};
     $scope.displayStatus = null;
     $scope.currentJob = null;
 
@@ -33,7 +34,8 @@ angular.module('transitIndicators')
         });
         job.$save(function (data) {
             $scope.jobStatus = null;
-            $scope.calculationStatus = null;
+            $scope.allTimeCalculations = {};
+            $scope.periodicCalculations = {};
             $scope.displayStatus = null;
             $scope.currentJob = null;
             pollForUpdatedStatus();
@@ -60,6 +62,19 @@ angular.module('transitIndicators')
         });
     };
 
+    var reorderKeys = function(periodThenIndicator) {
+        var indicatorThenPeriod = {};
+        var periods = _.keys(periodThenIndicator);
+        var indicators = _.keys(periodThenIndicator.morning);
+        _.each(indicators, function(indicator) {
+            indicatorThenPeriod[indicator] = {};
+            _.each(periods, function(period) {
+                indicatorThenPeriod[indicator][period] = periodThenIndicator[period][indicator];
+            });
+        });
+        return indicatorThenPeriod;
+    };
+
     /**
      * Sets the current job status given a list of job results
      */
@@ -69,7 +84,15 @@ angular.module('transitIndicators')
         var job = _.max(indicatorJobs, function(j) { return j.id; });
         $scope.currentJob = job;
         $scope.jobStatus = job.job_status;
-        $scope.calculationStatus = angular.fromJson(job.calculation_status);
+        var calculationStatus = angular.fromJson(job.calculation_status);
+        if (calculationStatus) {
+            $scope.allTimeCalculations = calculationStatus.alltime || null;
+            delete calculationStatus.alltime;
+            $scope.periods = _.keys(calculationStatus);
+            $scope.periodicCalculations = reorderKeys(calculationStatus);
+            console.log($scope.allTimeCalculations)
+            console.log($scope.periodicCalculations)
+        }
 
         if ($scope.jobStatus === 'processing') {
             $scope.displayStatus = 'STATUS.PROCESSING';
