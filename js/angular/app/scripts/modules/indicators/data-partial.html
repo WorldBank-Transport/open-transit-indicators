@@ -1,6 +1,6 @@
 <div class="indicators-heading">
     <div class="indicators-description">
-        Viewing indicator results for {{ cities.join(', ') }}
+        Viewing indicator results for {{ city_names.join(', ') }}
     </div>
     <!--
     TODO: Readd once endpoint for getting city center lat/lon is available
@@ -11,8 +11,8 @@
 <div class="indicators-table">
     <div class="indicators-row indicators-row-heading">
         <div class="indicators-cell indicators-label">City <span ng-show="updating" class="label label-info">{{ 'TERM.UPDATING_INDICATORS' | translate }}</span></div>
-        <div ng-repeat="cityname in cities" class="indicators-cell">
-          {{ cityname }}
+        <div ng-repeat="city in cities" class="indicators-cell">
+          {{ city.city_name }}
           <a ng-href="/api/indicators/?format=csv&city_name={{ selfCityName }}"
              download="{{ selfCityName }}.csv">
             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-save"
@@ -35,12 +35,13 @@
              inf watch cycles
         -->
 
-        <div ng-repeat="(cityname, citydata) in indicator.cities"
+            <!-- <div ng-repeat="indicatorjob in indicator.indicator_jobs" -->
+        <div ng-repeat="city in cities"
              class="indicators-cell">
-            <div ng-if="displayIndicator(citydata, type, 'mode')">
+            <div ng-if="displayIndicator(indicator.indicator_jobs[city.id], type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>
-            <span ng-if="displayIndicator(citydata, type, 'system')">{{ citydata.system[0].values[0].formatted_value || ('TERM.NO_DATA' | translate) }}</span>
+            <span ng-if="displayIndicator(indicator.indicator_jobs[city.id], type, 'system')">{{ indicator.indicator_jobs[city.id].system[0].values[0].formatted_value || ('TERM.NO_DATA' | translate) }}</span>
         </div>
     </div>
 </div>

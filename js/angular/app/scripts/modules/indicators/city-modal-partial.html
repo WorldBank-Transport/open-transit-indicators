@@ -5,7 +5,7 @@
         </div>
     </div>
     <div class="row" ng-repeat="city in cities">
-        <div class="col-xs-9">{{ city }}</div>
+        <div class="col-xs-9">{{ city.city_name }}</div>
         <div class="col-xs-3"><a class="pull-right" ng-click="remove(city)">{{ 'UI.BUTTON.REMOVE' | translate }}</a></div>
     </div>
 
@@ -29,10 +29,10 @@
                 </button>
                 <ul class="dropdown-menu full-width" role="menu">
                     <li ng-if="userScenarios.length"><span>{{ 'CITYMODAL.MYSCENARIOS' | translate }}</span></li>
-                    <li ng-repeat="scenario in userScenarios"><a ng-click="addScenario(scenario)">{{ scenario.name }}</a></li>
+                    <li ng-repeat="scenario in userScenarios"><a ng-click="addScenario(scenario)">{{ scenario.city_name }}</a></li>
                     <li class="divider" ng-if="userScenarios.length && otherScenarios.length">
                     <li ng-if="otherScenarios.length"><span>{{ 'CITYMODAL.COLLEAGUESCENARIOS' | translate }}</span></li>
-                    <li ng-repeat="scenario in otherScenarios"><a ng-click="addScenario(scenario)">{{ scenario.name }}</a></li>
+                    <li ng-repeat="scenario in otherScenarios"><a ng-click="addScenario(scenario)">{{ scenario.city_name }}</a></li>
                 </ul>
             </div>
         </div>

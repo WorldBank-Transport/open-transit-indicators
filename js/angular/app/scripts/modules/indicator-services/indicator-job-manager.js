@@ -1,11 +1,15 @@
 'use strict';
 
 angular.module('transitIndicators')
-.factory('OTIIndicatorJobManager', ['$http', '$q', '$rootScope', 'OTISettingsService',
-        function ($http, $q, $rootScope, OTISettingsService) {
+.factory('OTIIndicatorJobManager', ['$cookieStore', '$http', '$q', '$rootScope', 'OTISettingsService',
+        function ($cookieStore, $http, $q, $rootScope, OTISettingsService) {
+
+    var COOKIE_STORE_LOADED_SCENARIOS = 'OTIIndicatorJobManager:LoadedScenarios';
 
     var _currentCityName = '';
     var _nullJob = 0;
+
+    var _loadedScenarios = $cookieStore.get(COOKIE_STORE_LOADED_SCENARIOS) || [];
 
     var module = {};
 
@@ -15,6 +19,21 @@ angular.module('transitIndicators')
 
     module.getCurrentCity = function () {
         return _currentCityName;
+    };
+
+    module.getLoadedScenarios = function () {
+        return _loadedScenarios;
+    };
+
+    module.setLoadedScenarios = function (scenarios) { // persist loaded scenarios on indicators page
+        _loadedScenarios = scenarios;
+        $cookieStore.put(COOKIE_STORE_LOADED_SCENARIOS, _loadedScenarios);
+    };
+
+    module.isLoaded = function (scenarionum) {
+        var val =  !!(_.find(module.getLoadedScenarios(),
+                    function(num) { return scenarionum === num; }));
+        return val;
     };
 
     module.getJobs = function (userId) {

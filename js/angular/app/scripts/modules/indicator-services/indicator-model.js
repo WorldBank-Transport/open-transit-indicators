@@ -12,7 +12,8 @@ angular.module('transitIndicators')
         'search': {
             method: 'GET',
             url: '/api/indicators/',
-            isArray: true
+            isArray: true,
+            cache: true
         }
     }, {
         stripTrailingSlashes: false
