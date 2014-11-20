@@ -17,8 +17,6 @@ angular.module('transitIndicators')
 
     $scope.chartData = {};
 
-    var cachedIndicatorData = {};
-
     var getIndicatorData = function () {
         if(!$scope.sample_period) {
             return;
@@ -35,17 +33,12 @@ angular.module('transitIndicators')
         var indicatorjobs = $scope.cities;
         var promises = _.map(indicatorjobs, function(indicatorjob) { // fetch data
             var deferred = $q.defer();
-            if (cachedIndicatorData[indicatorjob.id + '|' + period]) {
-                deferred.resolve(cachedIndicatorData[indicatorjob.id+'|'+period]);
-                return deferred.promise;
-            }
             var params = {
                 sample_period: period,
                 aggregation: 'mode,system',
                 calculation_job: indicatorjob.id
             };
             OTIIndicatorModel.search(params, function (data) {
-                cachedIndicatorData[indicatorjob.id + '|' + period] = data;
                 deferred.resolve(data);
             }, function () {
                 deferred.reject(null);
