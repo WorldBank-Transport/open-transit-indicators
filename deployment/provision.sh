@@ -709,13 +709,6 @@ service nginx restart
 echo 'Nginx now running'
 
 #########################
-# Canned data           #
-#########################
-pushd $PROJECT_ROOT/deployment
-    . load_canned_data.sh
-popd
-
-#########################
 # Monit setup           #
 #########################
 # Don't install monit on Travis; could lead to strange test behavior
