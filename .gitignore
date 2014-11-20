@@ -83,7 +83,7 @@ project/plugins/project
 project/plugins/target
 project/target
 resources/application.conf
-scala/opentransit/data/data
+scala/opentransit/data/data/*
 target
 lib
 .lib
