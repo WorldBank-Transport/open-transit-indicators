@@ -563,9 +563,7 @@ if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
 fi
 pushd $GEOTRELLIS_REPO_ROOT
     git pull
-    ./sbt "project proj4" publish-local
-    ./sbt "project vector" publish-local
-    ./sbt "project slick" publish-local
+    ./publish-local.sh
 popd
 
 #########################

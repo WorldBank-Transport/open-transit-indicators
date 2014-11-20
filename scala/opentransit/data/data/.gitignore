@@ -1,0 +1,4 @@
+# IGNORE ME
+*
+# But not this file in particular.
+!.gitignore
