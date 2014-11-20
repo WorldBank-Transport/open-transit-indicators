@@ -62,6 +62,8 @@ angular.module('transitIndicators')
         });
     };
 
+    // Take an obj/map of periods -> indicators -> statuses
+    // Return a obj/map of indicators -> periods -> statuses
     var reorderKeys = function(periodThenIndicator) {
         var indicatorThenPeriod = {};
         var periods = _.keys(periodThenIndicator);
@@ -75,6 +77,41 @@ angular.module('transitIndicators')
         return indicatorThenPeriod;
     };
 
+    // Take a obj/map of periods -> indicators -> statuses
+    // Return a list whose first elem is completed statuses and whose second elem is total statuses
+    var completionRatio = function(statusHolder) {
+        var allStatuses = _.chain(_.values(statusHolder))
+          .values()
+          .map(function(indicator){ return _.values(indicator); })
+          .flatten()
+          .value();
+
+        var statusCount = allStatuses.length;
+        var completionCount = _.filter(allStatuses,
+                                       function(state){ return state.status === 'complete'; }
+                                      ).length;
+        return {
+            numerator: completionCount,
+            denominator: statusCount,
+            ratio: ((completionCount/statusCount)*100).toFixed(2)
+        };
+    };
+
+    // Take a obj/map of periods -> indicators -> statuses
+    // Return the period and indicator currently being processed
+    var currentlyProcessing = function(statusHolder) {
+        for (var period in statusHolder) {
+            for (var indicator in statusHolder[period]) {
+                if (statusHolder[period][indicator].status === 'processing') {
+                    return {
+                        period: period,
+                        indicator: indicator,
+                    };
+                }
+            }
+        }
+    };
+
     /**
      * Sets the current job status given a list of job results
      */
@@ -86,6 +123,9 @@ angular.module('transitIndicators')
         $scope.jobStatus = job.job_status;
         var calculationStatus = angular.fromJson(job.calculation_status);
         if (calculationStatus) {
+            $scope.completion = completionRatio(calculationStatus);
+            $scope.currentProcessing = currentlyProcessing(calculationStatus);
+
             $scope.allTimeCalculations = calculationStatus.alltime || {};
             delete calculationStatus.alltime;
             $scope.periods = _.keys(calculationStatus);

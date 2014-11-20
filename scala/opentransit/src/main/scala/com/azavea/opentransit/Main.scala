@@ -7,14 +7,25 @@ import akka.io.IO
 import com.typesafe.config.{ConfigFactory,Config}
 import spray.can.Http
 
-
+import scala.slick.jdbc.JdbcBackend._
+import scala.slick.jdbc.{StaticQuery => Q}
 
 object Main {
+
   val actorSystem = ActorSystem("opentransit")
 
   val rasterCache = RasterCache(actorSystem)
 
+  def initialize(): Unit = {
+    val dbi = new ProductionDatabaseInstance {}
+    dbi.db withSession { implicit session: Session =>
+      Q.updateNA("UPDATE transit_indicators_indicatorjob SET job_status='error' WHERE job_status='processing'").execute
+    }
+  }
+
   def main(args: Array[String]) {
+    // Set any incomplete jobs to errored out
+    initialize
     // We need an ActorSystem to host our service
     implicit val system = actorSystem
 
