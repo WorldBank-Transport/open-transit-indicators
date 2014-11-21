@@ -10,13 +10,14 @@ angular.module('transitIndicators')
 
     $scope.updating = false;
     $scope.refetch = false;
-    $scope.citiesUpdated = false;
     $scope.indicatorDetailKey = OTIIndicatorManager.getDescriptionTranslationKey;
     $scope.charts = OTIIndicatorChartService.Charts;
     $scope.selfCityName = OTIIndicatorJobManager.getCurrentCity();
     $scope.city_names = [];
 
     $scope.chartData = {};
+
+    var citiesUpdated = false;
 
     var getIndicatorData = function () {
         if(!$scope.sample_period) {
@@ -28,7 +29,7 @@ angular.module('transitIndicators')
         }
 
         // Don't fetch data if the cities aren't available yet
-        if(!$scope.citiesUpdated && !$scope.cities.length) {
+        if(!citiesUpdated && !$scope.cities.length) {
             return;
         }
 
@@ -129,7 +130,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
-        $scope.citiesUpdated = true;
+        citiesUpdated = true;
         getIndicatorData();
     });
 
