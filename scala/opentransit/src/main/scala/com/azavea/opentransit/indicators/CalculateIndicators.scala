@@ -235,8 +235,6 @@ object CalculateIndicators {
       }
     }
 
-    runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
-
     resultHolder.map { case (indicatorName, periodToResults) =>
       val periodIndicatorResults: Seq[ContainerGenerator] =
         periodToResults.map { case (period, result) =>
@@ -275,6 +273,9 @@ object CalculateIndicators {
       }
     }
     System.gc()
+
+    runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)
+
   }
 
   /** Computes all indicators, and sends results and intermediate statuses to the
