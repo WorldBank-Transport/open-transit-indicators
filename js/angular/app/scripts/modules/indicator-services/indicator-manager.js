@@ -61,7 +61,7 @@ angular.module('transitIndicators')
     };
 
     module.getDescriptionTranslationKey = function (key) {
-        return 'INDICATOR_DESCRIPTION.' + key;
+        return 'INDICATOR_DESCRIPTION.' + key.toUpperCase();
     };
 
     return module;
