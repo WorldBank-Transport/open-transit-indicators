@@ -1,6 +1,6 @@
 <div class="indicators-heading">
     <div class="indicators-description">
-        Viewing indicator results for {{ city_names.join(', ') }}
+        {{ 'CALCULATION.VIEWING_RESULTS' | translate }} {{ city_names.join(', ') }}
     </div>
     <!--
     TODO: Readd once endpoint for getting city center lat/lon is available
@@ -10,7 +10,7 @@
 </div>
 <div class="indicators-table">
     <div class="indicators-row indicators-row-heading">
-        <div class="indicators-cell indicators-label">City <span ng-show="updating" class="label label-info">{{ 'TERM.UPDATING_INDICATORS' | translate }}</span></div>
+        <div class="indicators-cell indicators-label">{{ 'CALCULATION.VIEWING_RESULTS' | translate }} <span ng-show="updating" class="label label-info">{{ 'TERM.UPDATING_INDICATORS' | translate }}</span></div>
         <div ng-repeat="city in cities" class="indicators-cell">
           {{ city.city_name }}
           <a ng-href="/api/indicators/?format=csv&city_name={{ selfCityName }}"

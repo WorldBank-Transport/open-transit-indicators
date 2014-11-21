@@ -2,10 +2,10 @@
     <div bs-affix data-offset-top="0" class="navigationsecondary clearfix">
         <div class="navigationsecondary-left">
             <div class="navigationsecondary-menu filter">
-                <div ui-sref="data" class="button--small" ng-class="{active: showingState === 'data'}">Data</div>/
-                <div ui-sref="map" class="button--small" ng-class="{active: showingState === 'map'}">Map</div>/
+                <div ui-sref="data" class="button--small" ng-class="{active: showingState === 'data'}">{{ 'TERM.DATA' | translate }}</div>/
+                <div ui-sref="map" class="button--small" ng-class="{active: showingState === 'map'}">{{ 'TERM.MAP' | translate }}</div>/
                 <div ui-sref="calculation" class="button--small" ng-class="{active: showingState === 'calculation'}">
-                  Calculation Status
+                  {{ 'TERM.CALCULATION_STATUS' | translate }}
                 </div>
             </div>
         </div>
@@ -19,7 +19,7 @@
                   </ul>
             </div>
             <div ng-click="openCityModal()" class="button--large">
-                Add / Remove City +
+                {{ 'CALCULATION.ADD_REMOVE_CITY' | translate }} +
             </div>
         </div>
     </div>

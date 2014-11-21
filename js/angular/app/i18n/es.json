@@ -25,7 +25,9 @@
         "PROCESSING_FILE": "!Processing your file (20%)",
         "CANCEL": "!Cancel",
         "SKIP": "!Skip",
-        "RETRY": "!Retry"
+        "RETRY": "!Retry",
+        "TRY_AGAIN": "Try Again",
+        "UPLOADING_FILE": "Uploading your file"
     },
     "UNITS": {
         "MINUTES": "Minutes"
@@ -62,7 +64,15 @@
         "EXPORT": "Export",
         "CREATE": "Create",
         "NO_DATA": "No Data Available",
-        "UPDATING_INDICATORS": "Updating Indicators..."
+        "UPDATING_INDICATORS": "Updating Indicators...",
+        "DELETE_DATA": "Delete data",
+        "UPLOAD_FAILED": "Upload Failed",
+        "DATA_LOADED": "Data Loaded",
+        "WARNING": "Warning",
+        "ALL_MODES": "All Modes",
+        "DATA": "Data",
+        "MAP": "Map",
+        "CALCULATION_STATUS": "Calculation Status"
     },
     "INDICATOR": {
         "num_stops": "!Num stops per route",
@@ -103,7 +113,11 @@
         "MIDDAY": "Midday",
         "EVENING": "Evening",
         "NIGHT": "Night",
-        "WEEKEND": "Weekend"
+        "WEEKEND": "Weekend",
+        "VIEWING_RESULTS": "Viewing indicator results for",
+        "CITY": "City",
+        "ADD_REMOVE_CITY": "Add / Remove City",
+        "ENTER_CITY_NAME": "Enter city name..."
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
@@ -202,7 +216,8 @@
             "NO_FREQUENCY": "No route headway",
             "MISSING_STOPS": "Some stops are missing stop times"
         },
-        "FINISH_AND_CALC": "Finish and Calculate Indicators"
+        "FINISH_AND_CALC": "Finish and Calculate Indicators",
+        "DESCRIPTION_PLACEHOLDER": "Add description here"
     },
     "INDICATOR_DESCRIPTION": {
         "ACCESS_INDEX": "",
@@ -336,6 +351,29 @@
         "PASSWORD_FIELD_AGAIN": "Confirm Password",
         "SAVE": "@:STATUS.SAVE",
         "CANCEL": "@:STATUS.CANCEL",
-        "INSTRUCTIONS": "Please enter a password 8 characters or more."
+        "INSTRUCTIONS": "Please enter a password 8 characters or more.",
+        "TEMP_PASSWORD": "This action will generate a temporary password for ",
+        "PASSWORD_RESET": "Password Reset",
+        "INVALIDATE": "This password will invalidate this user's current password. The new password will be displayed only once",
+        "WARNING:": "@:TERM.WARNING",
+        "GENERATE": "Generate Password",
+        "COMPLETE": "Password generation complete",
+        "GIVE_PASSWORD": "Please give this password to",
+        "NOT_DISPLAYED": "This password will not be displayed again",
+        "DONE": "Done"
+    },
+    "DELETE_USER": {
+        "TITLE": "Delete User",
+        "WARNING": "@:TERM.WARNING",
+        "WILL_DELETE": "This action will delete",
+        "NO_UNDO": "This action cannot be undone. All data for",
+        "WILL_BE_LOST": "will be lost",
+        "CANCEL": "@:STATUS.CANCEL"
+    },
+    "MAP": {
+        "BOUNDARY": "Boundary",
+        "TRANSIT_ROUTES": "Transit Routes",
+        "TRANSIT_STOPS": "Transit Stops",
+        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity"
     }
 }
