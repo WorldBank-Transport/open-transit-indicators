@@ -1,5 +1,5 @@
 <div ng-init="init()">
-<h1>{{'VIEW.configuration' | translate}}</h1>
+<h1>{{'VIEW.CONFIGURATION' | translate}}</h1>
 <p>{{'SETTINGS.CONFIGURATION_DESCRIPTION' | translate}}</p>
 
 <div ng-if="samplePeriods === null" class="row">
@@ -170,7 +170,7 @@
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_ARRIVE_BY_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_ARRIVE_BY_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
-                    <select ng-model="arrive_by_time" name="arrive_by_time" ng-required="true" 
+                    <select ng-model="arrive_by_time" name="arrive_by_time" ng-required="true"
                             ng-options="i+':00' for i in hours" ng-change="config.arrive_by_time_s = arrive_by_time * 60 * 60">
                     </select>
                 </div>

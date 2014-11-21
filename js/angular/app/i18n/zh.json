@@ -235,13 +235,13 @@
         "IMPORTERROR": "未知错误。请稍后重试。"
     },
     "VIEW": {
-        "overview": "概览",
-        "upload": "GTFS",
-        "boundary": "边界",
-        "demographic": "人口统计",
-        "realtime": "实时",
-        "configuration": "配置",
-        "users": "用户"
+        "OVERVIEW": "概览",
+        "UPLOAD": "GTFS",
+        "BOUNDARY": "边界",
+        "DEMOGRAPHIC": "人口统计",
+        "REALTIME": "实时",
+        "CONFIGURATION": "配置",
+        "USERS": "用户"
     },
     "UI": {
         "BUTTON": {

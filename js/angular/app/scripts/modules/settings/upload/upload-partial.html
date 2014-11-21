@@ -1,5 +1,5 @@
 <div ng-init="init()">
-    <h1>{{'VIEW.upload' | translate}}</h1>
+    <h1>{{'VIEW.UPLOAD' | translate}}</h1>
     <p>{{'SETTINGS.UPLOAD_DESCRIPTION' | translate}}</p>
 
     <form ng-submit="saveCityName()" name="cityNameForm" ng-show="true" autocomplete="off">
@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <button ng-disabled="!saveCityNameButton.enabled" class="btn" 
+        <button ng-disabled="!saveCityNameButton.enabled" class="btn"
             ng-class="{'btn-primary': saveCityNameButton.enabled}">{{saveCityNameButton.text | translate}}</button>
         <span ng-show="cityNameError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
     </form><br />
