@@ -236,13 +236,13 @@
         "IMPORTERROR": "Unknown error. Try again later."
     },
     "VIEW": {
-        "overview": "Overview",
-        "upload": "GTFS",
-        "boundary": "Boundary",
-        "demographic": "Demographic",
-        "realtime": "Real-Time",
-        "configuration": "Configuration",
-        "users": "Users"
+        "OVERVIEW": "Overview",
+        "UPLOAD": "GTFS",
+        "BOUNDARY": "Boundary",
+        "DEMOGRAPHIC": "Demographic",
+        "REALTIME": "Real-Time",
+        "CONFIGURATION": "Configuration",
+        "USERS": "Users"
     },
     "UI": {
         "BUTTON": {

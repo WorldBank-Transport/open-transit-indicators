@@ -235,13 +235,13 @@
         "IMPORTERROR": "!Unknown error. Try again later."
     },
     "VIEW": {
-        "overview": "Toàn cảnh",
-        "upload": "Tải lên GTFS",
-        "boundary": "Phạm vi",
-        "demographic": "Nhân khẩu",
-        "realtime": "Tức thời",
-        "configuration": "Cấu hình",
-        "users": "Người dùng"
+        "OVERVIEW": "Toàn cảnh",
+        "UPLOAD": "Tải lên GTFS",
+        "BOUNDARY": "Phạm vi",
+        "DEMOGRAPHIC": "Nhân khẩu",
+        "REALTIME": "Tức thời",
+        "CONFIGURATION": "Cấu hình",
+        "USERS": "Người dùng"
     },
     "UI": {
         "BUTTON": {
