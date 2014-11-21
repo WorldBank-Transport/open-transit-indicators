@@ -1,6 +1,7 @@
 package com.azavea.gtfs
 
 import com.github.nscala_time.time.Imports._
+import scala.util.Try
 
 /**
   * Represents the schedule of a single trip along a route
@@ -17,7 +18,7 @@ object Trip {
     new Trip {
       def id = record.id
       def headsign = record.headsign
-      def tripShape = record.tripShapeId.map(tripShapes(_))
+      def tripShape = Try(tripShapes(record.tripShapeId.get)).toOption
       def schedule = scheduledStops
     }
 }
