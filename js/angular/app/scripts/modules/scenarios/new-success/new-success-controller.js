@@ -31,6 +31,7 @@ angular.module('transitIndicators')
                 //  without updating the $scope overlay config (since only the layer params change)
                 OTIMapService.setScenario($scope.scenario.db_name);
             }
+            OTIScenarioManager.set($scope.scenario);
             $scope.$emit('updateHeight');
         };
         checkUpload();
