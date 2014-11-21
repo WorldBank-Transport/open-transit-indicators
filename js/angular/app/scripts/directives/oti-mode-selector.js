@@ -1,7 +1,12 @@
 'use strict';
 
 angular.module('transitIndicators')
-.directive('otiModeSelector', [function () {
+.directive('otiModeSelector', ['$translate', function ($translate) {
+
+    var allModes = '';
+    $translate('TERM.ALL_MODES').then(function(text) {
+        allModes = text;
+    });
 
     return {
         restrict: 'AE',
@@ -13,12 +18,12 @@ angular.module('transitIndicators')
         templateUrl: 'scripts/directives/oti-mode-selector.html',
         link: function (scope) {
             scope.visible = false;
-            scope.choice = 'All Modes';
+            scope.choice = allModes;
 
             scope.pickMode = function (mode) {
                 if (mode === null) {
                     scope.updatemap('');
-                    scope.choice = 'All Modes';
+                    scope.choice = allModes;
                     return;
                 }
                 scope.updatemap(mode.id);

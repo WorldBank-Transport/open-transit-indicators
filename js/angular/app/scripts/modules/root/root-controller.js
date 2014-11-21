@@ -23,17 +23,14 @@ angular.module('transitIndicators')
     $scope.selectLanguage = function(language) {
         $translate.use(language);
 
-        // Cannot use cookieStore because cookieStore
-        // serializes to json and django will not deserialize
-        // the cookie
-        $cookies.openTransitLanguage = language;
-
         // $state.reload has a bug that does not actually force a refresh.
         // See: https://github.com/angular-ui/ui-router/issues/582
         // TODO: Use $state.reload() when ui-router is fixed
-        $state.transitionTo($state.current,
-                            $stateParams,
-                            { reload: true, inherit: true, notify: true });
+        //
+        // The workaround for this ($state.transitionTo) also doesn't do a full refresh.
+        // The javascript translations update, but none of the django-populated elements do.
+        // A rudimentary location reload seems to be the easiest fix for this.
+        location.reload();
     };
 
     // asks the server for the data extent and zooms to it
@@ -59,9 +56,6 @@ angular.module('transitIndicators')
         $scope.languages = config.languages;
 
         $rootScope.user = user;
-
-        // Make Angular respect language cookies on page reload
-        $translate.use($cookies.openTransitLanguage);
 
         $scope.modes = [];
         zoomToDataExtent();

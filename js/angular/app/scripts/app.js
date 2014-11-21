@@ -162,6 +162,10 @@ angular.module('transitIndicators', [
     * lha -> Laha (Viet Nam)
     * nut -> Nung (Viet Nam)
     */
+
+    $translateProvider.useCookieStorage();
+    $translateProvider.storageKey('openTransitLanguage');
+
     var languageUsing = (_.contains(_.values(config.languages), languageActual) ? languageActual : config.defaultLanguage);
     $translateProvider.preferredLanguage(languageUsing);
     $translateProvider.fallbackLanguage('en');

@@ -9,8 +9,8 @@ The scenario to be displayed is handled by the OTIMapService
 
 */
 angular.module('transitIndicators')
-.factory('OTITransitMapService', ['leafletData', 'OTIIndicatorManager', 'OTIMapService',
-        function (leafletData, OTIIndicatorManager, OTIMapService) {
+.factory('OTITransitMapService', ['$translate', 'leafletData', 'OTIIndicatorManager', 'OTIMapService',
+        function ($translate, leafletData, OTIIndicatorManager, OTIMapService) {
 
     var module = {};
 
@@ -19,14 +19,14 @@ angular.module('transitIndicators')
         var scenario = OTIMapService.getScenario();
         return {
             boundary: {
-                name: 'Boundary',
+                name: $translate.instant('MAP.BOUNDARY'),
                 type: 'xyz',
                 url: OTIMapService.boundaryUrl(),
                 visible: true,
                 layerOptions: boundaryIndicator
             },
             gtfs_shapes: {
-                name: 'Transit Routes',
+                name: $translate.instant('MAP.TRANSIT_ROUTES'),
                 type: 'xyz',
                 url: OTIMapService.gtfsShapesUrl(),
                 visible: true,
@@ -36,7 +36,7 @@ angular.module('transitIndicators')
                 }
             },
             gtfs_stops: {
-                name: 'Transit Stops',
+                name: $translate.instant('MAP.TRANSIT_STOPS'),
                 type: 'xyz',
                 url: OTIMapService.gtfsStopsUrl('png'),
                 visible: true,
@@ -46,7 +46,7 @@ angular.module('transitIndicators')
                 }
             },
             gtfs_stops_utfgrid: {
-                name: 'Transit Stops Interactivity',
+                name: $translate.instant('MAP.TRANSIT_STOPS_INTERACTIVITY'),
                 type: 'utfGrid',
                 url: OTIMapService.gtfsStopsUrl('utfgrid'),
                 visible: true,

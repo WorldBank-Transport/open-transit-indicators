@@ -25,7 +25,9 @@
         "PROCESSING_FILE": "正在处理您的文件（20%）",
         "CANCEL": "取消",
         "SKIP": "跳过",
-        "RETRY": "重试"
+        "RETRY": "重试",
+        "TRY_AGAIN": "Try Again",
+        "UPLOADING_FILE": "Uploading your file"
     },
     "UNITS": {
         "MINUTES": "Minutes"
@@ -62,33 +64,15 @@
         "EXPORT": "Export",
         "CREATE": "Create",
         "NO_DATA": "No Data Available",
-        "UPDATING_INDICATORS": "Updating Indicators..."
-    },
-    "INDICATOR": {
-        "num_stops": "每条路线的公交站点数目",
-        "time_traveled_stops": "站间平均间隔",
-        "avg_service_freq": "平均服务频率",
-        "access_index": "Access Index",
-        "affordability": "Affordability",
-        "coverage_ratio_stops_buffer": "Stop coverage",
-        "distance_stops": "Distance between stops",
-        "dwell_time": "Dwell time",
-        "hours_service": "Weekly hours of service",
-        "job_access": "Job accessbility",
-        "length": "每条路线的最大长度",
-        "lines_roads": "Transit len to road len",
-        "line_network_density": "Transit len per sq km",
-        "num_modes": "Num of transit types",
-        "num_routes": "Num of transit routes",
-        "on_time_perf": "On time performance",
-        "regularity_headways": "Regularity of headways",
-        "service_freq_weighted": "Weighted svc freq - all",
-        "service_freq_weighted_low": "Weighted svc freq - low income",
-        "stops_route_length": "Stops per route len",
-        "ratio_suburban_lines": "Ratio of suburban lines",
-        "system_access": "System access - all",
-        "system_access_low": "System access - low income",
-        "travel_time": "Travel time"
+        "UPDATING_INDICATORS": "Updating Indicators...",
+        "DELETE_DATA": "Delete data",
+        "UPLOAD_FAILED": "Upload Failed",
+        "DATA_LOADED": "Data Loaded",
+        "WARNING": "Warning",
+        "ALL_MODES": "All Modes",
+        "DATA": "Data",
+        "MAP": "Map",
+        "CALCULATION_STATUS": "Calculation Status"
     },
     "CALCULATION": {
         "OBTAINING": "Obtaining indicator calculation status",
@@ -103,7 +87,11 @@
         "MIDDAY": "Midday",
         "EVENING": "Evening",
         "NIGHT": "Night",
-        "WEEKEND": "Weekend"
+        "WEEKEND": "Weekend",
+        "VIEWING_RESULTS": "Viewing indicator results for",
+        "CITY": "City",
+        "ADD_REMOVE_CITY": "Add / Remove City",
+        "ENTER_CITY_NAME": "Enter city name..."
     },
     "SCENARIO": {
         "SCENARIO": "场景",
@@ -202,38 +190,39 @@
             "NO_FREQUENCY": "No route headway",
             "MISSING_STOPS": "Some stops are missing stop times"
         },
-        "FINISH_AND_CALC": "Finish and Calculate Indicators"
+        "FINISH_AND_CALC": "Finish and Calculate Indicators",
+        "DESCRIPTION_PLACEHOLDER": "Add description here"
     },
     "INDICATOR_DESCRIPTION": {
-        "access_index": "可达性指标",
-        "affordability": "经济承受能力",
-        "avg_service_freq": "平均服务频率",
-        "coverage": "覆盖率",
-        "coverage_ratio_stops_buffer": "站点覆盖面积-覆盖率",
-        "coverage_stops": "站点覆盖率",
-        "distance_stops": "站点间距",
-        "dwell_time": "停站时间",
-        "hours_service": "服务时间",
-        "job_access": "岗位可达",
-        "length": "给定群体的公交几何形状的长度（单位：公里）。",
-        "lines_roads": "公交线路-道路",
-        "line_network_density": "公交线路-道路密度",
-        "num_modes": "模式数",
-        "num_routes": "线路数",
-        "num_stops": "给定群体类型公交系统中的站点数目",
-        "num_types": "类型数",
-        "on_time_perf": "准点率",
-        "ratio_suburban_lines": "郊区线路比例",
-        "regularity_headways": "车头时距",
-        "service_freq_weighted": "加权服务频率",
-        "service_freq_weighted_low": "",
-        "stops_route_length": "单位长度站点数",
-        "suburban_lines": "郊区线路数",
-        "system_access": "系统可达性",
-        "system_access_low": "低收入人群系统可达性",
-        "time_traveled_stops": "站点间旅行时间",
-        "travel_time": "旅行时间",
-        "weekday_end_freq": "工作日/周末服务频率"
+        "ACCESS_INDEX": "可达性指标",
+        "AFFORDABILITY": "经济承受能力",
+        "AVG_SERVICE_FREQ": "平均服务频率",
+        "COVERAGE": "覆盖率",
+        "COVERAGE_RATIO_STOPS_BUFFER": "站点覆盖面积-覆盖率",
+        "COVERAGE_STOPS": "站点覆盖率",
+        "DISTANCE_STOPS": "站点间距",
+        "DWELL_TIME": "停站时间",
+        "HOURS_SERVICE": "服务时间",
+        "JOB_ACCESS": "岗位可达",
+        "LENGTH": "给定群体的公交几何形状的长度（单位：公里）。",
+        "LINES_ROADS": "公交线路-道路",
+        "LINE_NETWORK_DENSITY": "公交线路-道路密度",
+        "NUM_MODES": "模式数",
+        "NUM_ROUTES": "线路数",
+        "NUM_STOPS": "给定群体类型公交系统中的站点数目",
+        "NUM_TYPES": "类型数",
+        "ON_TIME_PERF": "准点率",
+        "RATIO_SUBURBAN_LINES": "郊区线路比例",
+        "REGULARITY_HEADWAYS": "车头时距",
+        "SERVICE_FREQ_WEIGHTED": "加权服务频率",
+        "SERVICE_FREQ_WEIGHTED_LOW": "",
+        "STOPS_ROUTE_LENGTH": "单位长度站点数",
+        "SUBURBAN_LINES": "郊区线路数",
+        "SYSTEM_ACCESS": "系统可达性",
+        "SYSTEM_ACCESS_LOW": "低收入人群系统可达性",
+        "TIME_TRAVELED_STOPS": "站点间旅行时间",
+        "TRAVEL_TIME": "旅行时间",
+        "WEEKDAY_END_FREQ": "工作日/周末服务频率"
     },
     "CITYMODAL": {
         "CURRENTCITIES": "当前城市",
@@ -246,13 +235,13 @@
         "IMPORTERROR": "未知错误。请稍后重试。"
     },
     "VIEW": {
-        "overview": "概览",
-        "upload": "GTFS",
-        "boundary": "边界",
-        "demographic": "人口统计",
-        "realtime": "实时",
-        "configuration": "配置",
-        "users": "用户"
+        "OVERVIEW": "概览",
+        "UPLOAD": "GTFS",
+        "BOUNDARY": "边界",
+        "DEMOGRAPHIC": "人口统计",
+        "REALTIME": "实时",
+        "CONFIGURATION": "配置",
+        "USERS": "用户"
     },
     "UI": {
         "BUTTON": {
@@ -336,6 +325,29 @@
         "PASSWORD_FIELD_AGAIN": "Confirm Password",
         "SAVE": "@:STATUS.SAVE",
         "CANCEL": "@:STATUS.CANCEL",
-        "INSTRUCTIONS": "Please enter a password 8 characters or more."
+        "INSTRUCTIONS": "Please enter a password 8 characters or more.",
+        "TEMP_PASSWORD": "This action will generate a temporary password for ",
+        "PASSWORD_RESET": "Password Reset",
+        "INVALIDATE": "This password will invalidate this user's current password. The new password will be displayed only once",
+        "WARNING:": "@:TERM.WARNING",
+        "GENERATE": "Generate Password",
+        "COMPLETE": "Password generation complete",
+        "GIVE_PASSWORD": "Please give this password to",
+        "NOT_DISPLAYED": "This password will not be displayed again",
+        "DONE": "Done"
+    },
+    "DELETE_USER": {
+        "TITLE": "Delete User",
+        "WARNING": "@:TERM.WARNING",
+        "WILL_DELETE": "This action will delete",
+        "NO_UNDO": "This action cannot be undone. All data for",
+        "WILL_BE_LOST": "will be lost",
+        "CANCEL": "@:STATUS.CANCEL"
+    },
+    "MAP": {
+        "BOUNDARY": "Boundary",
+        "TRANSIT_ROUTES": "Transit Routes",
+        "TRANSIT_STOPS": "Transit Stops",
+        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity"
     }
 }

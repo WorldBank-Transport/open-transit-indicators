@@ -58,7 +58,7 @@
 
     <div class="row">
         <div class="col-xs-6">
-            <input type="text" ng-model="uploadCity.name" placeholder="Enter city name..." />
+            <input type="text" ng-model="uploadCity.name" placeholder="{{ 'CALCULATION.ENTER_CITY_NAME' | translate }}" />
         </div>
         <div class="col-xs-6">
             <input type="file" ng-show="!uploading" accept="text/csv" ng-file-select="onFileSelect($files)" />
