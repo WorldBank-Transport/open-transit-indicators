@@ -8,7 +8,7 @@ import com.azavea.gtfs.op._
 
 object TransitSystemBuilder {
   def apply(records: GtfsRecords): TransitSystemBuilder =
-    new TransitSystemBuilder(InterpolateStopTimes(records))
+    new TransitSystemBuilder(records)
 
   type StopScheduler = (Seq[StopTimeRecord], LocalDate, StopId=>Stop) => Iterator[Seq[ScheduledStop]]
 

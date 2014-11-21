@@ -1,6 +1,7 @@
 package com.azavea.gtfs.io.database
 
 import com.azavea.gtfs._
+import com.azavea.gtfs.op._
 import com.azavea.gtfs.Timer.timedTask
 
 import scala.slick.jdbc.StaticQuery
@@ -8,7 +9,7 @@ import scala.slick.jdbc.JdbcBackend.Session
 
 object DatabaseRecordImport {
   def apply(records: GtfsRecords, geomColumnName: String = Profile.defaultGeomColumnName, clobber: Boolean = true)(implicit session: Session): Unit =
-    new DatabaseRecordImport(geomColumnName).load(records, clobber)
+    new DatabaseRecordImport(geomColumnName).load(InterpolateStopTimes(records), clobber)
 }
 
 class DatabaseRecordImport(override val geomColumnName: String = Profile.defaultGeomColumnName)(implicit session: Session) extends GtfsTables with DefaultProfile {
@@ -41,7 +42,8 @@ class DatabaseRecordImport(override val geomColumnName: String = Profile.default
 
   def load(records: GtfsRecords, clobber: Boolean = true): Unit = {
     if(clobber) deleteAll
-    
+
+    // This method is here to ensure that every stop has an arrival and a departure time
     def ensureNoNullPeriods(stopTime: StopTimeRecord) = {
       assert(stopTime.arrivalTime != null)
       assert(stopTime.departureTime != null)
