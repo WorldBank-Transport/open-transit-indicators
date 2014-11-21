@@ -98,6 +98,7 @@ angular.module('transitIndicators')
             $scope.displayStatus = 'STATUS.QUEUED';
         } else if ($scope.jobStatus === 'complete') {
             $scope.displayStatus = 'STATUS.COMPLETE';
+            $scope.cities.push(job);
         } else if ($scope.jobStatus === 'error') {
             $scope.displayStatus = 'STATUS.FAILED';
         } else if ($scope.displayStatus === 'submitted') {

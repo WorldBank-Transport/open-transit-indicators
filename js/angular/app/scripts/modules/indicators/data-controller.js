@@ -17,6 +17,8 @@ angular.module('transitIndicators')
 
     $scope.chartData = {};
 
+    var citiesUpdated = false;
+
     var getIndicatorData = function () {
         if(!$scope.sample_period) {
             return;
@@ -25,6 +27,12 @@ angular.module('transitIndicators')
             $scope.refetch = true;
             return;
         }
+
+        // Don't fetch data if the cities aren't available yet
+        if(!citiesUpdated && !$scope.cities.length) {
+            return;
+        }
+
         $scope.updating = true;
         $scope.city_names = _.pluck($scope.cities, 'city_name');
         $scope.indicatorData = null;
@@ -45,8 +53,30 @@ angular.module('transitIndicators')
             });
             return deferred.promise;
         });
+
         $q.all(promises).then(function (results) { // process data
             var data = _.chain(results).without(null).flatten(true).value();
+
+            if (!data.length && $state.is('data') && !OTIIndicatorManager.isModalOpen()) {
+                OTIIndicatorManager.setModalStatus(true);
+                $modal.open({
+                    templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
+                    controller: 'OTIYesNoModalController',
+                    windowClass: 'yes-no-modal-window',
+                    resolve: {
+                        getMessage: function() {
+                            return 'CALCULATION.REDIRECT';
+                        },
+                        getList: function() { return null; }
+                    }
+                }).result.then(function() {
+                    OTIIndicatorManager.setModalStatus(false);
+                    $state.go('calculation');
+                }, function() {
+                    OTIIndicatorManager.setModalStatus(false);
+                });
+            }
+
             var indicators = OTIIndicatorChartService.transformData(data, indicatorjobs);
             // Populate $scope.chartData, because filterDataForChartType
             // can't be called inside the view
@@ -81,25 +111,6 @@ angular.module('transitIndicators')
         return $scope.charts[chartType].filterFunction(data, aggregation);
     };
 
-    /* TODO: reintegrate somewhere later
-     *
-                if (!data.length && $state.is('data') && !OTIIndicatorManager.isModalOpen()) {
-                    $modal.open({
-                        templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
-                        controller: 'OTIYesNoModalController',
-                        windowClass: 'yes-no-modal-window',
-                        resolve: {
-                            getMessage: function() {
-                                return 'CALCULATION.REDIRECT';
-                            },
-                            getList: function() { return null; }
-                        }
-                    }).result.then(function() {
-                        $state.go('calculation');
-                    });
-                }
-    */
-
     $scope.displayIndicator = function (citydata, type, aggregation) {
         var config = $scope.indicatorConfig;
         var display = !!(config && config[type] && config[type][aggregation] && citydata[aggregation]);
@@ -119,6 +130,7 @@ angular.module('transitIndicators')
     });
 
     $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
+        citiesUpdated = true;
         getIndicatorData();
     });
 
