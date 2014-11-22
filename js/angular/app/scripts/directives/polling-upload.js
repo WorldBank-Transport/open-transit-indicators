@@ -66,7 +66,7 @@ $rootScope:                         (event args)
             '  <input type="file" ng-file-select="startUpload($files)" />',
             '</div>',
             '<div class="dropzone inprogress" ng-show="options.checkContinue(upload)">',
-            '  <div class="h4">{{ "TERM.UPLOADING_FILE" | translate }}... <span class="h5"><a ng-click="cancel()">{{ "STATUS.CANCEL" | translate}}</a></span></div>',
+            '  <div class="h4">{{ "STATUS.UPLOADING_FILE" | translate }}... <span class="h5"><a ng-click="cancel()">{{ "STATUS.CANCEL" | translate}}</a></span></div>',
             '  <progressbar value="uploadProgress" class="progress-striped active" max=100><i>{{ Status.STRINGS[upload.status] }}</i></progressbar>',
             '</div>',
             '<div class="dropzone" ng-show="options.checkComplete(upload)">',
