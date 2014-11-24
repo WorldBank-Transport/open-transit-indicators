@@ -16,7 +16,7 @@ object Main {
 
   val rasterCache = RasterCache(actorSystem)
 
-  def initialize(): Unit = {
+  def failLeftoverJobs(): Unit = {
     val dbi = new ProductionDatabaseInstance {}
     dbi.db withSession { implicit session: Session =>
       Q.updateNA("UPDATE transit_indicators_indicatorjob SET job_status='error', error_type='scala_unknown_error' WHERE job_status='processing'").execute
@@ -25,7 +25,7 @@ object Main {
 
   def main(args: Array[String]) {
     // Set any incomplete jobs to errored out
-    initialize
+    failLeftoverJobs
     // We need an ActorSystem to host our service
     implicit val system = actorSystem
 
