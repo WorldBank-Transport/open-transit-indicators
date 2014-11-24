@@ -85,11 +85,6 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
 
     val tile = ArrayTile.empty(TypeDouble, cols, rows)
 
-    var minCol = cols
-    var minRow = rows
-    var maxCol = 0
-    var maxRow = 0
-
     info(s"Running shortest path query. $rasterExtent. $rows, $cols")
     Timer.timedTask(s"Created the jobs indicator tile") {
       cfor(0)(_ < rows, _ + 1) { row =>
@@ -159,11 +154,6 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
             }
 
             if(sum > 0) { 
-              if(col < minCol) { minCol = col }
-              if(row < minRow) { minRow = row }
-              if(col > maxCol) { maxCol = col }
-              if(row > maxRow) { maxRow = row }
-
               tile.setDouble(col, row, sum) 
             }
           }
@@ -171,10 +161,9 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
     }
     
     // Reproject
-    val gridBounds = GridBounds(minCol, minRow, maxCol, maxRow)
-    println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator with grid bounds $gridBounds.")
+    println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator.")
     val (rTile, rExtent) = 
-      tile.warp(rasterExtent.extent, rasterExtent.extentFor(gridBounds)).reproject(rasterExtent.extent, crs, WebMercator)
+      tile.reproject(rasterExtent.extent, crs, WebMercator)
 
     println(s"Reproject to extent $rExtent")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name), (rTile, rExtent))
