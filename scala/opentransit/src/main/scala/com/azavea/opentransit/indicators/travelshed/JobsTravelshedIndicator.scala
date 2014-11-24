@@ -32,16 +32,16 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
   def name = JobsTravelshedIndicator.name
 
   def apply(rasterCache: RasterCache): Unit = {
-    val (graph, index, rasterExtent, startTime, duration, crs) = {
+    val (graph, index, rasterExtent, arriveTime, duration, crs) = {
       val tg = travelshedGraph
 
-      val startTime: Time = Time(tg.startTime)
+      val arriveTime: Time = Time(tg.arriveTime)
       val duration: Duration = Duration(tg.duration)
 
-      (tg.graph, tg.index, tg.rasterExtent, startTime, duration, tg.crs)
+      (tg.graph, tg.index, tg.rasterExtent, arriveTime, duration, tg.crs)
     }
 
-    println(s"RUNNING JOB INDICATORS FOR START TIME $startTime WITH $duration TRAVEL TIME")
+    println(s"RUNNING JOB INDICATORS FOR ARRIVAL TIME $arriveTime WITH $duration TRAVEL TIME")
 
     val features: Array[MultiPolygonFeature[Double]] =
       regionDemographics.jobsDemographics.toArray
@@ -111,16 +111,16 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
 
             val queue = new IntPriorityQueue(shortestPathTimes)
 
-            val tripStart = startTime.toInt
-            val duration = tripStart + maxDuration
+            val tripEnd = arriveTime.toInt
+            val duration = tripEnd - maxDuration
 
             val edgeIterator =
               graph.getEdgeIterator(edgeTypes, EdgeDirection.Outgoing)
 
 
-            edgeIterator.foreachEdge(startVertex,tripStart) { (target,weight) =>
-              val t = tripStart + weight
-              if(t <= duration) {
+            edgeIterator.foreachEdge(startVertex, tripEnd) { (target,weight) =>
+              val t = tripEnd - weight
+              if(t >= duration) {
                 shortestPathTimes(target) = t
                 queue += target
                 val polyId = vertexToPolyId(target)
@@ -136,10 +136,10 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
               val currentVertexShortestPathTime = shortestPathTimes(currentVertex)
 
               edgeIterator.foreachEdge(currentVertex, currentVertexShortestPathTime) { (target, weight) =>
-                val t = currentVertexShortestPathTime + weight
-                if(t <= duration) {
+                val t = currentVertexShortestPathTime - weight
+                if(t >= duration) {
                   val timeAtTarget = shortestPathTimes(target)
-                  if(timeAtTarget == -1 || t < timeAtTarget) {
+                  if(timeAtTarget == -1 || timeAtTarget < t) {
                     val polyId = vertexToPolyId(target)
                     if(polyId != -1 && polyHits(polyId) != polyHit) {
                       sum += polyIdToValue(polyId)
