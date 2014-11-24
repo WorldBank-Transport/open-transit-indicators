@@ -9,7 +9,7 @@
                 <span translate="SCENARIO.FILTER_BY"></span>
             </div>
             <div class="col-xs-6">
-                <select ng-model="routeType.selected" ng-options="t.route_type as t.description for t in routeTypes">
+                <select ng-disabled="busy" ng-model="routeType.selected" ng-options="t.route_type as t.description for t in routeTypes">
                     <option value="" translate="SCENARIO.ALL"></option>
                 </select>
             </div>
@@ -17,13 +17,14 @@
     </div>
     <div class="block">
         <div class="row">
-            <div class="col-xs-9">
-                <select ng-model="selectedRouteId" ng-options="r.id as r.longName for r in filteredRoutes">
+            <div class="col-xs-7">
+                <select ng-disabled="busy" ng-model="selectedRouteId" ng-options="r.id as r.longName for r in filteredRoutes">
                     <option value="" translate="TERM.SELECTONE"></option>
                 </select>
             </div>
-            <div class="col-xs-3">
-                <a class="button--small" ng-click="editRoute(selectedRouteId, selectedRouteType)">{{'SCENARIO.EDIT_ROUTE'|translate}}</a>
+            <div class="col-xs-5">
+                <a class="button--small" ng-class="{'button--inactive': busy}" ng-disabled="busy" ng-click="editRoute(selectedRouteId, selectedRouteType)">{{'SCENARIO.EDIT_ROUTE'|translate}}</a> /
+                <a class="button--small" ng-class="{'button--inactive': busy}" ng-disabled="busy" ng-click="deleteRoute(selectedRouteId, selectedRouteType)">{{'SCENARIO.DELETE_ROUTE'|translate}}</a>
             </div>
         </div>
     </div>
