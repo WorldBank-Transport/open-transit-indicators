@@ -19,7 +19,7 @@ object Main {
   def initialize(): Unit = {
     val dbi = new ProductionDatabaseInstance {}
     dbi.db withSession { implicit session: Session =>
-      Q.updateNA("UPDATE transit_indicators_indicatorjob SET job_status='error' WHERE job_status='processing'").execute
+      Q.updateNA("UPDATE transit_indicators_indicatorjob SET job_status='error', error_type='scala_death' WHERE job_status='processing'").execute
     }
   }
 

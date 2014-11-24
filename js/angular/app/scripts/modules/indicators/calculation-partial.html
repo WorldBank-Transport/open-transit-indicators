@@ -19,9 +19,12 @@
         <span translate="UI.BUTTON.DETAIL"></span>
       </span>
   </div>
-  <div ng-if="completion.denominator" class="calculation-status">
-      <div>Currently processing {{ currentProcessing.indicator }}</div>
-      <div>in period: {{ currentProcessing.period }}</div>
+  <alert type="danger" ng-if="currentJob.error_type === 'scala_death'">
+      <span translate="CALCULATION.SCALA_DEATH"></span>
+  </alert>
+  <div ng-if="currentJob.job_status !== 'complete'" class="calculation-status">
+      <div ng-if="currentJob.job_status === 'processing'">Currently processing {{ currentProcessing.indicator }}</div>
+      <div ng-if="currentJob.job_status === 'processing'">in period: {{ currentProcessing.period }}</div>
       <progressbar value="completion.ratio">
           <span style="color:black; white-space:nowrap;">{{ completion.ratio }}%</span>
       </progressbar>

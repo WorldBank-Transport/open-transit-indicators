@@ -155,7 +155,7 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing or queued.
         // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorJobModel.search({ job_status: 'queued,processing' })
+        OTIIndicatorJobModel.search({ job_status: 'queued,processing,error' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
                     $scope.statusFetched = true;
