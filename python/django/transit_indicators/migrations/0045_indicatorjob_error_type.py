@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='indicatorjob',
             name='error_type',
-            field=models.CharField(default=b'', max_length=15, null=True, blank=True, choices=[(b'', 'None applicable'), (b'scala_death', 'Scala died during processing')]),
+            field=models.CharField(default=b'', max_length=20, null=True, blank=True, choices=[(b'', 'None applicable'), (b'scala_unknown_error', 'Scala died during processing')]),
             preserve_default=True,
         ),
     ]

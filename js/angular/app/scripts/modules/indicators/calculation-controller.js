@@ -7,6 +7,7 @@ angular.module('transitIndicators')
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
 
+    $scope.detail = {hide: true};
     $scope.jobStatus = null;
     $scope.periodicCalculations = {};
     $scope.displayStatus = null;
