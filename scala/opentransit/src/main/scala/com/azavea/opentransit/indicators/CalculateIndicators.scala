@@ -92,7 +92,7 @@ object CalculateIndicators {
           periods,
           builder,
           100,  // TODO: How do we decide on the resolution?
-          request.arriveByTime - request.maxCommuteTime,
+          request.arriveByTime,
           request.maxCommuteTime
         )
       } match {
@@ -186,7 +186,7 @@ object CalculateIndicators {
           )
         else mutable.Map()
 
-      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++
+      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++ 
         periods.map { period =>
           period.periodType ->
             mutable.Map(
@@ -194,7 +194,7 @@ object CalculateIndicators {
                 name -> JobStatus.Submitted
               }: _* // This construct is stupid. It is also the correct syntax for making this kind of map
             )
-        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus
+        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus 
 
 
       def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)

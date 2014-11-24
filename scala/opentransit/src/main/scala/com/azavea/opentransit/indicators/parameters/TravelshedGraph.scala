@@ -22,7 +22,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 import com.typesafe.config.ConfigFactory
 
 
-case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, startTime: Int, duration: Int, crs: CRS)
+case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, arriveTime: Int, duration: Int, crs: CRS)
 
 object TravelshedGraph extends Logging {
   def findTransform(transitSystem: TransitSystem): CRS = {
@@ -47,12 +47,12 @@ object TravelshedGraph extends Logging {
     periods: Seq[SamplePeriod],
     builder: TransitSystemBuilder,
     resolution: Double,
-    startTime: Int,
+    arriveTime: Int,
     duration: Int
   )( implicit session: Session): Option[TravelshedGraph] = {
     SamplePeriod.getRepresentativeWeekday(periods).map { weekday =>
-      val startDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(startTime - 1))
-      val endDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(startTime + duration + 1))
+      val startDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime - duration - 1))
+      val endDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime + 1))
       info(s"Building system...")
       val system =
         builder.systemBetween(startDateTime, endDateTime)
@@ -177,7 +177,7 @@ object TravelshedGraph extends Logging {
             }
           }
 
-        TravelshedGraph(graph, index, rasterExtent, startTime, duration, crs)
+        TravelshedGraph(graph, index, rasterExtent, arriveTime, duration, crs)
       }
     }
   }
