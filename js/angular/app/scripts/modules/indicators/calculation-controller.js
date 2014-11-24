@@ -8,7 +8,6 @@ angular.module('transitIndicators')
     var POLL_INTERVAL_MILLIS = 5000;
 
     $scope.jobStatus = null;
-    $scope.allTimeCalculations = {};
     $scope.periodicCalculations = {};
     $scope.displayStatus = null;
     $scope.currentJob = null;
@@ -34,7 +33,6 @@ angular.module('transitIndicators')
         });
         job.$save(function (data) {
             $scope.jobStatus = null;
-            $scope.allTimeCalculations = {};
             $scope.periodicCalculations = {};
             $scope.displayStatus = null;
             $scope.currentJob = null;
@@ -67,7 +65,10 @@ angular.module('transitIndicators')
     var reorderKeys = function(periodThenIndicator) {
         var indicatorThenPeriod = {};
         var periods = _.keys(periodThenIndicator);
-        var indicators = _.keys(periodThenIndicator.morning);
+        var indicators = _.chain(periods)
+                          .map(function(period) { return _.keys(periodThenIndicator[period]); })
+                          .flatten()
+                          .value();
         _.each(indicators, function(indicator) {
             indicatorThenPeriod[indicator] = {};
             _.each(periods, function(period) {
@@ -126,8 +127,6 @@ angular.module('transitIndicators')
             $scope.completion = completionRatio(calculationStatus);
             $scope.currentProcessing = currentlyProcessing(calculationStatus);
 
-            $scope.allTimeCalculations = calculationStatus.alltime || {};
-            delete calculationStatus.alltime;
             $scope.periods = _.keys(calculationStatus);
             $scope.periodicCalculations = reorderKeys(calculationStatus);
         }

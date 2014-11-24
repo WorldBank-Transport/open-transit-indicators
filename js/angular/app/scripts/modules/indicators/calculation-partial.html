@@ -1,25 +1,58 @@
-<div class="calculation-heading">
-    <span ng-if="!statusFetched" class="calculation-description">
-        {{ 'CALCULATION.OBTAINING' | translate }}
-    </span>
-    <span ng-if="statusFetched && jobStatus" class="calculation-description">
-        {{ 'CALCULATION.STATUS' | translate }} -
-        {{ displayStatus | translate }}
-    </span>
-    <span ng-if="statusFetched && !jobStatus" class="calculation-description">
-        {{ 'CALCULATION.EMPTY' | translate }}
-    </span>
-    <span ng-if="statusFetched && (!jobStatus || currentJob.job_status !== 'processing')"
-         ng-click="calculateIndicators()" class="button--calculate">
-      {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
-    </span>
+<div ng-init="detail={hide:true}">
+  <div class="calculation-heading">
+      <span ng-if="!statusFetched" class="calculation-description">
+          {{ 'CALCULATION.OBTAINING' | translate }}
+      </span>
+      <span ng-if="statusFetched && jobStatus" class="calculation-description" ng->
+          {{ 'CALCULATION.STATUS' | translate }} -
+          {{ displayStatus | translate }}
+      </span>
+      <span ng-if="statusFetched && !jobStatus" class="calculation-description">
+          {{ 'CALCULATION.EMPTY' | translate }}
+      </span>
+      <span ng-if="statusFetched && (!jobStatus || currentJob.job_status !== 'processing' && currentJob.job_status !== 'queued')"
+           ng-click="calculateIndicators()" class="button--calculate">
+        {{ 'UI.BUTTON.CALCULATE_INDICATORS' | translate }}
+      </span>
+      <span ng-if="statusFetched && (!jobStatus || currentJob.job_status === 'processing' || currentJob.job_status === 'queued')"
+          class="button--calculate" ng-click="detail.hide = !detail.hide">
+        <span translate="UI.BUTTON.DETAIL"></span>
+      </span>
+  </div>
+  <div ng-if="completion.denominator" class="calculation-status">
+      <div>Currently processing {{ currentProcessing.indicator }}</div>
+      <div>in period: {{ currentProcessing.period }}</div>
+      <progressbar value="completion.ratio">
+          <span style="color:black; white-space:nowrap;">{{ completion.ratio }}%</span>
+      </progressbar>
+  </div>
+  <div collapse='detail.hide'>
+    <div class="calculation-table">
+      <table ng-if="!_.isEmpty(periodicCalculations)">
+        <thead>
+          <tr>
+            <th></th>
+            <th translate>CALCULATION.MORNING</th>
+            <th translate>CALCULATION.MIDDAY</th>
+            <th translate>CALCULATION.EVENING</th>
+            <th translate>CALCULATION.NIGHT</th>
+            <th translate>CALCULATION.WEEKEND</th>
+            <th translate>CALCULATION.ALL_TIME</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="(indicator, calc) in periodicCalculations" class="calculation-row">
+                <td class="calculation-status {{ calc[period].status }}">{{ types[indicator] }}</td>
+                <td ng-repeat="period in ['morning', 'midday', 'evening', 'night', 'weekend', 'alltime']">
+                    <span ng-if="calc[period].status === 'processing'" class="glyphicon glyphicon-flash"></span>
+                    <span ng-if="calc[period].status === undefined" class="glyphicon glyphicon-minus"></span>
+                    <span ng-if="calc[period].status === 'complete'" class="glyphicon glyphicon-ok"></span>
+                    <span ng-if="calc[period].status === 'error'" class="glyphicon glyphicon-remove"></span>
+                    <span class="label label-danger" ng-if="calc[period].msg != ''">{{ calc[period].msg }}</span>
+                </td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<div ng-if="completion.denominator" class="calculation-status">
-    <h1>Currently processing {{ currentProcessing.indicator }}</h1>
-    <h1>for period: {{ currentProcessing.period }}</h1>
-    <progressbar value="completion.ratio">
-        <span style="color:black; white-space:nowrap;">{{ completion.ratio }}%</span>
-    </progressbar>
-    Currently processing {{ currentProcessing.indicator }} for period: {{ type[currentProcessing.period] }}
-</div>
-

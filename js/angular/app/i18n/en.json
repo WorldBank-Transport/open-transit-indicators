@@ -250,7 +250,8 @@
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
             "RESET": "@:TERM.RESET",
-            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS",
+            "DETAIL": "Details"
         },
         "TOOLTIP": {
             "CITY": "The Area of Interest boundary will be used to define a subregion of the transit system area served, such as a business district or city center.",

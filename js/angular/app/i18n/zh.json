@@ -249,7 +249,8 @@
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
             "RESET": "@:TERM.RESET",
-            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS",
+            "DETAIL": "Details"
         },
         "TOOLTIP": {
             "CITY": "关注区域的边界将被用于定义所服务公交系统区域的一个分区，如某个商业区或城市中心。",

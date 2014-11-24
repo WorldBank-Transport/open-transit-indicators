@@ -249,7 +249,8 @@
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
             "RESET": "@:TERM.RESET",
-            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS",
+            "DETAIL": "Details"
         },
         "TOOLTIP": {
             "CITY": "Phạm vi giới hạn khu vực cần phân tích sẽ được sử dụng để thể hiện một phân vùng trong hệ thống như khu thương mai, trung tâm thành phố",
