@@ -134,6 +134,7 @@
         "ALL": "All",
         "EDIT_ROUTE": "编辑路线",
         "NEW_ROUTE": "新建路线",
+        "DELETE_ROUTE": "Delete",
         "ADD_A_NEW_ROUTE": "在您的场景中添加新路线。.",
         "EDIT_ROUTE_INST1": "Modify the route attributes below.",
         "THIS_IS_YOUR_ROUTE": "这是您的路线。您可以添加站点，更改形状或更改时间。",
