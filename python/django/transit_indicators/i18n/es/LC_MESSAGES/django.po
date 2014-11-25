@@ -599,7 +599,7 @@ msgid "All Time"
 msgstr ""
 
 #: transit_indicators/models.py:144
-msgid "Morning Rush"
+msgid "Morning Peak"
 msgstr ""
 
 #: transit_indicators/models.py:145
@@ -607,7 +607,7 @@ msgid "Mid Day"
 msgstr ""
 
 #: transit_indicators/models.py:146
-msgid "Evening Rush"
+msgid "Evening Peak"
 msgstr ""
 
 #: transit_indicators/models.py:147
