@@ -196,7 +196,7 @@
         "DESCRIPTION_PLACEHOLDER": "Add description here"
     },
     "INDICATOR_DESCRIPTION": {
-        "AFFORDABILITY" : "The ratio of one month of round-trip commuting to one month of poverty-line income. If a = average one-way fare and i = yearly poverty-line income, affordability = (a*20) / (i/12).",
+        "AFFORDABILITY" : "The ratio of one month of round-trip commuting to one month of poverty-line income. If a = average one-way fare and i = yearly poverty-line income, affordability = (a*42) / (i/12).",
         "AVG_SERVICE_FREQ" : "How often a vehicle will arrive at a particular stop for a particular route.",
         "COVERAGE_RATIO_STOPS_BUFFER": "The percent of the urban area that is within the configured distance from stop locations.",
         "DISTANCE_STOPS" : "The average distance between stops, per route and mode.",
