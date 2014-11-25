@@ -198,9 +198,7 @@
         "ACCESS_INDEX": "可达性指标",
         "AFFORDABILITY": "经济承受能力",
         "AVG_SERVICE_FREQ": "平均服务频率",
-        "COVERAGE": "覆盖率",
         "COVERAGE_RATIO_STOPS_BUFFER": "站点覆盖面积-覆盖率",
-        "COVERAGE_STOPS": "站点覆盖率",
         "DISTANCE_STOPS": "站点间距",
         "DWELL_TIME": "停站时间",
         "HOURS_SERVICE": "服务时间",
@@ -211,19 +209,15 @@
         "NUM_MODES": "模式数",
         "NUM_ROUTES": "线路数",
         "NUM_STOPS": "给定群体类型公交系统中的站点数目",
-        "NUM_TYPES": "类型数",
         "ON_TIME_PERF": "准点率",
         "RATIO_SUBURBAN_LINES": "郊区线路比例",
         "REGULARITY_HEADWAYS": "车头时距",
         "SERVICE_FREQ_WEIGHTED": "加权服务频率",
-        "SERVICE_FREQ_WEIGHTED_LOW": "",
+        "SERVICE_FREQ_WEIGHTED_LOW": "Population-adjusted service frequency for only the low-income population.",
         "STOPS_ROUTE_LENGTH": "单位长度站点数",
-        "SUBURBAN_LINES": "郊区线路数",
         "SYSTEM_ACCESS": "系统可达性",
         "SYSTEM_ACCESS_LOW": "低收入人群系统可达性",
-        "TIME_TRAVELED_STOPS": "站点间旅行时间",
-        "TRAVEL_TIME": "旅行时间",
-        "WEEKDAY_END_FREQ": "工作日/周末服务频率"
+        "TIME_TRAVELED_STOPS": "站点间旅行时间"
     },
     "CITYMODAL": {
         "CURRENTCITIES": "当前城市",
@@ -349,6 +343,8 @@
         "BOUNDARY": "Boundary",
         "TRANSIT_ROUTES": "Transit Routes",
         "TRANSIT_STOPS": "Transit Stops",
-        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity"
+        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity",
+        "SYSTEM_SELECTION": "System/Scenario Selection",
+        "INDICATOR_TYPE": "Indicator Type"
     }
 }

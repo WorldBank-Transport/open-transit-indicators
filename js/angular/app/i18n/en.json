@@ -344,6 +344,8 @@
         "BOUNDARY": "Boundary",
         "TRANSIT_ROUTES": "Transit Routes",
         "TRANSIT_STOPS": "Transit Stops",
-        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity"
+        "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity",
+        "SYSTEM_SELECTION": "System/Scenario Selection",
+        "INDICATOR_TYPE": "Indicator Type"
     }
 }
