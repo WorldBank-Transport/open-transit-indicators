@@ -141,9 +141,9 @@ class SamplePeriod(models.Model):
         WEEKEND = 'weekend'
         CHOICES = (
             (ALLTIME, _(u'All Time')),
-            (MORNING, _(u'Morning Rush')),
+            (MORNING, _(u'Morning Peak')),
             (MIDDAY, _(u'Mid Day')),
-            (EVENING, _(u'Evening Rush')),
+            (EVENING, _(u'Evening Peak')),
             (NIGHT, _(u'Night')),
             (WEEKEND, _(u'Weekend')),
         )

@@ -599,7 +599,7 @@ msgid "All Time"
 msgstr "Toàn thời gian"
 
 #: transit_indicators/models.py:144
-msgid "Morning Rush"
+msgid "Morning Peak"
 msgstr "Giờ cao điểm buổi sáng"
 
 #: transit_indicators/models.py:145
@@ -607,7 +607,7 @@ msgid "Mid Day"
 msgstr "Buổi trưa"
 
 #: transit_indicators/models.py:146
-msgid "Evening Rush"
+msgid "Evening Peak"
 msgstr "Giờ cao điểm buổi chiều"
 
 #: transit_indicators/models.py:147
