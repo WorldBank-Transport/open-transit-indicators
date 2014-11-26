@@ -89,7 +89,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
           .foldLeft(false)(_ | _)
 
       if(isActiveDuringDates) {
-        val stopTimeRecords = tripIdToStopTimeRecords(tripRecord.id)
+        val stopTimeRecords = tripIdToStopTimeRecords.getOrElse(tripRecord.id, Nil)
 
         val trips: Iterator[Trip] = {
           val schedulers: Seq[StopScheduler] = tripIdToFrequencyRecords.get(tripRecord.id) match {

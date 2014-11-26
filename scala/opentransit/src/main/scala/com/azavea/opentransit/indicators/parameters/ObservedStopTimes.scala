@@ -45,7 +45,7 @@ object ObservedStopTimes {
     lazy val observedTrips: Map[String, Trip] =
       observedSystem.routes.flatMap { route =>
         route.trips.map { trip => (trip.id -> trip) }
-      }.toMap
+    }.toMap
 
 
     lazy val observedStops: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
@@ -55,10 +55,21 @@ object ObservedStopTimes {
         (trip.id -> {
           val schedStops: Map[String, ScheduledStop] =
             trip.schedule.map(sst => sst.stop.id -> sst).toMap
-          val obsvdStops: Map[String, ScheduledStop] =
-            observedTripsById(trip.id).schedule.map(ost => ost.stop.id -> ost).toMap
-          for (s <- trip.schedule)
-            yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
+          val obsvdStops: Map[String, ScheduledStop] = 
+            // allow for scheduled trips not in observed data
+            observedTripsById.get(trip.id) match {
+              case Some(observed) => observed.schedule.map(ost => ost.stop.id -> ost).toMap
+              case None => {
+                val tripId = trip.id.toString
+                println(s"Missing observed stop times for trip ${tripId}")
+                Map()
+              }
+            }
+           // only return stops that are in the observed data
+          for {
+            s <- trip.schedule
+            if !obsvdStops.get(s.stop.id).isEmpty
+          } yield (schedStops(s.stop.id), obsvdStops(s.stop.id))
         }) // Seq[(String, Seq[(ScheduledStop, ScheduledStop)])]
       }.toMap
     } // Map[String, Seq[(ScheduledStop, ScheduledStop)]])]
@@ -66,20 +77,31 @@ object ObservedStopTimes {
 
     if (hasObserved) {
       new ObservedStopTimes {
-        def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
-          observedStops(tripId)
+        def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] = 
+          observedStops.get(tripId) match {
+            case Some(s) => s
+            case None => Nil
+          }
         def observedTripById(tripId: String): Trip =
-          observedTrips(tripId)
+          observedTrips.get(tripId) match {
+            case Some(t) => t
+            case None => new Trip {
+              def headsign = None
+              def id = tripId
+              def schedule = Nil
+              def tripShape = None
+            }
+          }
       }
     } else {
       new ObservedStopTimes {
         def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
-          Seq()
+          Nil
         def observedTripById(tripId: String): Trip =
           new Trip {
             def headsign = None
             def id = ""
-            def schedule = Seq()
+            def schedule = Nil
             def tripShape = None
           }
       }
