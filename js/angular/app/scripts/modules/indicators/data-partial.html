@@ -13,12 +13,7 @@
         <div class="indicators-cell indicators-label">{{ 'CALCULATION.VIEWING_RESULTS' | translate }} <span ng-show="updating" class="label label-info">{{ 'TERM.UPDATING_INDICATORS' | translate }}</span></div>
         <div ng-repeat="city in cities" class="indicators-cell">
           {{ city.city_name }}
-          <a ng-href="/api/indicators/?format=csv&city_name={{ selfCityName }}"
-             download="{{ selfCityName }}.csv">
-            <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-save"
-                    ng-if="cityname == selfCityName">
-            </button>
-          </a>
+          <oti-csv-export job="city"></oti-csv-export>
         </div>
     </div>
 </div>

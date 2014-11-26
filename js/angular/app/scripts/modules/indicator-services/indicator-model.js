@@ -14,6 +14,21 @@ angular.module('transitIndicators')
             url: '/api/indicators/',
             isArray: true,
             cache: true
+        },
+        'csv': {
+            method: 'GET',
+            url: '/api/indicators/',
+            transformResponse: function(data) {
+                var csv;
+                if (data) {
+                    csv = new Blob([data], {
+                        type: 'application/csv'
+                    });
+                }
+                return {
+                    csv: csv
+                };
+            }
         }
     }, {
         stripTrailingSlashes: false
