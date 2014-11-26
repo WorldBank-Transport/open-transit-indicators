@@ -22,8 +22,10 @@ class HeadwayRegularity(params: ObservedStopTimes)
 
     def map(trips: Seq[Trip]): Double = {
       val scheduledHeadway = tripsToHeadway(trips)
-      val observedHeadway = tripsToHeadway(trips.map { trip => params.observedTripById(trip.id) }.toSeq)
-      (scheduledHeadway - observedHeadway).abs.toDouble / 60 // div60 for minutes
+      val observedHeadway = tripsToHeadway(trips.map { trip => 
+        params.observedTripById(trip.id) }.toSeq)
+      if (observedHeadway != 0) (scheduledHeadway - observedHeadway).abs.toDouble / 60 // div60 for minutes
+      else 0 // report no difference if missing observed headway
     }
 
     def reduce(hwDeviations: Seq[Double]): Double = {
