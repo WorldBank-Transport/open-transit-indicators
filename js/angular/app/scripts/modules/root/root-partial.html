@@ -6,7 +6,7 @@
         <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
         <div class="button--navigation pull-right dropdown">
           <div class="dropdown-toggle" ng-disabled="disabled">
-            <!-- TODO: Insert icon here --> <span class="caret"></span>
+            {{ user.username }}<span class="caret"></span>
           </div>
           <ul class="dropdown-menu" role="menu">
               <li><a ng-click="changePassword()">{{ 'NAV.CHANGE_PASSWORD' | translate }}</a></li>
