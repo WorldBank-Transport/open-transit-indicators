@@ -2,7 +2,6 @@ package com.azavea.opentransit
 
 import scala.slick.jdbc.JdbcBackend._
 import com.typesafe.config.{ ConfigFactory, Config }
-import scala.slick.jdbc.StaticQuery
 import scala.sys.process._
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 

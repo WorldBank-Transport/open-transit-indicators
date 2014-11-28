@@ -91,7 +91,8 @@
         "VIEWING_RESULTS": "Viewing indicator results for",
         "CITY": "City",
         "ADD_REMOVE_CITY": "Add / Remove City",
-        "ENTER_CITY_NAME": "Enter city name..."
+        "ENTER_CITY_NAME": "Enter city name...",
+        "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?"
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
@@ -249,7 +250,8 @@
             "SELECTONE": "@:TERM.SELECTONE",
             "UPLOAD": "@:TERM.UPLOAD",
             "RESET": "@:TERM.RESET",
-            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS"
+            "CALCULATE_INDICATORS": "@:TERM.CALCULATE_INDICATORS",
+            "DETAIL": "Details"
         },
         "TOOLTIP": {
             "CITY": "Phạm vi giới hạn khu vực cần phân tích sẽ được sử dụng để thể hiện một phân vùng trong hệ thống như khu thương mai, trung tâm thành phố",

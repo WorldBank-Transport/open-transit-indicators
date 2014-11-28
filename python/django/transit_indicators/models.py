@@ -212,7 +212,23 @@ class IndicatorJob(models.Model):
             (COMPLETE, _(u'Completed indicator calculation')),
         )
 
+    class ErrorType(object):
+        """Error types are encoded so that helpful error messages can be generated
+        on the front end"""
+        NONE = ''
+        SCALA_UNKNOWN_ERROR = 'scala_unknown_error'
+        CHOICES = (
+            (NONE, _(u'None applicable')),
+            (SCALA_UNKNOWN_ERROR, _(u'Scala died during processing')),
+        )
+
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    error_type = models.CharField(max_length=20,
+                                  choices=ErrorType.CHOICES,
+                                  blank=True,
+                                  null=True,
+                                  default=ErrorType.NONE
+    )
     created_by = models.ForeignKey(OTIUser)
 
     # Optional scenario to calculate indicators for.

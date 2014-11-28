@@ -7,8 +7,8 @@ angular.module('transitIndicators')
     // Number of milliseconds to wait between polls for status while a job is processing
     var POLL_INTERVAL_MILLIS = 5000;
 
+    $scope.detail = {hide: true};
     $scope.jobStatus = null;
-    $scope.allTimeCalculations = {};
     $scope.periodicCalculations = {};
     $scope.displayStatus = null;
     $scope.currentJob = null;
@@ -34,7 +34,6 @@ angular.module('transitIndicators')
         });
         job.$save(function (data) {
             $scope.jobStatus = null;
-            $scope.allTimeCalculations = {};
             $scope.periodicCalculations = {};
             $scope.displayStatus = null;
             $scope.currentJob = null;
@@ -62,10 +61,15 @@ angular.module('transitIndicators')
         });
     };
 
+    // Take an obj/map of periods -> indicators -> statuses
+    // Return a obj/map of indicators -> periods -> statuses
     var reorderKeys = function(periodThenIndicator) {
         var indicatorThenPeriod = {};
         var periods = _.keys(periodThenIndicator);
-        var indicators = _.keys(periodThenIndicator.morning);
+        var indicators = _.chain(periods)
+                          .map(function(period) { return _.keys(periodThenIndicator[period]); })
+                          .flatten()
+                          .value();
         _.each(indicators, function(indicator) {
             indicatorThenPeriod[indicator] = {};
             _.each(periods, function(period) {
@@ -73,6 +77,41 @@ angular.module('transitIndicators')
             });
         });
         return indicatorThenPeriod;
+    };
+
+    // Take a obj/map of periods -> indicators -> statuses
+    // Return a list whose first elem is completed statuses and whose second elem is total statuses
+    var completionRatio = function(statusHolder) {
+        var allStatuses = _.chain(_.values(statusHolder))
+          .values()
+          .map(function(indicator){ return _.values(indicator); })
+          .flatten()
+          .value();
+
+        var statusCount = allStatuses.length;
+        var completionCount = _.filter(allStatuses,
+                                       function(state){ return state.status === 'complete'; }
+                                      ).length;
+        return {
+            numerator: completionCount,
+            denominator: statusCount,
+            ratio: ((completionCount/statusCount)*100).toFixed(2)
+        };
+    };
+
+    // Take a obj/map of periods -> indicators -> statuses
+    // Return the period and indicator currently being processed
+    var currentlyProcessing = function(statusHolder) {
+        for (var period in statusHolder) {
+            for (var indicator in statusHolder[period]) {
+                if (statusHolder[period][indicator].status === 'processing') {
+                    return {
+                        period: period,
+                        indicator: indicator,
+                    };
+                }
+            }
+        }
     };
 
     /**
@@ -86,8 +125,9 @@ angular.module('transitIndicators')
         $scope.jobStatus = job.job_status;
         var calculationStatus = angular.fromJson(job.calculation_status);
         if (calculationStatus) {
-            $scope.allTimeCalculations = calculationStatus.alltime || {};
-            delete calculationStatus.alltime;
+            $scope.completion = completionRatio(calculationStatus);
+            $scope.currentProcessing = currentlyProcessing(calculationStatus);
+
             $scope.periods = _.keys(calculationStatus);
             $scope.periodicCalculations = reorderKeys(calculationStatus);
         }
@@ -116,7 +156,7 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // First check if there's a job that's currently processing or queued.
         // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorJobModel.search({ job_status: 'queued,processing' })
+        OTIIndicatorJobModel.search({ job_status: 'queued,processing,error' })
             .$promise.then(function(processingData) {
                 if (processingData.length) {
                     $scope.statusFetched = true;
