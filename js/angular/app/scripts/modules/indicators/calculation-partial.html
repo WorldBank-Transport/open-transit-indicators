@@ -2,7 +2,7 @@
     <span ng-if="!statusFetched" class="calculation-description">
         {{ 'CALCULATION.OBTAINING' | translate }}
     </span>
-    <span ng-if="statusFetched && jobStatus" class="calculation-description" ng->
+    <span ng-if="statusFetched && jobStatus" class="calculation-description">
         {{ 'CALCULATION.STATUS' | translate }} -
         {{ displayStatus | translate }}
     </span>
