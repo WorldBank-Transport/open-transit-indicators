@@ -124,7 +124,7 @@ def run_indicator_calculation(indicator_job):
     status = indicator_job.job_status
 
     # Wait for job status to change from processing before finishing job
-    while status == IndicatorJob.StatusChoices.PROCESSING:
+    while status == IndicatorJob.StatusChoices.PROCESSING or status == IndicatorJob.StatusChoices.QUEUED:
         sleep(10)
         # re-query to get object status
         indicator_job = IndicatorJob.objects.get(pk=indicator_job.pk)
