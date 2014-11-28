@@ -12,7 +12,7 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
-from viewsets import OTIBaseViewSet, OTIAdminViewSet
+from viewsets import OTIBaseViewSet, OTIAdminViewSet, OTIIndicatorViewSet
 from models import (OTIIndicatorsConfig,
                     OTIDemographicConfig,
                     OTICityName,
@@ -134,7 +134,7 @@ def valid_sample_periods():
     return True
 
 
-class IndicatorJobViewSet(OTIAdminViewSet):
+class IndicatorJobViewSet(OTIIndicatorViewSet):
     """Viewset for IndicatorJobs"""
     model = IndicatorJob
     lookup_field = 'id'
