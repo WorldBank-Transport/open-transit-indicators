@@ -1,3 +1,10 @@
-<div>
-    <button class="btn btn-primary" ng-click="removeStopTime(stopTime)" translate="TERM.DELETE"></button>
+<div class="stop-popup">
+    <h5>{{ stopTime.stop.name }}</h5>
+    <div class="scenarios-stop-sequence">
+        <span class="ng-binding" translate="SCENARIO.STOPORDER"></span>
+        <input type="number" ng-model="currentStopPosition" min="1" max="{{trip.stopTimes.length}}"/>
+        <span class="ng-binding">/{{ trip.stopTimes.length }}</span>
+    </div>
+    <button class="btn btn-danger" ng-click="removeStopTime(stopTime)" translate="TERM.DELETE"></button>
+    <button class="btn btn-primary" ng-click="changeSequence(stopTime.stopSequence, currentStopPosition)" translate="TERM.OK">Okay</button>
 </div>

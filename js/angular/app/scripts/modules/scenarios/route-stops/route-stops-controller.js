@@ -54,6 +54,11 @@ angular.module('transitIndicators')
         OTIMapService.closePopup();
     };
 
+    $scope.changeSequence = function(stopIndex, newPosition) {
+        $scope.trip.changeSequence(stopIndex-1, newPosition);
+        mapStops();
+    };
+
     $scope.closePopup = OTIMapService.closePopup;
 
     $scope.$on('$stateChangeStart', function () {
@@ -94,13 +99,19 @@ angular.module('transitIndicators')
     // leave this problem for posterity. TODO: break this logic out so that scope
     // isn't so polluted.
 
+
+
     // Add a stop and attach directive
     var addStopToMap = function(stopTime) {
         var e = $compile('<stopup stop-time="stopTime"></stopup>')($scope);
         var marker = new L.Marker([stopTime.stop.lat, stopTime.stop.long], {
-           icon: OTIDrawService.getCircleIcon(stopTime.stopSequence.toString())
+           icon: OTIDrawService.getCircleIcon(stopTime.stopSequence.toString()),
+           draggable: true
         });
         marker.on('click', function() { $scope.stopTime = stopTime; });
+        marker.on('click', function() { $scope.currentStopPosition = stopTime.stopSequence; });
+        marker.on('dragstart', function() { $scope.stopTime = stopTime; });
+        marker.on('dragend', function() { $scope.trip.changeCoords(stopTime.stopSequence-1, marker.getLatLng()); });
         marker.bindPopup(e[0]);
 
         OTIDrawService.drawnItems.addLayer(marker);
