@@ -51,11 +51,11 @@ angular.module('transitIndicators')
             } else {
                 $scope.otherScenarios.push(job);
             }
-        } else { // TODO: find correct behavior
-//        OTICityManager.delete(city).then(function () {
-//            var index = $scope.cities.indexOf(city);
-//            $scope.cities.splice(index, 1);
-//        });
+        } else {
+	        OTICityManager.delete(job.city_name).then(function () {
+	            var index = $scope.cities.indexOf(job.city_name);
+	            $scope.cities.splice(index, 1);
+	        });
         }
         $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         saveLoadedScenarios();
