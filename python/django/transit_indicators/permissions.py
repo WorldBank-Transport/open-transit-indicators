@@ -3,9 +3,9 @@ from rest_framework.permissions import (
     BasePermission
 )
 
-from models import IndicatorJob
+from models import IndicatorJob, Indicator
 
-class IsAdminOrScenario(BasePermission):
+class IsAdminOrOwnerOrScenario(BasePermission):
     """Permissions for indicators and indicator jobs.  
 
     Grant full permissions to admin, and allow others to run calculations on scenarios.
@@ -32,6 +32,10 @@ class IsAdminOrScenario(BasePermission):
                 else:
                     # non-admin user attempting to run indicators on non-scenario; deny
                     return False
+            elif model_cls == Indicator:
+                # let non-admin users POST indicators, but do not display to them the browseable API form for it.
+                if request.POST:
+                    return True
 
         # allow anything else safe or on an object owned by the user
         return request.method in SAFE_METHODS or (obj and obj.created_by == request.user.id)

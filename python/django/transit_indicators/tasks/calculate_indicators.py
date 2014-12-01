@@ -73,7 +73,7 @@ def run_indicator_calculation(indicator_job):
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 
     config = OTIIndicatorsConfig.objects.get()
-    token = OTIUser.objects.get(username='oti-admin').auth_token.key
+    token = indicator_job.created_by.auth_token.key
     payload = json.dumps({
         'token': token,
         'id': indicator_job.id,
