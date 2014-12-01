@@ -198,11 +198,22 @@ angular.module('transitIndicators')
             return removed;
         },
 
-        changeSequence: function (index, delta) {
-            var newPosition = (index + delta > 0) ? index + delta : 0;
-            var removed = this.stopTimes.splice(index, 1);
-            this.stopTimes.splice(newPosition, 0, removed[0]);
+        changeSequence: function (index, newIndex) {
+            var newPosition = parseInt(newIndex);
+            // Check for NaN
+            newPosition = !isNaN(newPosition) ? newPosition : index;
+            // The new index can't be below zero
+            newPosition = (newPosition > 0) ? newPosition : 0;
+            // The new index can't be greater than the length of the list
+            newPosition = (newPosition < this.stopTimes.length - 1) ? newPosition : this.stopTimes.length-1;
+            var removed = this.stopTimes.splice(index, 1)[0];
+            this.stopTimes.splice(newPosition, 0, removed);
             this.orderStops();
+        },
+
+        changeCoords: function (index, newLatLng) {
+            this.stopTimes[index].stop.lat = newLatLng.lat;
+            this.stopTimes[index].stop.long = newLatLng.lng;
         },
 
         validate: function () {
