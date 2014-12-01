@@ -198,9 +198,12 @@ angular.module('transitIndicators')
             return removed;
         },
 
-        changeSequence: function (index, newPos) {
+        changeSequence: function (index, newIndex) {
+            var newPosition = parseInt(newIndex);
+            // Check for NaN
+            newPosition = !isNaN(newPosition) ? newPosition : index;
             // The new index can't be below zero
-            var newPosition = (newPos > 0) ? newPos : 0;
+            newPosition = (newPosition > 0) ? newPosition : 0;
             // The new index can't be greater than the length of the list
             newPosition = (newPosition < this.stopTimes.length - 1) ? newPosition : this.stopTimes.length-1;
             var removed = this.stopTimes.splice(index, 1)[0];
