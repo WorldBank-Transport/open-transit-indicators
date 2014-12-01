@@ -280,8 +280,7 @@ class Indicator(models.Model):
             import_job = IndicatorJob.objects.create(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                       created_by=user, city_name=city_name)
             num_saved = 0
-            dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
-            dict_reader.next()
+            dict_reader = csv.DictReader(data)
             with transaction.atomic():
                 for row in dict_reader:
                     # check that the exported city name matches the one the user specified
@@ -291,6 +290,7 @@ class Indicator(models.Model):
                         continue
                     sp_type = row.pop('sample_period', None)
                     calculation_job = row.pop('version', None)
+                    row.pop('formatted_value', None)
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
