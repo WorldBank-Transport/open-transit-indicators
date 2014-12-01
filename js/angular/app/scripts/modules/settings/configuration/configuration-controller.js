@@ -79,7 +79,12 @@ angular.module('transitIndicators')
     var setConfig = function (config) {
         $scope.config = config;
         if (config) {
-            $scope.arrive_by_time = config.arrive_by_time_s / 60 / 60 || 0;
+            // default arrive by time to 9 AM
+            $scope.arrive_by_time = config.arrive_by_time_s / 60 / 60 || 9;
+            if (config.arrive_by_time_s === 0) {
+                config.arrive_by_time_s = $scope.arrive_by_time * 60 * 60;
+            }
+
             $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
         }
     };
@@ -462,9 +467,6 @@ angular.module('transitIndicators')
                     $scope.samplePeriodsLoadError = true;
                     $scope.samplePeriods = {};
                 });
-
-              // Set default arrive_by_time to 9:00 AM.
-              $scope.arrive_by_time = 9;
             });
         });
     };
