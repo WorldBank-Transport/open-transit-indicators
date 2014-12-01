@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from transit_indicators.permissions import IsAuthenticatedAndAdminUserOrReadOnly, IsAdminOrScenario
+from transit_indicators.permissions import IsAuthenticatedAndAdminUserOrReadOnly, IsAdminOrOwnerOrScenario
 
 
 class OTIBaseViewSet(viewsets.ModelViewSet):
@@ -11,8 +11,8 @@ class OTIBaseViewSet(viewsets.ModelViewSet):
 
 
 class OTIIndicatorViewSet(viewsets.ModelViewSet):
-	"""Viewset permissions for indicator jobs"""
-	permission_classes = [IsAdminOrScenario]
+	"""Viewset permissions for indicators and indicator jobs"""
+	permission_classes = [IsAdminOrOwnerOrScenario]
 
 
 class OTIAdminViewSet(viewsets.ModelViewSet):

@@ -201,7 +201,7 @@ class ScenarioViewSet(OTIBaseViewSet):
         return response
 
 
-class IndicatorViewSet(OTIAdminViewSet):
+class IndicatorViewSet(OTIIndicatorViewSet):
     """Viewset for Indicator objects
 
     Can be rendered as CSV in addition to the defaults
