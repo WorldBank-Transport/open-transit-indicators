@@ -555,61 +555,63 @@ fi
 ###############################
 # GeoTrellis local repo setup #
 ###############################
-echo 'Setting up local geotrellis repo'
-if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
-    pushd $PROJECTS_DIR
-        git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    echo 'Setting up local geotrellis repo'
+    if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
+        pushd $PROJECTS_DIR
+            git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
+        popd
+    fi
+    pushd $GEOTRELLIS_REPO_ROOT
+        git pull
+        ./publish-local.sh
     popd
+
+    #########################
+    # GeoTrellis setup      #
+    #########################
+    echo 'Setting up geotrellis'
+
+    gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
+    opentransit.catalog = \"$OTI_CATALOG_ROOT/catalog.json\"
+    opentransit.spray.port = \"$SPRAY_PORT\"
+    database.geom-name-lat-lng = \"the_geom\"
+    database.geom-name-utm = \"geom\"
+    database.sudo = "postgres"
+    database.name = \"$DB_NAME\"
+    database.user = \"$DB_USER\"
+    database.password = \"$DB_PASS\"
+    spray.can.server.idle-timeout = 1260 s
+    spray.can.server.request-timeout = 1200 s
+    spray.can.client.idle-timeout = 1260 s
+    spray.can.client.request-timeout = 1200 s
+    spray.can.client.connecting-timeout = 1200 s
+    "
+
+    pushd $SCALA_OTI_ROOT/src/main/resources/
+        echo "$gt_application_conf" > application.conf
+    popd
+
+    geotrellis_conf="start on (filesystem or (vagrant-mounted or cloud-final))
+    stop on runlevel [!2345]
+
+    kill timeout 30
+
+    script
+        echo \$\$ > /var/run/oti-indicators.pid
+        chdir $SCALA_ROOT
+        exec nice -n 18 ./sbt 'project opentransit' -mem $SBT_MEM_MB run
+    end script
+
+    pre-stop script
+        rm /var/run/oti-indicators.pid
+    end script
+    "
+    geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
+    echo "$geotrellis_conf" > "$geotrellis_conf_file"
+    service oti-geotrellis restart
+    echo "Geotrellis service now running"
 fi
-pushd $GEOTRELLIS_REPO_ROOT
-    git pull
-    ./publish-local.sh
-popd
-
-#########################
-# GeoTrellis setup      #
-#########################
-echo 'Setting up geotrellis'
-
-gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-opentransit.catalog = \"$OTI_CATALOG_ROOT/catalog.json\"
-opentransit.spray.port = \"$SPRAY_PORT\"
-database.geom-name-lat-lng = \"the_geom\"
-database.geom-name-utm = \"geom\"
-database.sudo = "postgres"
-database.name = \"$DB_NAME\"
-database.user = \"$DB_USER\"
-database.password = \"$DB_PASS\"
-spray.can.server.idle-timeout = 1260 s
-spray.can.server.request-timeout = 1200 s
-spray.can.client.idle-timeout = 1260 s
-spray.can.client.request-timeout = 1200 s
-spray.can.client.connecting-timeout = 1200 s
-"
-
-pushd $SCALA_OTI_ROOT/src/main/resources/
-    echo "$gt_application_conf" > application.conf
-popd
-
-geotrellis_conf="start on (filesystem or (vagrant-mounted or cloud-final))
-stop on runlevel [!2345]
-
-kill timeout 30
-
-script
-    echo \$\$ > /var/run/oti-indicators.pid
-    chdir $SCALA_ROOT
-    exec nice -n 18 ./sbt 'project opentransit' -mem $SBT_MEM_MB run
-end script
-
-pre-stop script
-    rm /var/run/oti-indicators.pid
-end script
-"
-geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
-echo "$geotrellis_conf" > "$geotrellis_conf_file"
-service oti-geotrellis restart
-echo "Geotrellis service now running"
 
 #########################
 # Gunicorn setup        #
