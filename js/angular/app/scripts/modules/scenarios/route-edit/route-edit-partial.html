@@ -23,15 +23,15 @@
         </div>
         <div ng-if="trips.length > 0" class="block">
             <label>{{'SCENARIO.REPRESENTATIVE_TRIP'|translate}}</label>
-            <select ng-model="selected.tripId" ng-options="tripId for tripId in trips" ng-change="getTrip()"></select>
+            <select ng-model="selected.tripId" ng-options="tripId for tripId in trips" required ng-change="getTrip()"></select>
         </div>
         <div class="block">
             <label>{{'SCENARIO.HEADWAY'|translate}} ({{'UNITS.MINUTES'|translate}})</label>
-            <input type="number" ng-model="selected.headwayMins" min="1" max="1440" ng-change="setHeadway()"></select>
+            <input type="number" ng-model="selected.headwayMins" required min="1" max="1440" ng-change="setHeadway()"></select>
         </div>
     </form>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-class="{'button--inactive': !newRoute.$valid}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small default" ng-class="{'button--inactive': !newRoute.$valid || !route.routeType}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>
