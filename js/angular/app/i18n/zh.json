@@ -93,7 +93,8 @@
         "CITY": "City",
         "ADD_REMOVE_CITY": "Add / Remove City",
         "ENTER_CITY_NAME": "Enter city name...",
-        "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?"
+        "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
+        "CALCULATION_ERROR": "Error while calculating indicators: does your data have errors?"
     },
     "SCENARIO": {
         "SCENARIO": "场景",

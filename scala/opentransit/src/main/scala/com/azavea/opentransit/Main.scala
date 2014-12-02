@@ -1,6 +1,7 @@
 package com.azavea.opentransit
 
 import com.azavea.opentransit.service.OpenTransitServiceActor
+import com.azavea.opentransit.database._
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
@@ -16,10 +17,12 @@ object Main {
 
   val rasterCache = RasterCache(actorSystem)
 
+  // This call sets all processing jobs to an failed state
   def failLeftoverJobs(): Unit = {
+    val jobsTable = new IndicatorJobsTable {}
     val dbi = new ProductionDatabaseInstance {}
     dbi.db withSession { implicit session: Session =>
-      Q.updateNA("UPDATE transit_indicators_indicatorjob SET job_status='error', error_type='scala_unknown_error' WHERE job_status='processing'").execute
+      jobsTable.failOOMError
     }
   }
 

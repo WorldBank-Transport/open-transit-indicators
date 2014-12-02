@@ -20,6 +20,9 @@
     <alert type="danger" ng-if="currentJob.error_type === 'scala_unknown_error'">
         <span translate="CALCULATION.SCALA_UNKNOWN_ERROR"></span>
     </alert>
+    <alert type="danger" ng-if="currentJob.error_type === 'calculation_error'">
+        <span translate="CALCULATION.CALCULATION_ERROR"></span>
+    </alert>
 </div>
 <div ng-if="currentJob.job_status !== 'complete'" class="calculation-status">
     <div ng-if="currentJob.job_status === 'processing'">Currently processing {{ currentProcessing.indicator }}</div>

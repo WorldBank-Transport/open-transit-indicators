@@ -39,11 +39,6 @@ trait DjangoClient {
   def sendRequest(token: String, request: HttpRequest) =
     processResponse(request ~> addHeader("Authorization", s"Token $token"))
 
-  /** Send a PATCH to update processing status for indicator calculation job */
-  def updateIndicatorJob(token: String, indicatorJob: IndicatorJob) = {
-    sendRequest(token, Patch(s"$BASE_URI/indicator-jobs/${indicatorJob.id}/", indicatorJob))
-  }
-
   /** Send a PATCH to update processing status for scenario creation */
   def updateScenario(token: String, scenario: Scenario) =
     sendRequest(token, Patch(s"$BASE_URI/scenarios/${scenario.dbName}/", scenario))

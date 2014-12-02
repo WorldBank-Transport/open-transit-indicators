@@ -13,9 +13,6 @@ angular.module('transitIndicators')
     $scope.displayStatus = null;
     $scope.currentJob = null;
 
-    // flag for whether indicators are calculating currently or not
-    var amCalculating = false;
-
     // Used for hiding messages about job status until we know what it is
     $scope.statusFetched = false;
 
@@ -32,7 +29,6 @@ angular.module('transitIndicators')
      * Submits a job for calculating indicators
      */
     $scope.calculateIndicators = function () {
-        amCalculating = true;
         var job = new OTIIndicatorJobModel({
             city_name: OTIIndicatorJobManager.getCurrentCity()
         });
@@ -121,13 +117,12 @@ angular.module('transitIndicators')
     /**
      * Sets the current job status given a list of job results
      */
-    var setCurrentJob = function(indicatorJobs) {
+    var setCurrentJob = function(indicatorJob, currentlyCalculating) {
         // There should only be one job in this list, but just in case there's multiple,
         // use the one with the highest id (i.e. the most recent one).
-        var job = _.max(indicatorJobs, function(j) { return j.id; });
-        $scope.currentJob = job;
-        $scope.jobStatus = job.job_status;
-        var calculationStatus = angular.fromJson(job.calculation_status);
+        $scope.currentJob = indicatorJob;
+        $scope.jobStatus = indicatorJob.job_status;
+        var calculationStatus = angular.fromJson(indicatorJob.calculation_status);
         if (calculationStatus) {
             $scope.completion = completionRatio(calculationStatus);
             $scope.currentProcessing = currentlyProcessing(calculationStatus);
@@ -138,32 +133,24 @@ angular.module('transitIndicators')
 
         if ($scope.jobStatus === 'processing') {
             $scope.displayStatus = 'STATUS.PROCESSING';
-            amCalculating = true;
         } else if ($scope.jobStatus === 'queued') {
             $scope.displayStatus = 'STATUS.QUEUED';
-            amCalculating = true;
         } else if ($scope.jobStatus === 'complete') {
             $scope.displayStatus = 'STATUS.COMPLETE';
             // only add this job/city to city list if new
-            if (amCalculating) {
+            if (currentlyCalculating) {
                 // first remove last job for city, if this is a new one
                 $scope.cities.splice(_.indexOf($scope.cities, _.find($scope.cities, function(obj) {
-                    return (obj.city_name === job.city_name && obj.scenario === job.scenario);
+                    return (obj.city_name === indicatorJob.city_name && obj.scenario === indicaotJob.scenario);
                 })));
-                $scope.cities.push(job);
-                amCalculating = false;
+                $scope.cities.push(indicatorJob);
             }
         } else if ($scope.jobStatus === 'error') {
             $scope.displayStatus = 'STATUS.FAILED';
-            amCalculating = false;
-        } else if ($scope.displayStatus === 'submitted') {
-            $scope.displayStatus = 'STATUS.SUBMITTED';
-            amCalculating = true;
         } else {
             console.log('unrecognized job status:');
             console.log($scope.jobStatus);
             $scope.displayStatus = 'STATUS.FAILED';
-            amCalculating = false;
         }
     };
 
@@ -171,36 +158,20 @@ angular.module('transitIndicators')
      * Queries for the most recent status, so it can be displayed
      */
     var pollForUpdatedStatus = function() {
-        // First check if there's a job that's currently processing or queued.
-        // If there isn't one, instead use the latest calculation job.
-        OTIIndicatorJobModel.search({ job_status: 'queued,processing,error' })
-            .$promise.then(function(processingData) {
-                if (processingData.length) {
-                    $scope.statusFetched = true;
-                    setCurrentJob(processingData);
+        // Grab the latest job
+        OTIIndicatorJobModel.latest().$promise.then(function(latestData) {
+            if (latestData.job_status === 'processing' || latestData.job_status === 'queued') {
+                amCalculating = true;
+                console.log('still processing...');
 
-                    // Repeatedly poll for status while an indicator is processing
-                    $timeout(pollForUpdatedStatus, POLL_INTERVAL_MILLIS);
-                } else {
-                    // filtering DRF booleans requires a ~capitalized~ string:
-                    // http://www.django-rest-framework.org/api-guide/filtering
-                    OTIIndicatorJobModel.latest()
-                        .$promise.then(function(latestData) {
-                            if (latestData) {
-                                setCurrentJob([latestData]);
-                            } else {
-                                OTIIndicatorJobModel.search({ job_status: 'error' })
-                                    .$promise.then(function(errorData) {
-                                        if (errorData.length) {
-                                            setCurrentJob(errorData);
-                                        }
-                                    });
-                                    $scope.statusFetched = true;
-                            }
-                            $scope.statusFetched = true;
-                        });
-                }
-            });
+                // Repeatedly poll for status while an indicator is processing or queued
+                $timeout(pollForUpdatedStatus, POLL_INTERVAL_MILLIS);
+            } else {
+                amCalculating = false;
+            }
+            setCurrentJob(latestData, amCalculating);
+            $scope.statusFetched = true;
+        });
     };
     pollForUpdatedStatus();
 }]);

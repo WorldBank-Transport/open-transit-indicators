@@ -5,7 +5,7 @@ import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
-import com.azavea.opentransit.database.IndicatorsTable
+import com.azavea.opentransit.database.{IndicatorsTable, IndicatorJobsTable}
 
 import com.azavea.gtfs._
 
@@ -44,12 +44,14 @@ case class IndicatorJob(
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
   val config = ConfigFactory.load
   val mainDbName = config.getString("database.name")
+  val indicatorJobs = new IndicatorJobsTable {}
 
   def handleIndicatorsRequest(
     request: IndicatorCalculationRequest,
     dbByName: String => Database
   ): Unit = {
-    CalculateIndicators(request, dbByName, new CalculationStatusManager with IndicatorsTable {
+    CalculateIndicators(request, dbByName, new CalculationStatusManager
+      with IndicatorsTable {
 
       def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
         try {
@@ -65,7 +67,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
         }
       }
       def statusChanged(status: Map[String, Map[String, JobStatus]]) = {
-        djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
+        dbByName(mainDbName) withTransaction { implicit session =>
+          indicatorJobs.updateCalcStatus(IndicatorJob(request.id, status))
+        }
       }
     })
   }
@@ -86,6 +90,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
               case Success(_) =>
                 println(s"TaskQueue successfully completed - indicator finished")
               case Failure(e) =>
+                dbByName(mainDbName) withTransaction { implicit session =>
+                  indicatorJobs.failJob(request.id, "calculation_error")
+                }
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))
