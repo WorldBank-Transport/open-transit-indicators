@@ -327,7 +327,7 @@
         "TEMP_PASSWORD": "This action will generate a temporary password for ",
         "PASSWORD_RESET": "Password Reset",
         "INVALIDATE": "This password will invalidate this user's current password. The new password will be displayed only once",
-        "WARNING:": "@:TERM.WARNING",
+        "WARNING": "@:TERM.WARNING",
         "GENERATE": "Generate Password",
         "COMPLETE": "Password generation complete",
         "GIVE_PASSWORD": "Please give this password to",
