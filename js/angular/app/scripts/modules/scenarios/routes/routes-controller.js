@@ -25,6 +25,7 @@ angular.module('transitIndicators')
         if (!routeId) {
             return;
         }
+
         var route = OTIRouteManager.findById(routeId);
         OTIRouteManager.set(route);
         $state.go('route-edit');

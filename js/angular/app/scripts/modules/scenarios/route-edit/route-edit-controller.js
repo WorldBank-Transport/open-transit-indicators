@@ -84,7 +84,6 @@ angular.module('transitIndicators')
         });
         setTrip(trip);
         OTITripManager.setScenarioDbName(scenario.db_name);
-
         OTIDrawService.reset();
     };
 

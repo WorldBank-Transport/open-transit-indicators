@@ -69,6 +69,17 @@ trait ScenarioGtfsRoute extends Route {
               }
             }}
           } ~
+          patch { /** Update single RouteRecord */
+            entity(as[RouteRecord]) { route =>
+            complete {
+              future {
+                scenarioDB withTransaction { implicit s =>
+                  tables.routeRecordsTable.filter(_.id === routeId).update(route)
+                }
+                StatusCodes.OK
+              }
+            }}
+          } ~
           delete { /** Delete RouteRecord and all it's trips */
             complete { future {
               scenarioDB withTransaction { implicit s =>
