@@ -24,6 +24,8 @@ angular.module('transitIndicators')
 
     module.set = function (newRoute) {
         route = newRoute;
+        var scenario = OTIScenarioManager.get();
+        route.db_name = scenario.db_name;
     };
 
     /**
