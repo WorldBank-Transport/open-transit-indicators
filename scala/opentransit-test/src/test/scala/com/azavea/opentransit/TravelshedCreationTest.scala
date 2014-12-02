@@ -65,9 +65,9 @@ object TravelshedCreationTest {
           new LocalDateTime("2014-05-02T23:59:59.999"))
       )
 
-    val params = 
-      new HasTravelshedGraph with Boundaries with RegionDemographics {
-        val (cityBoundary, regionBoundary) = 
+    val params =
+      new Boundaries with RegionDemographics {
+        val (cityBoundary, regionBoundary) =
           db withSession { implicit session =>
             val (cityId, regionId) = (1, 2)
             (Boundaries.cityBoundary(cityId),
@@ -75,27 +75,35 @@ object TravelshedCreationTest {
             )
           }
         val rd = RegionDemographics(db)
-        def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] = 
+        def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] =
           rd.regionDemographics(featureFunc)
-
         val travelshedGraph = {
           db withSession { implicit session =>
             TravelshedGraph(
               periods,
               systemBuilder,
-//              regionBoundary,
               200,
               60 * 60 * 8,
               60 * 60
             )
           }
         }
-
-
         println(s"REGION BOUNDARY REPROJECT EXTENT: ${regionBoundary.envelope}")
       }
+      val travelshedGraph = {
+        db withSession { implicit session =>
+          TravelshedGraph(
+            periods,
+            systemBuilder,
+//              regionBoundary,
+            200,
+            60 * 60 * 8,
+            60 * 60
+          )
+        }
+      }
 
-    val indicator = new JobsTravelshedIndicator(params)
+    val indicator = new JobsTravelshedIndicator(travelshedGraph.get, RegionDemographics(db))
     indicator.apply(Main.rasterCache)
 
     try {
