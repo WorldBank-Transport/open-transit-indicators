@@ -118,7 +118,11 @@ angular.module('transitIndicators')
             // When we go to the map we want to update the map div. It changes height based on which
             //  view we were last viewing.
             invalidateMapDiv();
-            zoomToDataExtent();
+
+            // Only reset the map if we're not navigating to a scenario route view
+            if (!(toState.parent === 'scenarios' && toState.name.search(/route/i) !== -1)) {
+                zoomToDataExtent();
+            }
         }
 
         $scope.mapClassNav2 = false;
