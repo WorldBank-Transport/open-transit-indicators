@@ -78,7 +78,7 @@ $rootScope:                         (event args)
             '<div class="dropzone notices" ng-show="options.checkInvalid(upload) || uploadError">',
             '  <div class="h4">',
             '    <span class="glyphicon glyphicon-remove"></span> {{ "TERM.UPLOAD_FAILED" | translate }}: {{ uploadError }}',
-            '    <span class="h5"><a ng-click="cancel()">{{ "TERM.TRY_AGAIN" | translate }}</a></span>',
+            '    <span class="h5"><a ng-click="cancel()">{{ "STATUS.TRY_AGAIN" | translate }}</a></span>',
             '  </div>',
             '</div>'
         ].join('');
