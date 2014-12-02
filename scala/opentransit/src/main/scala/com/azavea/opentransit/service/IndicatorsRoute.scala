@@ -44,6 +44,7 @@ case class IndicatorJob(
 trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientComponent =>
   val config = ConfigFactory.load
   val mainDbName = config.getString("database.name")
+  val indicatorJobs = new IndicatorJobsTable {}
 
   def handleIndicatorsRequest(
     request: IndicatorCalculationRequest,
@@ -51,7 +52,6 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
   ): Unit = {
     CalculateIndicators(request, dbByName, new CalculationStatusManager
       with IndicatorsTable {
-      val indicatorJobs = new IndicatorJobsTable {}
 
       def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
         try {
@@ -90,6 +90,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
               case Success(_) =>
                 println(s"TaskQueue successfully completed - indicator finished")
               case Failure(e) =>
+                dbByName(mainDbName) withTransaction { implicit session =>
+                  indicatorJobs.failJob(request.id, "calculation_error")
+                }
                 println("Error calculating indicators!")
                 println(e.getMessage)
                 println(e.getStackTrace.mkString("\n"))

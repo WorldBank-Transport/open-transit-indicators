@@ -196,10 +196,8 @@ object CalculateIndicators {
             )
         } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus 
 
-
-      def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
-
       // Send initial status to quickly inform the UI what indicators are being calculated
+      def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
       sendStatus
 
       (periodType: String, indicatorName: String, state: JobStatus) => {

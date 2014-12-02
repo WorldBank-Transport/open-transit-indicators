@@ -41,7 +41,8 @@ trait IndicatorJobsTable {
 
   def indicatorJobsTable = TableQuery[IndicatorJobs]
 
-  def failJob(reason: String)(implicit session: Session): Unit = {
+  // Fail out all processing jobs
+  def failProcessingJobs(reason: String)(implicit session: Session): Unit = {
     indicatorJobsTable.filter(_.jobStatus === "processing").map { fullJob =>
       fullJob.errorType
     }.update(reason)
@@ -49,14 +50,24 @@ trait IndicatorJobsTable {
       fullJob.jobStatus
     }.update("error")
   }
-  // Partially applied failjob for scala restart
-  def failOOMError(implicit session: Session): Unit = failJob("scala_unknown_error")
+  // Partially applied failAllJobs for scala restart
+  def failOOMError(implicit session: Session): Unit = failProcessingJobs("scala_unknown_error")
 
   // Set job to processing
   def updateJobStatus(id: Int, jobStatus: String)(implicit session: Session): Unit =
     indicatorJobsTable.filter(_.id === id).map { fullJob =>
       fullJob.jobStatus
     }.update(jobStatus)
+
+  // Set a job to failure
+  def failJob(id: Int, reason: String = "")(implicit session: Session): Unit = {
+    indicatorJobsTable.filter(_.jobStatus === "processing").map { fullJob =>
+      fullJob.errorType
+    }.update(reason)
+    indicatorJobsTable.filter(_.jobStatus === "processing").map { fullJob =>
+      fullJob.jobStatus
+    }.update("error")
+  }
 
 
   // The indicator job parameter here is NOT the same as 'FullIndicatorJob' above!
