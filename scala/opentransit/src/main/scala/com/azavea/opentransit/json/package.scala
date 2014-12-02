@@ -26,13 +26,13 @@ object JobStatusType extends Enumeration {
 
 import JobStatusType._
 
-case class JobStatusWithMessage(statustype: JobStatusType, msg: String = "") {
-  def equals(o: JobStatusWithMessage) = { statustype == o.statustype }
-  override def hashCode = statustype.hashCode
-  override def toString = statustype.toString
+case class JobStatusWithMessage(statusType: JobStatusType, msg: String = "") {
+  def equals(o: JobStatusWithMessage) = { statusType == o.statusType }
+  override def hashCode = statusType.hashCode
+  override def toString = statusType.toString
   def getJsonWithMsg = {
     JsObject(
-      "status" -> JsString(statustype.toString),
+      "status" -> JsString(statusType.toString),
       "msg" -> JsString(msg)
     )
   }
@@ -202,41 +202,6 @@ package object json {
         case _ =>
           throw new DeserializationException("Expected aggregation to be a string.")
       }
-  }
-
-  implicit object IndicatorJobWriter extends RootJsonWriter[IndicatorJob] {
-    def write(job: IndicatorJob) = {
-      // A job is complete if nothing is processing or submitted
-      val isComplete =
-        job.status.map { case (period, indicatorResult) =>
-          indicatorResult.forall { result =>
-            result._2 != JobStatus.Processing && result._2 != JobStatus.Submitted
-          }
-        }.foldLeft(true)(_ && _)
-
-      val isSuccess =
-        job.status.map { case (period, indicatorResult) =>
-          indicatorResult.forall { s => s._2 != JobStatus.Failed }
-        }.foldLeft(true)(_ && _)
-
-      val jobStatus =
-        if (isComplete) {
-          if (isSuccess) JobStatus.Complete else JobStatus.Failed
-        } else {
-          JobStatus.Processing
-        }
-      val calculationStatus = job.status.map { case (periodType, indicatorStatus) =>
-        (periodType, indicatorStatus.map { case (indicatorName, status) =>
-          (indicatorName, status.getJsonWithMsg)
-        }.toMap)
-      }.toMap
-
-      JsObject(
-        "id" -> JsNumber(job.id),
-        "job_status" -> JsString(jobStatus.toString),
-        "calculation_status" -> JsString(calculationStatus.toJson.toString)
-      )
-    }
   }
 
   implicit object ScenarioWriter extends RootJsonWriter[Scenario] {

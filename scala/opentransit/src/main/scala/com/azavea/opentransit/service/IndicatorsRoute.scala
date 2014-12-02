@@ -5,7 +5,7 @@ import com.azavea.opentransit.JobStatus
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.json._
 import com.azavea.opentransit.indicators._
-import com.azavea.opentransit.database.IndicatorsTable
+import com.azavea.opentransit.database.{IndicatorsTable, IndicatorJobsTable}
 
 import com.azavea.gtfs._
 
@@ -49,7 +49,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
     request: IndicatorCalculationRequest,
     dbByName: String => Database
   ): Unit = {
-    CalculateIndicators(request, dbByName, new CalculationStatusManager with IndicatorsTable {
+    CalculateIndicators(request, dbByName, new CalculationStatusManager
+      with IndicatorsTable {
+      val indicatorJobs = new IndicatorJobsTable {}
 
       def indicatorFinished(containerGenerators: Seq[ContainerGenerator]) = {
         try {
@@ -65,7 +67,9 @@ trait IndicatorsRoute extends Route { self: DatabaseInstance with DjangoClientCo
         }
       }
       def statusChanged(status: Map[String, Map[String, JobStatus]]) = {
-        djangoClient.updateIndicatorJob(request.token, IndicatorJob(request.id, status))
+        dbByName(mainDbName) withTransaction { implicit session =>
+          indicatorJobs.updateCalcStatus(IndicatorJob(request.id, status))
+        }
       }
     })
   }
