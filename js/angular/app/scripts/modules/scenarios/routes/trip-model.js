@@ -36,9 +36,11 @@ angular.module('transitIndicators')
     // Leaflet expects lat/lng, scala API gives lng/lat
     // Swap in $resource transform functions
     var swapLatLng = function (trip) {
-        trip.shape.coordinates = _.map(trip.shape.coordinates, function (lnglat) {
-            return [lnglat[1], lnglat[0]];
-        });
+        if (trip) {
+            trip.shape.coordinates = _.map(trip.shape.coordinates, function (lnglat) {
+                return [lnglat[1], lnglat[0]];
+            });
+        }
         return trip;
     };
 
