@@ -178,7 +178,7 @@ class LatestCalculationJob(APIView):
             this_city = 'My City'
 
         try:
-            latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE, city_name=this_city).order_by('-id')[0]
+            latest_job = IndicatorJob.objects.filter(city_name=this_city).order_by('-id')[0]
         except IndexError:
             return Response(None, status=status.HTTP_200_OK)
 

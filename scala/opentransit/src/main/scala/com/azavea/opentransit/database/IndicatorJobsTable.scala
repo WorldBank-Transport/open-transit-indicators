@@ -74,14 +74,14 @@ trait IndicatorJobsTable {
   def updateCalcStatus(job: IndicatorJob)(implicit session: Session): Unit = {
     val hasComplete =
       job.status.map { case (period, indicatorResult) =>
-        indicatorResult.forall { result =>
-          result._2 != JobStatus.Processing && result._2 != JobStatus.Submitted
+        indicatorResult.forall { case (indicatorName, state) =>
+          state != JobStatus.Processing && state != JobStatus.Submitted
         }
       }.foldLeft(true)(_ && _)
 
     val noFailed =
       !job.status.map { case (period, indicatorResult) =>
-        indicatorResult.exists {s => s._2 == JobStatus.Failed }
+        indicatorResult.exists {case (indicatorName, state) => state == JobStatus.Failed }
       }.foldLeft(true)(_ && _)
 
     val jobStatus =
