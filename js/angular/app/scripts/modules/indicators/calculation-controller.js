@@ -13,9 +13,6 @@ angular.module('transitIndicators')
     $scope.displayStatus = null;
     $scope.currentJob = null;
 
-    // flag for whether indicators are calculating currently or not
-    var amCalculating = false;
-
     // Used for hiding messages about job status until we know what it is
     $scope.statusFetched = false;
 
@@ -32,7 +29,6 @@ angular.module('transitIndicators')
      * Submits a job for calculating indicators
      */
     $scope.calculateIndicators = function () {
-        amCalculating = true;
         var job = new OTIIndicatorJobModel({
             city_name: OTIIndicatorJobManager.getCurrentCity()
         });
@@ -121,7 +117,7 @@ angular.module('transitIndicators')
     /**
      * Sets the current job status given a list of job results
      */
-    var setCurrentJob = function(indicatorJob) {
+    var setCurrentJob = function(indicatorJob, currentlyCalculating) {
         // There should only be one job in this list, but just in case there's multiple,
         // use the one with the highest id (i.e. the most recent one).
         $scope.currentJob = indicatorJob;
@@ -137,32 +133,24 @@ angular.module('transitIndicators')
 
         if ($scope.jobStatus === 'processing') {
             $scope.displayStatus = 'STATUS.PROCESSING';
-            amCalculating = true;
         } else if ($scope.jobStatus === 'queued') {
             $scope.displayStatus = 'STATUS.QUEUED';
-            amCalculating = true;
         } else if ($scope.jobStatus === 'complete') {
             $scope.displayStatus = 'STATUS.COMPLETE';
             // only add this job/city to city list if new
-            if (amCalculating) {
+            if (currentlyCalculating) {
                 // first remove last job for city, if this is a new one
                 $scope.cities.splice(_.indexOf($scope.cities, _.find($scope.cities, function(obj) {
-                    return (obj.city_name === job.city_name && obj.scenario === job.scenario);
+                    return (obj.city_name === indicatorJob.city_name && obj.scenario === indicaotJob.scenario);
                 })));
-                $scope.cities.push(job);
-                amCalculating = false;
+                $scope.cities.push(indicatorJob);
             }
         } else if ($scope.jobStatus === 'error') {
             $scope.displayStatus = 'STATUS.FAILED';
-            amCalculating = false;
-        } else if ($scope.displayStatus === 'submitted') {
-            $scope.displayStatus = 'STATUS.SUBMITTED';
-            amCalculating = true;
         } else {
             console.log('unrecognized job status:');
             console.log($scope.jobStatus);
             $scope.displayStatus = 'STATUS.FAILED';
-            amCalculating = false;
         }
     };
 
@@ -172,14 +160,17 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // Grab the latest job
         OTIIndicatorJobModel.latest().$promise.then(function(latestData) {
-            setCurrentJob(latestData);
             if (latestData.job_status === 'processing' || latestData.job_status === 'queued') {
-                $scope.statusFetched = true;
+                amCalculating = true;
                 console.log('still processing...');
 
                 // Repeatedly poll for status while an indicator is processing or queued
                 $timeout(pollForUpdatedStatus, POLL_INTERVAL_MILLIS);
+            } else {
+                amCalculating = false;
             }
+            setCurrentJob(latestData, amCalculating);
+            $scope.statusFetched = true;
         });
     };
     pollForUpdatedStatus();
