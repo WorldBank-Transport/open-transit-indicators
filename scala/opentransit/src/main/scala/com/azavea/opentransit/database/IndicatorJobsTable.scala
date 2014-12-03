@@ -69,6 +69,11 @@ trait IndicatorJobsTable {
     }.update("error")
   }
 
+  // Function for arbitrarily adding to the error-tracking column
+  def updateErrorType(id: Int, errorType: String)(implicit session: Session): Unit =
+    indicatorJobsTable.filter(_.id === id).map { fullJob =>
+      fullJob.errorType
+    }.update(errorType)
 
   // The indicator job parameter here is NOT the same as 'FullIndicatorJob' above!
   def updateCalcStatus(job: IndicatorJob)(implicit session: Session): Unit = {

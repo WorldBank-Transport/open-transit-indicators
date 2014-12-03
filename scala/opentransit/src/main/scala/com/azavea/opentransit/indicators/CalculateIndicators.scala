@@ -9,6 +9,7 @@ import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.JobStatusWithMessage
 import com.azavea.opentransit.JobStatusWithMessage._
+import com.azavea.opentransit.database.IndicatorJobsTable
 import com.azavea.opentransit.JobStatusType
 import com.azavea.opentransit.JobStatusType._
 import com.azavea.opentransit.indicators.parameters._
@@ -213,7 +214,13 @@ object CalculateIndicators {
       period ->  genSysGeom(builder.systemBetween(period.start, period.end))
     }.toMap
     val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
-
+    object tripsMissing {
+      var tripList: Seq[String] = Seq()
+      def addTrips(trips: Seq[String]): Unit = {
+        tripList = (tripList ++ trips).distinct
+      }
+      def tripCount: Int = tripList.length
+    }
 
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
@@ -231,6 +238,12 @@ object CalculateIndicators {
         singleCalculation(indicator, period, system, resultHolder)
         trackStatus(period.periodType, indicator.name, JobStatus.Complete)
       }
+      tripsMissing.addTrips(params.missingTripData)
+      val jobsTable = new IndicatorJobsTable {}
+      dbByName("transit_indicators") withTransaction { implicit session =>
+        jobsTable.updateErrorType(request.id, "missingObs:" ++ tripsMissing.tripCount.toString)
+      }
+
     }
 
     runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)

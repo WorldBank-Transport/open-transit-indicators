@@ -37,7 +37,7 @@ object TransitSystemBuilder {
 class TransitSystemBuilder(records: GtfsRecords) {
   import TransitSystemBuilder._
 
-  private val tripIdToFrequencyRecords: Map[TripId, Seq[FrequencyRecord]] = 
+  private val tripIdToFrequencyRecords: Map[TripId, Seq[FrequencyRecord]] =
     records.frequencyRecords.groupBy(_.tripId)
 
   private val tripIdToStopTimeRecords: Map[TripId, Seq[StopTimeRecord]] =
@@ -55,22 +55,23 @@ class TransitSystemBuilder(records: GtfsRecords) {
     records.agencies.map { agency => (agency.id, agency) }.toMap
 
   /** Generates a TransitSystem for the specified period, inclusive */
-  def systemBetween(start: LocalDate, end: LocalDate): TransitSystem = 
+  def systemBetween(start: LocalDate, end: LocalDate): TransitSystem =
     systemBetween(
-      start.toLocalDateTime(LocalTime.Midnight), 
+      start.toLocalDateTime(LocalTime.Midnight),
       end.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
 
   /** Generates a TransitSystem for the specified date */
-  def systemOn(date: LocalDate): TransitSystem = 
+  def systemOn(date: LocalDate): TransitSystem =
     systemBetween(
-      date.toLocalDateTime(LocalTime.Midnight), 
+      date.toLocalDateTime(LocalTime.Midnight),
       date.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
 
   /** Generates a TransitSystem for the specified period */
   def systemBetween(
       start: LocalDateTime,
       end: LocalDateTime,
-      pruneStops: Boolean = true): TransitSystem = {
+      pruneStops: Boolean = true,
+      useFrequencies: Boolean = true): TransitSystem = {
     val dates = {
       val startDate = start.toLocalDate
       val endDate = end.toLocalDate
@@ -92,12 +93,17 @@ class TransitSystemBuilder(records: GtfsRecords) {
         val stopTimeRecords = tripIdToStopTimeRecords.getOrElse(tripRecord.id, Nil)
 
         val trips: Iterator[Trip] = {
-          val schedulers: Seq[StopScheduler] = tripIdToFrequencyRecords.get(tripRecord.id) match {
-            case Some(frequencies) =>
-              frequencies map { freq => scheduleStopFromFrequency(freq) _ }
-            case None =>
-              scheduleStops _ :: Nil
-          }
+          val schedulers: Seq[StopScheduler] =
+            if (useFrequencies) {
+              tripIdToFrequencyRecords.get(tripRecord.id) match {
+                case Some(frequencies) =>
+                  frequencies map { freq => scheduleStopFromFrequency(freq) _ }
+                case None =>
+                  scheduleStops _ :: Nil
+              }
+            } else {
+              Nil
+            }
 
           val scheduledStops =
             (for(date <- dates) yield {
@@ -112,10 +118,10 @@ class TransitSystemBuilder(records: GtfsRecords) {
                     .filter (_.length > 0) // throw out empty stop lists after prune
                 }
 
-              listOfLists reduce (_ ++ _) // combine iterators from all schedulers
-            }) reduce (_ ++ _)           // combine iterators from all dates
+              listOfLists.foldLeft(List[Seq[ScheduledStop]]())(_ ++ _) // combine iterators from all schedulers
+            }).foldLeft(List[Seq[ScheduledStop]]())(_ ++ _)           // combine iterators from all dates
 
-         scheduledStops map { stops => Trip(tripRecord, stops.toArray[ScheduledStop], tripShapeIdToTripShape) }
+         scheduledStops.toIterator map { stops => Trip(tripRecord, stops.toArray[ScheduledStop], tripShapeIdToTripShape) }
         }
 
         if(! routeIdToTrips.contains(tripRecord.routeId)) {
@@ -137,7 +143,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
          }
         .flatten
 
-    val routesByType = 
+    val routesByType =
       constructedRoutes.groupBy(_.routeType)
 
     new TransitSystem {
