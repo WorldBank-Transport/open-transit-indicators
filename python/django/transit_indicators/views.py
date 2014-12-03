@@ -186,7 +186,7 @@ class LatestCalculationJob(APIView):
         return Response(serial_job.data, status=status.HTTP_200_OK)
 
 
-class ScenarioViewSet(OTIIndicatorViewSet):
+class ScenarioViewSet(OTIBaseViewSet):
     """Viewset for Scenarios"""
     model = Scenario
     lookup_field = 'db_name'
@@ -202,9 +202,8 @@ class ScenarioViewSet(OTIIndicatorViewSet):
 
     def delete(self, request, *args, **kwargs):
         try:
-            print('in delete!!!!!!')
-            print(request.QUERY_PARAMS)
-            Scenario.objects.filter(db_name=request.QUERY_PARAMS.get('db_name')).delete()
+            scenario = Scenario.objects.filter(db_name=request.QUERY_PARAMS.get('db_name'))
+            scenario.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
         except:
             return Response({'error': 'Scenario deletion failed'}, status=status.HTTP_400_BAD_REQUEST)
