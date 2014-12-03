@@ -23,8 +23,7 @@ angular.module('transitIndicators')
         $scope.checkmarks[view.id] = false;
     });
 
-
-    $scope.init = function() {
+    var initialize = function() {
         /**
          * FIXME: Use of these functions is not fully utilized.
                   Due to time constraints, switched tasks before fixing.
@@ -90,12 +89,11 @@ angular.module('transitIndicators')
             });
             return samplePeriods.slice(0,-1);
         });
-
-
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
        setSidebarHighlight(toState.name);
     });
 
+    initialize();
 }]);
