@@ -26,7 +26,7 @@
             <div class="col-xs-2">{{ scenario.create_date | date:'shortDate' }}</div>
             <div class="col-xs-3 pull-right">
                 <a class="button--small default glyphicon glyphicon-export" ng-click="transition('list')" tooltip="{{'TERM.EXPORT'|translate}}"></a> / 
-                <a class="button--small default glyphicon glyphicon-trash" ng-click="transition('list')" tooltip="{{'TERM.DELETE'|translate}}"></a>
+                <a class="button--small default glyphicon glyphicon-trash" ng-click="deleteScenario(scenario)" tooltip="{{'TERM.DELETE'|translate}}"></a>
             </div>
         </div>
 

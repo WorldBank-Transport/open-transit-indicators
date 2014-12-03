@@ -12,6 +12,9 @@ angular.module('transitIndicators')
     var module = $resource('/api/scenarios/:db_name/', {db_name: '@db_name'}, {
         update: {
             method: 'PATCH'
+        },
+        delete: {
+            method: 'DELETE'
         }
     }, {
         stripTrailingSlashes: false
