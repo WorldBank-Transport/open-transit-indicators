@@ -23,7 +23,7 @@ fi
 # http://stackoverflow.com/questions/8546759/how-to-check-if-a-postgres-user-exists
 has_db_user=`psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'"`
 if [ "1" != "$has_db_user" ]; then
-    createuser $DB_USER --no-superuser --createdb --no-createrole
+    createuser $DB_USER --superuser --createdb --no-createrole
     psql -d postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';"
 else
     echo "Database user $DB_USER already exists; not creating it."

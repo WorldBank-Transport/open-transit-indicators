@@ -22,11 +22,11 @@
                         'glyphicon-minus': scenario.indicator_job_status === 'queued'
                     }"></span>
             </div>
-            <div class="col-xs-4">{{ scenario.name }}</div>
+            <div class="col-xs-6"><a class="button--small default" ng-click="edit(scenario)">{{ scenario.name }}</a></div>
             <div class="col-xs-2">{{ scenario.create_date | date:'shortDate' }}</div>
-            <div class="col-xs-4">
-                <a class="button--small default" ng-click="edit(scenario)">{{'TERM.LOAD'|translate}}</a> /
-                <a class="button--small default" ng-click="transition('list')">{{'TERM.EXPORT'|translate}}</a>
+            <div class="col-xs-3 pull-right">
+                <a class="button--small default glyphicon glyphicon-export" ng-click="transition('list')" tooltip="{{'TERM.EXPORT'|translate}}"></a> / 
+                <a class="button--small default glyphicon glyphicon-trash" ng-click="deleteScenario(scenario)" tooltip="{{'TERM.DELETE'|translate}}"></a>
             </div>
         </div>
 

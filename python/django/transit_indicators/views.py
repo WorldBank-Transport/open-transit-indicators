@@ -200,6 +200,13 @@ class ScenarioViewSet(OTIBaseViewSet):
             start_scenario_creation.apply_async(args=[self.object.id], queue='scenarios')
         return response
 
+    def delete(self, request, *args, **kwargs):
+        try:
+            scenario = Scenario.objects.filter(db_name=request.QUERY_PARAMS.get('db_name'))
+            scenario.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'error': 'Scenario deletion failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class IndicatorViewSet(OTIIndicatorViewSet):
     """Viewset for Indicator objects

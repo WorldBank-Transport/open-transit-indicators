@@ -30,6 +30,11 @@ angular.module('transitIndicators')
         scenario = {};
     };
 
+    module.delete = function(scenario_db) {
+        OTIScenarioModel.delete({'db_name': scenario_db});
+        scenario = {};
+    };
+
     module.list = function (createdBy) {
         var queryParams = {};
         if (createdBy) {
