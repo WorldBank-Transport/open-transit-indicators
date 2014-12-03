@@ -54,6 +54,9 @@ angular.module('transitIndicators')
     };
 
     $scope.getTrip = function () {
+        if (!$scope.selected.tripId) {
+            return;
+        }
         OTITripManager.retrieve($scope.selected.tripId).then(function (trip) {
             setTrip(trip);
         });
