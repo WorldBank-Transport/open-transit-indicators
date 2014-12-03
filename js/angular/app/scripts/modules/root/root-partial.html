@@ -4,8 +4,8 @@
         <div ui-sref="list" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
         <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">{{ 'NAV.INDICATORS' | translate }}</div>
         <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
-        <div class="button--navigation pull-right dropdown">
-          <div class="dropdown-toggle" ng-disabled="disabled">
+        <div dropdown class="dropdown button--navigation pull-right">
+          <div dropdown-toggle class="dropdown-toggle" ng-disabled="disabled" >
             {{ user.username }}<span class="caret"></span>
           </div>
           <ul class="dropdown-menu" role="menu">
@@ -13,8 +13,8 @@
               <li><a ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</a></li>
           </ul>
         </div>
-        <div  class="button--navigation pull-right dropdown">
-          <div class="dropdown-toggle" ng-disabled="disabled">
+        <div dropdown class="dropdown button--navigation pull-right">
+          <div dropdown-toggle class="dropdown-toggle" ng-disabled="disabled">
             {{ 'TERM.LANGUAGE' | translate}} <span class="caret"></span>
           </div>
           <ul class="dropdown-menu" role="menu">
