@@ -42,7 +42,7 @@ angular.module('transitIndicators')
             if ($scope.route.isNew) {
                 $scope.route.$create();
             } else {
-                $scope.route.$update();
+                OTIRouteManager.update($scope.route);
             }
             $state.go('route-stops');
         }

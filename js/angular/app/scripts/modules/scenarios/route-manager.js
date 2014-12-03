@@ -28,6 +28,14 @@ angular.module('transitIndicators')
         route.db_name = scenario.db_name;
     };
 
+    module.update = function (route) {
+        var scenario = OTIScenarioManager.get();
+        OTIRouteModel.update({
+            db_name: scenario.db_name,
+            routeId: route.id
+        }, route);
+    };
+
     /**
      * For now, isNew is defined as the route not having an id
      * Could track this with an internal var instead
