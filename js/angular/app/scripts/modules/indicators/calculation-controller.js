@@ -141,7 +141,7 @@ angular.module('transitIndicators')
             if (currentlyCalculating) {
                 // first remove last job for city, if this is a new one
                 $scope.cities.splice(_.indexOf($scope.cities, _.find($scope.cities, function(obj) {
-                    return (obj.city_name === indicatorJob.city_name && obj.scenario === indicaotJob.scenario);
+                    return (obj.city_name === indicatorJob.city_name && obj.scenario === indicatorJob.scenario);
                 })));
                 $scope.cities.push(indicatorJob);
             }
@@ -160,6 +160,7 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // Grab the latest job
         OTIIndicatorJobModel.latest().$promise.then(function(latestData) {
+            var amCalculating;
             if (latestData.job_status === 'processing' || latestData.job_status === 'queued') {
                 amCalculating = true;
                 console.log('still processing...');
