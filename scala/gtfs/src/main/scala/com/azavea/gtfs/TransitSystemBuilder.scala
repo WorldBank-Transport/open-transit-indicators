@@ -70,8 +70,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
   def systemBetween(
       start: LocalDateTime,
       end: LocalDateTime,
-      pruneStops: Boolean = true,
-      useFrequencies: Boolean = true): TransitSystem = {
+      pruneStops: Boolean = true): TransitSystem = {
     val dates = {
       val startDate = start.toLocalDate
       val endDate = end.toLocalDate
@@ -94,15 +93,11 @@ class TransitSystemBuilder(records: GtfsRecords) {
 
         val trips: Iterator[Trip] = {
           val schedulers: Seq[StopScheduler] =
-            if (useFrequencies) {
-              tripIdToFrequencyRecords.get(tripRecord.id) match {
-                case Some(frequencies) =>
-                  frequencies map { freq => scheduleStopFromFrequency(freq) _ }
-                case None =>
-                  scheduleStops _ :: Nil
-              }
-            } else {
-              Nil
+            tripIdToFrequencyRecords.get(tripRecord.id) match {
+              case Some(frequencies) =>
+                frequencies map { freq => scheduleStopFromFrequency(freq) _ }
+              case None =>
+                scheduleStops _ :: Nil
             }
 
           val scheduledStops =

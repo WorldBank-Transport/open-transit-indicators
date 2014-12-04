@@ -40,7 +40,7 @@ object ObservedStopTimes {
           }
         }
       val builder = TransitSystemBuilder(observedGtfsRecords)
-      builder.systemBetween(period.start, period.end, pruneStops=false, useFrequencies=false)
+      builder.systemBetween(period.start, period.end, pruneStops=false)
     }
 
     lazy val observedTrips: Map[String, Trip] =
