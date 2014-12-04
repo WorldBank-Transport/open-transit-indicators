@@ -47,6 +47,15 @@ object ObservedStopTimes {
 
     lazy val observedTrips: Map[String, Trip] =
       observedSystem.routes.flatMap { route =>
+         /* This line suffers from a problematic ambiguity such that if a sample period is too long,
+          * ambiguity exists between tripIds and trip objects. The practical effect of this is that
+          * the wrong trip object can be selected. A fix for this would be the inclusion of more
+          * robust notion of identity for trip instances be introduced. The GTFS parser could perhaps
+          * include such data - or - it is possible that a tuple of
+          * (tripId, trip.stop.scheduledstops.head.arrivalTime) be used for indexing these trip instances.
+          * See issue #566: https://github.com/WorldBank-Transport/open-transit-indicators/issues/566
+          * TODO: Introduce temporally robust trip instance indexing
+          */
         route.trips.map { trip => (trip.id -> trip) }
     }.toMap
 
