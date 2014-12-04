@@ -231,9 +231,12 @@ object CalculateIndicators {
         singleCalculation(indicator, period, system, resultHolder)
         trackStatus(period.periodType, indicator.name, JobStatus.Complete)
       }
-      val jobsTable = new IndicatorJobsTable {}
-      dbByName("transit_indicators") withTransaction { implicit session =>
-        jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
+      // Send an update to the front end regarding the missing trips
+      if (params.missingTripData > 0) {
+        val jobsTable = new IndicatorJobsTable {}
+        dbByName("transit_indicators") withTransaction { implicit session =>
+          jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
+        }
       }
 
     }

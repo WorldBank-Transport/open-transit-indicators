@@ -95,7 +95,7 @@
         "ENTER_CITY_NAME": "Enter city name...",
         "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
         "CALCULATION_ERROR": "Exception thrown while calculating indicators: does your data have errors?",
-        "MISSING_OBS": "Observed 'real-time' trips missing some data: "
+        "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: "
     },
     "SCENARIO": {
         "SCENARIO": "场景",
