@@ -124,6 +124,13 @@ def valid_sample_periods():
     cursor = connection.cursor()
     cursor.execute('SELECT MIN(start_date), MAX(end_date) FROM gtfs_calendar;')
     start, end = cursor.fetchone()
+    # in case this feed isn't using gtfs_calendar, check gtfs_calendar_dates instead
+    if not start or not end:
+        cursor.execute('SELECT MIN(date), MAX(date) FROM gtfs_calendar_dates;')
+        start, end = cursor.fetchone()
+    # if still don't have start and end dates, there must not be valid GTFS data loaded
+    if not start or not end:
+        return False
     # model datetimes are stored as UTC; turn the date objects returned into UTC datetimes
     calendar_start = datetime.combine(start, time.min).replace(tzinfo=pytz.UTC)
     calendar_end = datetime.combine(end, time.max).replace(tzinfo=pytz.UTC)
