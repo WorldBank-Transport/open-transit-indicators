@@ -20,7 +20,7 @@ trait ObservedStopTimes {
   // Map of Trip IDs to Sequence of tuples of (scheduled, observed)
   def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)]
   def observedTripById(tripId: String):  Trip
-  def missingTripData: Seq[String]
+  def missingTripData: Int
 }
 
 object ObservedStopTimes {
@@ -48,7 +48,7 @@ object ObservedStopTimes {
         route.trips.map { trip => (trip.id -> trip) }
     }.toMap
 
-    var missingTrips: Seq[String] = Seq()
+    var missingTrips: Int = 0
 
     lazy val observedStops: Map[String, Seq[(ScheduledStop, ScheduledStop)]] = {
       val scheduledTrips = scheduledSystem.routes.flatMap(_.trips)
@@ -63,7 +63,7 @@ object ObservedStopTimes {
               case Some(observed) => observed.schedule.map(ost => ost.stop.id -> ost).toMap
               case None => {
                 val tripId = trip.id.toString
-                missingTrips = missingTrips :+ tripId
+                missingTrips = missingTrips + 1
                 println(s"Missing observed stop times for trip ${tripId}")
                 Map()
               }
@@ -95,7 +95,7 @@ object ObservedStopTimes {
               def tripShape = None
             }
           }
-        def missingTripData: Seq[String] = missingTrips
+        def missingTripData: Int = missingTrips
       }
     } else {
       new ObservedStopTimes {
@@ -108,7 +108,7 @@ object ObservedStopTimes {
             def schedule = Nil
             def tripShape = None
           }
-        def missingTripData: Seq[String] = missingTrips
+        def missingTripData: Int = missingTrips
       }
     }
   }

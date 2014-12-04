@@ -23,8 +23,8 @@
     <alert type="danger" ng-if="currentJob.error_type === 'calculation_error'">
         <span translate="CALCULATION.CALCULATION_ERROR"></span>
     </alert>
-    <alert type="warning" ng-if="currentJob.error_type.substr(0,11) === 'missingObs:'">
-        <span translate="CALCULATION.MISSING_OBS"></span><span>{{ currentJob.error_type.substr(11,20) }}</span>
+    <alert type="warning" ng-if="currentJob.error_type.substring(0,11) === 'missingObs:'">
+        <span translate="CALCULATION.MISSING_OBS"></span><span>{{ currentJob.error_type.substring(11) }}</span>
     </alert>
 </div>
 <div ng-if="currentJob.job_status !== 'complete'" class="calculation-status">

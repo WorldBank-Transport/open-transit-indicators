@@ -187,7 +187,7 @@ object CalculateIndicators {
           )
         else mutable.Map()
 
-      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++ 
+      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++
         periods.map { period =>
           period.periodType ->
             mutable.Map(
@@ -195,7 +195,7 @@ object CalculateIndicators {
                 name -> JobStatus.Submitted
               }: _* // This construct is stupid. It is also the correct syntax for making this kind of map
             )
-        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus 
+        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus
 
       // Send initial status to quickly inform the UI what indicators are being calculated
       def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
@@ -214,13 +214,6 @@ object CalculateIndicators {
       period ->  genSysGeom(builder.systemBetween(period.start, period.end))
     }.toMap
     val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
-    object tripsMissing {
-      var tripList: Seq[String] = Seq()
-      def addTrips(trips: Seq[String]): Unit = {
-        tripList = (tripList ++ trips).distinct
-      }
-      def tripCount: Int = tripList.length
-    }
 
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
@@ -238,10 +231,9 @@ object CalculateIndicators {
         singleCalculation(indicator, period, system, resultHolder)
         trackStatus(period.periodType, indicator.name, JobStatus.Complete)
       }
-      tripsMissing.addTrips(params.missingTripData)
       val jobsTable = new IndicatorJobsTable {}
       dbByName("transit_indicators") withTransaction { implicit session =>
-        jobsTable.updateErrorType(request.id, "missingObs:" ++ tripsMissing.tripCount.toString)
+        jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
       }
 
     }
