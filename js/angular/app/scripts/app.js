@@ -12,8 +12,10 @@ angular.module('transitIndicators', [
     'ui.utils',
     'nvd3ChartDirectives',
     'angular-spinkit'
-]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
-        function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
+]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
+           'config',
+        function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider,
+                  config) {
 
     $httpProvider.interceptors.push('authInterceptor');
     $httpProvider.interceptors.push('logoutInterceptor');
@@ -96,6 +98,7 @@ angular.module('transitIndicators', [
             }
         })
         .state('settings', {
+            abstract: true,
             parent: 'root',
             url: '/settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
@@ -190,7 +193,12 @@ angular.module('transitIndicators', [
 
         // Load login page if user not authenticated
         $rootScope.$on('$stateChangeStart', function (event, to) {
-            if (!stateClean(to.name) && !authService.isAuthenticated()) {
+            if (to.parent === 'settings' && !$rootScope.user.is_staff) {
+                event.preventDefault();
+                $state.go('transit');
+                return;
+            }
+            if (stateClean(to.name) && !authService.isAuthenticated()) {
                 event.preventDefault();
                 $state.go('login');
                 return;
