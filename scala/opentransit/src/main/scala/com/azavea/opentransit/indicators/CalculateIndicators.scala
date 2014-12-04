@@ -9,6 +9,7 @@ import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.JobStatusWithMessage
 import com.azavea.opentransit.JobStatusWithMessage._
+import com.azavea.opentransit.database.IndicatorJobsTable
 import com.azavea.opentransit.JobStatusType
 import com.azavea.opentransit.JobStatusType._
 import com.azavea.opentransit.indicators.parameters._
@@ -186,7 +187,7 @@ object CalculateIndicators {
           )
         else mutable.Map()
 
-      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++ 
+      val status = mutable.Map[String, mutable.Map[String, JobStatus]]() ++
         periods.map { period =>
           period.periodType ->
             mutable.Map(
@@ -194,7 +195,7 @@ object CalculateIndicators {
                 name -> JobStatus.Submitted
               }: _* // This construct is stupid. It is also the correct syntax for making this kind of map
             )
-        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus 
+        } ++ travelshedStatus ++ weeklyHoursStatus ++ allTimeAggregationStatus
 
       // Send initial status to quickly inform the UI what indicators are being calculated
       def sendStatus = statusManager.statusChanged(status.map { case (k, v) => k -> v.toMap }.toMap)
@@ -214,7 +215,6 @@ object CalculateIndicators {
     }.toMap
     val overallLineGeoms = SystemLineGeometries.merge(periodGeoms.values.toSeq)
 
-
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
     runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
@@ -231,6 +231,11 @@ object CalculateIndicators {
         singleCalculation(indicator, period, system, resultHolder)
         trackStatus(period.periodType, indicator.name, JobStatus.Complete)
       }
+      val jobsTable = new IndicatorJobsTable {}
+      dbByName("transit_indicators") withTransaction { implicit session =>
+        jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
+      }
+
     }
 
     runWeeklySvcHours(periods, builder, overallLineGeoms, statusManager, calculateAllTime, trackStatus)

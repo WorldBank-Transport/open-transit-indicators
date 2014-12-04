@@ -62,6 +62,8 @@ object IndicatorParams {
         observedStopTimes.observedStopsByTrip(tripId)
       def observedTripById(tripId: String) =
         observedStopTimes.observedTripById(tripId)
+      def missingTripData: Int =
+        observedStopTimes.missingTripData
 
       def bufferForStop(stop: Stop): Projected[MultiPolygon] = stopBuffers.bufferForStop(stop)
       def bufferForStops(stops: Seq[Stop]): Projected[MultiPolygon] = stopBuffers.bufferForStops(stops)
