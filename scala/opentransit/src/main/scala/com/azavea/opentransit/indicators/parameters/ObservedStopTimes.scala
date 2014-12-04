@@ -47,8 +47,8 @@ object ObservedStopTimes {
 
     lazy val observedTrips: Map[String, Trip] =
       observedSystem.routes.flatMap { route =>
-         /* This line suffers from a problematic ambiguity such that if a sample period is too long,
-          * ambiguity exists between tripIds and trip objects. The practical effect of this is that
+      /* This line suffers from a problematic bug such that if a sample period is too long (>24 hours),
+          * ambiguity CAN exist between tripIds and trip objects. The practical effect of this is that
           * the wrong trip object can be selected. A fix for this would be the inclusion of more
           * robust notion of identity for trip instances be introduced. The GTFS parser could perhaps
           * include such data - or - it is possible that a tuple of
