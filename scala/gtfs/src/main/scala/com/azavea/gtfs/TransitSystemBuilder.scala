@@ -19,9 +19,9 @@ object TransitSystemBuilder {
     frequency.generateStartTimes(date) map { startTime =>
       val offset = stopTimeRecords.head.arrivalTime
 
-      stopTimeRecords map { record =>
+      stopTimeRecords.map { record: StopTimeRecord =>
         ScheduledStop(record, startTime, offset, stopIdToStop)
-      }
+      }.toSeq.flatten
     }
   }
 
