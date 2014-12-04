@@ -33,12 +33,22 @@ trait ServiceDateRangeRoute extends Route { self: DatabaseInstance =>
 
                 // construct the json response, using null if no data is available
                 val serviceRangeJson = 
-                  if (serviceRange.start == null || serviceRange.end == null) JsNull 
-                  else JsObject(
+                  if (serviceRange.start == null || serviceRange.end == null) {
+                    // try using calendar_dates instead, in case calendar.txt not used for feed
+                    val qDates = Q.queryNA[ServiceDateRange]("""
+                      SELECT MIN(date) AS start, MAX(date) AS end FROM gtfs_calendar_dates;""")
+                    val serviceRangeDates = qDates.list.head
+                    if (serviceRangeDates.start == null || serviceRangeDates.end == null)
+                      JsNull
+                    else
+                      JsObject("start" -> JsString(serviceRangeDates.start),
+                               "end" -> JsString(serviceRangeDates.end))
+                  } else JsObject(
                     // return dates as ANSI-formatted strings (YYYY-MM-DD)
                     "start" -> JsString(serviceRange.start),
                     "end" -> JsString(serviceRange.end)
                   )
+
                 // return the service date range json
                 JsObject("serviceDates" -> serviceRangeJson) 
               } catch {
