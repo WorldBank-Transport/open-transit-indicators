@@ -2,6 +2,7 @@ from transit_indicators.models import IndicatorJob, Scenario
 from transit_indicators.tasks.calculate_indicators import run_indicator_calculation
 from transit_indicators.tasks.create_scenario import run_scenario_creation
 from transit_indicators.tasks.delete_scenario import run_scenario_deletion
+from transit_indicators.tasks.clear_raster_cache import clear_raster_cache
 from transit_indicators.celery_settings import app
 
 from celery.utils.log import get_task_logger
@@ -36,5 +37,13 @@ def start_scenario_creation(self, scenario_id):
 def start_scenario_deletion(self, db_name):
     try:
         run_scenario_deletion(db_name)
+    except Exception as e:
+        raise self.retry(exc=e)
+
+
+@app.task(bind=True, max_retries=3)
+def start_raster_deletion(self, indicator_job_id):
+    try:
+        clear_raster_cache(indicator_job_id)
     except Exception as e:
         raise self.retry(exc=e)
