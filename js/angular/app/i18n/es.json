@@ -144,6 +144,7 @@
         "EDIT_ROUTE_INST1": "Modify the route attributes below.",
         "THIS_IS_YOUR_ROUTE": "This is your route. You can add stops, change the shape, or change times.",
         "REPRESENTATIVE_TRIP": "Choose a Representative Trip:",
+        "ROUTE_TYPE": "Choose a Route Type:",
         "STOPS": "Stops",
         "SHAPE": "Shape",
         "SHAPE_LENGTH": "Shape Length",

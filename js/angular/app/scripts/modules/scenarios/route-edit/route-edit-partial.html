@@ -18,7 +18,8 @@
         </div>
         <div class="block">
             <div class="filter">
-                <a ng-repeat="type in routeTypes" class="button--small btn-group" ng-model="route.routeType" btn-radio="type.route_type">{{ type.description }}</a><br />
+                <label>{{'SCENARIO.ROUTE_TYPE'|translate}}</label>
+                <select ng-model="selectedRouteType" ng-options="type.description for type in routeTypes" required ng-change="changeType()"></select>
             </div>
         </div>
         <div ng-if="trips.length > 0" class="block">
@@ -32,6 +33,6 @@
     </form>
 </div>
 <div class="scenario-page-buttons">
-    <a class="button--small default" ng-class="{'button--inactive': !newRoute.$valid || !route.routeType}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small default" ng-class="{'button--inactive': !newRoute.$valid}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
 </div>
