@@ -3,7 +3,7 @@
         <div ui-sref="transit" class="button--navigation" ng-class="{active: activeState === 'transit'}" id="navigation-transit">{{ 'NAV.TRANSITMAP' | translate }}</div>
         <div ui-sref="list" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
         <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">{{ 'NAV.INDICATORS' | translate }}</div>
-        <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
+        <div ui-sref="overview" class="button--navigation" ng-if="user.is_staff === true" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
         <div dropdown class="dropdown button--navigation pull-right">
           <div dropdown-toggle class="dropdown-toggle" ng-disabled="disabled" >
             {{ user.username }}<span class="caret"></span>
