@@ -97,7 +97,7 @@ object CalculateIndicators {
         )
       } match {
         case Some(travelshedGraph) =>
-          val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db))
+          val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db), request.id.toString)
           val name = indicator.name
           trackStatus("alltime", name, JobStatus.Processing)
           try {

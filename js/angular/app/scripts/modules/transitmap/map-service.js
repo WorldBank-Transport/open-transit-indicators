@@ -66,6 +66,15 @@ angular.module('transitIndicators')
                         layer.options.scenario = module.getScenario();
                         redraw = true;
                     }
+                    if (layer.wmsParams) {
+                        // jobs travelshed WMS layer
+                        var job = OTIIndicatorManager.getConfig().calculation_job;
+                        layer.options.jobId = job;
+                        // tell WMS to redraw by setting its parameters
+                        // http://leafletjs.com/reference.html#tilelayer-wms-options
+                        layer.setParams(layer.options);
+                        redraw = true;
+                    }
                     if (redraw) {
                         if (layer.redraw) {         // leaflet tile layer
                             layer.redraw();

@@ -26,15 +26,16 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
       path("render") { 
         get {
           parameters(
+            'JOBID,
             'BBOX,
             'WIDTH.as[Int],
-            'HEIGHT.as[Int]) { (bbox, width, height) =>
+            'HEIGHT.as[Int]) { (jobId, bbox, width, height) =>
 
             val requestExtent = Extent.fromString(bbox)
             val rasterExtent = RasterExtent(requestExtent, width, height)
 
             val png: Png =
-              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name)) match {
+              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name + jobId)) match {
                 case Some((tile, extent)) =>
                   val breaks = tile.classBreaks(numberOfClassBreaks)
                   val ramp = {
