@@ -28,7 +28,17 @@ object JobsTravelshedIndicator {
   val name = "jobs_travelshed"
 }
 
-class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographics: RegionDemographics) extends TravelshedIndicator with Logging {
+/**
+ * Build rasters for jobs accessibility by population.
+ *
+ * @param travelshedGraph the actual graph of jobs accessibility
+ * @param regionDemographics the input demographic data
+ * @param cacheId string uniquely identifying current indicator calculation set, used to key cached rasters
+ */
+class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
+                              regionDemographics: RegionDemographics,
+                              cacheId: String) extends TravelshedIndicator with Logging {
+
   def name = JobsTravelshedIndicator.name
 
   def apply(rasterCache: RasterCache): Unit = {
@@ -166,6 +176,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph, regionDemographi
       tile.reproject(rasterExtent.extent, crs, WebMercator)
 
     println(s"Reproject to extent $rExtent")
-    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name), (rTile, rExtent))
+    println(s"Setting to raster cache key $cacheId")
+    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
   }
 }

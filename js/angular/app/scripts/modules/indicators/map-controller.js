@@ -32,6 +32,7 @@ angular.module('transitIndicators')
             visible: true,
             layerParams: {
                 format: 'image/png',
+                jobId: layerOptions.calculation_job
             },
             layerOptions: { opacity: 0.7 }
         },
