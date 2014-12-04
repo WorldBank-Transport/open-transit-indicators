@@ -70,7 +70,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
   def systemBetween(
       start: LocalDateTime,
       end: LocalDateTime,
-      pruneStops: Boolean = true): TransitSystem = {
+      pruneStopsBufferMinutes: Int = 0): TransitSystem = {
     val dates = {
       val startDate = start.toLocalDate
       val endDate = end.toLocalDate
@@ -107,7 +107,7 @@ class TransitSystemBuilder(records: GtfsRecords) {
                   f(stopTimeRecords, date, stopIdToStop)
                     .map { stopList =>
                       stopList.filter { stop => // chop off stops that happen past our system bounds
-                        !pruneStops || (start <= stop.departureTime && stop.arrivalTime <= end)
+                        (start <= stop.departureTime + pruneStopsBufferMinutes.minute && stop.arrivalTime - pruneStopsBufferMinutes.minute <= end)
                       }
                     }
                     .filter (_.length > 0) // throw out empty stop lists after prune

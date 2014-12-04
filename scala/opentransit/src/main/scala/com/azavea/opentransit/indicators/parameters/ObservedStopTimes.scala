@@ -40,7 +40,9 @@ object ObservedStopTimes {
           }
         }
       val builder = TransitSystemBuilder(observedGtfsRecords)
-      builder.systemBetween(period.start, period.end, pruneStops=false)
+      // pruneStopsMinuteBuffer is an optional parameter (default=0) which specifies
+      // just how far a trip's stops can extend beyond the sampleperiod
+      builder.systemBetween(period.start, period.end, pruneStopsBufferMinutes=120)
     }
 
     lazy val observedTrips: Map[String, Trip] =
@@ -80,7 +82,7 @@ object ObservedStopTimes {
 
     if (hasObserved) {
       new ObservedStopTimes {
-        def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] = 
+        def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
           observedStops.get(tripId) match {
             case Some(s) => s
             case None => Nil
