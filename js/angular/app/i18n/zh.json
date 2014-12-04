@@ -144,6 +144,7 @@
         "EDIT_ROUTE_INST1": "Modify the route attributes below.",
         "THIS_IS_YOUR_ROUTE": "这是您的路线。您可以添加站点，更改形状或更改时间。",
         "REPRESENTATIVE_TRIP": "Choose a Representative Trip:",
+        "ROUTE_TYPE": "Choose a Route Type:",
         "STOPS": "站点",
         "SHAPE": "形状",
         "SHAPE_LENGTH": "Shape Length",

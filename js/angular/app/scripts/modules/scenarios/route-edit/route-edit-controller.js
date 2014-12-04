@@ -66,10 +66,19 @@ angular.module('transitIndicators')
         $scope.frequency.headway = $scope.selected.headwayMins * 60;
     };
 
+    $scope.changeType = function () {
+        // set the route type ID from the full object property
+        $scope.route.routeType = $scope.selectedRouteType.route_type;
+    };
+
     var initialize = function () {
         scenario = OTIScenarioManager.get();
-        $scope.selectedRouteType = 0;
         $scope.route = OTIRouteManager.get();
+
+        // $scope.route.routeType is just the type's ID, but the Angular selector wants an object
+        // with all the properties in $scope.routeTypes for the drop-down to work
+        $scope.selectedRouteType = _.findWhere($scope.routeTypes, {route_type: $scope.route.routeType});
+
         $scope.selected = {
             tripId: '',
             headwayMins: DEFAULT_HEADWAY_MINS
