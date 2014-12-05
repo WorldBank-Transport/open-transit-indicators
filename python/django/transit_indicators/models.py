@@ -175,7 +175,7 @@ class Scenario(models.Model):
     db_name = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
 
     # Optional scenario to base this scenario off of
-    base_scenario = models.ForeignKey('self', blank=True, null=True)
+    base_scenario = models.ForeignKey('self', blank=True, null=True, to_field='db_name')
 
     create_date = models.DateTimeField(auto_now_add=True, default=datetime.now)
     last_modify_date = models.DateTimeField(auto_now=True, default=datetime.now)

@@ -22,7 +22,7 @@ def run_scenario_creation(scenario):
 
     # A base scenario is optional. If one isn't defined, use the default database name
     default_db_name = settings.DATABASES['default']['NAME']
-    base_db_name = scenario.base_scenario.name if scenario.base_scenario else default_db_name
+    base_db_name = scenario.base_scenario.db_name if scenario.base_scenario else default_db_name
 
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
     token = scenario.created_by.auth_token.key
