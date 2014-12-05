@@ -23,7 +23,7 @@ class RatioLinesRoadsSpec
   /**This test is fine - the OSM data is artificially tiny so that the SQL we commit for testing
    *  doesn't fill the repo.
    * In postgis, I get ~248.9km for the road length.
-   * The new LineDissolve from geotrellis.vector gets ~472.8km
+   * The new LineDissolve from geotrellis.vector for SEPTA rail is ~472.8km
    */
   it should "calculate the ratio of transit system length to road system length for SEPTA/Philadelphia" in {
     val calculation = new RatioLinesRoads(totalRoadLength).calculation(period)
