@@ -72,12 +72,8 @@ angular.module('transitIndicators')
             $scope.scenario.$update().then(checkScenarioCreate);
         } else {
             $scope.scenario.$save().then(checkScenarioCreate, function (error) {
-                // TODO: Remove this helpful message after a little while (maybe Dec 2014?)
                 var msg = [
-                    'ERROR saving scenario.',
-                    'Did you update to angular 1.3.1?',
-                    'If you did not, do so by removing the js/angular/app/bower_components directory',
-                    'and running bower install from the js/angular directory.'
+                    'ERROR saving scenario.'
                 ];
                 console.error(msg, error);
             });

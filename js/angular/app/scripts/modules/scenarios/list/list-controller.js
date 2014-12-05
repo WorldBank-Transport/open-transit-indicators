@@ -81,6 +81,11 @@ angular.module('transitIndicators')
         $state.go('new');
     };
 
+    $scope.copy = function (scenario) {
+        OTIScenarioManager.copy(scenario);
+        $state.go('new');
+    };
+
     // Init
     $scope.myScenarios = null;
     $scope.colleagueScenarios = null;

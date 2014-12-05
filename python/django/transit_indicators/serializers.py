@@ -60,6 +60,7 @@ class ScenarioSerializer(serializers.ModelSerializer):
                                          required=False)
     created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
     sample_period = serializers.SlugRelatedField(slug_field='type')
+    base_scenario = serializers.SlugRelatedField(slug_field='db_name')
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
