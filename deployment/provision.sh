@@ -672,7 +672,7 @@ nginx_conf="server {
         proxy_pass http://unix:/tmp/gunicorn.sock:;
         proxy_read_timeout 600s;
         proxy_connect_timeout 75s;
-        client_max_body_size 200M;
+        client_max_body_size 400M;
     }
 
     location /tiles {
