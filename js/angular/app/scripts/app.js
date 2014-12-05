@@ -198,7 +198,7 @@ angular.module('transitIndicators', [
                 $state.go('transit');
                 return;
             }
-            if (stateClean(to.name) && !authService.isAuthenticated()) {
+            if (!stateClean(to.name) && !authService.isAuthenticated()) {
                 event.preventDefault();
                 $state.go('login');
                 return;
