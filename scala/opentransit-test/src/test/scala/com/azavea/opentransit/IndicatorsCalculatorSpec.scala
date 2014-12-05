@@ -70,11 +70,11 @@ trait IndicatorSpec extends DatabaseTestFixture { self: Suite =>
     }.toMap
   val observedSystems =
     periods.map { period =>
-      (period, observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false))
+      (period, observedSystemBuilder.systemBetween(period.start, period.end, pruneStopsBufferMinutes=120))
     }.toMap
   val period = periods.head
   val system = systemBuilder.systemBetween(period.start, period.end)
-  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end, pruneStops=false)
+  val observedSystem = observedSystemBuilder.systemBetween(period.start, period.end, pruneStopsBufferMinutes=120)
 
   // test the indicators
   // TODO: refactor indicator tests into separate classes with a trait that does most of the work
@@ -164,6 +164,8 @@ trait ObservedStopTimeSpec { this: IndicatorSpec =>
     // Testing, so just return the same period every time.
     def observedStopsByTrip(tripId: String): Seq[(ScheduledStop, ScheduledStop)] =
       observedPeriodTrips(tripId)
+
+    def missingTripData: Int = 0
   }
 }
 

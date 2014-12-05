@@ -10,12 +10,13 @@ import com.azavea.opentransit.testkit._
 import org.scalatest._
 
 
-class RatioSuburbanLinesSpec extends FlatSpec
+class RatioSuburbanLinesSpec
+    extends FlatSpec
     with Matchers
     with IndicatorSpec
     with BoundariesSpec {
 
-  val params = new BoundariesSpecParams { }
+  val params = new BoundariesSpecParams {}
 
   it should "Calculate the ratio" in {
     val calculator = new RatioSuburbanLines(params)

@@ -103,7 +103,7 @@ object TravelshedCreationTest {
         }
       }
 
-    val indicator = new JobsTravelshedIndicator(travelshedGraph.get, RegionDemographics(db))
+    val indicator = new JobsTravelshedIndicator(travelshedGraph.get, RegionDemographics(db), "1")
     indicator.apply(Main.rasterCache)
 
     try {
