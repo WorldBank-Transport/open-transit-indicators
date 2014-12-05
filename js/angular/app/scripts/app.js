@@ -193,14 +193,13 @@ angular.module('transitIndicators', [
 
         // Load login page if user not authenticated
         $rootScope.$on('$stateChangeStart', function (event, to) {
-            if (to.parent === 'settings' && !$rootScope.user.is_staff) {
-                event.preventDefault();
-                $state.go('transit');
-                return;
-            }
             if (!stateClean(to.name) && !authService.isAuthenticated()) {
                 event.preventDefault();
                 $state.go('login');
+                return;
+            } else if (to.parent === 'settings' && !$rootScope.user.is_staff) {
+                event.preventDefault();
+                $state.go('transit');
                 return;
             }
         });
