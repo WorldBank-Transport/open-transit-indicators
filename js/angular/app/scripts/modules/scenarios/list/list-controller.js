@@ -69,9 +69,10 @@ angular.module('transitIndicators')
     $scope.deleteScenario = function (scenario) {
         // delete django scenario object, which will trigger deletion of scenario database
         OTIScenarioManager.delete(scenario.db_name);
-        
+
         // now refresh list
-        $scope.myScenarios[0].splice(_.indexOf($scope.myScenarios[0], _.find($scope.myScenarios[0], function(obj) {
+        var pageIndex = $scope.myScenarioPage; // need to look within the correct sub-array in the following line
+        $scope.myScenarios[pageIndex].splice(_.indexOf($scope.myScenarios[pageIndex], _.find($scope.myScenarios[pageIndex], function(obj) {
             return (obj.db_name === scenario.db_name);
             })), 1);
     };
