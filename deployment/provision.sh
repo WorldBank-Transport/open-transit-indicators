@@ -666,6 +666,15 @@ nginx_conf="server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
+    location /api/real-time/ {
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$http_host;
+        proxy_pass http://unix:/tmp/gunicorn.sock:;
+        proxy_read_timeout 1000s;
+        proxy_connect_timeout 75s;
+        client_max_body_size 500M;
+    }
+
     location /api {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header Host \$http_host;
