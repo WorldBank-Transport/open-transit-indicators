@@ -24,6 +24,7 @@ angular.module('transitIndicators')
             .each(function(job) {
                 if (indexed[job.scenario]) {
                     indexed[job.scenario].indicator_job_status = job.job_status;
+                    console.log(job.scenario, indexed[job.scenario].indicator_job_status);
                 }
             });
         });

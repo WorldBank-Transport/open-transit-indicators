@@ -8,11 +8,13 @@ header {
 
 .navigationsecondary {
   background-color: #eee;
-  padding: .8rem;
+  padding: 1rem 2.4rem;
+
   height: 5.5rem;
   // When the affix happens, needed to keep the bar full width
   width: 100%;
   position: fixed;
+  z-index: 100;
 
   .btn-group {
     display: inline;
@@ -25,18 +27,20 @@ header {
 
 .button--navigation {
   background-color: $secondary-color;
-  display: inline-block;
+  float: left;
   color: #fff;
   font-size: $h4;
   min-width: 13.9rem;
-  margin-left: -.3rem;
   padding: 1.6rem 1.2rem 1.5rem 2.4rem;
-  border-right: 1px solid #fff;
+  border-right: 1px solid rgba(255, 255, 255, .2);
   cursor: pointer;
   &.active {
     background-color: $tertiary-color;
   }
   &.pull-right {
-    border-left: 1px solid #fff;
+    min-width: 0;
+    border: 0;
+    font-size: $h5;
+    padding: 2rem 2.4rem 1.6rem 2.4rem;
   }
 }
