@@ -72,17 +72,22 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     // Set up a byte that tells if a poly has been added to the sum
     val polyHit = 1.toByte
 
+    println(index.points.map{ v => graph.vertexFor(v).location.toPoint })
     cfor(0)(_ < features.size, _ + 1) { polyIndex =>
       val feature = features(polyIndex)
       val envelope = feature.geom.envelope
+      println(index.points.map{ v => graph.vertexFor(v).location.toPoint }.filter { p => envelope.contains(p) })
       val contained = index.pointsInExtent(envelope).toArray
       val containedLen = contained.size
+      println(s"$envelope contains $containedLen")
       cfor(0)(_ < containedLen, _ + 1) { i =>
         val v = contained(i)
         vertexToPolyId(v) = polyIndex
       }
       polyIdToValue(polyIndex) = feature.data
     }
+    println(vertexToPolyId.toSeq)
+    println(polyIdToValue.toSeq)
 
     // SPT parameters
     val maxDuration = duration.toInt
@@ -100,20 +105,30 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
       cfor(0)(_ < rows, _ + 1) { row =>
     //    Timer.timedTask(s"  Ran for row $row") {
           cfor(0)(_ < cols, _ + 1) { col =>
-            // Find the nearest start vertex (TODO: Do time calcuation on travel to that vertex)
-            val (lng, lat) = rasterExtent.gridToMap(col, row)
-            val startVertex = index.nearest(lat, lng)
-
-            var sum = 0.0
             val polyHits = zeros.clone
-
-            // SHORTEST PATH CALCULATION
-
             /**
               * Array containing departure times of the current shortest
               * path to the index vertex.
               */
             val shortestPathTimes = emptySptArray.clone
+
+
+            // Find the nearest start vertex (TODO: Do time calcuation on travel to that vertex)
+            val (x, y) = rasterExtent.gridToMap(col, row)
+            println((x, y))
+            val startVertex = index.nearest(x, y)
+            val startPolyId = vertexToPolyId(startVertex)
+            var sum = 
+              if(startPolyId != -1) {
+                println(s"Start Hit ${polyIdToValue(startPolyId)} $startVertex ${graph.vertexFor(startVertex)} ${Point(x, y)}")
+                polyHits(startPolyId) = polyHit
+                polyIdToValue(startPolyId)
+              } else { 
+                println(s"Start Hit $startVertex ${graph.vertexFor(startVertex)} ${Point(x, y)}")
+                0.0 
+              }
+
+            // SHORTEST PATH CALCULATION
 
             shortestPathTimes(startVertex) = 0
 
@@ -122,15 +137,15 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
             val queue = new IntPriorityQueue(shortestPathTimes)
 
             val tripEnd = arriveTime.toInt
-            val duration = tripEnd - maxDuration
+            val tripStart = tripEnd - maxDuration
 
             val edgeIterator =
               graph.getEdgeIterator(edgeTypes, EdgeDirection.Outgoing)
 
 
-            edgeIterator.foreachEdge(startVertex, tripEnd) { (target,weight) =>
-              val t = tripEnd - weight
-              if(t >= duration) {
+            edgeIterator.foreachEdge(startVertex, tripStart) { (target,weight) =>
+              val t = tripStart + weight
+              if(t <= tripEnd) {
                 shortestPathTimes(target) = t
                 queue += target
                 val polyId = vertexToPolyId(target)
@@ -146,10 +161,10 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
               val currentVertexShortestPathTime = shortestPathTimes(currentVertex)
 
               edgeIterator.foreachEdge(currentVertex, currentVertexShortestPathTime) { (target, weight) =>
-                val t = currentVertexShortestPathTime - weight
-                if(t >= duration) {
+                val t = currentVertexShortestPathTime + weight
+                if(t <= tripEnd) {
                   val timeAtTarget = shortestPathTimes(target)
-                  if(timeAtTarget == -1 || timeAtTarget < t) {
+                  if(timeAtTarget == -1 || t < timeAtTarget) {
                     val polyId = vertexToPolyId(target)
                     if(polyId != -1 && polyHits(polyId) != polyHit) {
                       sum += polyIdToValue(polyId)

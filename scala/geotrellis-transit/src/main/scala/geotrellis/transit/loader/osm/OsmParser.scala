@@ -25,10 +25,11 @@ object OsmParser {
         val points = line.points
         (points.head, points.tail.head)
       }
+      println(s"$p1 -> $p2")
 
 //      println(p1)
-      val v1 = StreetVertex(Location(p1.x, p2.y), "")
-      val v2 = StreetVertex(Location(p1.x, p2.y), "")
+      val v1 = StreetVertex(Location(p1.y, p1.x), "")
+      val v2 = StreetVertex(Location(p2.y, p2.x), "")
       
       if(!graph.contains(v1)) { graph += v1 ; namedLocations += NamedLocation(v1.name, v1.location) }
       if(!graph.contains(v2)) { graph += v2 ; namedLocations += NamedLocation(v2.name, v2.location) }

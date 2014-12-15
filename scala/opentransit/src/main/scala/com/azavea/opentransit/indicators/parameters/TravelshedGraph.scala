@@ -48,8 +48,9 @@ object TravelshedGraph extends Logging {
     builder: TransitSystemBuilder,
     resolution: Double,
     arriveTime: Int,
-    duration: Int
-  )( implicit session: Session): Option[TravelshedGraph] = {
+    duration: Int,
+    roads: List[Line]
+  ): Option[TravelshedGraph] = {
     SamplePeriod.getRepresentativeWeekday(periods).map { weekday =>
       val startDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime - duration - 1))
       val endDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime + 1))
@@ -65,7 +66,7 @@ object TravelshedGraph extends Logging {
       Timer.timedTask("Transit graph created") {
         val osmParsedResult: ParseResult =
           Timer.timedTask("Parsed in OSM results") {
-            OsmParser.parseLines(RoadsTable.allRoads)
+            OsmParser.parseLines(roads)
           }
 
         val systemResult: ParseResult =
@@ -83,6 +84,7 @@ object TravelshedGraph extends Logging {
 
         val streetVertexIndex =
           SpatialIndex(unpackedGraph.vertices.filter(_.vertexType == StreetVertex)) { v =>
+            println(v.location)
             val x = v.location.long
             val y = v.location.lat
 
@@ -93,7 +95,8 @@ object TravelshedGraph extends Logging {
             (x, y)
           }
 
-        val extent = Extent(ymin, xmin, ymax, xmax)
+        println(streetVertexIndex.points)
+        val extent = Extent(xmin, ymin, xmax, ymax)
         val cols = (extent.width / resolution).toInt
         val rows = (extent.height / resolution).toInt
 

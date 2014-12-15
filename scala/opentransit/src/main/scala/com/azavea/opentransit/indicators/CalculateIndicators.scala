@@ -9,7 +9,7 @@ import com.azavea.opentransit._
 import com.azavea.opentransit.JobStatus._
 import com.azavea.opentransit.JobStatusWithMessage
 import com.azavea.opentransit.JobStatusWithMessage._
-import com.azavea.opentransit.database.IndicatorJobsTable
+import com.azavea.opentransit.database._
 import com.azavea.opentransit.JobStatusType
 import com.azavea.opentransit.JobStatusType._
 import com.azavea.opentransit.indicators.parameters._
@@ -94,7 +94,8 @@ object CalculateIndicators {
           builder,
           100,  // TODO: How do we decide on the resolution?
           request.arriveByTime,
-          request.maxCommuteTime
+          request.maxCommuteTime,
+          RoadsTable.allRoads
         )
       } match {
         case Some(travelshedGraph) =>

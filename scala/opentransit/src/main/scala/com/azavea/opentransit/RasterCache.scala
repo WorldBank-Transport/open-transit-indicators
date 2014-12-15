@@ -19,7 +19,17 @@ import java.io._
 
 case class RasterCacheKey(name: String)
 
-class RasterCache private (val system: ActorSystem, path: String, val initialCache: Map[RasterCacheKey, (Tile, Extent)]) {
+trait RasterCache {
+  def get(key: RasterCacheKey): Option[(Tile, Extent)]
+  def set(key: RasterCacheKey, value: (Tile, Extent)): Unit
+}
+
+object RasterCache {
+  def apply(system: ActorSystem): AkkaRasterCache =
+    AkkaRasterCache(system)
+}
+
+class AkkaRasterCache private (val system: ActorSystem, path: String, val initialCache: Map[RasterCacheKey, (Tile, Extent)]) extends RasterCache {
   implicit val timeout = Timeout(500 seconds)
 
   final val directory = "raster-cache"
@@ -54,7 +64,7 @@ class RasterCache private (val system: ActorSystem, path: String, val initialCac
   def get(key: RasterCacheKey): Option[(Tile, Extent)] =
     Await.result(cacheActor ? CacheActor.Get(key), timeout.duration).asInstanceOf[Option[(Tile, Extent)]]
 
-  def set(key: RasterCacheKey, value: (Tile, Extent)) = {
+  def set(key: RasterCacheKey, value: (Tile, Extent)): Unit = {
     cacheActor ! CacheActor.Set(key, value)
 
     // Save to the catalog
@@ -64,8 +74,8 @@ class RasterCache private (val system: ActorSystem, path: String, val initialCac
   }
 }
 
-object RasterCache {
-  def apply(system: ActorSystem): RasterCache = {
+object AkkaRasterCache {
+  def apply(system: ActorSystem): AkkaRasterCache = {
     val catalogPath = ConfigFactory.load.getString("opentransit.catalog")
     val directory = new File(new File(catalogPath).getParentFile, "data").getAbsolutePath
     val catalog = Catalog.fromPath(catalogPath)
@@ -87,7 +97,7 @@ object RasterCache {
          }
         .toMap
 
-    new RasterCache(system, directory, initialCache)
+    new AkkaRasterCache(system, directory, initialCache)
   }
 }
 
