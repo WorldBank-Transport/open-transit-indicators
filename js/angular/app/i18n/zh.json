@@ -7,7 +7,8 @@
         "TRANSITMAP": "公交地图",
         "SCENARIO": "场景",
         "INDICATORS": "指标",
-        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD"
+        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
+        "CHANGE_LANGUAGE": "!Change Language"
     },
     "STATUS": {
         "CANCELLED": "已取消",

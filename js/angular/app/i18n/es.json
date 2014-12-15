@@ -7,7 +7,8 @@
         "TRANSITMAP": "!Transit Map",
         "SCENARIO": "!Scenario",
         "INDICATORS": "!Indicators",
-        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD"
+        "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
+        "CHANGE_LANGUAGE": "!Change Language"
     },
     "STATUS": {
         "CANCELLED": "!Cancelled",

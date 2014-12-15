@@ -9,17 +9,9 @@
             {{ user.username }}<span class="caret"></span>
           </div>
           <ul class="dropdown-menu" role="menu">
+              <li><a ng-click="changeLanguage()">{{ 'NAV.CHANGE_LANGUAGE' | translate }}</a></li>
               <li><a ng-click="changePassword()">{{ 'NAV.CHANGE_PASSWORD' | translate }}</a></li>
               <li><a ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</a></li>
-          </ul>
-        </div>
-        <div dropdown class="dropdown button--navigation pull-right">
-          <div dropdown-toggle class="dropdown-toggle" ng-disabled="disabled">
-            {{ 'TERM.LANGUAGE' | translate}} <span class="caret"></span>
-          </div>
-          <ul class="dropdown-menu" role="menu">
-            <!-- TODO: Add translations for each language -->
-            <li ng-repeat="(key, value) in languages"><a ng-click="selectLanguage(value)"> {{ key }}</a></li>
           </ul>
         </div>
     </div>
