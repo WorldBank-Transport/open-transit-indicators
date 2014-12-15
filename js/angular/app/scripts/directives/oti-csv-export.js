@@ -7,9 +7,9 @@ angular.module('transitIndicators')
 .directive('otiCsvExport', ['$document', '$window', 'OTIIndicatorModel',
 function ($document, $window, OTIIndicatorModel) {
     var template = [
-        '<button ng-click="exportCsv()" type="button" ',
-        'class="btn btn-default btn-lg glyphicon glyphicon-save">',
-        '</button>'
+        '<a ng-click="exportCsv()" type="button" ',
+        'class="button button--small button--secondary default glyphicon glyphicon-save">',
+        '</a>'
     ].join('');
 
     return {

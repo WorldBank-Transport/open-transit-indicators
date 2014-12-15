@@ -2,7 +2,7 @@
     <h1>{{'VIEW.BOUNDARY' | translate}}</h1>
     <p>{{'SETTINGS.BOUNDARY_DESCRIPTION' | translate}}</p>
 
-    <h3><span tooltip="{{ 'UI.TOOLTIP.CITY' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.CITY' | translate}}</h3>
+    <h3>{{'SETTINGS.CITY' | translate}} <span tooltip="{{ 'UI.TOOLTIP.CITY' | translate }}" class="glyphicon glyphicon-info-sign"></span></h3>
     <polling-upload url="/api/boundaries/" upload="uploadCity" resource="BoundaryUploads" options="cityOptions">
     </polling-upload>
 
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <h3><span tooltip="{{ 'UI.TOOLTIP.REGION' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.REGION' | translate}}</h3>
+    <h3>{{'SETTINGS.REGION' | translate}} <span tooltip="{{ 'UI.TOOLTIP.REGION' | translate }}" class="glyphicon glyphicon-info-sign"></span></h3>
     <polling-upload url="/api/boundaries/" upload="uploadRegion" resource="BoundaryUploads" options="regionOptions">
     </polling-upload>
 

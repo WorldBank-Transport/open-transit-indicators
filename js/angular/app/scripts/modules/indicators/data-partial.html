@@ -1,7 +1,8 @@
 <div class="indicators-heading">
-    <div class="indicators-description">
+    <h1 class="indicators-description">
         {{ 'CALCULATION.VIEWING_RESULTS' | translate }} {{ city_names.join(', ') }}
-    </div>
+    </h1>
+    <wave-spinner ng-show="updating"></wave-spinner>
     <!--
     TODO: Readd once endpoint for getting city center lat/lon is available
     TODO: Reset css in _indicators.scss when this uncommented
@@ -10,7 +11,7 @@
 </div>
 <div class="indicators-table">
     <div class="indicators-row indicators-row-heading">
-        <div class="indicators-cell indicators-label">{{ 'CALCULATION.VIEWING_RESULTS' | translate }} <span ng-show="updating" class="label label-info">{{ 'TERM.UPDATING_INDICATORS' | translate }}</span></div>
+        <div class="indicators-cell indicators-label">{{ 'CALCULATION.CITY' | translate }}</div>
         <div ng-repeat="city in cities" class="indicators-cell">
           {{ city.city_name }}
           <oti-csv-export job="city"></oti-csv-export>
@@ -32,7 +33,7 @@
 
             <!-- <div ng-repeat="indicatorjob in indicator.indicator_jobs" -->
         <div ng-repeat="city in cities"
-             class="indicators-cell">
+             class="indicators-cell indicators-data">
             <div ng-if="displayIndicator(indicator.indicator_jobs[city.id], type, 'mode')">
                 <ng-include src="getModePartialForIndicator(type)"></ng-include>
             </div>

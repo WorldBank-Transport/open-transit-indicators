@@ -60,7 +60,7 @@ class ScenarioSerializer(serializers.ModelSerializer):
                                          required=False)
     created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
     sample_period = serializers.SlugRelatedField(slug_field='type')
-    base_scenario = serializers.SlugRelatedField(slug_field='db_name')
+    base_scenario = serializers.SlugRelatedField(slug_field='db_name', required=False)
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
@@ -144,7 +144,7 @@ class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
         """ Raises a ValidationError if num < 0 """
         if num < 0:
             raise serializers.ValidationError("Must be >= 0")
-    
+
     def validate_arrive_by_time_s(self, attrs, source):
         """ Make sure that the arrive by time is non-negative and below 24 hours"""
         seconds_in_day = 60 * 60 * 24

@@ -72,7 +72,7 @@ $rootScope:                         (event args)
             '<div class="dropzone" ng-show="options.checkComplete(upload)">',
             '  <div class="h3">',
             '    <span class="glyphicon glyphicon-ok"></span> {{ "TERM.DATA_LOADED" | translate }}',
-            '    <span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">{{ "TERM.DELETE_DATA" | translate}}</button></span>',
+            '    <button class="btn btn-danger pull-right" ng-click="delete()">{{ "TERM.DELETE_DATA" | translate}}</button>',
             '  </div>',
             '</div>',
             '<div class="dropzone notices" ng-show="options.checkInvalid(upload) || uploadError">',

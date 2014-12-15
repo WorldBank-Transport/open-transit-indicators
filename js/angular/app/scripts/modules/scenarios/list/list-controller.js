@@ -87,6 +87,10 @@ angular.module('transitIndicators')
         $state.go('new');
     };
 
+    $scope.updateHeight = function () {
+        $scope.$emit('updateHeight');
+    };
+
     // Init
     $scope.myScenarios = null;
     $scope.colleagueScenarios = null;

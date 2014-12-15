@@ -24,6 +24,29 @@
   }
 }
 
+.tab-pane {
+  display: none;
+  &.active {
+    display: block;
+  }
+}
+
+.nav-tabs {
+  padding: 0;
+  font-size: $h4;
+  & > li {
+    list-style: none;
+    display: inline;
+    &.active {
+      font-weight: bold;
+      & > a {
+        color: $heading-color !important;
+        text-decoration: none !important;
+      }
+    }
+  }
+}
+
 .focus--scenario {
   > .scenario-headings {
     > #heading-scenario {
@@ -69,7 +92,7 @@
     width: 100%;
   }
   .row {
-    padding-bottom: $block-spacing;
+    padding: $block-spacing/2 0;
   }
 }
 
@@ -82,14 +105,21 @@
 .scenario {
   clip: rect(0, auto, auto, 0);
   position: absolute;
-  transition: height 100ms;
-  -webkit-transition: height 100ms;
+  transition: height 300ms;
+  -webkit-transition: height 300ms;
   width: 100%;
   width: 400px;
   position: absolute;
   top: 7rem;
   left: 1.28em;
   background-color: #fff;
+}
+
+.scenario-item {
+  border-bottom: 1px solid $gray-lighter;
+  &:last-child {
+    border-bottom: 0;
+  }
 }
 
 .scenario-page {
@@ -154,7 +184,6 @@
 .scenario-page-content table,thead,tbody {
     width: 100%;
     border-spacing: 0px;
-    display: block;
 }
 
 .scenario-page-content tbody {
@@ -199,15 +228,6 @@
       color: #333;
     }
   }
-}
-
-.scenario-page-content {
-    input.ng-invalid.ng-dirty {
-        border: 1px solid red;
-    }
-    input.ng-valid {
-        border: 1px solid green;
-    }
 }
 
 .leaflet-popup-content p {

@@ -1,7 +1,7 @@
 <div class="indicator-map">
     <div class="indicator-controls">
         <div class="indicator-control">
-            <div>{{ 'MAP.SYSTEM_SELECTION' | translate }}:</div>
+            <h5>{{ 'MAP.SYSTEM_SELECTION' | translate }}:</h5>
             <div class="btn-group" dropdown is-open="dropdown_indicatorjob_selection_open">
                 <button dropdown-toggle type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
                     {{ selectedCity.city_name }} <span class="caret"></span>
@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="indicator-control">
-            <div>{{ 'MAP.INDICATOR_TYPE' | translate }}:</div>
+            <h5>{{ 'MAP.INDICATOR_TYPE' | translate }}:</h5>
             <div class="btn-group" dropdown is-open="dropdown_type_open">
                 <button dropdown-toggle type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
                     {{ mapTypes[indicator.type] }} <span class="caret"></span>

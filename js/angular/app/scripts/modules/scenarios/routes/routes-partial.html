@@ -1,5 +1,12 @@
 <div class="scenario-page-content">
-    <h3>{{'SCENARIO.ROUTES'|translate}}</h3>
+    <div class="row">
+        <div class="col-xs-8">
+            <h3>{{'SCENARIO.ROUTES'|translate}}</h3>
+        </div>
+        <div class="col-xs-4">
+            <a class="button--large default" ng-click="newRoute()">{{'SCENARIO.NEW_ROUTE'|translate}}</a>
+        </div>
+    </div>
     <p>
         {{'SCENARIO.ROUTES_INST'|translate}}
     </p>
@@ -28,9 +35,6 @@
             </div>
         </div>
     </div>
-</div>
-<div class="scenario-page-buttons">
-    <a class="button--large default" ng-click="newRoute()">{{'SCENARIO.NEW_ROUTE'|translate}}</a>
 </div>
 <div class="scenario-page-buttons">
     <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
