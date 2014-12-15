@@ -1,6 +1,12 @@
 .indicators {
   background-color: #fff;
   top: 5.5rem;
+
+  .wave-spinner {
+    position: absolute;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .indicators .leaflet-control-zoom {
@@ -9,6 +15,7 @@
 
 .navigationsecondary-menu {
   font-size: $h4;
+  margin-top: .6rem;
 }
 
 .navigationsecondary-left {
@@ -31,6 +38,10 @@
   font-size: $h1;
   padding: 7rem 2rem 0 2rem;
   min-height: 10rem;
+}
+
+.calculation-body {
+  padding: 1rem 2rem 0 2rem;
 }
 
 .indicators-table, .calculation-table {
@@ -58,6 +69,7 @@
 .indicators-cell, .calculation-cell {
   display: table-cell;
   text-align: center;
+  vertical-align: top;
   padding: 2rem 1.6rem;
   border: 0 solid #eee;
   border-width: 0 1px 1px 0;
@@ -69,6 +81,15 @@
     font-weight: normal;
     text-align: left;
   }
+
+  &.indicators-data {
+    color: $heading-color;
+  }
+
+}
+
+oti-csv-export {
+  padding: .8rem;
 }
 
 .calculation-status {
@@ -89,10 +110,13 @@
   }
 }
 
-.indicators-row-heading > .indicators-cell {
-  border-top: 1px solid #eee;
-  border-bottom: 4px solid #eee;
-  font-size: $h4;
+.indicators-row-heading {
+  color: $heading-color;
+  > .indicators-cell {
+    border-top: 1px solid #eee;
+    border-bottom: 4px solid #eee;
+    font-size: $h4;
+  }
 }
 
 .graph {
