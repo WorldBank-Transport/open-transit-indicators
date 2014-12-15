@@ -24,6 +24,28 @@
   }
 }
 
+.tab-pane {
+  display: none;
+  &.active {
+    display: block;
+  }
+}
+
+.nav-tabs {
+  padding: 0;
+  font-size: $h4;
+  & > li {
+    list-style: none;
+    display: inline;
+    &.active {
+      font-weight: bold;
+      & > a {
+        color: $heading-color !important;
+      }
+    }
+  }
+}
+
 .focus--scenario {
   > .scenario-headings {
     > #heading-scenario {

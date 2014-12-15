@@ -6,15 +6,15 @@
         <p ng-if="!route.isNew" translate="SCENARIO.EDIT_ROUTE_INST1"></p>
         <div class="block">
             <label>{{'SCENARIO.SHORT_NAME'|translate}}</label>
-            <input type="text" ng-model="route.shortName" required placeholder="1" />
+            <input type="text" ng-model="route.shortName" required />
         </div>
         <div class="block">
             <label>{{'SCENARIO.LONG_NAME'|translate}}</label>
-            <input type="text" ng-model="route.longName" required placeholder="Route 1" />
+            <input type="text" ng-model="route.longName" required />
         </div>
         <div class="block">
             <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
-            <input type="text" ng-model="route.description" placeholder="{{ 'SCENARIO.DESCRIPTION_PLACEHOLDER' | translate }}..." />
+            <input type="text" ng-model="route.description" />
         </div>
         <div class="block">
             <div class="filter">
