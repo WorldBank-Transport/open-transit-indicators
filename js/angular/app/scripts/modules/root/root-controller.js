@@ -20,19 +20,6 @@ angular.module('transitIndicators')
     // Add all scenario views to map states
     mapStates = mapStates.concat(_.map(config.scenarioViews, function (view) { return view.id; }));
 
-    $scope.selectLanguage = function(language) {
-        $translate.use(language);
-
-        // $state.reload has a bug that does not actually force a refresh.
-        // See: https://github.com/angular-ui/ui-router/issues/582
-        // TODO: Use $state.reload() when ui-router is fixed
-        //
-        // The workaround for this ($state.transitionTo) also doesn't do a full refresh.
-        // The javascript translations update, but none of the django-populated elements do.
-        // A rudimentary location reload seems to be the easiest fix for this.
-        location.reload();
-    };
-
     // asks the server for the data extent and zooms to it
     var zoomToDataExtent = function () {
         OTIMapService.getMapExtent().then(function(extent) {
@@ -52,8 +39,6 @@ angular.module('transitIndicators')
         if (!$scope.activeState) {
             $state.go('transit');
         }
-
-        $scope.languages = config.languages;
 
         $rootScope.user = user;
 
@@ -88,6 +73,14 @@ angular.module('transitIndicators')
         $modal.open({
             templateUrl: 'scripts/modules/userdata/change-password.html',
             controller: 'OTIUserdataChangePasswordController',
+            size: 'sm'
+        });
+    };
+
+    $scope.changeLanguage = function() {
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-language.html',
+            controller: 'OTIUserdataChangeLanguageController',
             size: 'sm'
         });
     };

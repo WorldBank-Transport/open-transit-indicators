@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{ 'NAV.CHANGE_LANGUAGE' | translate }}</h3>
+</div>
+<div class="modal-body">
+    <div dropdown class="button--navigationsecondary dropdown-toggle">
+      <div dropdown-toggle class="dropdown-toggle" ng-disabled="disabled">
+        {{ 'TERM.LANGUAGE' | translate}} <span class="caret"></span>
+      </div>
+      <ul class="dropdown-menu" role="menu">
+        <!-- TODO: Add translations for each language -->
+        <li ng-repeat="(key, value) in languages"><a ng-click="selectLanguage(value)"> {{ key }}</a></li>
+      </ul>
+    </div>
+</div>
