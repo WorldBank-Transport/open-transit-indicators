@@ -41,6 +41,7 @@
       font-weight: bold;
       & > a {
         color: $heading-color !important;
+        text-decoration: none !important;
       }
     }
   }
@@ -104,8 +105,8 @@
 .scenario {
   clip: rect(0, auto, auto, 0);
   position: absolute;
-  transition: height 100ms;
-  -webkit-transition: height 100ms;
+  transition: height 300ms;
+  -webkit-transition: height 300ms;
   width: 100%;
   width: 400px;
   position: absolute;
@@ -116,6 +117,9 @@
 
 .scenario-item {
   border-bottom: 1px solid $gray-lighter;
+  &:last-child {
+    border-bottom: 0;
+  }
 }
 
 .scenario-page {
