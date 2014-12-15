@@ -92,6 +92,14 @@ angular.module('transitIndicators')
         });
     };
 
+    $scope.changeLanguage = function() {
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-language.html',
+            controller: 'OTIUserdataChangeLanguageController',
+            size: 'sm'
+        });
+    };
+
     // zoom to the new extent whenever a GTFS file is uploaded
     $scope.$on(OTIEvents.Settings.Upload.GTFSDone, function() {
         zoomToDataExtent();
