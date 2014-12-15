@@ -20,7 +20,6 @@ angular.module('transitIndicators')
     var initialize = function () {
 
         $scope.languages = config.languages;
-        $scope.currentLanguage = $translate.use();
 
     };
 
