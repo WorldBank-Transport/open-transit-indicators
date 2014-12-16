@@ -11,6 +11,10 @@ trait Trip {
   def headsign: Option[String]
   def tripShape: Option[TripShape]
   def schedule: Seq[ScheduledStop]
+
+  override
+  def toString: String =
+    s"Trip(id = $id, headsign = $headsign)"
 }
 
 object Trip {

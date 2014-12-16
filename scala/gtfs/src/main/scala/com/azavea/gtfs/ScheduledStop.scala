@@ -8,6 +8,10 @@ trait ScheduledStop {
   def arrivalTime: LocalDateTime
   def departureTime: LocalDateTime
   def distanceTraveled: Option[Double]
+
+  override
+  def toString: String = 
+    s"SHEDULED(stop = ${stop.name}, arrivelTime = $arrivalTime, departureTile = $departureTime)"
 }
 
 object ScheduledStop {

@@ -74,7 +74,7 @@ class TestGtfsRecords extends GtfsRecords {
 
   def routeRecords = List(
     // Subway routes
-    RouteRecord("EastWest", "East West Subway", "Subway from WEST STATION to EAST STATION", Subway, Some("SUBBERS")),
+    RouteRecord("EastWest", "East West Subway", "Subway from EAST STATION to WEST STATION", Subway, Some("SUBBERS")),
     RouteRecord("NorthSouth", "North South Subway", "Subway from NORTH STATION to SOUTH STATION", Subway, Some("SUBBERS")),
 
     // Bus routes

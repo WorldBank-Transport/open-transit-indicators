@@ -23,6 +23,10 @@ trait Route {
   }
 
   override def hashCode = id.hashCode
+
+  override
+  def toString: String = 
+    s"ROUTE($id, $shortName)"
 }
 
 object Route {

@@ -84,7 +84,6 @@ object TravelshedGraph extends Logging {
 
         val streetVertexIndex =
           SpatialIndex(unpackedGraph.vertices.filter(_.vertexType == StreetVertex)) { v =>
-            println(v.location)
             val x = v.location.long
             val y = v.location.lat
 
@@ -95,7 +94,6 @@ object TravelshedGraph extends Logging {
             (x, y)
           }
 
-        println(streetVertexIndex.points)
         val extent = Extent(xmin, ymin, xmax, ymax)
         val cols = (extent.width / resolution).toInt
         val rows = (extent.height / resolution).toInt

@@ -56,7 +56,8 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     val features: Array[MultiPolygonFeature[Double]] =
       regionDemographics.jobsDemographics.toArray
 
-    val (cols, rows) = (rasterExtent.cols, rasterExtent.rows)
+    val (cols, rows) = 
+      (rasterExtent.cols, rasterExtent.rows)
 
     val vertexCount = graph.vertexCount
     val polyCount = features.size
@@ -72,22 +73,17 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     // Set up a byte that tells if a poly has been added to the sum
     val polyHit = 1.toByte
 
-    println(index.points.map{ v => graph.vertexFor(v).location.toPoint })
     cfor(0)(_ < features.size, _ + 1) { polyIndex =>
       val feature = features(polyIndex)
       val envelope = feature.geom.envelope
-      println(index.points.map{ v => graph.vertexFor(v).location.toPoint }.filter { p => envelope.contains(p) })
       val contained = index.pointsInExtent(envelope).toArray
       val containedLen = contained.size
-      println(s"$envelope contains $containedLen")
       cfor(0)(_ < containedLen, _ + 1) { i =>
         val v = contained(i)
         vertexToPolyId(v) = polyIndex
       }
       polyIdToValue(polyIndex) = feature.data
     }
-    println(vertexToPolyId.toSeq)
-    println(polyIdToValue.toSeq)
 
     // SPT parameters
     val maxDuration = duration.toInt
@@ -115,16 +111,14 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
 
             // Find the nearest start vertex (TODO: Do time calcuation on travel to that vertex)
             val (x, y) = rasterExtent.gridToMap(col, row)
-            println((x, y))
             val startVertex = index.nearest(x, y)
             val startPolyId = vertexToPolyId(startVertex)
+
             var sum = 
               if(startPolyId != -1) {
-                println(s"Start Hit ${polyIdToValue(startPolyId)} $startVertex ${graph.vertexFor(startVertex)} ${Point(x, y)}")
                 polyHits(startPolyId) = polyHit
                 polyIdToValue(startPolyId)
               } else { 
-                println(s"Start Hit $startVertex ${graph.vertexFor(startVertex)} ${Point(x, y)}")
                 0.0 
               }
 
@@ -190,8 +184,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     val (rTile, rExtent) = 
       tile.reproject(rasterExtent.extent, crs, WebMercator)
 
-    println(s"Reproject to extent $rExtent")
-    println(s"Setting to raster cache key $cacheId")
+    println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
   }
 }
