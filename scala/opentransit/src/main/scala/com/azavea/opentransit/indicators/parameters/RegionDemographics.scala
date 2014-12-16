@@ -9,16 +9,21 @@ import geotrellis.vector._
 import scala.slick.jdbc.JdbcBackend.DatabaseDef
 
 trait RegionDemographics {
- def jobsDemographics: Seq[MultiPolygonFeature[Double]]
+ def jobsDemographics: Seq[JobsDemographics]
+}
+
+case class JobsDemographics(geom: MultiPolygon, jobs: Double, population: Double) {
+  def populationPerArea: Double = 
+    population / geom.area
 }
 
 object RegionDemographics {
   def apply(db: DatabaseDef): RegionDemographics =
     new RegionDemographics {
-      def jobsDemographics: Seq[MultiPolygonFeature[Double]] =
+      def jobsDemographics: Seq[JobsDemographics] =
         db withSession { implicit session =>
           DemographicsTable.regionDemographics.map { demographic =>
-            MultiPolygonFeature(demographic.geom.geom, demographic.destinationMetric1)
+            JobsDemographics(demographic.geom.geom, demographic.destinationMetric1, demographic.populationMetric1)
           }
         }
     }

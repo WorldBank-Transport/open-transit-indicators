@@ -22,7 +22,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 import com.typesafe.config.ConfigFactory
 
 
-case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, arriveTime: Int, duration: Int, crs: CRS)
+case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[(Int, Double, Double)], rasterExtent: RasterExtent, arriveTime: Int, duration: Int, crs: CRS)
 
 object TravelshedGraph extends Logging {
   def findTransform(transitSystem: TransitSystem): CRS = {
@@ -172,9 +172,12 @@ object TravelshedGraph extends Logging {
 
         val index =
           Timer.timedTask("Created spatial index") {
-            SpatialIndex(0 until graph.vertexCount) { v =>
+            val mappedVertices = (0 until graph.vertexCount).map { v =>
               val l = graph.location(v)
-              (l.long,l.lat)
+              (v, l.long,l.lat)
+            }
+            SpatialIndex(mappedVertices) { case (v, x, y) =>
+              (x, y)
             }
           }
 
