@@ -11,7 +11,7 @@ trait ScheduledStop {
 
   override
   def toString: String = 
-    s"SHEDULED(stop = ${stop.name}, arrivelTime = $arrivalTime, departureTile = $departureTime)"
+    s"SCHEDULED(stop = ${stop.name}, arrivalTime = $arrivalTime, departureTime = $departureTime)"
 }
 
 object ScheduledStop {
