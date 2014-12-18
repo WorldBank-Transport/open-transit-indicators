@@ -25,8 +25,8 @@ abstract class Accessibility(params: StopBuffers with Demographics with Boundari
       val stopBuffer = params.bufferForPeriod(period)
       val popServed = params.populationMetricForBuffer(stopBuffer, columnName)
       val totalPop = params.populationMetricForBuffer(Projected(params.cityBoundary, stopBuffer.srid), columnName)
-      AggregatedResults.systemOnly(popServed/totalPop * 100)
-    }
+      AggregatedResults.systemOnly(if (totalPop > 0) (popServed/totalPop * 100) else 100) // Prevent infinity result
+     }
     perSystemCalculation(calculate)
   }
 }
