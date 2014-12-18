@@ -37,6 +37,9 @@ angular.module('transitIndicators')
     $scope.configError = false;
     $scope.configSuccess = false;
 
+    // Error displayed to the user if there's a problem (i.e. GTFS data hasn't been loaded)
+    $scope.errorMessage = null;
+
     /**
      * Helper setter for $scope.saveConfigButton
      * @param enabled true/false to toggle button state
@@ -306,7 +309,7 @@ angular.module('transitIndicators')
             return;
         }
         var validateDay = new Date($scope.weekdayDate);
-        var isValid = OTIConfigurationService.isWeekday(validateDay) && 
+        var isValid = OTIConfigurationService.isWeekday(validateDay) &&
                       isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekdayDate.$setValidity('weekdayDate', isValid);
     };
@@ -413,11 +416,12 @@ angular.module('transitIndicators')
             }
         } else {
             var error = obj.error;
-            if (error !== null) {
+            if (error) {
                 console.log('Server returned error fetching feed service dates:');
                 console.log(error);
             } else {
                 // No service dates found; GTFS probably isn't loaded yet.
+                $scope.errorMessage = "SETTINGS.UPLOAD_GTFS";
             }
         }
     };

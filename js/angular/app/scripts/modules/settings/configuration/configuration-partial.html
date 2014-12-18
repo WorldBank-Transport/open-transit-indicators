@@ -2,7 +2,10 @@
 <h1>{{'VIEW.CONFIGURATION' | translate}}</h1>
 <p>{{'SETTINGS.CONFIGURATION_DESCRIPTION' | translate}}</p>
 
-<div ng-if="samplePeriods === null" class="row">
+<h3 ng-if="errorMessage" class="text-danger">
+    {{ errorMessage | translate }}
+</h3>
+<div ng-if="!errorMessage && samplePeriods === null" class="row">
     <img class="center-block" src="/images/ajax-loader.gif" />
 </div>
 <div ng-if="samplePeriodsLoadError" class="row text-center">
