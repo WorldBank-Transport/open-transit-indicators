@@ -42,7 +42,7 @@ class ScenarioGtfsRouteSpec extends FunSuite  with ScalatestRouteTest
       responseAs[RouteRecord] should be (RouteRecord(
         "EastWest",
         "East West Subway",
-        "Subway from WEST STATION to EAST STATION",
+        "Subway from EAST STATION to WEST STATION",
         RouteType(1),
         Some("SUBBERS")
       ))

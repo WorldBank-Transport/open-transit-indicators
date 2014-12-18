@@ -75,8 +75,8 @@ object TravelshedCreationTest {
             )
           }
         val rd = RegionDemographics(db)
-        def regionDemographics(featureFunc: RegionDemographic => MultiPolygonFeature[Double]): Seq[MultiPolygonFeature[Double]] =
-          rd.regionDemographics(featureFunc)
+        def jobsDemographics = rd.jobsDemographics
+
         val travelshedGraph = {
           db withSession { implicit session =>
             TravelshedGraph(
@@ -84,7 +84,8 @@ object TravelshedCreationTest {
               systemBuilder,
               200,
               60 * 60 * 8,
-              60 * 60
+              60 * 60,
+              RoadsTable.allRoads
             )
           }
         }
@@ -98,7 +99,8 @@ object TravelshedCreationTest {
 //              regionBoundary,
             200,
             60 * 60 * 8,
-            60 * 60
+            60 * 60,
+            RoadsTable.allRoads
           )
         }
       }

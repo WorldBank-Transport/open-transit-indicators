@@ -22,7 +22,7 @@ import scala.slick.jdbc.JdbcBackend.{Database, DatabaseDef, Session}
 import com.typesafe.config.ConfigFactory
 
 
-case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[Int], rasterExtent: RasterExtent, arriveTime: Int, duration: Int, crs: CRS)
+case class TravelshedGraph(graph: TransitGraph, index: SpatialIndex[(Int, Double, Double)], rasterExtent: RasterExtent, arriveTime: Int, duration: Int, crs: CRS)
 
 object TravelshedGraph extends Logging {
   def findTransform(transitSystem: TransitSystem): CRS = {
@@ -48,8 +48,9 @@ object TravelshedGraph extends Logging {
     builder: TransitSystemBuilder,
     resolution: Double,
     arriveTime: Int,
-    duration: Int
-  )( implicit session: Session): Option[TravelshedGraph] = {
+    duration: Int,
+    roads: List[Line]
+  ): Option[TravelshedGraph] = {
     SamplePeriod.getRepresentativeWeekday(periods).map { weekday =>
       val startDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime - duration - 1))
       val endDateTime = weekday.toLocalDateTime(new LocalTime(0,0).plusSeconds(arriveTime + 1))
@@ -65,7 +66,7 @@ object TravelshedGraph extends Logging {
       Timer.timedTask("Transit graph created") {
         val osmParsedResult: ParseResult =
           Timer.timedTask("Parsed in OSM results") {
-            OsmParser.parseLines(RoadsTable.allRoads)
+            OsmParser.parseLines(roads)
           }
 
         val systemResult: ParseResult =
@@ -93,7 +94,7 @@ object TravelshedGraph extends Logging {
             (x, y)
           }
 
-        val extent = Extent(ymin, xmin, ymax, xmax)
+        val extent = Extent(xmin, ymin, xmax, ymax)
         val cols = (extent.width / resolution).toInt
         val rows = (extent.height / resolution).toInt
 
@@ -171,9 +172,12 @@ object TravelshedGraph extends Logging {
 
         val index =
           Timer.timedTask("Created spatial index") {
-            SpatialIndex(0 until graph.vertexCount) { v =>
+            val mappedVertices = (0 until graph.vertexCount).map { v =>
               val l = graph.location(v)
-              (l.long,l.lat)
+              (v, l.long,l.lat)
+            }
+            SpatialIndex(mappedVertices) { case (v, x, y) =>
+              (x, y)
             }
           }
 

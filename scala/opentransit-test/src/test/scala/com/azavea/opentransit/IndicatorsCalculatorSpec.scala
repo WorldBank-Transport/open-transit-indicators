@@ -123,9 +123,6 @@ trait RoadLengthSpec { this: IndicatorSpec =>
   }
 }
 
-
-
-
 trait ObservedStopTimeSpec { this: IndicatorSpec =>
   lazy val observedTripMapping: Map[SamplePeriod, Map[String, Trip]] = {
     observedSystems.map { case (period, sys) =>

@@ -5,8 +5,10 @@ package geotrellis.network.graph
 import scala.collection.mutable._
 
 class IntPriorityQueue(weights: Array[Int]) {
-  private val arr = Array.ofDim[Int](weights.size + 1)
+  private val arr = Array.ofDim[Int](weights.size + 2)
   private var queueSize = 1
+
+  def size = queueSize
 
   private def fixUp(m: Int): Unit = {
     var k: Int = m
@@ -71,4 +73,7 @@ class IntPriorityQueue(weights: Array[Int]) {
 
     } else
       throw new NoSuchElementException("no element to remove from heap")
+
+  override
+  def toString: String = arr.toSeq.toString
 }

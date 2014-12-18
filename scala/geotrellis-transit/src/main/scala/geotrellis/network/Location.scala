@@ -1,8 +1,10 @@
 package geotrellis.network
 
+import geotrellis.vector._
+
 import scala.collection.mutable
 
-case class Location(lat:Double,long:Double)
+case class Location(lat:Double,long:Double) { def toPoint: Point = Point(long, lat) }
 object Location {
   implicit def location2Tuple(l:Location):(Double,Double) = 
     (l.lat,l.long)

@@ -6,9 +6,38 @@ import org.joda.time.Days
 import scala.collection.mutable
 import com.azavea.gtfs.op._
 
+trait TransitSystemBuilder {
+  /** Generates a TransitSystem for the specified period, inclusive */
+  def systemBetween(start: LocalDate, end: LocalDate): TransitSystem =
+    systemBetween(
+      start.toLocalDateTime(LocalTime.Midnight),
+      end.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
+
+  /** Generates a TransitSystem for the specified date */
+  def systemOn(date: LocalDate): TransitSystem =
+    systemBetween(
+      date.toLocalDateTime(LocalTime.Midnight),
+      date.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
+
+  /** Generates a TransitSystem for the specified period */
+  def systemBetween(start: LocalDateTime, end: LocalDateTime, pruneStopsBufferMinutes: Int = 0): TransitSystem
+
+  def filterByRoute(routeType: RouteType): TransitSystemBuilder = {
+    val innerSystemBetween: (LocalDateTime, LocalDateTime, Int) => TransitSystem = systemBetween _
+    new TransitSystemBuilder {
+      def systemBetween(start: LocalDateTime, end: LocalDateTime, pruneStopsBufferMinutes: Int = 0): TransitSystem = {
+        val system = innerSystemBetween(start, end, pruneStopsBufferMinutes)
+        new TransitSystem {
+          def routes: Seq[Route] = system.routes.filter(_.routeType == routeType)
+        }
+      }
+    }
+  }
+}
+
 object TransitSystemBuilder {
   def apply(records: GtfsRecords): TransitSystemBuilder =
-    new TransitSystemBuilder(records)
+    new BaseTransitSystemBuilder(records)
 
   type StopScheduler = (Seq[StopTimeRecord], LocalDate, StopId=>Stop) => Iterator[Seq[ScheduledStop]]
 
@@ -34,7 +63,7 @@ object TransitSystemBuilder {
   }
 }
 
-class TransitSystemBuilder(records: GtfsRecords) {
+class BaseTransitSystemBuilder(records: GtfsRecords) extends TransitSystemBuilder {
   import TransitSystemBuilder._
 
   private val tripIdToFrequencyRecords: Map[TripId, Seq[FrequencyRecord]] =
@@ -53,18 +82,6 @@ class TransitSystemBuilder(records: GtfsRecords) {
 
   private val agencyIdToAgency: Map[String, Agency] =
     records.agencies.map { agency => (agency.id, agency) }.toMap
-
-  /** Generates a TransitSystem for the specified period, inclusive */
-  def systemBetween(start: LocalDate, end: LocalDate): TransitSystem =
-    systemBetween(
-      start.toLocalDateTime(LocalTime.Midnight),
-      end.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
-
-  /** Generates a TransitSystem for the specified date */
-  def systemOn(date: LocalDate): TransitSystem =
-    systemBetween(
-      date.toLocalDateTime(LocalTime.Midnight),
-      date.toLocalDateTime(LocalTime.Midnight plusHours 24 minusMillis 1))
 
   /** Generates a TransitSystem for the specified period */
   def systemBetween(
