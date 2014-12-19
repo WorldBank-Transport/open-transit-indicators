@@ -23,7 +23,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
 
   def travelshedIndicatorRoute =
     pathPrefix("jobs") {
-      path("render") { 
+      path("render") {
         get {
           parameters(
             'JOBID,
@@ -39,7 +39,7 @@ trait TravelshedIndicatorRoute extends Route { self: DatabaseInstance =>
                 case Some((tile, extent)) =>
                   val breaks = tile.classBreaks(numberOfClassBreaks)
                   val ramp = {
-                    val cr = ColorRamps.BlueToRed
+                    val cr = ColorRamps.LightToDarkGreen
                     if(cr.toArray.length < breaks.length) { cr.interpolate(breaks.length) }
                     else { cr }
                   }
