@@ -44,17 +44,16 @@ class SystemLineGeometries (geomsByRoute: Map[Route, MultiLine], geomsByRouteTyp
 object SystemLineGeometries {
   /** Find the transform for a transit system to LatLng. Creating the transform only once speeds things up a lot. */
   private def findTransform(transitSystem: TransitSystem): Transform = {
-    val srid =
+    val crs =
       (for(
         route <- transitSystem.routes.headOption;
         trip <- route.trips.headOption;
         tripShape <- trip.tripShape
       ) yield { tripShape.line.srid }) match {
-        case Some(i) => i
-        case None => sys.error(s"Transit system is required to have an SRID")
+        case Some(i) => CRS.fromName(s"EPSG:${i}")
+        case None => CRS.fromName(s"EPSG:4326")
       }
 
-    val crs = CRS.fromName(s"EPSG:${srid}")
     Transform(crs, LatLng)
   }
 
