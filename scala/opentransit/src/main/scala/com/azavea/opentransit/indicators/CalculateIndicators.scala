@@ -224,19 +224,29 @@ object CalculateIndicators {
       println(s"Calculating indicators in period: ${period.periodType}...")
       val system = builder.systemBetween(period.start, period.end)
       val params = IndicatorParams(request, system, period, dbByName)
-      allBuffers(period) = genSysBuffers(system, period, params)
 
-      // Do the calculation
-      for(indicator <- Indicators.list(params)) {
-        trackStatus(period.periodType, indicator.name, JobStatus.Processing)
-        singleCalculation(indicator, period, system, resultHolder)
-        trackStatus(period.periodType, indicator.name, JobStatus.Complete)
-      }
-      // Send an update to the front end regarding the missing trips
-      if (params.missingTripData > 0) {
-        val jobsTable = new IndicatorJobsTable {}
-        dbByName("transit_indicators") withTransaction { implicit session =>
-          jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
+      if (system.routes.isEmpty) {
+        println(s"Transit system for period ${period.periodType} is empty; skipping.")
+        // post zero results for system with no routes in it
+        for(indicator <- Indicators.list(params)) {
+          resultHolder.getOrElseUpdate(indicator.name, mutable.Map())
+          resultHolder(indicator.name)(period) = AggregatedResults(Map(), Map(), Some(0))
+          trackStatus(period.periodType, indicator.name, JobStatus.Complete)
+        }
+      } else {
+        // have system with service in it; do the calculations
+        allBuffers(period) = genSysBuffers(system, period, params)
+        for(indicator <- Indicators.list(params)) {
+          trackStatus(period.periodType, indicator.name, JobStatus.Processing)
+          singleCalculation(indicator, period, system, resultHolder)
+          trackStatus(period.periodType, indicator.name, JobStatus.Complete)
+        }
+        // Send an update to the front end regarding the missing trips
+        if (params.missingTripData > 0) {
+          val jobsTable = new IndicatorJobsTable {}
+          dbByName("transit_indicators") withTransaction { implicit session =>
+            jobsTable.updateErrorType(request.id, "missingObs:" ++ params.missingTripData.toString)
+          }
         }
       }
 
