@@ -21,27 +21,25 @@ import scala.concurrent._
 trait TravelshedMinMaxRoute extends Route { self: DatabaseInstance =>
 
   def travelshedMinMaxRoute =
-    path("minmax") {
-      get {
-          parameters(
-            'JOBID,
-            'BBOX,
-            'WIDTH.as[Int],
-            'HEIGHT.as[Int]
-          ) { (jobId, bbox, width, height) =>
-            complete {
+    pathPrefix("jobs") {
+      path("minmax") {
+        get {
+            parameters(
+              'JOBID
+            ) { (jobId) =>
+              complete {
+                println(jobId)
 
-            val requestExtent = Extent.fromString(bbox)
-            val rasterExtent = RasterExtent(requestExtent, width, height)
 
-            val (min, max) =
-              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name + jobId)) match {
-                case Some((tile, extent)) =>
-                  tile.findMinMax
-                case _ =>
-                  (0,0)
-              }
-            JsObject("min" -> JsNumber(min), "max" -> JsNumber(max))
+                val (min, max) =
+                  Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name + jobId)) match {
+                    case Some((tile, extent)) =>
+                      tile.findMinMax
+                    case _ =>
+                      (0,0)
+                  }
+                JsObject("min" -> JsNumber(min), "max" -> JsNumber(max))
+            }
           }
         }
       }

@@ -2,10 +2,10 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['$scope', '$state',
+        ['$scope', '$state', 'leafletData',
          'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
          'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService',
-        function ($scope, $state,
+        function ($scope, $state, leafletData,
                   OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
                   OTIIndicatorJobManager, OTIMapStyleService, OTIMapService) {
 
@@ -29,7 +29,7 @@ angular.module('transitIndicators')
             name: 'Jobs Indicator',
             type: 'wms',
             url: 'gt/travelshed/jobs/render',
-            visible: true,
+            visible: false,
             layerParams: {
                 format: 'image/png',
                 jobId: layerOptions.calculation_job
@@ -140,6 +140,20 @@ angular.module('transitIndicators')
 
     $scope.$on(OTIIndicatorJobManager.Events.JobUpdated, function (event, calculation_job) {
         OTIIndicatorManager.setConfig({calculation_job: calculation_job, city_name: ''}); // TODO: add city name
+    });
+
+    // Bind events that will hide/show the jobs indicator legend when the jobs indicator is hidden/shown
+    leafletData.getMap().then(function(map) {
+        map.on('overlayadd', function(eventLayer) {
+            if (eventLayer.name === 'Jobs Indicator') {
+                $scope.jobsLegend = true;
+            }
+        });
+        map.on('overlayremove', function(eventLayer) {
+            if (eventLayer.name === 'Jobs Indicator') {
+                $scope.jobsLegend = false;
+            }
+        });
     });
 
     $scope.init = function () {

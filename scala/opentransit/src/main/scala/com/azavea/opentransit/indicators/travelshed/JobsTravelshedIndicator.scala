@@ -1,5 +1,7 @@
 package com.azavea.opentransit.indicators.travelshed
 
+import scala.math.max
+
 import com.azavea.opentransit._
 import com.azavea.opentransit.indicators._
 import com.azavea.opentransit.indicators.parameters._
@@ -97,7 +99,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
       val cellsContained = tileIndex.pointsInExtent(envelope).toArray
       val cellsContainedLen = cellsContained.size
       if(cellsContainedLen > 0) {
-        val population = feature.populationPerArea * cellArea
+        val population = max(1, feature.populationPerArea * cellArea)
         cfor(0)(_ < cellsContainedLen, _ + 1) { i =>
           val (col, row, x, y) = cellsContained(i)
           if(feature.geom.contains(x, y)) {
