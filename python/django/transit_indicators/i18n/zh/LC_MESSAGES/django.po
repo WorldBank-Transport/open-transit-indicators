@@ -41,7 +41,7 @@ msgstr "正在下载"
 
 #: datasources/models.py:41
 msgid "Importing"
-msgstr ""
+msgstr "导入"
 
 #: datasources/models.py:42
 msgid "Waiting for User Input"
@@ -627,11 +627,11 @@ msgstr "任务已排队等待处理"
 
 #: transit_indicators/models.py:169
 msgid "Scenario initialization is processing"
-msgstr ""
+msgstr "方案正在初始化"
 
 #: transit_indicators/models.py:170
 msgid "Error initializing scenario"
-msgstr ""
+msgstr "初始化方案错误"
 
 #: transit_indicators/models.py:171
 #, fuzzy
@@ -681,11 +681,11 @@ msgstr "与计划时间的平均偏差"
 
 #: transit_indicators/models.py:349
 msgid "secs"
-msgstr ""
+msgstr "秒数"
 
 #: transit_indicators/models.py:350
 msgid "mins"
-msgstr ""
+msgstr "分钟数"
 
 #: transit_indicators/models.py:351
 msgid "hrs"
@@ -699,15 +699,15 @@ msgstr "公里"
 #, fuzzy
 #| msgid "Transit system length"
 msgid "transit length/km²"
-msgstr "公交系统长度"
+msgstr "公交系统长度/平方公里"
 
 #: transit_indicators/models.py:354
 msgid "low-income pop served by stop"
-msgstr ""
+msgstr "每个站点服务的低收入人口"
 
 #: transit_indicators/models.py:355
 msgid "percent population served by a stop"
-msgstr ""
+msgstr "站点服务的人口百分比"
 
 #: transit_indicators/models.py:356
 #, fuzzy
@@ -717,7 +717,7 @@ msgstr "系统覆盖率"
 
 #: transit_indicators/models.py:357
 msgid "stops/km"
-msgstr ""
+msgstr "站点/每公里"
 
 #: transit_indicators/models.py:396
 msgid "Access index"
