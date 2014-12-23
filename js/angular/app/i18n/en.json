@@ -364,6 +364,11 @@
         "JOBS_INDICATOR_TITLE": "Jobs Accessible Per Person",
         "JOBS_INDICATOR_FEWER": "Fewer",
         "JOBS_INDICATOR_MORE": "More",
+        "COVERAGE_STATS": "Stop Coverage Statistics",
+        "PERCENT_COVERED": "Transit stop coverage",
+        "ACCESS_1": "System access (demographic 1)",
+        "ACCESS_2": "System access (demographic 2)",
+        "BUFF_SIZE": "Stop buffer size",
         "INDICATOR_TYPE": "Indicator Type"
     }
 }

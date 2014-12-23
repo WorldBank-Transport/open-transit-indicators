@@ -212,4 +212,20 @@ Use class legend + (stacked-legend || flat-legend)
   margin: 0px 0px 6px 10px;
 }
 
+.legend-coverage {
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255, 1);
+    padding: 6px 8px;
+    width: 280px;
+    line-height: 18px;
+    color: #555;
+    position: fixed;
+    bottom: 14px;
+    right: 10px;
+}
+
+.legend-coverage span.value {
+  float: right;
+  font-weight: bold;
+}
 
