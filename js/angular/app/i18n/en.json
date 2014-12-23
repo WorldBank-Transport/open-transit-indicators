@@ -361,6 +361,9 @@
         "TRANSIT_STOPS": "Transit Stops",
         "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity",
         "SYSTEM_SELECTION": "System/Scenario Selection",
+        "JOBS_INDICATOR_TITLE": "Jobs Accessible Per Person",
+        "JOBS_INDICATOR_FEWER": "Fewer",
+        "JOBS_INDICATOR_MORE": "More",
         "INDICATOR_TYPE": "Indicator Type"
     }
 }

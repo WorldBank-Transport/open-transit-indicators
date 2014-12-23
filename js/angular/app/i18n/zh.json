@@ -360,6 +360,9 @@
         "TRANSIT_STOPS": "公共交通站点",
         "TRANSIT_STOPS_INTERACTIVITY": "公共交通站点交互",
         "SYSTEM_SELECTION": "系统/方案选择",
+        "JOBS_INDICATOR_TITLE": "Jobs Accessible Per Person",
+        "JOBS_INDICATOR_FEWER": "Fewer",
+        "JOBS_INDICATOR_MORE": "More",
         "INDICATOR_TYPE": "指标类型"
     }
 }
