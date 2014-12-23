@@ -16,7 +16,7 @@ angular.module('transitIndicators')
 
     var template = [
 
-        '<div ng-show="jobsLegend" class="legend legend-jobs">',
+        '<div ng-show="visible" class="legend legend-jobs">',
           '<div class="legend-title" translate="MAP.JOBS_INDICATOR_TITLE"></div>',
           '<div class="legend-scale">',
             '<span class="min" translate="MAP.JOBS_INDICATOR_FEWER"></span>',
@@ -34,12 +34,10 @@ angular.module('transitIndicators')
     return {
         restrict: 'AE',
         scope: {
-            jobsLegend: '=' // For tracking visibility
+            visible: '=' // For tracking visibility
         },
         template: template,
         link: function (scope) {
-
-            scope.visible = true;
 
             scope.colors = ['#E8EDDB', '#DCE8D4', '#BEDBAD', '#A0CF88',
                             '#81C561', '#4BAF48', '#1CA049', '#3A6D35'];

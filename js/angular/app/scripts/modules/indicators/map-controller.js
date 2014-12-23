@@ -4,10 +4,10 @@ angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
         ['$scope', '$state', 'leafletData',
          'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
-         'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService',
+         'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService', 'OTISettingsService',
         function ($scope, $state, leafletData,
                   OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
-                  OTIIndicatorJobManager, OTIMapStyleService, OTIMapService) {
+                  OTIIndicatorJobManager, OTIMapStyleService, OTIMapService, OTISettingsService) {
 
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
@@ -88,14 +88,45 @@ angular.module('transitIndicators')
         }
     };
 
+    // Coverage ratio stops buffer requires a special bit of massaging because it is systemic rather than per route
+    // this means it requires its own directive to be shown
+    $scope.coverageLegend = false;
+    $scope.coverage = null;
+    $scope.bufferDistance = null;
     var updateIndicatorLegend = function (indicator) {
+        $scope.coverageLegend = false;
         var params = angular.extend({}, indicator, {
             'ordering': 'value'
         });
-        OTIIndicatorModel.search(params, function (data) {
-            // Redraw new
-            $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
-        });
+        if (indicator.type && indicator.type === 'coverage_ratio_stops_buffer') {
+            var minimalParams = {
+                calculation_job: params.calculation_job,
+                sample_period: params.sample_period,
+                type: 'coverage_ratio_stops_buffer'
+            };
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'coverage_ratio_stops_buffer'}))
+                .$promise.then(function(indicatorResult) {
+                    // Draw coverage legend
+                    $scope.coverageLegend = indicatorResult[0] ? true : false;
+                    $scope.coverage = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access'}))
+                .$promise.then(function(indicatorResult) {
+                    $scope.access1 = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access_low'}))
+                .$promise.then(function(indicatorResult) {
+                    $scope.access2 = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTISettingsService.configs.query().$promise.then(function(config){
+                $scope.bufferDistance = config[0] ? config[0].nearby_buffer_distance_m : null;
+            });
+        } else {
+            OTIIndicatorModel.search(params, function (data) {
+                // Redraw new
+                $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
+            });
+        }
     };
 
     /**
@@ -155,6 +186,7 @@ angular.module('transitIndicators')
             }
         });
     });
+
 
     $scope.init = function () {
         if($scope.cities.length > 0) {
