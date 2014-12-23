@@ -6,12 +6,6 @@ A small legend directive for the coverage indicator's summary stats
 */
 
 angular.module('transitIndicators')
-.filter('legendValue', function () {
-    return function (value) {
-        var floatValue = parseFloat(value);
-        return isNaN(floatValue) ? value : floatValue.toFixed(2);
-    };
-})
 .directive('otiCoverageLegend', [function () {
 
     var template = [
