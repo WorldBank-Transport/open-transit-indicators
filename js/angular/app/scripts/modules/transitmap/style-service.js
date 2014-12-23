@@ -36,6 +36,20 @@ angular.module('transitIndicators')
         return labels;
     };
 
+    // Dictionary used to generate corresponding units
+    otiMapStyleService.indicatorToUnits = {
+        'distance_stops': 'km',
+        'hours_service': 'hrs',
+        'length': 'km',
+        'num_stops': '',
+        'on_time_perf': '',
+        'num_routes': '',
+        'headway_regularity': '',
+        'stops_route_length': '',
+        'time_traveled_stops': 'min',
+        'avg_svc_freq': 'min/stop',
+    };
+
     /**
      *  Return an array of colors to display in the flat legend, based on indicator.type
      */
@@ -72,7 +86,8 @@ angular.module('transitIndicators')
                 legend = {
                     colors: colors,
                     labels: labels,
-                    style: 'flat'
+                    style: 'flat',
+                    units: otiMapStyleService.indicatorToUnits[indicatorType]
                 };
             }
         }
