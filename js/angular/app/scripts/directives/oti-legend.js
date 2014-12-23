@@ -41,7 +41,7 @@ angular.module('transitIndicators')
             '<ul class="legend-labels">',
                 '<li ng-repeat="color in colors">',
                     '<span style="background:{{ color }};"></span>',
-                    '{{ labels[$index] | legendValue }}',
+                    '{{ labels[$index] | legendValue }}{{ labels[$index] ? units : "" }}',
                 '</li>',
             '</ul>',
         '</div>',
@@ -53,7 +53,8 @@ angular.module('transitIndicators')
         scope: {
             colors: '=',
             labels: '=',
-            style: '='
+            style: '=',
+            units: '=' // Optional parameter for adding units to numbers
         },
         template: template,
         link: function (scope) {

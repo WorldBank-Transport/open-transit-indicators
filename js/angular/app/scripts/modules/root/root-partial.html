@@ -20,10 +20,20 @@
 <div class="app-view">
     <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive, 'navigationpadding-2': mapClassNav2 }"
              class="navigationpadding-1"
-             defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
-             markers="leaflet.markers" layers="leaflet.layers">
+             defaults="leaflet.defaults"
+             center="leaflet.center"
+             bounds="leaflet.bounds"
+             markers="leaflet.markers"
+             layers="leaflet.layers">
     </leaflet>
-    <oti-legend labels="leaflet.legend.labels" colors="leaflet.legend.colors" style="leaflet.legend.style"></oti-legend>
-    <oti-mode-selector modes="modes" updatemap="setMapModes" legend-labels="leaflet.legend.labels"></oti-mode-selector>
+    <oti-legend labels="leaflet.legend.labels"
+                colors="leaflet.legend.colors"
+                style="leaflet.legend.style"
+                units="leaflet.legend.units">
+    </oti-legend>
+    <oti-mode-selector modes="modes"
+                       updatemap="setMapModes"
+                       legend-labels="leaflet.legend.labels">
+    </oti-mode-selector>
     <div ui-view></div>
 </div>
