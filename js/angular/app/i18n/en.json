@@ -62,6 +62,7 @@
         "YES": "Yes",
         "NO": "No",
         "OK": "Okay",
+        "OK_ABBREVIATION": "OK",
         "LOAD": "Load",
         "IMPORT": "Import",
         "EXPORT": "Export",
@@ -201,6 +202,7 @@
             "MISSING_STOPS": "Some stops are missing stop times"
         },
         "FINISH_AND_CALC": "Finish and Calculate Indicators",
+        "CALCULATING_MODAL_TEXT": "Wait for calculators to finish calculating, as indicated by the status icon, and then select 'Add / Remove City' on the Indicators tab to add the scenario and view results.",
         "DESCRIPTION_PLACEHOLDER": "Add description here"
     },
     "INDICATOR_DESCRIPTION": {

@@ -1,0 +1,13 @@
+<div class="container-fluid ok-modal">
+  <div class="modal-header">
+    <h3 class="modal-title">{{ message | translate }}</h3>
+  </div>
+  <div class="modal-body" ng-if="list">
+      <ul>
+          <li ng-repeat="item in list">{{ item | translate }}</li>
+      </ul>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">{{ 'TERM.OK_ABBREVIATION' | translate}}</button>
+  </div>
+</div>

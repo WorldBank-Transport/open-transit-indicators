@@ -1,10 +1,10 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIScenariosNewsuccessController',
-            ['config', '$scope', '$state', '$timeout',
+            ['config', '$modal', '$scope', '$state', '$timeout',
              'OTIIndicatorJobModel', 'OTIMapService', 'OTIScenarioManager', 'OTIScenarioModel',
              'OTITripManager',
-            function (config, $scope, $state, $timeout,
+            function (config, $modal, $scope, $state, $timeout,
                       OTIIndicatorJobModel, OTIMapService, OTIScenarioManager, OTIScenarioModel,
                       OTITripManager) {
 
@@ -55,6 +55,17 @@ angular.module('transitIndicators')
     $scope.saving = false;
 
     $scope.calculateIndicators = function () {
+        $modal.open({
+            templateUrl: 'scripts/modules/indicators/ok-modal-partial.html',
+            controller: 'OTIOKModalController',
+            windowClass: 'ok-modal-window',
+            resolve: {
+                getMessage: function() {
+                    return 'SCENARIO.CALCULATING_MODAL_TEXT';
+                }
+            }
+        });
+
         var job = new OTIIndicatorJobModel({
             city_name: $scope.scenario.name,
             scenario: $scope.scenario.id

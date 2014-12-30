@@ -62,6 +62,7 @@
         "YES": "是",
         "NO": "否",
         "OK": "好",
+        "OK_ABBREVIATION": "OK",
         "LOAD": "装载",
         "IMPORT": "导入",
         "EXPORT": "导出",
@@ -200,6 +201,7 @@
             "MISSING_STOPS": "有些站点没有到站时间"
         },
         "FINISH_AND_CALC": "计算指标完成",
+        "CALCULATING_MODAL_TEXT": "Wait for calculators to finish calculating, as indicated by the status icon, and then select 'Add / Remove City' on the Indicators tab to add the scenario and view results.",
         "DESCRIPTION_PLACEHOLDER": "添加描述"
     },
     "INDICATOR_DESCRIPTION": {
