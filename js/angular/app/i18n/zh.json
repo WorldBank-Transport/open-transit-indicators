@@ -208,6 +208,7 @@
         "COVERAGE_RATIO_STOPS_BUFFER": "在设置的站点覆盖距离内的城市区域百分比。",
         "DISTANCE_STOPS": "每条线路，每种模式的站点间平均距离。",
         "DWELL_TIME": " 站点停留时间的平均方差（需要实际的到站时间数据）。",
+        "TRAVEL_TIME": "The average variance in minutes of travel time (requires observed stop times).",
         "HOURS_SERVICE": "系统每周提供服务的小时数。",
         "JOB_ACCESS": "在设置的通勤时间内到达工作地点（目的地指标）的人数。对每个工作地点计算其旅行时间的等时线，再对该范围内的人口进行加和。每个人口加和的区域组成了全城范围内工作地点可达性。",
         "LENGTH": "公共交通系统所有线路的长度总和。该指标对同一路段的多条线路长度不进行重复计算。",

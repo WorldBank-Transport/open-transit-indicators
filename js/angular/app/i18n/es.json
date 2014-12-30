@@ -208,6 +208,7 @@
         "COVERAGE_RATIO_STOPS_BUFFER": "The percent of the urban area that is within the configured distance from stop locations.",
         "DISTANCE_STOPS": "The average distance between stops, per route and mode.",
         "DWELL_TIME": "The average variance of dwell time (requires observed stop times).",
+        "TRAVEL_TIME": "The average variance in minutes of travel time (requires observed stop times).",
         "HOURS_SERVICE": "The number of hours per week that the system provides service.",
         "JOB_ACCESS": "The number of individuals who can reach a job location (destination metric) within the configured commute time. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
         "LENGTH": "The sum of the total length of each route in the transit system. This indicator does not account for road or rail shared by multiple routes.",

@@ -400,11 +400,9 @@ class Indicator(models.Model):
         INDICATORS_TO_MAP = frozenset([
                               LENGTH,
                               NUM_STOPS,
-                              HOURS_SERVICE,
                               STOPS_ROUTE_LENGTH,
                               DISTANCE_STOPS,
                               TIME_TRAVELED_STOPS,
-                              WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
                               COVERAGE_STOPS
