@@ -273,7 +273,10 @@
             "AVG_FARE": "Giá vé trung bình cho một lượt đi trong hệ thống, tính bằng tiền Việt Nam",
             "DISTANCE_BUFFER": "Khoảng cách xa nhất tính bằng mét từ một bến hoặc một điểm dừng có thể đến được",
             "JOB_TRAVEL_TIME": "Thời gian hành trình tối đa tính bằng ‘phút’ cần thiết để thực hiện một lượt đi",
-            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible.",
+            "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
+            "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
         }
     },
     "SETTINGS": {

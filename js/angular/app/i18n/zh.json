@@ -273,7 +273,10 @@
             "AVG_FARE": "公交系统中单向旅程的平均票价（以当地货币计）。",
             "DISTANCE_BUFFER": "距离被认为可达的车站或公交站点的最远距离（单位：米）。",
             "JOB_TRAVEL_TIME": "从工作可达性角度考虑的最大通勤时间（单位：分钟）。",
-            "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。"
+            "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。",
+            "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
+            "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
         }
     },
     "SETTINGS": {

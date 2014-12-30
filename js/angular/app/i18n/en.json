@@ -274,7 +274,10 @@
             "AVG_FARE": "The average fare for a one-way trip on the transit system, in local currency.",
             "DISTANCE_BUFFER": "The farthest distance in meters from a station or stop that is considered accessible.",
             "JOB_TRAVEL_TIME": "The maximum commute time in minutes to be considered for job accessibility.",
-            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible.",
+            "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
+            "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
         }
     },
     "SETTINGS": {
