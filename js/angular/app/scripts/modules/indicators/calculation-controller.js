@@ -117,7 +117,7 @@ angular.module('transitIndicators')
     /**
      * Sets the current job status given a list of job results
      */
-    var setCurrentJob = function(indicatorJob, currentlyCalculating) {
+    var setCurrentJob = function(indicatorJob) {
         // There should only be one job in this list, but just in case there's multiple,
         // use the one with the highest id (i.e. the most recent one).
         $scope.currentJob = indicatorJob;
@@ -137,14 +137,13 @@ angular.module('transitIndicators')
             $scope.displayStatus = 'STATUS.QUEUED';
         } else if ($scope.jobStatus === 'complete') {
             $scope.displayStatus = 'STATUS.COMPLETE';
-            // only add this job/city to city list if new
-            if (currentlyCalculating) {
-                // first remove last job for city, if this is a new one
-                $scope.cities.splice(_.indexOf($scope.cities, _.find($scope.cities, function(obj) {
-                    return (obj.city_name === indicatorJob.city_name && obj.scenario === indicatorJob.scenario);
-                })));
-                $scope.cities.push(indicatorJob);
-            }
+
+            // first remove last job for city, if this is a new one
+            $scope.cities.splice(_.indexOf($scope.cities, _.find($scope.cities, function(obj) {
+                return obj.city_name === indicatorJob.city_name &&
+                    obj.scenario === indicatorJob.scenario;
+            })));
+            $scope.cities.push(indicatorJob);
         } else if ($scope.jobStatus === 'error') {
             $scope.displayStatus = 'STATUS.FAILED';
         } else {
@@ -160,17 +159,13 @@ angular.module('transitIndicators')
     var pollForUpdatedStatus = function() {
         // Grab the latest job
         OTIIndicatorJobModel.latest().$promise.then(function(latestData) {
-            var amCalculating;
             if (latestData.job_status === 'processing' || latestData.job_status === 'queued') {
-                amCalculating = true;
                 console.log('still processing...');
 
                 // Repeatedly poll for status while an indicator is processing or queued
                 $timeout(pollForUpdatedStatus, POLL_INTERVAL_MILLIS);
-            } else {
-                amCalculating = false;
             }
-            setCurrentJob(latestData, amCalculating);
+            setCurrentJob(latestData);
             $scope.statusFetched = true;
         });
     };
