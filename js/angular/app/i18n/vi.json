@@ -98,7 +98,8 @@
         "ENTER_CITY_NAME": "Enter city name...",
         "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
         "CALCULATION_ERROR": "Exception thrown while calculating indicators: does your data have errors?",
-        "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: "
+        "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: ",
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",

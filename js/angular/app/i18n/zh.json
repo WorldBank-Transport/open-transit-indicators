@@ -98,7 +98,8 @@
         "ENTER_CITY_NAME": "输入城市名...",
         "SCALA_UNKNOWN_ERROR": "计算指标时出现致命错误: 您的服务器有足够的内存吗？",
         "CALCULATION_ERROR": "计算指标时出现异常: 您的数据有错误吗？",
-        "MISSING_OBS": "抽样时间内实时数据缺失 "
+        "MISSING_OBS": "抽样时间内实时数据缺失 ",
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
     },
     "SCENARIO": {
         "SCENARIO": "方案",
