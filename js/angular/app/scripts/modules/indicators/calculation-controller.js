@@ -107,7 +107,7 @@ angular.module('transitIndicators')
                 if (statusHolder[period][indicator].status === 'processing') {
                     return {
                         period: period,
-                        indicator: indicator,
+                        indicator: indicator
                     };
                 }
             }
