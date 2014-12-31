@@ -97,7 +97,8 @@
         "ENTER_CITY_NAME": "Enter city name...",
         "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
         "CALCULATION_ERROR": "Exception thrown while calculating indicators: does your data have errors?",
-        "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: "
+        "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: ",
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
@@ -200,6 +201,7 @@
             "MISSING_STOPS": "Some stops are missing stop times"
         },
         "FINISH_AND_CALC": "Finish and Calculate Indicators",
+        "CALCULATING_MODAL_TEXT": "Wait for calculators to finish calculating, as indicated by the status icon, and then select 'Add / Remove City' on the Indicators tab to add the scenario and view results.",
         "DESCRIPTION_PLACEHOLDER": "Add description here"
     },
     "INDICATOR_DESCRIPTION": {
@@ -273,7 +275,10 @@
             "AVG_FARE": "Giá vé trung bình cho một lượt đi trong hệ thống, tính bằng tiền Việt Nam",
             "DISTANCE_BUFFER": "Khoảng cách xa nhất tính bằng mét từ một bến hoặc một điểm dừng có thể đến được",
             "JOB_TRAVEL_TIME": "Thời gian hành trình tối đa tính bằng ‘phút’ cần thiết để thực hiện một lượt đi",
-            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible."
+            "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible.",
+            "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
+            "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
         }
     },
     "SETTINGS": {

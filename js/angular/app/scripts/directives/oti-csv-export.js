@@ -4,8 +4,8 @@ Directive that allows a user to download indicator results as a CSV
 */
 
 angular.module('transitIndicators')
-.directive('otiCsvExport', ['$document', '$window', 'OTIIndicatorModel',
-function ($document, $window, OTIIndicatorModel) {
+.directive('otiCsvExport', ['$document', '$modal', '$window', 'OTIIndicatorModel',
+function ($document, $modal, $window, OTIIndicatorModel) {
     var template = [
         '<a ng-click="exportCsv()" type="button" ',
         'class="button button--small button--secondary default glyphicon glyphicon-save">',
@@ -29,6 +29,17 @@ function ($document, $window, OTIIndicatorModel) {
                 };
                 var cityName = scope.job.city_name.replace(/ /g, '_').toLowerCase();
                 var fileName = cityName + '_' + scope.job.id + '.csv';
+
+                $modal.open({
+                    templateUrl: 'scripts/modules/indicators/ok-modal-partial.html',
+                    controller: 'OTIOKModalController',
+                    windowClass: 'ok-modal-window',
+                    resolve: {
+                        getMessage: function() {
+                            return 'CALCULATION.EXPORT_MODAL_TEXT';
+                        }
+                    }
+                });
 
                 OTIIndicatorModel.csv(params, function (data) {
                     if (window.navigator.msSaveOrOpenBlob) {

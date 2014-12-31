@@ -97,7 +97,8 @@
         "ENTER_CITY_NAME": "输入城市名...",
         "SCALA_UNKNOWN_ERROR": "计算指标时出现致命错误: 您的服务器有足够的内存吗？",
         "CALCULATION_ERROR": "计算指标时出现异常: 您的数据有错误吗？",
-        "MISSING_OBS": "抽样时间内实时数据缺失 "
+        "MISSING_OBS": "抽样时间内实时数据缺失 ",
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
     },
     "SCENARIO": {
         "SCENARIO": "方案",
@@ -200,6 +201,7 @@
             "MISSING_STOPS": "有些站点没有到站时间"
         },
         "FINISH_AND_CALC": "计算指标完成",
+        "CALCULATING_MODAL_TEXT": "Wait for calculators to finish calculating, as indicated by the status icon, and then select 'Add / Remove City' on the Indicators tab to add the scenario and view results.",
         "DESCRIPTION_PLACEHOLDER": "添加描述"
     },
     "INDICATOR_DESCRIPTION": {
@@ -273,7 +275,10 @@
             "AVG_FARE": "公交系统中单向旅程的平均票价（以当地货币计）。",
             "DISTANCE_BUFFER": "距离被认为可达的车站或公交站点的最远距离（单位：米）。",
             "JOB_TRAVEL_TIME": "从工作可达性角度考虑的最大通勤时间（单位：分钟）。",
-            "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。"
+            "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。",
+            "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
+            "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
         }
     },
     "SETTINGS": {
