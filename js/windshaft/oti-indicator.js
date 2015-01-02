@@ -10,15 +10,21 @@ var result_tablename = "indicator_result";
 // TODO: Styles for more ntiles
 // TODO: Styles for geom types other than lines
 var styles = {
-    ntiles_5: function () {
+    ntiles_5: function (lineWidth) {
+        lineWidth = typeof lineWidth !== 'undefined' ? lineWidth : 5; // 0 is falsey
         var cartocss = '#' + result_tablename + ' { ' +
             'line-color: #EFF3FF; ' +
-            'line-width: 5; ' +
-            '[ ntiles_bin > 0 ] { line-color: #d7191c; } ' +
-            '[ ntiles_bin > 1 ] { line-color: #fdae61; } ' +
-            '[ ntiles_bin > 2 ] { line-color: #ffffbf; } ' +
-            '[ ntiles_bin > 3 ] { line-color: #abdda4; } ' +
-            '[ ntiles_bin > 4 ] { line-color: #2b83ba; } ' +
+            'line-width: ' + lineWidth + '; ' +
+            '[ ntiles_bin > 0 ] { line-color: #d7191c; ' +
+                                  'polygon-fill: #d7191c; } ' +
+            '[ ntiles_bin > 1 ] { line-color: #fdae61; ' +
+                                  'polygon-fill: #fdae61; }' +
+            '[ ntiles_bin > 2 ] { line-color: #ffffbf; ' +
+                                  'polygon-fill: #ffffbf; } ' +
+            '[ ntiles_bin > 3 ] { line-color: #abdda4; ' +
+                                  'polygon-fill: #abdda4; } ' +
+            '[ ntiles_bin > 4 ] { line-color: #2b83ba; ' +
+                                  'polygon-fill: #2b83ba; } ' +
             '} ';
         return cartocss;
     },
@@ -128,8 +134,8 @@ GTFSStops.prototype.getSql = function (filetype, modes) {
     var table = 'gtfs_stops';
     var sqlString = "(SELECT distinct s.stop_id, s.the_geom as the_geom";
     if (filetype === 'utfgrid') {
-    	table = 'gtfs_stops_info';
-    	sqlString += ', stop_routes';
+        table = 'gtfs_stops_info';
+        sqlString += ', stop_routes';
     }
     sqlString += " FROM " + table + " AS s " +
         "LEFT JOIN gtfs_stops_routes_join j ON j.stop_id = s.stop_id " +
@@ -158,9 +164,32 @@ datasourcesBoundary.prototype.getSql = function () {
 
 datasourcesBoundary.prototype.getStyle = function () {
     return styles.datasources_boundary() || "";
-}
+};
 
-;
+/**
+ * Display logic for datasources_demographicdatafeature table
+ */
+var DatasourcesDemographics = function(metric, num_ntiles) {
+    this.metricTypes = ['population_metric_1', 'population_metric_2', 'destination_metric_1'];
+    if (this.metricTypes.indexOf(metric) < 0) {
+        throw "Invalid metric type; acceptable values are \"population_metric_<1,2>\", \"destination_metric_1\"";
+    }
+    this.metric = metric;
+    this.ntiles = parseInt(num_ntiles, 10);
+};
+
+DatasourcesDemographics.prototype.getSql = function() {
+    var sqlString =
+        "(SELECT ST_Transform(geom, 4326) as the_geom, " +
+        "ntile(" + this.ntiles + ") over (order by " + this.metric + ") as ntiles_bin " +
+        "FROM datasources_demographicdatafeature) AS " + result_tablename;
+    return sqlString;
+};
+
+DatasourcesDemographics.prototype.getStyle = function() {
+    var cssKey = 'ntiles_' + this.ntiles;
+    return styles[cssKey](0) || "";
+};
 
 /**
  * Encapsulates windshaft display logic for the gtfs_stops_buffers table
@@ -255,4 +284,5 @@ exports.GTFSShapes = GTFSShapes;
 exports.GTFSStops = GTFSStops;
 exports.GTFSStopsBuffers = GTFSStopsBuffers;
 exports.datasourcesBoundary = datasourcesBoundary;
+exports.DatasourcesDemographics = DatasourcesDemographics;
 exports.table = result_tablename;
