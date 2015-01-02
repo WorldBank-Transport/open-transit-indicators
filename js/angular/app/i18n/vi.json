@@ -308,6 +308,7 @@
         "POPULATION": "Dân cư",
         "POPULATION_METRIC_ONE": "Số liệu thống kê dân cư 1:",
         "POPULATION_METRIC_TWO": "Số liệu thống kê dân cư 2:",
+        "DESTINATION": "!Destination",
         "DEMOGRAPHIC_METRIC": "Dữ liệu thống kê nhân khẩu:",
         "OVERVIEW_DESCRIPTION": "Welcome to the Open Transit Indicators application. This section allows administrators to configure the application so that it can calculate a variety of performance and accessibility metrics.",
         "OVERVIEW_REQUIRED_HEADER": "Required Inputs",

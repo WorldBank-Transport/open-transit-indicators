@@ -39,6 +39,12 @@ var config = {
             var datasourcesBoundary = new oti.datasourcesBoundary();
             req.params.sql = datasourcesBoundary.getSql();
             req.params.style = datasourcesBoundary.getStyle();
+        } else if (req.params.type === 'datasources_demographics') {
+            var metric = req.query.metric || 'population_metric_1';
+            var ntiles = req.query.ntiles || "5";
+            var datasourcesDemographics = new oti.DatasourcesDemographics(metric, ntiles);
+            req.params.sql = datasourcesDemographics.getSql();
+            req.params.style = datasourcesDemographics.getStyle();
         } else if (req.params.type === 'coverage_ratio_stops_buffer') {
             var gtfsStopsBuffers = new oti.GTFSStopsBuffers(req.params);
             req.params.sql = gtfsStopsBuffers.getSql();

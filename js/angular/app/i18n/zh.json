@@ -308,6 +308,7 @@
         "POPULATION": "人口",
         "POPULATION_METRIC_ONE": "人口度量指标1：",
         "POPULATION_METRIC_TWO": "人口度量指标2：",
+        "DESTINATION": "!Destination",
         "DEMOGRAPHIC_METRIC": "人口统计度量指标：",
         "OVERVIEW_DESCRIPTION": "欢迎来到开放公交指标应用程序。管理员可以在这个模块进行参数设置来进行各种可达性以及服务水平的指标计算。",
         "OVERVIEW_REQUIRED_HEADER": "必选的输入",
