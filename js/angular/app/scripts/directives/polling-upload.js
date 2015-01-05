@@ -62,7 +62,6 @@ $rootScope:                         (event args)
         // TODO: Make configurable templateUrl and add custom stylesheet
         var template = [
             '<div class="dropzone" ng-show="!upload.status && !uploadError"> ',
-            '  <div class="h4" ng-file-drop="startUpload($files)" ng-file-drop-available="true">{{ "TERM.DROP_FILE_HERE_OR" | translate }}</div>',
             '  <input type="file" ng-file-select="startUpload($files)" />',
             '</div>',
             '<div class="dropzone inprogress" ng-show="options.checkContinue(upload)">',
