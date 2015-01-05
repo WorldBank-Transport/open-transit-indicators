@@ -16,27 +16,27 @@
   vertical-align: top;
 }
 .settingsmodal-sidebar {
-  width: 20rem;
-  border-right: 1px solid $light-line-grey;
+  width: 25rem;
   vertical-align: top;
 }
 .settingsmodal-sidebar-active {
-  border-right: 4px solid $brand-primary;
+  background-color: #fff !important;
 }
 .settingsmodal-body {
-  padding: 3rem 4rem;
-  width: 60rem;
+  padding: 4rem 5rem;
+  max-width: 85rem;
 }
 .settingsmodal-sidebar-tab {
   font-size: $h4;
-  padding: 1.2rem;
-  border-bottom: 1px solid $light-line-grey;
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid #fff;
   cursor: pointer;
   margin-right: -1px;
   position: relative;
+  background-color: $lighter-bg-grey;
   &.active {
       border-right: 0;
-      background-color: #fff;
+      background-color: #fff !important;
   }
   &:last-child {
     border-bottom: 0;
@@ -61,7 +61,11 @@
 .dropzone {
   margin-bottom: 3rem;
   padding: 1.4rem 2rem 2rem 2rem;
-  border: dashed 1px $light-line-grey;
+  border: dotted 1px $light-line-grey;
+  .glyphicon {
+    margin-right: .8rem;
+    margin-left: .2rem;
+  }
   &.inprogress {
     border-style: solid;
   }
@@ -102,16 +106,6 @@ td, th {
     td, th {
         padding: 0;
     }
-}
-
-.settingsmodal input.ng-invalid,
-.settingsmodal select.ng-invalid {
-    border: solid 1px red;
-}
-
-.settingsmodal input.ng-valid,
-.settingsmodal select.ng-valid {
-    border: solid 1px green;
 }
 
 span[tooltip] {

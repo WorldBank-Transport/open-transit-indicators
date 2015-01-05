@@ -23,7 +23,6 @@
     </div>
 
     <div class="dropzone" ng-show="showSelectionDiv()">
-        <h3>{{'SETTINGS.DEMOGRAPHIC_DATA' | translate}}: {{ upload.source_file }}</h3>
         <h3>{{'SETTINGS.ASSIGN_FIELDS' | translate}}</h3>
         <h4>{{'SETTINGS.POPULATION' | translate}}</h4>
         <div class="settingsmodal-fieldgroup">
@@ -35,10 +34,9 @@
                         <span>{{'SETTINGS.POPULATION_METRIC_ONE' | translate}}</span>
                     </p>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-8">
                     <select ng-model="assign.pop_metric_1" name="pop_metric_1" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
                 </div>
-                <div class="col-sm-4"></div>
             </div>
         </div>
         <div class="settingsmodal-fieldgroup">
@@ -50,10 +48,9 @@
                         <span>{{'SETTINGS.POPULATION_METRIC_TWO' | translate}}</span>
                     </p>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-8">
                     <select ng-model="assign.pop_metric_2" name="pop_metric_2" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
                 </div>
-            <div class="col-sm-4"></div>
         </div>
         <h4>{{'SETTINGS.DESTINATION' | translate}}</h4>
         <div class="settingsmodal-fieldgroup">
@@ -65,10 +62,9 @@
                         <span>{{'SETTINGS.DEMOGRAPHIC_METRIC' | translate}}</span>
                     </p>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-8">
                     <select ng-model="assign.dest_metric_1" name="demo_metric_1" required="true" ng-options="metric for metric in uploadDemographic.fields"></select>
                 </div>
-                <div class="col-sm-4"></div>
             </div>
         </div>
         <div class="settingsmodal-fieldgroup">

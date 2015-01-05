@@ -25,9 +25,9 @@
                 <div class="scenario-item-container">
                     <div class="scenario-item" ng-show="myScenarios.length > 0" ng-repeat="scenario in myScenarios[myScenarioPage]">
                         <div class="row">
-                            <div class="col-xs-7"><a class="button--small default" ng-click="edit(scenario)">{{ scenario.name }}</a></div>
+                            <div class="col-xs-6"><a class="button--small default" ng-click="edit(scenario)">{{ scenario.name }}</a></div>
                             <div class="col-xs-3">{{ scenario.create_date | date:'shortDate' }}</div>
-                            <div class="col-xs-2 text-right">
+                            <div class="col-xs-3 text-right">
                                 <a class="button--small button button--secondary default glyphicon glyphicon-trash" ng-click="deleteScenario(scenario)" tooltip="{{'TERM.DELETE'|translate}}"></a> <span ng-if="scenario.indicator_job_status.length > 0"> /
                                 <span class="glyphicon" ng-class="{
                                     'glyphicon-ok': scenario.indicator_job_status === 'complete',
@@ -63,9 +63,9 @@
                     <div class="scenario-item" ng-repeat="scenario in colleagueScenarios[colleagueScenarioPage]"
                          ng-show="colleagueScenarios.length > 0">
                         <div class="row">
-                            <div class="col-xs-7"><a class="button--small default" ng-click="copy(scenario)">{{ scenario.name }}</a><br>{{ scenario.created_by }}</div>
+                            <div class="col-xs-6"><a class="button--small default" ng-click="copy(scenario)">{{ scenario.name }}</a><br>{{ scenario.created_by }}</div>
                             <div class="col-xs-3">{{ scenario.create_date | date:'shortDate' }}</div>
-                            <div class="col-xs-2 text-right">
+                            <div class="col-xs-3 text-right">
                                 <a class="button--small button button--secondary default glyphicon glyphicon-save" ng-click="copy(scenario)" tooltip="{{'TERM.COPY'|translate}}"></a> /
                             </div>
                         </div>
