@@ -10,7 +10,7 @@ angular.module('transitIndicators')
 
     var template = [
 
-        '<div ng-show="visible" class="legend legend-coverage">',
+        '<div ng-show="visible" class="legend-coverage">',
           '<div class="legend-title" translate="MAP.COVERAGE_STATS"></div>',
           '<div ng-show="configData">',
             '<span translate="MAP.BUFF_SIZE"></span>',

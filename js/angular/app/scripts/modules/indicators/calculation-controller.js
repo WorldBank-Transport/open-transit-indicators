@@ -95,7 +95,8 @@ angular.module('transitIndicators')
         return {
             numerator: completionCount,
             denominator: statusCount,
-            ratio: ((completionCount/statusCount)*100).toFixed(2)
+            // Avoid divide-by-zero
+            ratio: statusCount ? ((completionCount/statusCount)*100).toFixed(2) : 0
         };
     };
 
