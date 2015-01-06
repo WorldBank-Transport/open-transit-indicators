@@ -92,16 +92,12 @@ angular.module('transitIndicators')
         var completionCount = _.filter(allStatuses,
                                        function(state){ return state.status === 'complete'; }
                                       ).length;
-        var result = {
+        return {
             numerator: completionCount,
-            denominator: statusCount
+            denominator: statusCount,
+            // Avoid divide-by-zero
+            ratio: statusCount ? ((completionCount/statusCount)*100).toFixed(2) : 0
         };
-        if (!statusCount) {
-            result.ratio = 0;
-        } else {
-            result.ratio = ((completionCount/statusCount)*100).toFixed(2);
-        }
-        return result;
     };
 
     // Take a obj/map of periods -> indicators -> statuses
