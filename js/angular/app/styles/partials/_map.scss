@@ -74,7 +74,7 @@ Use class legend + (stacked-legend || flat-legend)
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: rgba(255,255,255, 1);
     padding: 6px 8px;
-    width: 240px;
+    width: 300px;
     line-height: 18px;
     color: #555;
     position: fixed;
@@ -84,6 +84,7 @@ Use class legend + (stacked-legend || flat-legend)
 
 .legend-flat {
     padding-top: 2rem;
+    padding-bottom: 2rem;
 }
 
 .legend .legend-title {
@@ -158,7 +159,6 @@ Use class legend + (stacked-legend || flat-legend)
     width: 300px;
     line-height: 18px;
     color: #555;
-    position: fixed;
     bottom: 14px;
     right: 10px;
 }
@@ -219,7 +219,6 @@ Use class legend + (stacked-legend || flat-legend)
     width: 280px;
     line-height: 18px;
     color: #555;
-    position: fixed;
     bottom: 14px;
     right: 10px;
 }

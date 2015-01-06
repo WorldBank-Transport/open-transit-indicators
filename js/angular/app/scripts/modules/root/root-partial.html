@@ -26,11 +26,39 @@
              markers="leaflet.markers"
              layers="leaflet.layers">
     </leaflet>
-    <oti-legend labels="leaflet.legend.labels"
-                colors="leaflet.legend.colors"
-                style="leaflet.legend.style"
-                units="leaflet.legend.units">
-    </oti-legend>
+    <div class="legend legends-container">
+      <oti-legend labels="leaflet.legend.labels"
+                  colors="leaflet.legend.colors"
+                  style="leaflet.legend.style"
+                  units="leaflet.legend.units">
+      </oti-legend>
+      <oti-coverage-legend visible="leaflet.coverageLegend.show"
+                           config-data="leaflet.coverageLegend.bufferDistance"
+                           coverage="leaflet.coverageLegend.coverage"
+                           access1="leaflet.coverageLegend.access1"
+                           access2="leaflet.coverageLegend.access2">
+      </oti-coverage-legend>
+      <oti-job-legend labels="leaflet.pop1Legend.labels"
+                  colors="leaflet.pop1Legend.colors"
+                  visible="leaflet.pop1Legend.show"
+                  title="leaflet.pop1Legend.title">
+      </oti-job-legend>
+      <oti-job-legend labels="leaflet.pop2Legend.labels"
+                  colors="leaflet.pop2Legend.colors"
+                  visible="leaflet.pop2Legend.show"
+                  title="leaflet.pop2Legend.title">
+      </oti-job-legend>
+      <oti-job-legend labels="leaflet.dest1Legend.labels"
+                  colors="leaflet.dest1Legend.colors"
+                  visible="leaflet.dest1Legend.show"
+                  title="leaflet.dest1Legend.title">
+      </oti-job-legend>
+      <oti-job-legend visible="leaflet.jobsLegend.show"
+                      colors="leaflet.jobsLegend.colors"
+                      labels="leaflet.jobsLegend.labels"
+                      title="leaflet.jobsLegend.title">
+      </oti-job-legend>
+    </div>
     <oti-mode-selector modes="modes"
                        updatemap="setMapModes"
                        legend-labels="leaflet.legend.labels">

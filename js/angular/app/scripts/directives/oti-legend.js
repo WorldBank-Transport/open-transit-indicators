@@ -35,7 +35,7 @@ angular.module('transitIndicators')
 
     var template = [
 
-        '<div ng-show="visible" class="legend" ng-class="{ \'legend-flat\': style === \'flat\', \'legend-stacked\': style === \'stacked\',  }">',
+        '<div ng-show="visible" class="legend-base" ng-class="{ \'legend-flat\': style === \'flat\', \'legend-stacked\': style === \'stacked\',  }">',
         '<div ng-if="title" class="legend-title">{{ title }}</div>',
         '<div class="legend-scale">',
             '<ul class="legend-labels">',

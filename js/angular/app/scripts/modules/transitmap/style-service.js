@@ -17,6 +17,15 @@ angular.module('transitIndicators')
         '#ff7f00'
     ];
 
+    var monochromeRamps = {
+        green5: ['#deeddb', '#b5cdb1', '#8cad88', '#638d5e', '#3a6d35'],
+        green8: ['#e8eddb', '#dce8d4', '#bedbad', '#a0cf88',
+                 '#81c561', '#4baf48', '#1ca049', '#3a6d35'],
+        blue5: ['#dbe6ed', '#afcde0', '#83b4d3', '#579bc6', '#2b83ba'],
+        red5: ['#eddbdb', '#e7aaab', '#e27a7b', '#dc494b', '#d7191c'],
+        orange5: ['#ede3db', '#e7c4aa', '#e2a67a', '#dc8849', '#d76a19']
+    };
+
     var otiMapStyleService = {};
 
     // Helper function to create labels for a given indicator color ramp
@@ -65,6 +74,10 @@ angular.module('transitIndicators')
         return gtfsRouteTypeColorRamp;
     };
 
+    otiMapStyleService.monochromeRamp = function (color) {
+        return monochromeRamps[color];
+    };
+
     otiMapStyleService.defaultColor = defaultColor;
 
     /**
@@ -92,6 +105,15 @@ angular.module('transitIndicators')
             }
         }
         return legend;
+    };
+
+    otiMapStyleService.getDemographicLegend = function (color, options) {
+        var legendData = {
+            colors: otiMapStyleService.monochromeRamp(color),
+            labels: []
+        };
+        _.extend(legendData, options);
+        return legendData;
     };
 
     return otiMapStyleService;

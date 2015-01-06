@@ -2,10 +2,10 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['$scope', '$state', 'leafletData',
+        ['$scope', '$state', '$translate', 'leafletData',
          'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
          'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService', 'OTISettingsService',
-        function ($scope, $state, leafletData,
+        function ($scope, $state, $translate, leafletData,
                   OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
                   OTIIndicatorJobManager, OTIMapStyleService, OTIMapService, OTISettingsService) {
 
@@ -19,6 +19,16 @@ angular.module('transitIndicators')
     $scope.indicator = OTIIndicatorManager.getConfig();
     var layerOptions = angular.extend($scope.indicator, {scenario: OTIMapService.getScenario()});
 
+    // Cache legend names since they're used in a few different places.
+    // Translation triggers a full page refresh, so this should be safe.
+    var legendNames = {
+        jobs: $translate.instant('MAP.JOBS_INDICATOR_LAYER'),
+        pop1: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER'),
+        pop2: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER'),
+        dest: $translate.instant('MAP.DESTINATION_METRIC_LAYER')
+    };
+
+
     angular.extend($scope.indicator,
         { modes: OTIMapService.getTransitModes() });
     OTIIndicatorManager.setConfig($scope.indicator);
@@ -26,7 +36,7 @@ angular.module('transitIndicators')
     /* LEAFLET CONFIG */
     var overlays = {
         jobs_indicator: {
-            name: 'Jobs Indicator',
+            name: legendNames.jobs,
             type: 'wms',
             url: 'gt/travelshed/jobs/render',
             visible: false,
@@ -36,22 +46,43 @@ angular.module('transitIndicators')
             },
             layerOptions: { opacity: 0.7 }
         },
+        pop_metric_1: {
+            name: legendNames.pop1,
+            type: 'xyz',
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'population_metric_1', opacity: 0.7 }
+        },
+        pop_metric_2: {
+            name: legendNames.pop2,
+            type: 'xyz',
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'population_metric_2', opacity: 0.7 }
+        },
+        dest_metric_1: { // This is destination, not demographic, despite the i18n key name.
+            name: legendNames.dest,
+            type: 'xyz',
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'destination_metric_1', opacity: 0.7 }
+        },
         indicator: {
-            name: 'GTFS Indicator',
+            name: $translate.instant('MAP.GTFS_INDICATOR_LAYER'),
             type: 'xyz',
             url: OTIMapService.indicatorUrl('png'),
             visible: true,
             layerOptions: layerOptions
         },
         boundary: {
-            name: 'Boundary',
+            name: $translate.instant('MAP.BOUNDARY'),
             type: 'xyz',
             url: OTIMapService.boundaryUrl(),
             visible: true,
             layerOptions: layerOptions
         },
         utfgrid: {
-            name: 'GTFS Indicator Interactivity',
+            name: $translate.instant('MAP.INDICATOR_INTERACTIVITY_LAYER'),
             type: 'utfGrid',
             url: OTIMapService.indicatorUrl('utfgrid'),
             visible: true,
@@ -88,17 +119,20 @@ angular.module('transitIndicators')
         }
     };
 
+    $scope.leaflet.coverageLegend = {
+        show: false,
+        coverage: null,
+        bufferDistance: null
+    };
+
     // Coverage ratio stops buffer requires a special bit of massaging because it is systemic rather than per route
     // this means it requires its own directive to be shown
-    $scope.coverageLegend = false;
-    $scope.coverage = null;
-    $scope.bufferDistance = null;
     var updateIndicatorLegend = function (indicator) {
-        $scope.coverageLegend = false;
         var params = angular.extend({}, indicator, {
             'ordering': 'value'
         });
         if (indicator.type && indicator.type === 'coverage_ratio_stops_buffer') {
+            $scope.leaflet.legend = {};
             var minimalParams = {
                 calculation_job: params.calculation_job,
                 sample_period: params.sample_period,
@@ -107,24 +141,25 @@ angular.module('transitIndicators')
             OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'coverage_ratio_stops_buffer'}))
                 .$promise.then(function(indicatorResult) {
                     // Draw coverage legend
-                    $scope.coverageLegend = indicatorResult[0] ? true : false;
-                    $scope.coverage = indicatorResult[0] ? indicatorResult[0].value : null;
+                    $scope.leaflet.coverageLegend.show = indicatorResult[0] ? true : false;
+                    $scope.leaflet.coverageLegend.coverage = indicatorResult[0] ? indicatorResult[0].value : null;
                 });
             OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access'}))
                 .$promise.then(function(indicatorResult) {
-                    $scope.access1 = indicatorResult[0] ? indicatorResult[0].value : null;
+                    $scope.leaflet.coverageLegend.access1 = indicatorResult[0] ? indicatorResult[0].value : null;
                 });
             OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access_low'}))
                 .$promise.then(function(indicatorResult) {
-                    $scope.access2 = indicatorResult[0] ? indicatorResult[0].value : null;
+                    $scope.leaflet.coverageLegend.access2 = indicatorResult[0] ? indicatorResult[0].value : null;
                 });
             OTISettingsService.configs.query().$promise.then(function(config){
-                $scope.bufferDistance = config[0] ? config[0].nearby_buffer_distance_m : null;
+                $scope.leaflet.coverageLegend.bufferDistance = config[0] ? config[0].nearby_buffer_distance_m : null;
             });
         } else {
             OTIIndicatorModel.search(params, function (data) {
                 // Redraw new
                 $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
+                $scope.leaflet.coverageLegend = {};
             });
         }
     };
@@ -173,17 +208,29 @@ angular.module('transitIndicators')
         OTIIndicatorManager.setConfig({calculation_job: calculation_job, city_name: ''}); // TODO: add city name
     });
 
-    // Bind events that will hide/show the jobs indicator legend when the jobs indicator is hidden/shown
+    // Bind events that will hide/show legends when the respective layer is hidden / shown
     leafletData.getMap().then(function(map) {
-        map.on('overlayadd', function(eventLayer) {
-            if (eventLayer.name === 'Jobs Indicator') {
-                $scope.jobsLegend = true;
+        var setLegendVisibility = function(layerName, legendState) {
+            switch(layerName) {
+                case legendNames.jobs:
+                    $scope.leaflet.jobsLegend.show = legendState;
+                    break;
+                case legendNames.pop1:
+                    $scope.leaflet.pop1Legend.show = legendState;
+                    break;
+                case legendNames.pop2:
+                    $scope.leaflet.pop2Legend.show = legendState;
+                    break;
+                case legendNames.dest:
+                    $scope.leaflet.dest1Legend.show = legendState;
+                    break;
             }
+        };
+        map.on('overlayadd', function(eventLayer) {
+            setLegendVisibility(eventLayer.name, true);
         });
         map.on('overlayremove', function(eventLayer) {
-            if (eventLayer.name === 'Jobs Indicator') {
-                $scope.jobsLegend = false;
-            }
+            setLegendVisibility(eventLayer.name, false);
         });
     });
 
@@ -197,6 +244,31 @@ angular.module('transitIndicators')
         }
         updateIndicatorLegend($scope.indicator);
         OTIMapService.getLegendData();
+        // Set up demographic legends (static)
+        $scope.leaflet.jobsLegend = OTIMapStyleService.getDemographicLegend('green8',
+            {
+                show: false,
+                title: $translate.instant('MAP.JOBS_INDICATOR_TITLE')
+            }
+        );
+        $scope.leaflet.pop1Legend = OTIMapStyleService.getDemographicLegend('red5',
+                {
+                    show: false,
+                    title: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER')
+                }
+        );
+        $scope.leaflet.pop2Legend = OTIMapStyleService.getDemographicLegend('orange5',
+            {
+                show: false,
+                title: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER')
+            }
+        );
+        $scope.leaflet.dest1Legend = OTIMapStyleService.getDemographicLegend('blue5',
+            {
+                show: false,
+                title: $translate.instant('MAP.DESTINATION_METRIC_LAYER')
+            }
+        );
     };
 
     $scope.$on(OTICityManager.Events.CitiesUpdated, function () {

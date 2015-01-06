@@ -102,6 +102,8 @@ angular.module('transitIndicators')
         // the proper legend in the child state
 
         $scope.leaflet.legend = {};
+        // TODO: This isn't great; find a way to make the legends not be global
+        $scope.leaflet.coverageLegend = {};
     });
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {

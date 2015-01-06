@@ -207,5 +207,15 @@ angular.module('transitIndicators')
         return url;
     };
 
+    /**
+     * Create windshaft url for demographics data
+     */
+    module.demographicsUrl = function () {
+        var url = getWindshaftHost();
+        url += '/tiles/' + BASE_SCENARIO + '/0/datasources_demographics/morning/route/{z}/{x}/{y}.png';
+        url += '?metric={metric}';
+        return url;
+    };
+
     return module;
 }]);
