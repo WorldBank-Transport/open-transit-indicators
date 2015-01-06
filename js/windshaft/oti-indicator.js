@@ -10,22 +10,34 @@ var result_tablename = "indicator_result";
 // TODO: Styles for more ntiles
 // TODO: Styles for geom types other than lines
 var styles = {
-    ntiles_5: function (lineWidth) {
-        lineWidth = typeof lineWidth !== 'undefined' ? lineWidth : 5; // 0 is falsey
+    ntiles_5: function () {
         var cartocss = '#' + result_tablename + ' { ' +
             'line-color: #EFF3FF; ' +
-            'line-width: ' + lineWidth + '; ' +
-            '[ ntiles_bin > 0 ] { line-color: #d7191c; ' +
-                                  'polygon-fill: #d7191c; } ' +
-            '[ ntiles_bin > 1 ] { line-color: #fdae61; ' +
-                                  'polygon-fill: #fdae61; }' +
-            '[ ntiles_bin > 2 ] { line-color: #ffffbf; ' +
-                                  'polygon-fill: #ffffbf; } ' +
-            '[ ntiles_bin > 3 ] { line-color: #abdda4; ' +
-                                  'polygon-fill: #abdda4; } ' +
-            '[ ntiles_bin > 4 ] { line-color: #2b83ba; ' +
-                                  'polygon-fill: #2b83ba; } ' +
+            'line-width: 5; ' +
+            '[ ntiles_bin > 0 ] { line-color: #d7191c; } ' +
+            '[ ntiles_bin > 1 ] { line-color: #fdae61; } ' +
+            '[ ntiles_bin > 2 ] { line-color: #ffffbf; } ' +
+            '[ ntiles_bin > 3 ] { line-color: #abdda4; } ' +
+            '[ ntiles_bin > 4 ] { line-color: #2b83ba; } ' +
             '} ';
+        return cartocss;
+    },
+    polyntiles_5: function (color) {
+        // TODO: Use https://github.com/harthur/color ?
+        var PALETTES = { GREEN: ['#deeddb', '#b5cdb1', '#8cad88', '#638d5e', '#3a6d35'],
+                         BLUE: ['#dbe6ed', '#afcde0', '#83b4d3', '#579bc6', '#2b83ba'],
+                         RED: ['#eddbdb', '#e7aaab', '#e27a7b', '#dc494b', '#d7191c'],
+                         ORANGE: ['#ede3db', '#e7c4aa', '#e2a67a', '#dc8849', '#d76a19']
+        };
+        var NUM_BINS = 5;
+        var cartocss = '#' + result_tablename + ' { ' +
+            //'polygon-opacity: 0.33; ' +
+            'line-color: #EFF3FF; ' +
+            'line-width: 0; ';
+        for (i = 0; i < NUM_BINS; i++) {
+            cartocss += '[ ntiles_bin > ' + i + ' ] { polygon-fill: ' + PALETTES[color][i] + '; } ';
+        }
+        cartocss += '} ';
         return cartocss;
     },
     gtfs_shapes: function () {
@@ -169,7 +181,12 @@ datasourcesBoundary.prototype.getStyle = function () {
 /**
  * Display logic for datasources_demographicdatafeature table
  */
-var DatasourcesDemographics = function(metric, num_ntiles) {
+var DatasourcesDemographics = function(metric, num_ntiles, colorMap) {
+    this.metricColors = { population_metric_1: 'RED',
+                          population_metric_2: 'ORANGE',
+                          destination_metric_1: 'BLUE'
+    };
+    _.extend(this.metricColors, colorMap);
     this.metricTypes = ['population_metric_1', 'population_metric_2', 'destination_metric_1'];
     if (this.metricTypes.indexOf(metric) < 0) {
         throw "Invalid metric type; acceptable values are \"population_metric_<1,2>\", \"destination_metric_1\"";
@@ -187,8 +204,8 @@ DatasourcesDemographics.prototype.getSql = function() {
 };
 
 DatasourcesDemographics.prototype.getStyle = function() {
-    var cssKey = 'ntiles_' + this.ntiles;
-    return styles[cssKey](0) || "";
+    var cssKey = 'polyntiles_' + this.ntiles;
+    return styles[cssKey](this.metricColors[this.metric]) || "";
 };
 
 /**
