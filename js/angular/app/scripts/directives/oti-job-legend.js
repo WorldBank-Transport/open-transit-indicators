@@ -9,36 +9,21 @@ angular.module('transitIndicators')
 .filter('legendValue', function () {
     return function (value) {
         var floatValue = parseFloat(value);
-        return isNaN(floatValue) ? value : floatValue.toFixed(2);
+
+        // Show a maximum of 2 decimal places and include commas
+        return isNaN(floatValue) ? value : parseFloat(floatValue.toFixed(2), 10).toLocaleString();
     };
 })
 .directive('otiJobLegend', [function () {
-
-    var template = [
-
-        '<div ng-show="visible" class="legend-jobs">',
-          '<div class="legend-title">{{ title }}</div>',
-          '<div class="legend-scale">',
-            '<span class="min" translate="MAP.JOBS_INDICATOR_FEWER"></span>',
-            '<ul class="legend-labels">',
-              '<li ng-repeat="color in colors">',
-                '<span class="legend-value" style="background:{{ color }};"></span>',
-                '{{ labels[$index] | legendValue }}',
-              '</li>',
-            '</ul>',
-            '<span class="max" translate="MAP.JOBS_INDICATOR_MORE"></span>',
-          '</div>',
-          '<div ng-if="source" class="legend-source">Source: <a href="{{ source.link }}">{{ source.text }}</a></div>',
-        '</div>'
-    ].join('');
     return {
         restrict: 'AE',
         scope: {
             visible: '=', // For tracking visibility
             colors: '=',
             labels: '=',
-            title: '='
+            title: '=',
+            range: '='
         },
-        template: template,
+        templateUrl: 'scripts/directives/oti-job-legend.html'
     };
 }]);

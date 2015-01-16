@@ -1,5 +1,7 @@
 """Endpoints for data sources."""
 
+import sys
+from django.db.models import Max, Min
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -174,6 +176,26 @@ class DemographicDataFeatureViewSet(OTIAdminViewSet):
     filter_fields = ('datasource',)
 
 
+class DemographicDataRanges(APIView):
+    """ Endpoint to GET the min/max ranges of demographic data
+
+    GET params:
+      type: String (required), Name of the demographic data field to use for range calculation
+    """
+    def get(self, request, *args, **kwargs):
+        get_type = request.QUERY_PARAMS.get('type', None)
+        if not get_type:
+            response = {'error': 'type parameter is required'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            agg = DemographicDataFeature.objects.all().aggregate(min=Min(get_type), max=Max(get_type))
+            return Response(agg, status=status.HTTP_200_OK)
+        except:
+            response = {'error': 'Invalid type'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST);
+
+
 class UploadStatusChoices(APIView):
     """ Return an object of the available upload statuses
 
@@ -186,4 +208,5 @@ class UploadStatusChoices(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+demographic_data_ranges = DemographicDataRanges.as_view()
 upload_status_choices = UploadStatusChoices.as_view()

@@ -132,6 +132,49 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Retrieves travel shed jobs range (min/max for legend)
+     *
+     * @param jobId: String, job id associated with travel shed
+     */
+    module.getTravelShedRange = function(jobId) {
+        return $resource('/gt/travelshed/jobs/minmax')
+            .get({ JOBID: jobId })
+            .$promise;
+    };
+
+    /**
+     * Retrieves demographic range
+     *
+     * @param demographicName: String, type of demographic to retrieve
+     */
+    module.getDemographicRange = function(demographicName) {
+        return $resource('/api/demographics-ranges/')
+            .get({ type: demographicName })
+            .$promise;
+    };
+
+    /**
+     * Retrieves population one range
+     */
+    module.getPopOneRange = function() {
+        return module.getDemographicRange('population_metric_1');
+    };
+
+    /**
+     * Retrieves population two range
+     */
+    module.getPopTwoRange = function() {
+        return module.getDemographicRange('population_metric_2');
+    };
+
+    /**
+     * Retrieves destination one range
+     */
+    module.getDestOneRange = function() {
+        return module.getDemographicRange('destination_metric_1');
+    };
+
+    /**
      * Return a legend object in the format expected by the
      * oti-legend directive
      * .style must be set after it returns

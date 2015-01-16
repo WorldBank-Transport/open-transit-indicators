@@ -368,7 +368,7 @@ class Indicator(models.Model):
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
             KM_PER_AREA = _(u'transit length/km²')
-            LOW_INCOME_POP_PER_STOP = _(u'low-income pop served by stop')
+            LOW_INCOME_POP_PER_STOP = _(u'percent population served by a stop')
             POP_PER_STOP = _(u'percent population served by a stop')
             PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
             STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
@@ -427,11 +427,11 @@ class Indicator(models.Model):
             (ON_TIME_PERF, _(u'On-Time Performance')),
             (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
             (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
-            (SERVICE_FREQ_WEIGHTED_LOW, _(u'Service frequency weighted by served low-income population')),
+            (SERVICE_FREQ_WEIGHTED_LOW, _(u'Service frequency weighted by population metric 2')),
             (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
             (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
             (SYSTEM_ACCESS, _(u'System accessibility')),
-            (SYSTEM_ACCESS_LOW, _(u'System accessibility - low-income')),
+            (SYSTEM_ACCESS_LOW, _(u'System accessibility - population metric 2')),
             (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
             (TRAVEL_TIME, _(u'Travel Time Performance')),
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
