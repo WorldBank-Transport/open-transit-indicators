@@ -131,6 +131,61 @@ angular.module('transitIndicators')
         return dfd.promise;
     };
 
+    // retrieves travel shed jobs range (min/max for legend)
+    module.getTravelShedRange = function(jobId) {
+        var r = $resource('/gt/travelshed/jobs/minmax');
+        var dfd = $q.defer();
+
+        var result = r.get({ JOBID: jobId }, function() {
+            if (result) {
+                dfd.resolve(result);
+            } else {
+                dfd.reject('No travel shed range available');
+            }
+        });
+        return dfd.promise;
+    };
+
+    /**
+     * Retrieves demographic range
+     *
+     * @param demographicName: String, type of demographic to retrieve
+     */
+    module.getDemographicRange = function(demographicName) {
+        var r = $resource('/api/demographics-ranges/');
+        var dfd = $q.defer();
+
+        var result = r.get({ type: demographicName }, function() {
+            if (result) {
+                dfd.resolve(result);
+            } else {
+                dfd.reject('No demographic range available for: ', demographicName);
+            }
+        });
+        return dfd.promise;
+    };
+
+    /**
+     * Retrieves population one range
+     */
+    module.getPopOneRange = function() {
+        return module.getDemographicRange('population_metric_1');
+    };
+
+    /**
+     * Retrieves population two range
+     */
+    module.getPopTwoRange = function() {
+        return module.getDemographicRange('population_metric_2');
+    };
+
+    /**
+     * Retrieves destination one range
+     */
+    module.getDestOneRange = function() {
+        return module.getDemographicRange('destination_metric_1');
+    };
+
     /**
      * Return a legend object in the format expected by the
      * oti-legend directive

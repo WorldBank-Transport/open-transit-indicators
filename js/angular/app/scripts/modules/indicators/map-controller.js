@@ -234,6 +234,24 @@ angular.module('transitIndicators')
         });
     });
 
+    /**
+     * Helper for making a legend
+     * Retrieves the min/max range, constructs the legend, and assigns it to the leaflet variable
+     *
+     * @param getRangeName: String, OTIMapService function name to call for retrieving the range
+     * @param legendName: String, Name of variable to set on leaflet object
+     * @param color: String, Color of legend -- ending in a number which denotes the number of bins
+     * @param title: String, Translatable identifier for use in displaying the legend title
+     */
+     function makeLegend(getRangeName, legendName, color, title) {
+        OTIMapService[getRangeName](layerOptions.calculation_job).then(function(range) {
+            $scope.leaflet[legendName] = OTIMapStyleService.getDemographicLegend(color, {
+                show: false,
+                title: $translate.instant(title),
+                range: range
+            });
+        });
+    }
 
     $scope.init = function () {
         if($scope.cities.length > 0) {
@@ -244,31 +262,12 @@ angular.module('transitIndicators')
         }
         updateIndicatorLegend($scope.indicator);
         OTIMapService.getLegendData();
+
         // Set up demographic legends (static)
-        $scope.leaflet.jobsLegend = OTIMapStyleService.getDemographicLegend('green8',
-            {
-                show: false,
-                title: $translate.instant('MAP.JOBS_INDICATOR_TITLE')
-            }
-        );
-        $scope.leaflet.pop1Legend = OTIMapStyleService.getDemographicLegend('red5',
-                {
-                    show: false,
-                    title: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER')
-                }
-        );
-        $scope.leaflet.pop2Legend = OTIMapStyleService.getDemographicLegend('orange5',
-            {
-                show: false,
-                title: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER')
-            }
-        );
-        $scope.leaflet.dest1Legend = OTIMapStyleService.getDemographicLegend('blue5',
-            {
-                show: false,
-                title: $translate.instant('MAP.DESTINATION_METRIC_LAYER')
-            }
-        );
+        makeLegend('getTravelShedRange', 'jobsLegend', 'green8', 'MAP.JOBS_INDICATOR_TITLE');
+        makeLegend('getPopOneRange', 'pop1Legend', 'red5', 'MAP.POPULATION_METRIC_ONE_LAYER');
+        makeLegend('getPopTwoRange', 'pop2Legend', 'orange5', 'MAP.POPULATION_METRIC_TWO_LAYER');
+        makeLegend('getDestOneRange', 'dest1Legend', 'blue5', 'MAP.DESTINATION_METRIC_LAYER');
     };
 
     $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
