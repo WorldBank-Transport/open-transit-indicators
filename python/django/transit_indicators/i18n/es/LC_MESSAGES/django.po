@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-28 00:43+0000\n"
+"POT-Creation-Date: 2015-01-16 17:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -702,11 +702,7 @@ msgstr ""
 msgid "transit length/km²"
 msgstr ""
 
-#: transit_indicators/models.py:371
-msgid "low-income pop served by stop"
-msgstr ""
-
-#: transit_indicators/models.py:372
+#: transit_indicators/models.py:371 transit_indicators/models.py:372
 msgid "percent population served by a stop"
 msgstr ""
 
@@ -718,110 +714,110 @@ msgstr ""
 msgid "stops/km"
 msgstr ""
 
-#: transit_indicators/models.py:414
+#: transit_indicators/models.py:412
 msgid "Access index"
 msgstr ""
 
-#: transit_indicators/models.py:415
+#: transit_indicators/models.py:413
 msgid "Affordability"
 msgstr ""
 
-#: transit_indicators/models.py:416
+#: transit_indicators/models.py:414
 msgid "Average Service Frequency"
 msgstr ""
 
-#: transit_indicators/models.py:417
+#: transit_indicators/models.py:415
 msgid "Coverage of transit stops"
 msgstr ""
 
-#: transit_indicators/models.py:418
+#: transit_indicators/models.py:416
 msgid "Distance between stops"
 msgstr ""
 
-#: transit_indicators/models.py:419
+#: transit_indicators/models.py:417
 msgid "Dwell Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:420
+#: transit_indicators/models.py:418
 msgid "Weekly number of hours of service"
 msgstr ""
 
-#: transit_indicators/models.py:421
+#: transit_indicators/models.py:419
 msgid "Job accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:422
+#: transit_indicators/models.py:420
 msgid "Transit system length"
 msgstr ""
 
-#: transit_indicators/models.py:423
+#: transit_indicators/models.py:421
 msgid "Ratio of transit lines length over road length"
 msgstr ""
 
-#: transit_indicators/models.py:424
+#: transit_indicators/models.py:422
 msgid "Transit line network density"
 msgstr ""
 
-#: transit_indicators/models.py:425
+#: transit_indicators/models.py:423
 msgid "Number of modes"
 msgstr ""
 
-#: transit_indicators/models.py:426
+#: transit_indicators/models.py:424
 msgid "Number of routes"
 msgstr ""
 
-#: transit_indicators/models.py:427
+#: transit_indicators/models.py:425
 msgid "Number of stops"
 msgstr ""
 
-#: transit_indicators/models.py:428
+#: transit_indicators/models.py:426
 msgid "Number of route types"
 msgstr ""
 
-#: transit_indicators/models.py:429
+#: transit_indicators/models.py:427
 msgid "On-Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:430
+#: transit_indicators/models.py:428
 msgid "Regularity of Headways"
 msgstr ""
 
-#: transit_indicators/models.py:431
+#: transit_indicators/models.py:429
 msgid "Service frequency weighted by served population"
 msgstr ""
 
-#: transit_indicators/models.py:432
-msgid "Service frequency weighted by served low-income population"
+#: transit_indicators/models.py:430
+msgid "Service frequency weighted by population metric 2"
 msgstr ""
 
-#: transit_indicators/models.py:433
+#: transit_indicators/models.py:431
 msgid "Ratio of number of stops to route-length"
 msgstr ""
 
-#: transit_indicators/models.py:434
+#: transit_indicators/models.py:432
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
 msgstr ""
 
-#: transit_indicators/models.py:435
+#: transit_indicators/models.py:433
 msgid "System accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:436
-msgid "System accessibility - low-income"
+#: transit_indicators/models.py:434
+msgid "System accessibility - population metric 2"
 msgstr ""
 
-#: transit_indicators/models.py:437
+#: transit_indicators/models.py:435
 msgid "Time traveled between stops"
 msgstr ""
 
-#: transit_indicators/models.py:438
+#: transit_indicators/models.py:436
 msgid "Travel Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:439
+#: transit_indicators/models.py:437
 msgid "Weekday / weekend frequency"
 msgstr ""
 
-#: transit_indicators/models.py:440
+#: transit_indicators/models.py:438
 msgid "Number of jobs that can be reached by an area."
 msgstr ""

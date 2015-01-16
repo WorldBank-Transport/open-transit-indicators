@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-05 15:02+0000\n"
+"POT-Creation-Date: 2015-01-16 17:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -654,175 +654,192 @@ msgstr "Lỗi khi tính toán chỉ dẫn"
 msgid "Completed indicator calculation"
 msgstr "Hoàn thàn tính toán chỉ dẫn"
 
-#: transit_indicators/models.py:312
+#: transit_indicators/models.py:221
+msgid "None applicable"
+msgstr ""
+
+#: transit_indicators/models.py:222
+#, fuzzy
+#| msgid "Job queued for processing"
+msgid "Scala died during processing"
+msgstr "Công việc đợi xử lý"
+
+#: transit_indicators/models.py:328
 msgid "Route"
 msgstr "Tuyến"
 
-#: transit_indicators/models.py:313
+#: transit_indicators/models.py:329
 msgid "Mode"
 msgstr "Chế độ"
 
-#: transit_indicators/models.py:314
+#: transit_indicators/models.py:330
 msgid "System"
 msgstr "Hệ thống"
 
-#: transit_indicators/models.py:346
+#: transit_indicators/models.py:363
 msgid "avg deviation from scheduled dwell time"
 msgstr "Độ lệch thời gian dừng trung bình so với lịch trình"
 
-#: transit_indicators/models.py:347
+#: transit_indicators/models.py:364
 msgid "avg deviation from scheduled frequency"
 msgstr "Độ lệch tần suất tuyến trung bình so với lịch trình "
 
-#: transit_indicators/models.py:348
+#: transit_indicators/models.py:365
 msgid "avg deviation from scheduled time"
 msgstr "Độ lệch thời gian trung bình so với lịch trình"
 
-#: transit_indicators/models.py:349
+#: transit_indicators/models.py:366
 msgid "secs"
 msgstr ""
 
-#: transit_indicators/models.py:350
+#: transit_indicators/models.py:367
 msgid "mins"
 msgstr ""
 
-#: transit_indicators/models.py:351
+#: transit_indicators/models.py:368
 msgid "hrs"
 msgstr "giờ"
 
-#: transit_indicators/models.py:352
+#: transit_indicators/models.py:369
 msgid "km"
 msgstr "km"
 
-#: transit_indicators/models.py:353
+#: transit_indicators/models.py:370
 #, fuzzy
 #| msgid "Transit system length"
 msgid "transit length/km²"
 msgstr "Chiều dài hệ thống giao thông"
 
-#: transit_indicators/models.py:354
-msgid "low-income pop served by stop"
-msgstr ""
-
-#: transit_indicators/models.py:355
+#: transit_indicators/models.py:371 transit_indicators/models.py:372
 msgid "percent population served by a stop"
 msgstr ""
 
-#: transit_indicators/models.py:356
+#: transit_indicators/models.py:373
 #, fuzzy
 #| msgid "System coverage"
 msgid "percent stop coverage"
 msgstr "Phạm vi hoạt động của hệ thống"
 
-#: transit_indicators/models.py:357
+#: transit_indicators/models.py:374
 msgid "stops/km"
 msgstr ""
 
-#: transit_indicators/models.py:396
+#: transit_indicators/models.py:412
 msgid "Access index"
 msgstr "Chỉ số khả năng ra vào"
 
-#: transit_indicators/models.py:397
+#: transit_indicators/models.py:413
 msgid "Affordability"
 msgstr "Khả năng chi trả"
 
-#: transit_indicators/models.py:398
+#: transit_indicators/models.py:414
 msgid "Average Service Frequency"
 msgstr "Tần suất dịch vụ trung bình"
 
-#: transit_indicators/models.py:399
+#: transit_indicators/models.py:415
 msgid "Coverage of transit stops"
 msgstr "Phạm vi phục vụ của các điểm dừng"
 
-#: transit_indicators/models.py:400
+#: transit_indicators/models.py:416
 msgid "Distance between stops"
 msgstr "Khoảng các giữa các điểm dừng"
 
-#: transit_indicators/models.py:401
+#: transit_indicators/models.py:417
 msgid "Dwell Time Performance"
 msgstr "Thời gian dừng thực hiện"
 
-#: transit_indicators/models.py:402
+#: transit_indicators/models.py:418
 msgid "Weekly number of hours of service"
 msgstr "Số giờ hoạt động trong tuần"
 
-#: transit_indicators/models.py:403
+#: transit_indicators/models.py:419
 msgid "Job accessibility"
 msgstr "Khả năng đi đến"
 
-#: transit_indicators/models.py:404
+#: transit_indicators/models.py:420
 msgid "Transit system length"
 msgstr "Chiều dài hệ thống giao thông"
 
-#: transit_indicators/models.py:405
+#: transit_indicators/models.py:421
 msgid "Ratio of transit lines length over road length"
 msgstr "Tỉ số chiều dài chặng trên độ dài đường phố"
 
-#: transit_indicators/models.py:406
+#: transit_indicators/models.py:422
 msgid "Transit line network density"
 msgstr "Mật độ mạng lưới đường giao thông"
 
-#: transit_indicators/models.py:407
+#: transit_indicators/models.py:423
 msgid "Number of modes"
 msgstr "Số lượng các chế độ"
 
-#: transit_indicators/models.py:408
+#: transit_indicators/models.py:424
 msgid "Number of routes"
 msgstr "Số lượng tuyến"
 
-#: transit_indicators/models.py:409
+#: transit_indicators/models.py:425
 msgid "Number of stops"
 msgstr "Số lượng điểm dừng"
 
-#: transit_indicators/models.py:410
+#: transit_indicators/models.py:426
 msgid "Number of route types"
 msgstr "Số lượng kiểu tuyến"
 
-#: transit_indicators/models.py:411
+#: transit_indicators/models.py:427
 msgid "On-Time Performance"
 msgstr "Thực hiện đúng giờ"
 
-#: transit_indicators/models.py:412
+#: transit_indicators/models.py:428
 msgid "Regularity of Headways"
 msgstr "Mức phổ biến của điểm đầu tuyến"
 
-#: transit_indicators/models.py:413
+#: transit_indicators/models.py:429
 msgid "Service frequency weighted by served population"
 msgstr "Tần số dịch vụ xác định theo dân số phục vụ"
 
-#: transit_indicators/models.py:414
+#: transit_indicators/models.py:430
 #, fuzzy
 #| msgid "Service frequency weighted by served population"
-msgid "Service frequency weighted by served low-income population"
+msgid "Service frequency weighted by population metric 2"
 msgstr "Tần số dịch vụ xác định theo dân số phục vụ"
 
-#: transit_indicators/models.py:415
+#: transit_indicators/models.py:431
 msgid "Ratio of number of stops to route-length"
 msgstr "Tỉ số số lượng điểm dừng trên chiều dài tuyến"
 
-#: transit_indicators/models.py:416
+#: transit_indicators/models.py:432
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
 msgstr "Tỉ lệ mạng lưới các đường ở khu vực ngoại ô"
 
-#: transit_indicators/models.py:417
+#: transit_indicators/models.py:433
 msgid "System accessibility"
 msgstr "Khả năng đi đến của hệ thống"
 
-#: transit_indicators/models.py:418
-msgid "System accessibility - low-income"
+#: transit_indicators/models.py:434
+#, fuzzy
+#| msgid "System accessibility - low-income"
+msgid "System accessibility - population metric 2"
 msgstr "Khả năng đi đến của hệ thống – thu nhập thấp"
 
-#: transit_indicators/models.py:419
+#: transit_indicators/models.py:435
 msgid "Time traveled between stops"
 msgstr "Thời gian di chuyển giữa các điểm dừng"
 
-#: transit_indicators/models.py:420
+#: transit_indicators/models.py:436
 msgid "Travel Time Performance"
 msgstr "Thời gian di chuyển thực hiện"
 
-#: transit_indicators/models.py:421
+#: transit_indicators/models.py:437
 msgid "Weekday / weekend frequency"
 msgstr "Tần suất hoạt động ngày làm việc/ cuối tuần"
+
+#: transit_indicators/models.py:438
+msgid "Number of jobs that can be reached by an area."
+msgstr ""
+
+#, fuzzy
+#~| msgid "Service frequency weighted by served population"
+#~ msgid "Service frequency weighted by served low-income population"
+#~ msgstr "Tần số dịch vụ xác định theo dân số phục vụ"
 
 #~ msgid "stops per hr/pop within 500m"
 #~ msgstr "Điểm dừng theo giờ trong phạm vi 500m"
