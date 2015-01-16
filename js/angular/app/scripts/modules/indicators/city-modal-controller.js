@@ -2,10 +2,21 @@
 
 angular.module('transitIndicators')
 .controller('OTICityModalController',
-        ['$scope', '$rootScope', '$modalInstance', '$upload', '$translate', 'OTIEvents', 'OTIIndicatorsService', 'cities', 'userScenarios', 'otherScenarios',
-        function($scope, $rootScope, $modalInstance, $upload, $translate, OTIEvents, OTIIndicatorsService, cities, userScenarios, otherScenarios) {
+        ['$scope', '$modalInstance', '$rootScope', '$translate', '$upload',
+         'OTICityManager', 'OTIIndicatorJobManager', 'completeIndicatorJobs', 'cities',
+        function($scope, $modalInstance, $rootScope, $translate, $upload,
+                 OTICityManager, OTIIndicatorJobManager, completeIndicatorJobs, cities) {
 
     $scope.cities = cities;
+
+    $scope.userScenarios = _.filter(completeIndicatorJobs, function(job) {
+        return job.created_by === $scope.user.id &&
+               job.scenario && !_.find($scope.cities, function(x) { return x === job; });
+    });
+    $scope.otherScenarios = _.filter(completeIndicatorJobs, function(job) {
+        return job.created_by !== $scope.user.id &&
+               job.scenario && !_.find($scope.cities, function(x) { return x === job; });
+    });
 
     // Translation strings
     $scope.translations = {
@@ -23,28 +34,43 @@ angular.module('transitIndicators')
         $modalInstance.close();
     };
 
+    var saveLoadedScenarios = function () {
+        OTIIndicatorJobManager.setLoadedScenarios(_.chain($scope.cities)
+                                                  .pluck('scenario')
+                                                  .without(null).value());
+    };
+
     // City controls
 
-    $scope.remove = function (city) {
-        OTIIndicatorsService.query('DELETE', {
-            city_name: city
-        }).then(function () {
-            var index = $scope.cities.indexOf(city);
+    $scope.remove = function (job) {
+        var index = $scope.cities.indexOf(job);
+        if(job.scenario !== null) {
             $scope.cities.splice(index, 1);
-            $rootScope.$broadcast(OTIEvents.Indicators.CitiesUpdated, $scope.cities);
-        });
+            if (job.created_by === $scope.user.id) {
+                $scope.userScenarios.push(job);
+            } else {
+                $scope.otherScenarios.push(job);
+            }
+        } else {
+	        OTICityManager.delete(job.city_name).then(function () {
+	            var index = $scope.cities.indexOf(job.city_name);
+	            $scope.cities.splice(index, 1);
+	        });
+        }
+        $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
+        saveLoadedScenarios();
     };
 
     // Scenario controls
 
     $scope.addCityDropdownIsOpen = false;
-    // Arrays of 'scenario' objects, current stub in partial only uses a 'name' property
-    $scope.userScenarios = userScenarios || [];
-    $scope.otherScenarios = otherScenarios || [];
 
     $scope.addScenario = function (scenario) {
-        // TODO: Implement once scenarios are implemented
-        console.log('Selected scenario:', scenario.name);
+        $scope.userScenarios = _.without($scope.userScenarios, scenario);
+        $scope.otherScenarios = _.without($scope.otherScenarios, scenario);
+        $scope.cities.push(scenario);
+        $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
+        saveLoadedScenarios();
     };
 
     // Import City File Upload
@@ -80,7 +106,7 @@ angular.module('transitIndicators')
             $scope.uploadProgress = 1;
             $scope.cities.push(cityName);
             $scope.cities.sort();
-            $rootScope.$broadcast(OTIEvents.Indicators.CitiesUpdated, $scope.cities);
+            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         }).error(function (data, status) {
             $scope.uploading = false;
             $scope.uploadProgress = 1;

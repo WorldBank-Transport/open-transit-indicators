@@ -1,0 +1,18 @@
+<div class="scenario-page-content">
+    <h3 class="prototype-scenario-text">{{ scenario.name }}</h3>
+    <p ng-if="scenario.isComplete()">
+        {{'SCENARIO.NEW_SCENARIO_INST1'|translate}} <span
+        class="prototype-scenario-text">{{ scenario.name }}</span>.
+        {{'SCENARIO.NEW_SCENARIO_INST2'|translate}}
+    </p>
+    <p ng-if="scenario.isError()">{{'SCENARIO.CREATE_ERROR'|translate}}</p>
+    <p ng-if="scenario.isProcessing()">
+          <wave-spinner></wave-spinner>
+          <span class="text-center">{{'SCENARIO.CREATING_SCENARIO'|translate}}</span>
+    </p>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small" ng-class="{'button--inactive': !scenario.isComplete()}" ng-click="routes()">{{'SCENARIO.ROUTES'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a> /
+    <a class="button--small" ng-class="{'button--inactive': saving}" ng-disabled="saving" ng-click="calculateIndicators()">{{'SCENARIO.FINISH_AND_CALC'|translate}}</a>
+</div>

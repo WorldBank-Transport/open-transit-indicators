@@ -62,23 +62,22 @@ $rootScope:                         (event args)
         // TODO: Make configurable templateUrl and add custom stylesheet
         var template = [
             '<div class="dropzone" ng-show="!upload.status && !uploadError"> ',
-            '  <div class="h4" ng-file-drop="startUpload($files)" ng-file-drop-available="true">Drop file here or </div>',
             '  <input type="file" ng-file-select="startUpload($files)" />',
             '</div>',
             '<div class="dropzone inprogress" ng-show="options.checkContinue(upload)">',
-            '  <div class="h4">Uploading your file... <span class="h5"><a ng-click="cancel()">Cancel</a></span></div>',
+            '  <div class="h4">{{ "STATUS.UPLOADING_FILE" | translate }}... <span class="h5"><a ng-click="cancel()">{{ "STATUS.CANCEL" | translate}}</a></span></div>',
             '  <progressbar value="uploadProgress" class="progress-striped active" max=100><i>{{ Status.STRINGS[upload.status] }}</i></progressbar>',
             '</div>',
             '<div class="dropzone" ng-show="options.checkComplete(upload)">',
             '  <div class="h3">',
-            '    <span class="glyphicon glyphicon-ok"></span> Data Loaded',
-            '    <span class="h5 pull-right"><button class="btn btn-danger" ng-click="delete()">Delete Data</button></span>',
+            '    <span class="glyphicon glyphicon-ok"></span> {{ "TERM.DATA_LOADED" | translate }}',
+            '    <button class="btn btn-danger pull-right" ng-click="delete()">{{ "TERM.DELETE_DATA" | translate}}</button>',
             '  </div>',
             '</div>',
             '<div class="dropzone notices" ng-show="options.checkInvalid(upload) || uploadError">',
             '  <div class="h4">',
-            '    <span class="glyphicon glyphicon-remove"></span> Upload Failed: {{ uploadError }}',
-            '    <span class="h5"><a ng-click="cancel()">Try Again</a></span>',
+            '    <span class="glyphicon glyphicon-remove"></span> {{ "TERM.UPLOAD_FAILED" | translate }}: {{ uploadError }}',
+            '    <span class="h5"><a ng-click="cancel()">{{ "STATUS.TRY_AGAIN" | translate }}</a></span>',
             '  </div>',
             '</div>'
         ].join('');

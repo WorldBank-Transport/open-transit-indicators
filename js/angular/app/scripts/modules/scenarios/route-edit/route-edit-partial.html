@@ -1,0 +1,38 @@
+<div class="scenario-page-content">
+    <form name="newRoute" novalidate>
+        <h3 ng-if="route.isNew" translate="SCENARIO.NEW_ROUTE"></h3>
+        <p ng-if="route.isNew" translate="SCENARIO.ADD_A_NEW_ROUTE"></p>
+        <h3 ng-if="!route.isNew" translate="SCENARIO.EDIT_ROUTE"></h3>
+        <p ng-if="!route.isNew" translate="SCENARIO.EDIT_ROUTE_INST1"></p>
+        <div class="block">
+            <label>{{'SCENARIO.SHORT_NAME'|translate}}</label>
+            <input type="text" ng-model="route.shortName" required />
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.LONG_NAME'|translate}}</label>
+            <input type="text" ng-model="route.longName" required />
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.DESCRIPTION'|translate}}</label>
+            <input type="text" ng-model="route.description" />
+        </div>
+        <div class="block">
+            <div class="filter">
+                <label>{{'SCENARIO.ROUTE_TYPE'|translate}}</label>
+                <select ng-model="selectedRouteType" ng-options="type.description for type in routeTypes" required ng-change="changeType()"></select>
+            </div>
+        </div>
+        <div ng-if="trips.length > 0" class="block">
+            <label>{{'SCENARIO.REPRESENTATIVE_TRIP'|translate}}</label>
+            <select ng-model="selected.tripId" ng-options="tripId for tripId in trips" required ng-change="getTrip()"></select>
+        </div>
+        <div class="block">
+            <label>{{'SCENARIO.HEADWAY'|translate}} ({{'UNITS.MINUTES'|translate}})</label>
+            <input type="number" ng-model="selected.headwayMins" required min="1" max="1440" ng-change="setHeadway()"></select>
+        </div>
+    </form>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-class="{'button--inactive': !newRoute.$valid}" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+</div>

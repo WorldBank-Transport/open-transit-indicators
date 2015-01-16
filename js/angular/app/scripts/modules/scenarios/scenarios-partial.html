@@ -1,1 +1,28 @@
-<scenarios-prototype></scenarios-prototype>
+<div class="scenario" auto-height>
+    <div class="scenario-headings">
+        <a class="scenario-heading" id="heading-scenario">
+            <div class="scenario-heading-title">
+               {{'SCENARIO.SCENARIO'|translate}}
+            </div>
+            <span class="prototype-scenario-text">
+               {{'SCENARIO.NEW_SCENARIO'|translate}}
+            </span>
+        </a>
+        <a class="scenario-heading" href="#scenario-20" id="heading-route">
+            <div class="scenario-heading-title">
+               {{'SCENARIO.ROUTE'|translate}}
+            </div>
+            <span class="prototype-route-text">
+                {{'SCENARIO.NEW_ROUTE'|translate}}
+            </span>
+        </a>
+        <div class="scenario-heading" id="heading-scroll">
+
+        </div>
+    </div>
+        <div class="scenario-pages">
+            <div ui-view class="scenario-page active" ng-class="{'previous': back}">
+            </div>
+        </div>
+    </div>
+</div>

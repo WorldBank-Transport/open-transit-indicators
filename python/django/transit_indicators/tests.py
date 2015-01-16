@@ -54,8 +54,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.data = {'poverty_line': 256.36,
                      'nearby_buffer_distance_m': 500.0,
                      'max_commute_time_s': 3600,
-                     'max_walk_time_s': 600,
-                     'avg_fare': 500}
+                     'avg_fare': 500,
+                     'arrive_by_time_s': 900}
 
     def test_config_crud(self):
         """Test admin user CRUD operations on OTIIndicatorsConfig.
@@ -78,11 +78,11 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertDictContainsSubset(self.data, response.data)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(new_max_walk_time, response.data['max_walk_time_s'])
+        self.assertEqual(new_arrive_by_time, response.data['arrive_by_time_s'])
 
         # DELETE
         response = self.client.delete(detail_url)
@@ -119,8 +119,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertDictContainsSubset(self.data, response.data)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -140,8 +140,8 @@ class OTIIndicatorsConfigTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # UPDATE
-        new_max_walk_time = 300
-        patch_data = dict(max_walk_time_s=new_max_walk_time)
+        new_arrive_by_time = 300
+        patch_data = dict(arrive_by_time_s=new_arrive_by_time)
         response = self.client.patch(detail_url, patch_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -164,7 +164,7 @@ class OTIIndicatorsConfigTestCase(TestCase):
         check_negative_number(self.data, 'avg_fare')
         check_negative_number(self.data, 'nearby_buffer_distance_m')
         check_negative_number(self.data, 'max_commute_time_s')
-        check_negative_number(self.data, 'max_walk_time_s')
+        check_negative_number(self.data, 'arrive_by_time_s')
 
 
 class SamplePeriodsTestCase(TestCase):
@@ -219,11 +219,9 @@ class IndicatorsTestCase(TestCase):
 
         self.user = OTIUser.objects.create_user('test', 'test@testing.com')
         self.indicator_job = IndicatorJob.objects.create(job_status='complete',
-                                                         version="cbe1f916-42d3-4630-8466-68b753024767",
                                                          created_by=self.user)
-        
+
         self.rivendell_job = IndicatorJob.objects.create(job_status='complete',
-                                                         version="deadbeef-9999-9999-9999-012345678910",
                                                          created_by=self.user,
                                                          city_name='Rivendell')
         # initialize a sample_period
@@ -234,9 +232,10 @@ class IndicatorsTestCase(TestCase):
 
     def test_crud(self):
         """Ensure that a valid Indicator can be created."""
+
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        version=self.indicator_job.version,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -252,7 +251,7 @@ class IndicatorsTestCase(TestCase):
         """ Ensure a valid indicator can be deleted """
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        version=self.indicator_job.version,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='system',
                                                         value=100),
                                     format='json')
@@ -262,28 +261,28 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.indicator_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator.save()
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.rivendell_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator2.save()
         indicator3 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.MODE,
                                              city_bounded=True,
-                                             version=self.rivendell_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator3.save()
 
-        self.assertEqual(2, len(Indicator.objects.filter(version__city_name='Rivendell')))
+        self.assertEqual(2, len(Indicator.objects.filter(calculation_job__city_name='Rivendell')))
         response = self.client.delete(self.list_url + '?city_name=Rivendell')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(0, len(Indicator.objects.filter(version__city_name='Rivendell')))
+        self.assertEqual(0, len(Indicator.objects.filter(calculation_job__city_name='Rivendell')))
 
         # Test delete all indicators, should fail 400 BAD REQUEST
         response = self.client.delete(self.list_url)
@@ -300,16 +299,16 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.indicator_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator.save()
 
-        city_name = indicator.version.city_name
+        city_name = indicator.calculation_job.city_name
         indicator2 = Indicator.objects.create(sample_period=self.sample_period,
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.rivendell_job,
+                                             calculation_job=self.rivendell_job,
                                              value=42)
         indicator2.save()
 
@@ -324,13 +323,13 @@ class IndicatorsTestCase(TestCase):
                                              type=Indicator.IndicatorTypes.NUM_ROUTES,
                                              aggregation=Indicator.AggregationTypes.SYSTEM,
                                              city_bounded=True,
-                                             version=self.indicator_job,
+                                             calculation_job=self.indicator_job,
                                              value=42)
         indicator.save()
         # On get requests, format parameter gets passed to the data object,
         # On any other type of request, its a named argument: get(url, data, format='csv')
         response = self.client.get(self.list_url, data={ 'format': 'csv' })
-        csv_response = 'aggregation,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value,version\r\nsystem,True,My City,42.0,5,,,morning,num_routes,42.0,cbe1f916-42d3-4630-8466-68b753024767\r\n'
+        csv_response = 'aggregation,calculation_job,city_bounded,city_name,formatted_value,id,route_id,route_type,sample_period,type,value\r\nsystem,9,True,My City,42.0,5,,,morning,num_routes,42.0\r\n'
         self.assertEqual(response.content, csv_response)
 
     def test_csv_import(self):
@@ -343,7 +342,7 @@ class IndicatorsTestCase(TestCase):
         test_csv = open(file_directory + '/tests/test_indicators.csv', 'rb')
         self.sample_period.save()
 
-        response = self.client.post(self.list_url, {'city_name': 'Rivendell', 'source_file': test_csv})
+        response = self.client.post(self.list_url, {'city_name': 'My City', 'source_file': test_csv})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -385,7 +384,7 @@ class IndicatorsTestCase(TestCase):
         # Good: a route aggregation with a route_id and no route_type
         response = self.client.post(self.list_url, dict(sample_period=self.sample_period.type,
                                                         type='num_stops',
-                                                        version=self.indicator_job.version,
+                                                        calculation_job=self.rivendell_job.id,
                                                         aggregation='route',
                                                         route_id='ABC',
                                                         value=100),
@@ -418,7 +417,7 @@ class IndicatorsTestCase(TestCase):
                                                         type='num_stops',
                                                         aggregation='mode',
                                                         route_type=1,
-                                                        version=self.indicator_job.version,
+                                                        calculation_job=self.rivendell_job.id,
                                                         value=100),
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

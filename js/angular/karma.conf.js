@@ -42,6 +42,7 @@ module.exports = function(config) {
       'app/bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap.js',
       'app/bower_components/leaflet/dist/leaflet.js',
       'app/bower_components/angular/angular.js',
+      'app/bower_components/angular-animate/angular-animate.js',
       'app/bower_components/angular-route/angular-route.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap.min.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
@@ -60,6 +61,7 @@ module.exports = function(config) {
       'app/bower_components/d3/d3.js',
       'app/bower_components/nvd3/nv.d3.js',
       'app/bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js',
+      'app/bower_components/angular-spinkit/build/angular-spinkit.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       // have no mock files yet; commenting out so it doesn't break things

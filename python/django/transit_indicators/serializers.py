@@ -1,11 +1,9 @@
-import json
-import time
-
 from rest_framework import serializers
 
 from datasources.models import DemographicDataFieldName
-from transit_indicators.models import OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod, Indicator, IndicatorJob
-from userdata.models import OTIUser
+from transit_indicators.models import (OTIIndicatorsConfig, OTIDemographicConfig, SamplePeriod,
+                                       Indicator, IndicatorJob, Scenario, OTICityName)
+
 
 class SamplePeriodSerializer(serializers.ModelSerializer):
     """Serializer for SamplePeriods -- performs validation of times"""
@@ -38,14 +36,10 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
     # Fields needs to not be required to allow setting default values
     job_status = serializers.ChoiceField(choices=IndicatorJob.StatusChoices.CHOICES,
                                          required=False)
-    is_latest_version = serializers.BooleanField(required=False)
-
+    calculation_status = serializers.CharField(required=False)
 
     def validate(self, attrs):
         """Handle validation to set read-only fields"""
-        if not attrs.get("sample_periods"):
-            attrs["sample_periods"] = SamplePeriod.objects.exclude(type="alltime")
-
         if not attrs.get("job_status"):
             attrs["job_status"] = IndicatorJob.StatusChoices.QUEUED
 
@@ -56,22 +50,69 @@ class IndicatorJobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IndicatorJob
-        read_only_fields = ('id', 'sample_periods', 'version',
-                            'created_by')
+        read_only_fields = ('id', 'created_by')
+
+
+class ScenarioSerializer(serializers.ModelSerializer):
+    """Serializer for Scenarios"""
+
+    job_status = serializers.ChoiceField(choices=Scenario.StatusChoices.CHOICES,
+                                         required=False)
+    created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    sample_period = serializers.SlugRelatedField(slug_field='type')
+    base_scenario = serializers.SlugRelatedField(slug_field='db_name', required=False)
+
+    def validate(self, attrs):
+        """Handle validation to set read-only fields"""
+
+        if not attrs.get('job_status'):
+            attrs['job_status'] = IndicatorJob.StatusChoices.QUEUED
+
+        if not attrs.get('created_by'):
+            attrs['created_by'] = self.context['request'].user
+
+        if ('sample_period' in attrs and
+            attrs.get('sample_period').type == SamplePeriod.SamplePeriodTypes.ALLTIME):
+            raise serializers.ValidationError('Scenario for alltime not allowed')
+
+        return super(ScenarioSerializer, self).validate(attrs)
+
+    class Meta:
+        model = Scenario
+        read_only_fields = ('id', 'db_name')
+
 
 class IndicatorSerializer(serializers.ModelSerializer):
     """Serializer for Indicator"""
 
     sample_period = serializers.SlugRelatedField(slug_field='type')
-    version = serializers.SlugRelatedField(slug_field='version')
+    calculation_job = serializers.SlugRelatedField(slug_field='id')
     city_name = serializers.SerializerMethodField('get_city_name')
+    formatted_value = serializers.SerializerMethodField('get_formatted_value')
+
+    def get_formatted_value(self, obj):
+        """Display value for units"""
+        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(obj.type, None) if obj.type else None
+        if obj.type == Indicator.IndicatorTypes.LINE_NETWORK_DENSITY:
+            LINE_NETWORK_DENSITY_MULTIPLIER = 1000000
+            return u"%s" % round(obj.value * LINE_NETWORK_DENSITY_MULTIPLIER, 2)
+        elif units:
+            return u"%s %s" % (round(obj.value, 2), units)
+        return u"%s" % round(obj.value, 2)
 
     def get_city_name(self, obj):
-        return obj.version.city_name
+        return obj.calculation_job.city_name
 
     def validate(self, attrs):
         """Validate indicator fields"""
         # TODO: Error messages need to be translated
+
+        # Make sure empty route_ids and route_types are signified by
+        # a null instead of an empty string. Without this check, the
+        # endpoint will return a 500 error when an empty string is used.
+        for attr in ['route_id', 'route_type']:
+            if attr in attrs and attrs[attr] == '':
+                attrs[attr] = None
 
         # Route aggregation type requires a route id and no route type
         if attrs['aggregation'] == Indicator.AggregationTypes.ROUTE:
@@ -92,8 +133,8 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ('id', 'sample_period', 'type', 'aggregation', 'route_id', 'route_type',
-                  'city_bounded', 'value', 'formatted_value', 'version', 'city_name', 'the_geom')
-        read_only_fields = ('id', 'formatted_value')
+                  'city_bounded', 'value', 'calculation_job', 'city_name', 'the_geom', 'formatted_value')
+        read_only_fields = ('id',)
         write_only_fields = ('the_geom',)
 
 
@@ -103,6 +144,20 @@ class OTIIndicatorsConfigSerializer(serializers.ModelSerializer):
         """ Raises a ValidationError if num < 0 """
         if num < 0:
             raise serializers.ValidationError("Must be >= 0")
+
+    def validate_arrive_by_time_s(self, attrs, source):
+        """ Make sure that the arrive by time is non-negative and below 24 hours"""
+        seconds_in_day = 60 * 60 * 24
+        num = attrs[source]
+        self.raise_if_lt_0(num)
+        if num >= seconds_in_day:
+            raise serializers.ValidationError("Must be < %s" % seconds_in_day)
+        return attrs
+
+    def validate_max_commute_time_s(self, attrs, source):
+        """ Make sure that duration time is non-negative."""
+        self.raise_if_lt_0(attrs[source])
+        return attrs
 
     def validate_poverty_line(self, attrs, source):
         """ Make sure poverty_line >= 0 """
@@ -199,3 +254,8 @@ class OTIDemographicConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OTIDemographicConfig
+
+
+class OTICityNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTICityName

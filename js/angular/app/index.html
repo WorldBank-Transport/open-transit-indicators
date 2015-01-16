@@ -13,19 +13,22 @@
     <meta name="viewport" content="width=device-width">
     <meta charset="utf-8">      <!-- required by d3.js -->
     <link rel="stylesheet" href="bower_components/angular/angular-csp.css" />
+    <link rel="stylesheet" href="bower_components/pace/themes/blue/pace-theme-minimal.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.draw/dist/leaflet.draw.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="bower_components/nvd3/src/nv.d3.css" />
+    <link rel="stylesheet" href="bower_components/angular-spinkit/build/angular-spinkit.min.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-    <link rel="stylesheet" href="scripts/prototype/leaflet.draw.css" />
   </head>
   <body ng-app="transitIndicators">
+    <paceprogress ng-non-bindable></paceprogress>
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -42,6 +45,7 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
@@ -74,48 +78,85 @@
     <script src="bower_components/nvd3/nv.d3.js"></script>
     <script src="bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
     <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <script src="bower_components/pace/pace.js"></script>
+    <script src="bower_components/angular-spinkit/build/angular-spinkit.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
-    <script type="text/javascript" src="scripts/prototype/leaflet.draw.js"></script>
+    <script type="text/javascript" src="bower_components/leaflet.draw/dist/leaflet.draw.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
         <script src="scripts/config.js"></script>
         <script src="scripts/windshaft-config.js"></script>
         <script src="scripts/directives/polling-upload.js"></script>
+        <script src="scripts/directives/oti-csv-export.js"></script>
         <script src="scripts/directives/oti-legend.js"></script>
+        <script src="scripts/directives/oti-job-legend.js"></script>
+        <script src="scripts/directives/oti-coverage-legend.js"></script>
+        <script src="scripts/directives/oti-mode-selector.js"></script>
         <script src="scripts/modules/events/oti-events.js"></script>
+        <script src="scripts/modules/api-helpers/types-service.js"></script>
+        <script src="scripts/modules/transitmap/map-service.js"></script>
+        <script src="scripts/modules/transitmap/transit-map-service.js"></script>
+        <script src="scripts/modules/transitmap/style-service.js"></script>
+        <script src="scripts/modules/indicator-services/indicator-manager.js"></script>
+        <script src="scripts/modules/indicator-services/indicator-model.js"></script>
+        <script src="scripts/modules/indicator-services/indicator-job-manager.js"></script>
+        <script src="scripts/modules/indicator-services/indicator-job-model.js"></script>
+        <script src="scripts/modules/indicator-services/city-manager.js"></script>
+        <script src="scripts/modules/indicator-services/chart-service.js"></script>
         <script src="scripts/modules/root/root-controller.js"></script>
+        <script src="scripts/modules/root/translate-cookie-storage.js"></script>
         <script src="scripts/modules/transit/transit-controller.js"></script>
         <script src="scripts/modules/userdata/user-service.js"></script>
+        <script src="scripts/modules/userdata/change-password-controller.js"></script>
+        <script src="scripts/modules/userdata/change-language-controller.js"></script>
         <script src="scripts/modules/auth/auth-interceptor.js"></script>
         <script src="scripts/modules/auth/logout-interceptor.js"></script>
         <script src="scripts/modules/auth/auth-controller.js"></script>
         <script src="scripts/modules/auth/auth-service.js"></script>
+        <script src="scripts/modules/scenarios/uid-service.js"></script>
+        <script src="scripts/modules/scenarios/draw-service.js"></script>
+        <script src="scripts/modules/scenarios/scenario-model.js"></script>
+        <script src="scripts/modules/scenarios/scenario-manager.js"></script>
+        <script src="scripts/modules/scenarios/route-model.js"></script>
+        <script src="scripts/modules/scenarios/route-manager.js"></script>
+        <script src="scripts/modules/scenarios/scenarios-directives.js"></script>
         <script src="scripts/modules/scenarios/scenarios-controller.js"></script>
+        <script src="scripts/modules/scenarios/list/list-controller.js"></script>
+        <script src="scripts/modules/scenarios/new/new-controller.js"></script>
+        <script src="scripts/modules/scenarios/new-success/new-success-controller.js"></script>
+        <script src="scripts/modules/scenarios/routes/routes-controller.js"></script>
+        <script src="scripts/modules/scenarios/routes/trip-model.js"></script>
+        <script src="scripts/modules/scenarios/routes/frequency-model.js"></script>
+        <script src="scripts/modules/scenarios/route-stops/stop-service.js"></script>
+        <script src="scripts/modules/scenarios/routes/trip-manager.js"></script>
+        <script src="scripts/modules/scenarios/route-edit/route-edit-controller.js"></script>
+        <script src="scripts/modules/scenarios/route-stops/stop-service.js"></script>
+        <script src="scripts/modules/scenarios/route-stops/route-stops-controller.js"></script>
+        <script src="scripts/modules/scenarios/route-stops/stopup-directive.js"></script>
+        <script src="scripts/modules/scenarios/route-stops/stop-add-directive.js"></script>
+        <script src="scripts/modules/scenarios/route-shapes/route-shapes-controller.js"></script>
+        <script src="scripts/modules/scenarios/route-times/route-times-controller.js"></script>
+        <script src="scripts/modules/scenarios/route-done/route-done-controller.js"></script>
         <script src="scripts/modules/indicators/city-modal-controller.js"></script>
         <script src="scripts/modules/indicators/indicators-controller.js"></script>
         <script src="scripts/modules/indicators/map-controller.js"></script>
         <script src="scripts/modules/indicators/data-controller.js"></script>
-        <script src="scripts/modules/indicators/indicators-service.js"></script>
-        <script src="scripts/modules/indicators/data-service.js"></script>
-        <script src="scripts/modules/indicators/map-service.js"></script>
+        <script src="scripts/modules/indicators/yes-no-modal-controller.js"></script>
+        <script src="scripts/modules/indicators/ok-modal-controller.js"></script>
+        <script src="scripts/modules/indicators/calculation-controller.js"></script>
         <script src="scripts/modules/settings/settings-controller.js"></script>
         <script src="scripts/modules/settings/settings-service.js"></script>
         <script src="scripts/modules/settings/upload-status-service.js"></script>
         <script src="scripts/modules/settings/overview/overview-controller.js"></script>
         <script src="scripts/modules/settings/boundary/boundary-controller.js"></script>
-        <script src="scripts/modules/settings/boundary/boundary-service.js"></script>
         <script src="scripts/modules/settings/demographic/demographic-controller.js"></script>
-        <script src="scripts/modules/settings/demographic/demographic-service.js"></script>
-        <script src="scripts/modules/settings/realtime/realtime-service.js"></script>
         <script src="scripts/modules/settings/realtime/realtime-controller.js"></script>
         <script src="scripts/modules/settings/configuration/configuration-controller.js"></script>
         <script src="scripts/modules/settings/configuration/configuration-service.js"></script>
         <script src="scripts/modules/settings/users/users-controller.js"></script>
         <script src="scripts/modules/settings/upload/upload-controller.js"></script>
-        <script src="scripts/modules/settings/upload/upload-service.js"></script>
-        <script src="scripts/modules/scenarios/scenarios-prototype-directive.js"></script>
         <!-- endbuild -->
 </body>
 </html>

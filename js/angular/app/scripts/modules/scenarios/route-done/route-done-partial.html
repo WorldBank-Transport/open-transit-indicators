@@ -1,0 +1,30 @@
+<div class="scenario-page-content">
+    <div ng-if="status === statuses.SAVED">
+        <h3 translate="SCENARIO.SUCCESS"></h3>
+        <p>
+            {{'SCENARIO.YOU_JUST_CREATE_ROUTE'|translate}} {{ ::route.longName }}
+        </p>
+    </div>
+    <div ng-if="status === statuses.ERROR">
+        <h3 translate="SCENARIO.ROUTE_ERROR"></h3>
+        <p translate="SCENARIO.ROUTE_UNKNOWN_ERROR"></p>
+    </div>
+    <div ng-if="status === statuses.SAVING">
+        <p>
+            <wave-spinner></wave-spinner>
+            <span class="text-center" translate="SCENARIO.ROUTE_SAVING"></span>
+        </p>
+    </div>
+    <div ng-if="status === statuses.INVALID">
+        <h3 translate="SCENARIO.ROUTE_ERROR"></h3>
+        <p translate="SCENARIO.ROUTE_ERROR_DESC"></p>
+        <ul ng-repeat="error in validation.errors">
+            <li>{{error|translate}}</li>
+        </ul>
+    </div>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="goWithConfirmationTo('new-success')" translate="SCENARIO.SCENARIO"></a> /
+    <a class="button--small" ng-click="goWithConfirmationTo('routes')" translate="SCENARIO.ROUTE"></a> /
+    <a class="button--small" ng-class="{'button--inactive': status===statuses.SAVED}" ng-click="back()" translate="SCENARIO.BACK"></a>
+</div>

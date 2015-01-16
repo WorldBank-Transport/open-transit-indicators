@@ -1,17 +1,17 @@
 <header>
     <div class="navigation-buttongroup">
         <div ui-sref="transit" class="button--navigation" ng-class="{active: activeState === 'transit'}" id="navigation-transit">{{ 'NAV.TRANSITMAP' | translate }}</div>
-        <div ui-sref="scenarios" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
+        <div ui-sref="list" class="button--navigation" ng-class="{active: activeState === 'scenarios'}" id="navigation-scenario">{{ 'NAV.SCENARIO' | translate }}</div>
         <div ui-sref="data" class="button--navigation" ng-class="{active: activeState === 'indicators'}" id="navigation-indicators">{{ 'NAV.INDICATORS' | translate }}</div>
-        <div ui-sref="overview" class="button--navigation" ng-class="{active: activeState === 'settings'}" id="navigation-settings">{{ 'NAV.SETTINGS' | translate }}</div>
-        <div class="button--navigation pull-right" ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</div>
-        <div  class="button--navigation pull-right dropdown">
-          <div class="dropdown-toggle" ng-disabled="disabled">
-            {{ 'TERM.LANGUAGE' | translate}} <span class="caret"></span>
+        <div ui-sref="overview" class="button--navigation pull-right" ng-if="user.is_staff === true" ng-class="{active: activeState === 'settings'}" id="navigation-settings"><span class="glyphicon glyphicon-cog"></span></div>
+        <div dropdown class="pull-right">
+          <div dropdown-toggle class="dropdown button--navigation pull-right dropdown-toggle" ng-disabled="disabled" >
+            {{ user.username }}<span class="caret"></span>
           </div>
           <ul class="dropdown-menu" role="menu">
-            <!-- TODO: Add translations for each language -->
-            <li ng-repeat="(key, value) in languages"><a ng-click="selectLanguage(value)"> {{ key }}</a></li>
+              <li><a ng-click="changeLanguage()">{{ 'NAV.CHANGE_LANGUAGE' | translate }}</a></li>
+              <li><a ng-click="changePassword()">{{ 'NAV.CHANGE_PASSWORD' | translate }}</a></li>
+              <li><a ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</a></li>
           </ul>
         </div>
     </div>
@@ -20,9 +20,52 @@
 <div class="app-view">
     <leaflet ng-class="{'indicators-map-pushdown': activeState === 'indicators', 'hidden': !mapActive, 'navigationpadding-2': mapClassNav2 }"
              class="navigationpadding-1"
-             defaults="leaflet.defaults" center="leaflet.center" bounds="leaflet.bounds"
-             markers="leaflet.markers" layers="leaflet.layers">
+             defaults="leaflet.defaults"
+             center="leaflet.center"
+             bounds="leaflet.bounds"
+             markers="leaflet.markers"
+             layers="leaflet.layers">
     </leaflet>
-    <oti-legend labels="leaflet.legend.labels" colors="leaflet.legend.colors"></oti-legend>
+    <div class="legend legends-container">
+      <oti-legend labels="leaflet.legend.labels"
+                  colors="leaflet.legend.colors"
+                  style="leaflet.legend.style"
+                  units="leaflet.legend.units">
+      </oti-legend>
+      <oti-coverage-legend visible="leaflet.coverageLegend.show"
+                           config-data="leaflet.coverageLegend.bufferDistance"
+                           coverage="leaflet.coverageLegend.coverage"
+                           access1="leaflet.coverageLegend.access1"
+                           access2="leaflet.coverageLegend.access2">
+      </oti-coverage-legend>
+      <oti-job-legend labels="leaflet.pop1Legend.labels"
+                  colors="leaflet.pop1Legend.colors"
+                  visible="leaflet.pop1Legend.show"
+                  title="leaflet.pop1Legend.title"
+                  range="leaflet.pop1Legend.range">
+      </oti-job-legend>
+      <oti-job-legend labels="leaflet.pop2Legend.labels"
+                  colors="leaflet.pop2Legend.colors"
+                  visible="leaflet.pop2Legend.show"
+                  title="leaflet.pop2Legend.title"
+                  range="leaflet.pop2Legend.range">
+      </oti-job-legend>
+      <oti-job-legend labels="leaflet.dest1Legend.labels"
+                  colors="leaflet.dest1Legend.colors"
+                  visible="leaflet.dest1Legend.show"
+                  title="leaflet.dest1Legend.title"
+                  range="leaflet.dest1Legend.range">
+      </oti-job-legend>
+      <oti-job-legend visible="leaflet.jobsLegend.show"
+                      colors="leaflet.jobsLegend.colors"
+                      labels="leaflet.jobsLegend.labels"
+                      title="leaflet.jobsLegend.title"
+                      range="leaflet.jobsLegend.range">
+      </oti-job-legend>
+    </div>
+    <oti-mode-selector modes="modes"
+                       updatemap="setMapModes"
+                       legend-labels="leaflet.legend.labels">
+    </oti-mode-selector>
     <div ui-view></div>
 </div>

@@ -40,7 +40,8 @@ HOST='127.0.0.1'  # TODO: set for production / travis
 TEMP_ROOT='/tmp'
 DJANGO_ROOT="$PROJECT_ROOT/python/django"
 DJANGO_STATIC_FILES_ROOT="$PROJECT_ROOT/static"
-GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
+SCALA_ROOT="$PROJECT_ROOT/scala"
+SCALA_OTI_ROOT="$SCALA_ROOT/opentransit"
 
 # Additional repos for snapshot versions of GeoTrellis and GTFS parser.
 # The changes in these repos haven't been published to Maven and may
@@ -48,9 +49,6 @@ GEOTRELLIS_ROOT="$PROJECT_ROOT/geotrellis"
 GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
 GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
-GTFS_PARSER_REPO_ROOT="$PROJECTS_DIR/gtfs-parser"
-GTFS_PARSER_REPO_URI="https://github.com/echeipesh/gtfs-parser.git"
-GTFS_PARSER_REPO_BRANCH="master"
 
 # Time limit for indicator calculations to finish before retrying
 INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
@@ -72,13 +70,13 @@ REDIS_HOST=$HOST
 REDIS_PORT='6379'
 VHOST_NAME=$DB_NAME
 
-GEOTRELLIS_PORT=8001
-GEOTRELLIS_HOST="http://127.0.0.1:$GEOTRELLIS_PORT"
-GEOTRELLIS_CATALOG="data/catalog.json"
-GEOTRELLIS_MEM_MB=7168      # For the oti-geotrellis upstart job
+SPRAY_PORT=8001
+SPRAY_HOST="http://127.0.0.1:$SPRAY_PORT"
+OTI_CATALOG_ROOT="$SCALA_OTI_ROOT/data"
+SBT_MEM_MB=5600      # For the opentransit spray service upstart job
 RABBIT_MQ_HOST="127.0.0.1"
 RABBIT_MQ_PORT="5672"
-TRANSITFEED_VERSION=1.2.12
+TRANSITFEED_VERSION=1.2.13
 
 # TODO: Change user emails?
 APP_SU_USERNAME="oti-admin"
@@ -91,8 +89,9 @@ APP_EMAIL="$APP_USERNAME@azavea.com"
 WINDSHAFT_PORT=4000
 WINDSHAFT_HOST="http://localhost:$WINDSHAFT_PORT"
 
-GUNICORN_WORKERS=3
-GUNICORN_TIMEOUT=300
+GUNICORN_WORKERS=4
+GUNICORN_CONNECTIONS=500
+GUNICORN_TIMEOUT=600
 
 # Create logs directory
 mkdir -p $LOG_ROOT
@@ -102,7 +101,7 @@ case "$INSTALL_TYPE" in
     "development")
         echo "Selecting development installation"
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS="--max-requests 1" # force gunicorn to reload code
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # force gunicorn to reload code
         WEB_USER="vagrant"
         ;;
     "production")
@@ -110,7 +109,7 @@ case "$INSTALL_TYPE" in
         # Should be set to $ANGULAR_ROOT/dist
         # Change once issue #161 is resolved
         ANGULAR_STATIC="$ANGULAR_ROOT/app"
-        GUNICORN_MAX_REQUESTS=""
+        GUNICORN_MAX_REQUESTS="--max-requests 10" # prevent memory leaks in gunicorn app
         WEB_PORT='80'
         WEB_USER=`logname`
         ;;
@@ -195,6 +194,9 @@ else
 
 fi
 
+## update npm
+npm -g install npm@2.1.2
+
 #### build postgis and friends #############
 # http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21Ubuntu1204src
 
@@ -238,6 +240,19 @@ else
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/pgsql2shp
         sudo ln -sf /usr/share/postgresql-common/pg_wrapper /usr/local/bin/raster2pgsql
     popd
+    echo 'Tuning Postgres'
+    # set SHMMAX for postgres shared buffers
+    echo "kernel.shmmax = 107374182400" >> /etc/sysctl.conf
+    sysctl -p
+    pushd /etc/postgresql/9.1/main
+        sed -i '/shared_buffers =/c\shared_buffers = 256MB' postgresql.conf
+        sed -i '/max_connections =/c\max_connections = 30' postgresql.conf
+        sed -i '/effective_cache_size =/c\effective_cache_size = 1GB' postgresql.conf
+        sed -i '/#work_mem =/c\work_mem = 16MB' postgresql.conf
+        sed -i '/maintenance_work_mem =/c\maintenance_work_mem = 16MB' postgresql.conf
+        sed -i '/temp_buffers =/c\temp_buffers = 32MB' postgresql.conf
+        service postgresql restart
+    popd
 fi
 
 ########## Install osm2pgsql ##########
@@ -270,7 +285,7 @@ popd
 
 # Install node dependencies
 echo 'Installing node dependencies'
-npm install -g grunt-cli yo generator-angular
+npm install -g bower grunt-cli yo generator-angular
 
 # Install ruby gems
 echo 'Installing ruby gems dependencies'
@@ -306,16 +321,16 @@ popd
 #########################
 # This is installed manually due to a problem where the newest version
 # isn't able to be installed via pip on Travis.
-# docs here:  https://code.google.com/p/googletransitdatafeed/wiki/FeedValidator
+# docs here:  https://github.com/google/transitfeed/wiki/FeedValidator
 if ! $(python -c "import transitfeed" &> /dev/null); then
     echo 'Setting up transitfeed'
     pushd $TEMP_ROOT
-        wget https://googletransitdatafeed.googlecode.com/files/transitfeed-$TRANSITFEED_VERSION.tar.gz
-        tar xzf transitfeed-$TRANSITFEED_VERSION.tar.gz
+        wget https://github.com/google/transitfeed/archive/$TRANSITFEED_VERSION.tar.gz
+        tar xzf $TRANSITFEED_VERSION.tar.gz
         pushd transitfeed-$TRANSITFEED_VERSION
             sudo python setup.py install
         popd
-        rm -rf transitfeed-$TRANSITFEED_VERSION transitfeed-$TRANSITFEED_VERSION.tar.gz
+        rm -rf transitfeed-$TRANSITFEED_VERSION $TRANSITFEED_VERSION.tar.gz
     popd
 fi
 
@@ -440,8 +455,24 @@ exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --que
 celery_indicators_conf_file="/etc/init/oti-celery-indicators.conf"
 echo "$celery_indicators_conf" > "$celery_indicators_conf_file"
 
+# scenarios
+celery_scenarios_conf="
+start on (filesystem or (vagrant-mounted or cloud-final))
+stop on runlevel [!2345]
+
+kill timeout 30
+
+chdir $DJANGO_ROOT
+
+exec /usr/local/bin/celery worker --app transit_indicators.celery_settings --queue scenarios --logfile $LOG_ROOT/celery.log -l debug --pidfile /var/run/celery-scenarios.pid --autoreload --concurrency=1 --soft-time-limit $INDICATOR_SOFT_TIME_LIMIT_SECONDS
+"
+
+celery_scenarios_conf_file="/etc/init/oti-celery-scenarios.conf"
+echo "$celery_scenarios_conf" > "$celery_scenarios_conf_file"
+
 service oti-celery-datasources restart
 service oti-celery-indicators restart
+service oti-celery-scenarios restart
 
 echo "Finished setting up celery and background processes started"
 
@@ -524,73 +555,63 @@ fi
 ###############################
 # GeoTrellis local repo setup #
 ###############################
-echo 'Setting up local geotrellis repo'
-if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
-    pushd $PROJECTS_DIR
-        git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
+if [ "$INSTALL_TYPE" != "travis" ]; then
+    echo 'Setting up local geotrellis repo'
+    if [ ! -d "$GEOTRELLIS_REPO_ROOT" ]; then
+        pushd $PROJECTS_DIR
+            git clone -b $GEOTRELLIS_REPO_BRANCH $GEOTRELLIS_REPO_URI
+        popd
+    fi
+    pushd $GEOTRELLIS_REPO_ROOT
+        git pull
+        ./publish-local.sh
     popd
-fi
-pushd $GEOTRELLIS_REPO_ROOT
-    git pull
-    ./sbt "project proj4" publish-local
-    ./sbt "project vector" publish-local
-    ./sbt "project slick" publish-local
-popd
 
-################################
-# GTFS parser local repo setup #
-################################
-echo 'Setting up local GTFS parser repo'
-if [ ! -d "$GTFS_PARSER_REPO_ROOT" ]; then
-    pushd $PROJECTS_DIR
-        git clone -b $GTFS_PARSER_REPO_BRANCH $GTFS_PARSER_REPO_URI
+    #########################
+    # GeoTrellis setup      #
+    #########################
+    echo 'Setting up geotrellis'
+
+    gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
+    opentransit.catalog = \"$OTI_CATALOG_ROOT/catalog.json\"
+    opentransit.spray.port = \"$SPRAY_PORT\"
+    database.geom-name-lat-lng = \"the_geom\"
+    database.geom-name-utm = \"geom\"
+    database.sudo = "postgres"
+    database.name = \"$DB_NAME\"
+    database.user = \"$DB_USER\"
+    database.password = \"$DB_PASS\"
+    spray.can.server.idle-timeout = 1260 s
+    spray.can.server.request-timeout = 1200 s
+    spray.can.client.idle-timeout = 1260 s
+    spray.can.client.request-timeout = 1200 s
+    spray.can.client.connecting-timeout = 1200 s
+    "
+
+    pushd $SCALA_OTI_ROOT/src/main/resources/
+        echo "$gt_application_conf" > application.conf
     popd
+
+    geotrellis_conf="start on (filesystem or (vagrant-mounted or cloud-final))
+    stop on runlevel [!2345]
+
+    kill timeout 30
+
+    script
+        echo \$\$ > /var/run/oti-indicators.pid
+        chdir $SCALA_ROOT
+        exec nice -n 18 ./sbt 'project opentransit' -mem $SBT_MEM_MB run
+    end script
+
+    pre-stop script
+        rm /var/run/oti-indicators.pid
+    end script
+    "
+    geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
+    echo "$geotrellis_conf" > "$geotrellis_conf_file"
+    service oti-geotrellis restart
+    echo "Geotrellis service now running"
 fi
-pushd $GTFS_PARSER_REPO_ROOT
-    git pull
-    ./sbt publish-local
-popd
-
-#########################
-# GeoTrellis setup      #
-#########################
-echo 'Setting up geotrellis'
-
-gt_application_conf="// This file created by provision.sh, and will be overwritten if reprovisioned.
-geotrellis.catalog = \"$GEOTRELLIS_CATALOG\"
-geotrellis.port = \"$GEOTRELLIS_PORT\"
-database.geom-name-lat-lng = \"the_geom\"
-database.geom-name-utm = \"geom\"
-database.name = \"$DB_NAME\"
-database.user = \"$DB_USER\"
-database.password = \"$DB_PASS\"
-spray.can.server.idle-timeout = 1260 s
-spray.can.server.request-timeout = 1200 s
-"
-
-pushd $GEOTRELLIS_ROOT/src/main/resources/
-    echo "$gt_application_conf" > application.conf
-popd
-
-geotrellis_conf="start on (filesystem or (vagrant-mounted or cloud-final))
-stop on runlevel [!2345]
-
-kill timeout 30
-
-script
-    echo \$\$ > /var/run/oti-indicators.pid
-    chdir $GEOTRELLIS_ROOT
-    exec ./sbt -mem $GEOTRELLIS_MEM_MB -XX:-UseConcMarkSweepGC -XX:+UseGCOverheadLimit run
-end script
-
-pre-stop script
-    rm /var/run/oti-indicators.pid
-end script
-"
-geotrellis_conf_file="/etc/init/oti-geotrellis.conf"
-echo "$geotrellis_conf" > "$geotrellis_conf_file"
-service oti-geotrellis restart
-echo "Geotrellis service now running"
 
 #########################
 # Gunicorn setup        #
@@ -604,7 +625,7 @@ kill timeout 30
 
 chdir $DJANGO_ROOT
 
-exec /usr/bin/gunicorn --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
+exec /usr/bin/gunicorn -k gevent --worker-connections $GUNICORN_CONNECTIONS --workers $GUNICORN_WORKERS --log-file $LOG_ROOT/gunicorn.log -p /var/run/gunicorn/gunicorn.pid -b unix:/tmp/gunicorn.sock transit_indicators.wsgi:application $GUNICORN_MAX_REQUESTS --timeout=$GUNICORN_TIMEOUT
 "
 gunicorn_conf_file="/etc/init/oti-gunicorn.conf"
 echo "$gunicorn_conf" > "$gunicorn_conf_file"
@@ -637,7 +658,7 @@ nginx_conf="server {
     }
 
     location /gt {
-        proxy_pass $GEOTRELLIS_HOST;
+        proxy_pass $SPRAY_HOST;
         proxy_read_timeout 1800s;
         proxy_redirect off;
         proxy_set_header Host \$host;
@@ -645,12 +666,22 @@ nginx_conf="server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
+    location /api/real-time/ {
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$http_host;
+        proxy_pass http://unix:/tmp/gunicorn.sock:;
+        proxy_read_timeout 1000s;
+        proxy_connect_timeout 75s;
+        client_max_body_size 500M;
+    }
+
     location /api {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header Host \$http_host;
         proxy_pass http://unix:/tmp/gunicorn.sock:;
         proxy_read_timeout 600s;
-        client_max_body_size 100M;
+        proxy_connect_timeout 75s;
+        client_max_body_size 200M;
     }
 
     location /tiles {

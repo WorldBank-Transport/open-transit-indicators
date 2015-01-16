@@ -5,7 +5,8 @@
 VAGRANTFILE_API_VERSION = "2"
 
 if ENV['OTI_VAGRANT_MEMORY'].nil?
-    MEMORY_MB = "10240"
+    # Project requirements require a machine w/ <= 8Gb, so this default keeps us a bit honest 
+    MEMORY_MB = "8192"
 else
     MEMORY_MB = ENV['OTI_VAGRANT_MEMORY']
 end
@@ -38,6 +39,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Nginx
   config.vm.network :forwarded_port, guest: 80, host: 8067
 
+  # JVM Profiling
+  config.vm.network :forwarded_port, guest: 3333, host: 3333
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -50,7 +53,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # If true, then any SSH connections made will enable agent forwarding.
   # Default value: false
-  # config.ssh.forward_agent = true
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11 = true
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is

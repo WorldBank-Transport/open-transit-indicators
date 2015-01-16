@@ -1,22 +1,22 @@
 <div class="indicator-map">
     <div class="indicator-controls">
         <div class="indicator-control">
-            <div>Indicator Aggregation:</div>
-            <div class="btn-group" dropdown is-open="dropdown_aggregation_open">
-                <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
-                    {{ aggregations[indicator.aggregation] }} <span class="caret"></span>
+            <h5>{{ 'MAP.SYSTEM_SELECTION' | translate }}:</h5>
+            <div class="btn-group" dropdown is-open="dropdown_indicatorjob_selection_open">
+                <button dropdown-toggle type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                    {{ selectedCity.city_name }} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat="(key, value) in aggregations">
-                        <a ng-click="selectAggregation(key)"> {{ value }}</a>
+                    <li ng-repeat="city in cities">
+                        <a ng-click="selectCity(city)"> {{ city.city_name }}</a>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="indicator-control">
-            <div>Indicator Type:</div>
+            <h5>{{ 'MAP.INDICATOR_TYPE' | translate }}:</h5>
             <div class="btn-group" dropdown is-open="dropdown_type_open">
-                <button type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
+                <button dropdown-toggle type="button" class="button--navigationsecondary dropdown-toggle" ng-disabled="disabled">
                     {{ mapTypes[indicator.type] }} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
@@ -28,3 +28,4 @@
         </div>
     </div>
 </div>
+

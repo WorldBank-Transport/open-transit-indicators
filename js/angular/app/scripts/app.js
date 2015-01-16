@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('transitIndicators', [
+    'ngAnimate',
     'ngCookies',
     'ngResource',
     'ui.router',
@@ -9,9 +10,12 @@ angular.module('transitIndicators', [
     'leaflet-directive',
     'ui.bootstrap',
     'ui.utils',
-    'nvd3ChartDirectives'
-]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 'config', '$httpProvider',
-        function ($stateProvider, $urlRouterProvider, $locationProvider, config, $httpProvider) {
+    'nvd3ChartDirectives',
+    'angular-spinkit'
+]).config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
+           'config',
+        function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider,
+                  config) {
 
     $httpProvider.interceptors.push('authInterceptor');
     $httpProvider.interceptors.push('logoutInterceptor');
@@ -23,7 +27,14 @@ angular.module('transitIndicators', [
         .state('root', {
             abstract: true,
             templateUrl: 'scripts/modules/root/root-partial.html',
-            controller: 'OTIRootController'
+            controller: 'OTIRootController',
+            resolve: {
+                authService: 'authService',
+                OTIUserService: 'OTIUserService',
+                user: function (OTIUserService, authService) {
+                    return OTIUserService.getUser(authService.getUserId());
+                }
+            }
         })
         .state('login', {
             url: '/login/',
@@ -42,9 +53,9 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/indicators-partial.html',
             controller: 'OTIIndicatorsController',
             resolve: {
-               OTIIndicatorsService: 'OTIIndicatorsService',
-               cities: function (OTIIndicatorsService) {
-                    return OTIIndicatorsService.getCities();
+               OTICityManager: 'OTICityManager',
+               cities: function (OTICityManager) {
+                    return OTICityManager.list();
                }
             }
         })
@@ -60,13 +71,34 @@ angular.module('transitIndicators', [
             templateUrl: 'scripts/modules/indicators/data-partial.html',
             controller: 'OTIIndicatorsDataController'
         })
+        .state('calculation', {
+            parent: 'indicators',
+            url: '/calculation',
+            templateUrl: 'scripts/modules/indicators/calculation-partial.html',
+            controller: 'OTIIndicatorsCalculationController'
+        })
         .state('scenarios', {
+            abstract: true,
             parent: 'root',
             url: '/scenarios',
             templateUrl: 'scripts/modules/scenarios/scenarios-partial.html',
-            controller: 'OTIScenariosController'
+            controller: 'OTIScenariosController',
+            resolve: {
+                OTITypes: 'OTITypes',
+                OTISettingsService: 'OTISettingsService',
+                samplePeriods: function (OTISettingsService) {
+                    return OTISettingsService.samplePeriods.query();
+                },
+                samplePeriodI18N: function (OTITypes) {
+                    return OTITypes.getSamplePeriodTypes();
+                },
+                routeTypes: function (OTITypes) {
+                    return OTITypes.getRouteTypes();
+                }
+            }
         })
         .state('settings', {
+            abstract: true,
             parent: 'root',
             url: '/settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
@@ -100,6 +132,22 @@ angular.module('transitIndicators', [
                 controller: 'OTI' + capsId + 'Controller'
             });
         });
+
+        _.each(config.scenarioViews, function (view) {
+            var viewId = view.id;
+            var nodash = viewId.replace('-', '');
+            var capsId = nodash.charAt(0).toUpperCase() + nodash.slice(1);
+            $stateProvider.state(view.id, {
+                parent: 'scenarios',
+                url: '/' + viewId,
+                templateUrl: 'scripts/modules/scenarios/' + viewId + '/' + viewId + '-partial.html',
+                controller: 'OTIScenarios' +  capsId + 'Controller',
+                resolve: {
+
+                }
+            });
+        });
+
 }]).config(['$translateProvider', 'config', function($translateProvider, config) {
     $translateProvider.useStaticFilesLoader({
        prefix: 'i18n/',
@@ -117,15 +165,20 @@ angular.module('transitIndicators', [
     * lha -> Laha (Viet Nam)
     * nut -> Nung (Viet Nam)
     */
+
+    $translateProvider.useCookieStorage();
+    $translateProvider.storageKey('openTransitLanguage');
+
     var languageUsing = (_.contains(_.values(config.languages), languageActual) ? languageActual : config.defaultLanguage);
     $translateProvider.preferredLanguage(languageUsing);
     $translateProvider.fallbackLanguage('en');
 }]).config(['$logProvider', function($logProvider) {
     $logProvider.debugEnabled(true);
-}]).run(['$rootScope', '$state', '$cookies', '$http', 'authService', 'OTIEvents', 'OTIUserService',
-    function($rootScope, $state, $cookies, $http, authService, OTIEvents, OTIUserService) {
+}]).run(['$cookies', '$http', '$rootScope', '$state', 'authService', 'OTIEvents',
+    function($cookies, $http, $rootScope, $state, authService, OTIEvents) {
 
         // Create cache object for useful global objects, e.g. the legends
+        // TODO: Should use $cacheFactory as a service
         $rootScope.cache = {};
 
         // Django CSRF Token compatibility
@@ -144,13 +197,11 @@ angular.module('transitIndicators', [
                 event.preventDefault();
                 $state.go('login');
                 return;
+            } else if (to.parent === 'settings' && !$rootScope.user.is_staff) {
+                event.preventDefault();
+                $state.go('transit');
+                return;
             }
-        });
-
-        $rootScope.$on(OTIEvents.Auth.LoggedIn, function () {
-            OTIUserService.getUser(authService.getUserId()).then(function (data) {
-                $rootScope.user = data;
-            });
         });
 
         $rootScope.$on(OTIEvents.Auth.LoggedOut, function () {

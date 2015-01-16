@@ -3,32 +3,21 @@
 describe('Service: Indicators', function () {
 
     var indicatorsService;
+    var typesService;
 
     beforeEach(module('transitIndicators'));
-    beforeEach(inject(function(_OTIIndicatorsService_) {
-        indicatorsService = _OTIIndicatorsService_;
+    beforeEach(inject(function(_OTIIndicatorManager_, _OTITypes_) {
+        indicatorsService = _OTIIndicatorManager_;
+        typesService = _OTITypes_;
     }));
 
     describe('IndicatorsConfig tests', function () {
-        it('should have version, sample_period, type, aggregation properties', function () {
-            var indicator = new indicatorsService.IndicatorConfig({
-                version: 0,
-                type: 'test',
-                aggregation: 'system',
-                sample_period: 'morning'
-            });
-            expect(indicator.version).toBeDefined();
+        it('should have version, sample_period, type, aggregation properties by default', function () {
+            var indicator = indicatorsService.getConfig();
+            expect(indicator.calculation_job).toBeDefined();
             expect(indicator.type).toBeDefined();
             expect(indicator.aggregation).toBeDefined();
             expect(indicator.sample_period).toBeDefined();
-        });
-
-        it('should fail to initialize with an empty object', function () {
-            var indicator = new indicatorsService.IndicatorConfig({});
-            expect(indicator.version).toBe(0);
-            expect(indicator.type).not.toBeDefined();
-            expect(indicator.aggregation).not.toBeDefined();
-            expect(indicator.sample_period).not.toBeDefined();
         });
     });
 
@@ -57,7 +46,7 @@ describe('Service: Indicators', function () {
             // sends these web requests
             $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
 
-            var types = indicatorsService.getIndicatorTypes();
+            var types = typesService.getIndicatorTypes();
 
             $httpBackend.flush();
 
@@ -76,7 +65,7 @@ describe('Service: Indicators', function () {
             // sends these web requests
             $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
 
-            var aggregations = indicatorsService.getIndicatorAggregationTypes();
+            var aggregations = typesService.getIndicatorAggregationTypes();
 
             $httpBackend.flush();
 
@@ -95,7 +84,7 @@ describe('Service: Indicators', function () {
             // sends these web requests
             $httpBackend.expectGET('scripts/modules/auth/login-partial.html').respond(200);
 
-            var periods = indicatorsService.getSamplePeriodTypes();
+            var periods = typesService.getSamplePeriodTypes();
 
             $httpBackend.flush();
 

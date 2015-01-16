@@ -1,6 +1,12 @@
 .indicators {
   background-color: #fff;
   top: 5.5rem;
+
+  .wave-spinner {
+    position: absolute;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .indicators .leaflet-control-zoom {
@@ -9,6 +15,7 @@
 
 .navigationsecondary-menu {
   font-size: $h4;
+  margin-top: .6rem;
 }
 
 .navigationsecondary-left {
@@ -27,7 +34,17 @@
   min-height: 10rem;
 }
 
-.indicators-table {
+.calculation-heading {
+  font-size: $h1;
+  padding: 7rem 2rem 0 2rem;
+  min-height: 10rem;
+}
+
+.calculation-body {
+  padding: 1rem 2rem 0 2rem;
+}
+
+.indicators-table, .calculation-table {
   display: table;
   table-layout: fixed;
   width: 100%;
@@ -45,13 +62,14 @@
   float: left;
 }
 
-.indicators-row {
+.indicators-row, .calculation-row {
   display: table-row;
 }
 
-.indicators-cell {
+.indicators-cell, .calculation-cell {
   display: table-cell;
   text-align: center;
+  vertical-align: top;
   padding: 2rem 1.6rem;
   border: 0 solid #eee;
   border-width: 0 1px 1px 0;
@@ -63,12 +81,42 @@
     font-weight: normal;
     text-align: left;
   }
+
+  &.indicators-data {
+    color: $heading-color;
+  }
+
 }
 
-.indicators-row-heading > .indicators-cell {
-  border-top: 1px solid #eee;
-  border-bottom: 4px solid #eee;
-  font-size: $h4;
+oti-csv-export {
+  padding: .8rem;
+}
+
+.calculation-status {
+  &.submitted {
+    color: #FF6600;
+  }
+
+  &.processing {
+    color: #3333FF;
+  }
+
+  &.complete {
+    color: #336633;
+  }
+
+  &.failed {
+    color: #600000;
+  }
+}
+
+.indicators-row-heading {
+  color: $heading-color;
+  > .indicators-cell {
+    border-top: 1px solid #eee;
+    border-bottom: 4px solid #eee;
+    font-size: $h4;
+  }
 }
 
 .graph {
@@ -95,7 +143,7 @@
 
 }
 
-.indicators-city-modal-window {
+.indicators-city-modal-window, .yes-no-modal-window, .ok-modal-window {
     margin-top: 11rem;
 }
 
@@ -120,4 +168,9 @@
 
 .city-modal-row {
     padding-top: 2rem;
+}
+
+.progressbar span {
+  color: black;
+  white-space: nowrap;
 }

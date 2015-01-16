@@ -16,9 +16,18 @@
   display: inline-block;
   font-size: $h4;
   padding: .4rem .8rem;
+  position: relative;
+  top: .1rem;
 
   &:hover {
     background-color: opacify($primary-color, .5);
+    color: #eee;
+  }
+}
+
+.button {
+  &.button--secondary {
+    color: $gray-light;
   }
 }
 
@@ -32,9 +41,18 @@
   padding: .4rem .8rem;
 }
 
+.button--inactive {
+    color: $btn-link-disabled-color;
+    cursor: default;
+    &:hover {
+        color: $btn-link-disabled-color;
+        text-decoration: none;
+    }
+}
+
 .filter {
   .button--small {
-    margin-right: 1rem;
+    margin-right: .5rem;
 
     &:last-child {
       margin-right: 0;

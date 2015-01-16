@@ -1,24 +1,55 @@
 import django_filters
+from datetime import datetime, time
+import pytz
 
 from django.conf import settings
+from django.db import connection, ProgrammingError
 
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework_csv.renderers import CSVRenderer
 
-from viewsets import OTIAdminViewSet
+from viewsets import OTIBaseViewSet, OTIAdminViewSet, OTIIndicatorViewSet
 from models import (OTIIndicatorsConfig,
                     OTIDemographicConfig,
+                    OTICityName,
                     SamplePeriod,
                     Indicator,
                     IndicatorJob,
-                    GTFSRouteType)
-from transit_indicators.tasks import start_indicator_calculation
+                    Scenario,
+                    GTFSRouteType,
+                    GTFSRoute)
+from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
-                         SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer)
+                         SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
+                         ScenarioSerializer, OTICityNameSerializer)
+
+
+class OTICityNameView(APIView):
+    """ Endpoint to GET or POST the user-configured city name.
+    """
+    model = OTICityName
+    serializer_class = OTICityNameSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            city_name = OTICityName.objects.get().city_name
+        except OTICityName.DoesNotExist:
+            city_name = settings.OTI_CITY_NAME
+        except OTICityName.MultipleObjectsReturned:
+            return Response({'error': 'There cannot be multiple city names set!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'city_name': city_name}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = OTICityNameSerializer(data=request.DATA)
+        if serializer.is_valid():
+            OTICityName.objects.all().delete() # delete any existing city names first
+            serializer.save() # save the new one
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -54,40 +85,137 @@ def aggregation_filter(queryset, values):
 
 
 class IndicatorFilter(django_filters.FilterSet):
-    """Custom filter for indicator
+    """Custom filter for indicator"""
 
-    For is_latest_version must pass pythons boolean, True|False as the value:
-    e.g. indicators?is_latest_version=True
-
-    TODO: Filter all but the most recent version for each city in the sent response
-
-    """
     sample_period = django_filters.CharFilter(name="sample_period__type")
     aggregation = django_filters.CharFilter(name="aggregation", action=aggregation_filter)
-    is_latest_version = django_filters.BooleanFilter(name="version__is_latest_version")
-    city_name = django_filters.CharFilter(name="version__city_name")
+    city_name = django_filters.CharFilter(name="calculation_job__city_name")
 
     class Meta:
         model = Indicator
         fields = ['sample_period', 'type', 'aggregation', 'route_id',
-                  'route_type', 'city_bounded', 'version', 'city_name', 'is_latest_version']
+                  'route_type', 'city_bounded', 'calculation_job', 'city_name']
 
 
-class IndicatorJobViewSet(OTIAdminViewSet):
+def job_status_filter(queryset, values):
+    """Action/filter used to allow choosing multiple job statuses"""
+    if not values:
+        return queryset
+    split_values = values.split(',')
+    return queryset.filter(job_status__in=split_values)
+
+
+class JobStatusFilter(django_filters.FilterSet):
+    """Custom filter for job status"""
+
+    job_status = django_filters.CharFilter(name="job_status", action=job_status_filter)
+
+    class Meta:
+        model = IndicatorJob
+
+
+"""Helper function to check that sample periods fall within the GTFS calendar date range.
+    Returns true if all are valid.
+"""
+def valid_sample_periods():
+    periods = SamplePeriod.objects.all()
+    if len(periods) != 6:
+        return False
+    cursor = connection.cursor()
+    cursor.execute('SELECT MIN(start_date), MAX(end_date) FROM gtfs_calendar;')
+    start, end = cursor.fetchone()
+    # in case this feed isn't using gtfs_calendar, check gtfs_calendar_dates instead
+    if not start or not end:
+        cursor.execute('SELECT MIN(date), MAX(date) FROM gtfs_calendar_dates;')
+        start, end = cursor.fetchone()
+    # if still don't have start and end dates, there must not be valid GTFS data loaded
+    if not start or not end:
+        return False
+    # model datetimes are stored as UTC; turn the date objects returned into UTC datetimes
+    calendar_start = datetime.combine(start, time.min).replace(tzinfo=pytz.UTC)
+    calendar_end = datetime.combine(end, time.max).replace(tzinfo=pytz.UTC)
+    for period in periods:
+        if period.type != 'alltime':
+            if period.period_start < calendar_start or period.period_end > calendar_end:
+                return False
+    return True
+
+
+class IndicatorJobViewSet(OTIIndicatorViewSet):
     """Viewset for IndicatorJobs"""
     model = IndicatorJob
-    lookup_field = 'version'
+    lookup_field = 'id'
     serializer_class = IndicatorJobSerializer
+    filter_class = JobStatusFilter
 
     def create(self, request):
         """Override request to handle kicking off celery task"""
+
+        indicators_config = OTIIndicatorsConfig.objects.all()[0]
+        failures = []
+        for attr in ['poverty_line', 'nearby_buffer_distance_m',
+                     'max_commute_time_s', 'avg_fare', 'arrive_by_time_s']:
+            if not indicators_config.__getattribute__(attr) > 0:
+                failures.append(attr)
+        if not valid_sample_periods():
+            failures.append('sample_periods')
+        try:
+            with connection.cursor() as c:
+                c.execute('''SELECT COUNT(*) FROM planet_osm_line''')
+        except ProgrammingError:
+            failures.append('osm_data')
+
+        if len(failures) > 0:
+            response = Response({'error': 'Invalid configuration',
+                                 'items': failures})
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return response
+
         response = super(IndicatorJobViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             start_indicator_calculation.apply_async(args=[self.object.id], queue='indicators')
         return response
 
 
-class IndicatorViewSet(OTIAdminViewSet):
+class LatestCalculationJob(APIView):
+    def get(self, request, format=None):
+        try:
+            this_city = OTICityName.objects.all()[0].city_name
+        except IndexError:
+            this_city = 'My City'
+
+        try:
+            latest_job = IndicatorJob.objects.filter(city_name=this_city).order_by('-id')[0]
+        except IndexError:
+            return Response(None, status=status.HTTP_200_OK)
+
+        serial_job = IndicatorJobSerializer(latest_job)
+        return Response(serial_job.data, status=status.HTTP_200_OK)
+
+
+class ScenarioViewSet(OTIBaseViewSet):
+    """Viewset for Scenarios"""
+    model = Scenario
+    lookup_field = 'db_name'
+    serializer_class = ScenarioSerializer
+    filter_fields = ('job_status', 'created_by')
+
+    def create(self, request):
+        """Override request to handle kicking off celery task"""
+        response = super(ScenarioViewSet, self).create(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            start_scenario_creation.apply_async(args=[self.object.id], queue='scenarios')
+        return response
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            scenario = Scenario.objects.filter(db_name=request.QUERY_PARAMS.get('db_name'))
+            scenario.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'error': 'Scenario deletion failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+class IndicatorViewSet(OTIIndicatorViewSet):
     """Viewset for Indicator objects
 
     Can be rendered as CSV in addition to the defaults
@@ -99,7 +227,11 @@ class IndicatorViewSet(OTIAdminViewSet):
     serializer_class = IndicatorSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [CSVRenderer]
     filter_class = IndicatorFilter
-
+    filter_backends = api_settings.DEFAULT_FILTER_BACKENDS + [OrderingFilter]
+    ordering = ('id', 'value')  # Default to standard id, but allow by value
+    paginate_by = None
+    paginate_by_param = 'page_size'
+    max_paginate_by = 25
 
     def create(self, request, *args, **kwargs):
         """ Create Indicator objects via csv upload or json
@@ -124,13 +256,10 @@ class IndicatorViewSet(OTIAdminViewSet):
         # Fall through to JSON if no form data is present
 
         # If this is a post with many indicators, process as many
-        if isinstance(request.DATA, list):
-            many=True
-        else:
-            many=False
+        is_many = isinstance(request.DATA, list)
 
         # Continue through normal serializer save process
-        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=many)
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES, many=is_many)
         if serializer.is_valid():
             self.pre_save(serializer.object)
             self.object = serializer.save(force_insert=True)
@@ -150,35 +279,43 @@ class IndicatorViewSet(OTIAdminViewSet):
         endpoint with no params
 
         """
-        delete_filter_fields = {'city_name': 'version__city_name'}
+        delete_filter_fields = {'city_name': 'calculation_job__city_name'}
         filters = []
         for field in request.QUERY_PARAMS:
             if field in delete_filter_fields:
                 filters.append(field)
 
         if filters:
-            indicators = Indicator.objects.all();
+            indicators = Indicator.objects.all()
             for field in filters:
-                indicators = indicators.filter(**{delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicators = indicators.filter(**{
+                    delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
             indicators.delete()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class IndicatorVersion(APIView):
-    """ Indicator versioning endpoint
+class IndicatorCalcJob(APIView):
+    """ Indicator job id endpoint
 
-    Returns currently valid indicator versions and associated city_name. Valid defined as:
-        - IndicatorJob.version has at least one indicator in the Indicator table
-        - IndicatorJob.is_latest_version = True
+    Returns currently valid indicator calculation jobs and associated city_name.
+    Valid, here, is defined as:
+        - IndicatorJob.id has at least one indicator in the Indicator table
 
     """
     def get(self, request, *args, **kwargs):
-        """ Return the current versions of the indicators """
-        versions = Indicator.objects.filter(version__is_latest_version=True).values('version',
-                                            'version__city_name').annotate()
-        return Response({'current_versions': versions}, status=status.HTTP_200_OK)
+        """ Return the current calculations of indicators """
+        try:
+            current_ver = IndicatorJob.objects.latest('id').id
+        except IndicatorJob.DoesNotExist:
+            return Response({'current_jobs': []}, status=status.HTTP_200_OK)
+
+        current_indicators = Indicator.objects.filter(calculation_job__exact=current_ver).values(
+                'calculation_job', 'calculation_job__city_name').annotate()
+        return Response({'current_jobs': current_indicators}, status=status.HTTP_200_OK)
+
+        latest_job = IndicatorJob.objects.filter(job_status=IndicatorJob.StatusChoices.COMPLETE).order_by('-id')[0]
 
 
 class IndicatorTypes(APIView):
@@ -196,7 +333,7 @@ class IndicatorTypes(APIView):
                 show = True
             else:
                 show = False
-            response[key] = { 'display_name': value, 'display_on_map': show }
+            response[key] = {'display_name': value, 'display_on_map': show}
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -208,20 +345,53 @@ class IndicatorAggregationTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in Indicator.AggregationTypes.CHOICES }
+        response = {key: value for key, value in Indicator.AggregationTypes.CHOICES}
         return Response(response, status=status.HTTP_200_OK)
 
 
+
+
 class IndicatorCities(APIView):
-    """ Indicator Cities GET endpoint
+    """ Indicator Cities GET and DELETE endpoint
 
     Returns a list of city names that have indicators loaded
+    Deletes Indicators and IndicatorJobs for a given city
 
     """
     def get(self, request, *args, **kwargs):
         response = IndicatorJob.objects.values_list('city_name', flat=True).filter(
                                                  city_name__isnull=False).distinct()
         return Response(response, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        """ Bulk delete of indicators and indicator jobs based on a filter field
+
+        Return 400 BAD REQUEST if no filter fields provided or all filter fields provided are
+        not in delete_filter_fields
+        e.g. We do not want to allow someone to delete all the indicators with a DELETE to this
+        endpoint with no params
+
+        """
+        delete_filter_fields = {'city_name': 'calculation_job__city_name'}
+        delete_indicatorjobs_filter_fields = {'city_name': 'city_name'}
+        filters = []
+        for field in request.QUERY_PARAMS:
+            if field in delete_filter_fields:
+                filters.append(field)
+
+        if filters:
+            indicators = Indicator.objects.all()
+            indicatorjobs = IndicatorJob.objects.all()
+            for field in filters:
+                indicators = indicators.filter(**{
+                    delete_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+                indicatorjobs = indicatorjobs.filter(**{
+                    delete_indicatorjobs_filter_fields.get(field): request.QUERY_PARAMS.get(field)})
+            indicators.delete()
+            indicatorjobs.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'error': 'No valid filter fields'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SamplePeriodTypes(APIView):
@@ -232,7 +402,7 @@ class SamplePeriodTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
-        response = { key: value for key, value in SamplePeriod.SamplePeriodTypes.CHOICES }
+        response = {key: value for key, value in SamplePeriod.SamplePeriodTypes.CHOICES}
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -243,6 +413,10 @@ class GTFSRouteTypes(APIView):
 
     """
     def get(self, request, *args, **kwargs):
+        def is_used(route_type):
+            routes = GTFSRoute.objects.all()
+            return routes.filter(route_type=route_type).exists()
+
         get_extended = request.QUERY_PARAMS.get('extended', None)
         route_types = None
         if get_extended:
@@ -252,14 +426,17 @@ class GTFSRouteTypes(APIView):
             route_types = GTFSRouteType.objects.filter(route_type__lt=10)
         route_types = route_types.order_by('route_type')
 
-        response = [{ 'route_type': rt.route_type, 'description': rt.description } for rt in route_types]
+        response = [{'route_type': rt.route_type, 'description': rt.get_route_type_display(),
+                     'is_used': is_used(rt.route_type)} for rt in route_types]
         return Response(response, status=status.HTTP_200_OK)
 
-
-indicator_version = IndicatorVersion.as_view()
+latest_calculation = LatestCalculationJob.as_view()
+indicator_calculation_job = IndicatorCalcJob.as_view()
 indicator_types = IndicatorTypes.as_view()
 indicator_jobs = IndicatorJobViewSet.as_view()
 indicator_aggregation_types = IndicatorAggregationTypes.as_view()
 indicator_cities = IndicatorCities.as_view()
 sample_period_types = SamplePeriodTypes.as_view()
+scenarios = ScenarioViewSet.as_view()
 gtfs_route_types = GTFSRouteTypes.as_view()
+city_name = OTICityNameView.as_view()

@@ -1,5 +1,7 @@
 """Endpoints for data sources."""
 
+import sys
+from django.db.models import Max, Min
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -29,22 +31,6 @@ class GTFSFeedViewSet(FileDataSourceViewSet):
         response = super(GTFSFeedViewSet, self).create(request)
         if response.status_code == status.HTTP_201_CREATED:
             validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
-        return response
-
-    def update(self, request, pk=None):
-        """Override update to re-validate GTFS"""
-        response = super(GTFSFeedViewSet, self).update(request, pk)
-
-        # Reset processing status since GTFS needs revalidation
-        pending = GTFSFeed.Statuses.PENDING
-        self.object.status = pending
-        self.object.save()
-        response.data['status'] = pending
-
-        # Delete existing problems since it will be revalidated
-        self.obj.gtfsfeedproblem_set.all().delete()
-
-        validate_gtfs.apply_async(args=[self.object.id], queue='datasources')
         return response
 
 
@@ -190,6 +176,26 @@ class DemographicDataFeatureViewSet(OTIAdminViewSet):
     filter_fields = ('datasource',)
 
 
+class DemographicDataRanges(APIView):
+    """ Endpoint to GET the min/max ranges of demographic data
+
+    GET params:
+      type: String (required), Name of the demographic data field to use for range calculation
+    """
+    def get(self, request, *args, **kwargs):
+        get_type = request.QUERY_PARAMS.get('type', None)
+        if not get_type:
+            response = {'error': 'type parameter is required'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            agg = DemographicDataFeature.objects.all().aggregate(min=Min(get_type), max=Max(get_type))
+            return Response(agg, status=status.HTTP_200_OK)
+        except:
+            response = {'error': 'Invalid type'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST);
+
+
 class UploadStatusChoices(APIView):
     """ Return an object of the available upload statuses
 
@@ -202,4 +208,5 @@ class UploadStatusChoices(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+demographic_data_ranges = DemographicDataRanges.as_view()
 upload_status_choices = UploadStatusChoices.as_view()

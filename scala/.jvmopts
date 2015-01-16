@@ -1,0 +1,10 @@
+-Dfile.encoding=UTF8
+-Xms2000m
+-Xmx5500m
+-XX:+UseConcMarkSweepGC
+-XX:+CMSClassUnloadingEnabled
+-XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses
+-XX:+StartAttachListener
+-Xverify:none
+-XX:+HeapDumpOnOutOfMemoryError
+

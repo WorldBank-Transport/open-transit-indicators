@@ -1,8 +1,11 @@
 <div ng-init="init()">
-<h1>{{'VIEW.configuration' | translate}}</h1>
+<h1>{{'VIEW.CONFIGURATION' | translate}}</h1>
 <p>{{'SETTINGS.CONFIGURATION_DESCRIPTION' | translate}}</p>
 
-<div ng-if="samplePeriods === null" class="row">
+<h3 ng-if="errorMessage" class="text-danger">
+    {{ errorMessage | translate }}
+</h3>
+<div ng-if="!errorMessage && samplePeriods === null" class="row">
     <img class="center-block" src="/images/ajax-loader.gif" />
 </div>
 <div ng-if="samplePeriodsLoadError" class="row text-center">
@@ -12,7 +15,7 @@
 </div>
 <!-- Cannot use ng-if for this form, as it prevents ng-clicks and the samplePeriodsForm object
      from binding -->
-<form ng-show="samplePeriods" ng-submit="saveSamplePeriods()" name="samplePeriodsForm" autocomplete="off">
+<form ng-show="samplePeriods" ng-submit="saveAllConfig()" name="samplePeriodsForm" autocomplete="off">
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-6">
@@ -23,7 +26,9 @@
                 <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
                        ng-model="weekdayDate" is-open="weekdayPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
-                       date-disabled="disableWeekend(date, mode)" name="weekdayDate" ng-change="validateWeekday()" />
+                       min-date="serviceStart" max-date="serviceEnd" init-date="{{Date.now()}}"
+                       date-disabled="disableWeekend(date, mode)" name="weekdayDate"
+                       ng-change="validateWeekday()" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="openWeekdayPicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
@@ -42,7 +47,8 @@
                 <input type="text" class="form-control" datepicker-popup="{{datepickerFormat}}"
                        ng-model="weekendDate" is-open="weekendPickerOpen" show-weeks="false"
                        datepicker-options="dateOptions" ng-required="true" close-text="Close"
-                       date-disabled="disableWeekday(date, mode)" name="weekendDate" ng-change="validateWeekend()" />
+                       min-date="serviceStart" max-date="serviceEnd" date-disabled="disableWeekday(date, mode)"
+                       name="weekendDate" ng-change="validateWeekend()" init-date="{{Date.now()}}" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default"
                             ng-click="openWeekendPicker($event)">
@@ -102,7 +108,6 @@
         </div>
     </div>
 </div>
-<button type="submit" ng-disabled="!savePeriodsButton.enabled || samplePeriodsForm.$invalid" class="btn" ng-class="{'btn-primary': savePeriodsButton.enabled}">{{savePeriodsButton.text | translate}}</button>
 <span ng-show="samplePeriodsError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
 </form>
 
@@ -116,7 +121,7 @@
         <h3 class="bg-danger">{{'SETTINGS.APP_CONFIG_NETWORK_ERROR' | translate}}</h3>
     </div>
 </div>
-<form ng-submit="saveConfig()" name="configForm" ng-show="config" autocomplete="off">
+<form ng-submit="saveAllConfig()" name="configForm" ng-show="config" autocomplete="off">
 <div class="settingsmodal-fieldgroup">
     <div class="row">
         <div class="col-sm-12">
@@ -139,7 +144,7 @@
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.AVG_FARE' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.AVG_FARE' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
-                    <input type="number" name="avg_fare" ng-model="config.avg_fare" min="0">
+                    <input type="number" step="0.01" name="avg_fare" ng-model="config.avg_fare" min="0">
                 </div>
             </div>
         </div>
@@ -165,6 +170,22 @@
         <div class="col-sm-12">
             <div class="row">
                 <div class="col-sm-9">
+                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_ARRIVE_BY_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_ARRIVE_BY_TIME' | translate}}</span>
+                </div>
+                <div class="col-sm-3">
+                    <select ng-model="arrive_by_time" name="arrive_by_time" ng-required="true"
+                            ng-options="i+':00' for i in hours" ng-change="config.arrive_by_time_s = arrive_by_time * 60 * 60">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="settingsmodal-fieldgroup">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-9">
                     <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.JOB_TRAVEL_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.JOB_TRAVEL_TIME' | translate}}</span>
                 </div>
                 <div class="col-sm-3">
@@ -176,23 +197,13 @@
         </div>
     </div>
 </div>
-<div class="settingsmodal-fieldgroup">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="row">
-                <div class="col-sm-9">
-                    <span class="h4"><span tooltip="{{ 'UI.TOOLTIP.MAX_WALK_TIME' | translate }}" class="glyphicon glyphicon-info-sign"></span> {{'SETTINGS.MAX_WALK_TIME' | translate}}</span>
-                </div>
-                <div class="col-sm-3">
-                    <input type="number" name="max_walk_time_min" ng-model="max_walk_time_min"
-                           min="0" ng-change="config.max_walk_time_s = max_walk_time_min * 60">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<button ng-disabled="!saveConfigButton.enabled" class="btn" ng-class="{'btn-primary': saveConfigButton.enabled}">{{saveConfigButton.text | translate}}</button>
+<button
+    ng-disabled="!saveConfigButton.enabled || !savePeriodsButton.enabled || samplePeriodsForm.$invalid || configForm.$invalid"
+    class="btn"
+    ng-class="{'btn-primary': saveConfigButton.enabled && savePeriodsButton.enabled}"
+    ng-blur="configSuccess = false">{{saveConfigButton.text | translate}}</button>
 <span ng-show="configError" class="label label-danger">{{'TERM.ERROR' | translate}}</span>
+<span ng-show="configSuccess" class="label label-success">{{ 'STATUS.SELECTIONS_SAVED' | translate }}</span>
 </form>
 </div>

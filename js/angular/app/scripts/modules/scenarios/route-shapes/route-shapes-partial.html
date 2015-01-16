@@ -1,0 +1,19 @@
+<div class="scenario-page-content">
+    <h3>{{'SCENARIO.ADD_SHAPE'|translate}}</h3>
+    <p>
+        {{'SCENARIO.USE_THE_DRAW_TOOL'|translate}}
+    </p>
+    <div class="row" ng-if="trip.shape.coordinates.length > 0">
+        <div class="col-xs-8">{{ 'SCENARIO.SHAPE_LENGTH'|translate}}:</div>
+        <div class="col-xs-4">{{ trip.shape.distance | number:2 }} {{'SCENARIO.SHAPE_UNITS'|translate}}</div>
+    </div>
+    <div class="row" ng-if="trip.shape.coordinates.length > 0">
+        <div class="col-xs-12">
+            <a class="button--small" ng-click="clearShape()">{{'TERM.DELETE'|translate}}</a>
+        </div>
+    </div>
+</div>
+<div class="scenario-page-buttons">
+    <a class="button--small default" ng-click="continue()">{{'SCENARIO.CONTINUE'|translate}}</a> /
+    <a class="button--small" ng-click="back()">{{'SCENARIO.BACK'|translate}}</a>
+</div>

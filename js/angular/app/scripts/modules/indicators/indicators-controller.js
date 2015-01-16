@@ -2,25 +2,24 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsController',
-            ['$scope', '$cookieStore', '$modal', 'OTIEvents', 'OTIIndicatorsService', 'cities',
-            function ($scope, $cookieStore, $modal, OTIEvents, OTIIndicatorsService, cities) {
+            ['$rootScope', '$scope', '$cookieStore', '$modal',
+             'authService',
+             'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorJobManager', 'OTITypes',
+            function ($rootScope, $scope, $cookieStore, $modal,
+                      authService,
+                      OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorJobManager, OTITypes) {
 
     $scope.dropdown_sample_period_open = false;
-    $scope.indicatorVersion = 0;
 
     $scope.aggregations = {};
     $scope.types = {};
     $scope.sample_periods = {};
-    $scope.sample_period = $cookieStore.get('sample_period') || 'morning';
+    $scope.sample_period = OTIIndicatorManager.getSamplePeriod();
 
-    $scope.cities = cities;
+    $scope.cities = [];
+    $scope.showingState = 'data';
 
-    var setIndicatorVersion = function (version) {
-        $scope.indicatorVersion = version;
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorVersionUpdated, version);
-    };
-
-    OTIIndicatorsService.getIndicatorTypes().then(function (data) {
+    OTITypes.getIndicatorTypes().then(function (data) {
         // filter indicator types to only show those for map display
         $scope.types = {};
         $scope.mapTypes = {};
@@ -32,64 +31,66 @@ angular.module('transitIndicators')
             }
         });
     });
-    OTIIndicatorsService.getIndicatorAggregationTypes().then(function (data) {
+    OTITypes.getIndicatorAggregationTypes().then(function (data) {
         $scope.aggregations = data;
     });
-    OTIIndicatorsService.getSamplePeriodTypes().then(function (data) {
+    OTITypes.getSamplePeriodTypes().then(function (data) {
         $scope.sample_periods = data;
     });
 
+    var completeIndicatorJobs = [];
+
     $scope.openCityModal = function () {
-        var modalCities = $scope.cities;
-        var modalInstance = $modal.open({
+        OTIIndicatorManager.setModalStatus(true);
+        $modal.open({
             templateUrl: 'scripts/modules/indicators/city-modal-partial.html',
             controller: 'OTICityModalController',
-            size: 'sm',
             windowClass: 'indicators-city-modal-window',
             resolve: {
+                completeIndicatorJobs: function () {
+                    return completeIndicatorJobs;
+                },
                 cities: function () {
-                    return modalCities;
-                },
-                userScenarios: function () {
-                    // TODO: Send user-defined scenarios here once scenarios are implemented
-                    return [];
-                },
-                otherScenarios: function () {
-                    // TODO: Send other user's scenarios here once scenarios are implemented
-                    return [];
+                    return $scope.cities;
                 }
             }
-        });
-    };
-
-    /**
-     * Submits a job for calculating indicators
-     */
-    $scope.calculateIndicators = function () {
-        var job = new OTIIndicatorsService.IndicatorJob({
-            city_name: OTIIndicatorsService.selfCityName
-        });
-        job.$save().then(function (data) {
-            // This alert is temporary. It will be switched to a
-            // progress grid once status updates are available.
-            alert('Calculation job started with id #' + data.id);
+        }).result.finally(function () {
+            OTIIndicatorManager.setModalStatus(false);
         });
     };
 
     $scope.selectSamplePeriod = function (sample_period) {
         $scope.dropdown_sample_period_open = false;
         $scope.sample_period = sample_period;
-        $cookieStore.put('sample_period', sample_period);
-        $scope.$broadcast(OTIEvents.Indicators.SamplePeriodUpdated, sample_period);
+        OTIIndicatorManager.setSamplePeriod(sample_period);
     };
 
     $scope.$on('$stateChangeSuccess', function (event, toState) {
-        $scope.showingMap = toState.name === 'map' ? true : false;
+        $scope.showingState = toState.name;
     });
 
     $scope.init = function () {
-        OTIIndicatorsService.getIndicatorVersion(function (version) {
-            setIndicatorVersion(version);
+        OTIIndicatorJobManager.getCurrentJob(function (calcJob) {
+            // TODO: Refactor getCurrentJob to return a promise so that we can resolve it in the state
+            //          then set it here via setConfig,
+            //          and remove the other getCurrentJob calls in the child controllers
+            OTIIndicatorManager.setConfig({calculation_job: calcJob});
+        });
+        OTIIndicatorJobManager.getJobs().then(function (jobs) {
+            completeIndicatorJobs = _.chain(jobs)
+                   .where({ job_status: 'complete' })
+                   .groupBy(function (job) { return job.scenario || job.city_name; })
+                   .values()
+                   .map(function (jobs) {
+                       return _.max(jobs, function (job) {
+                           return job.id; // return most recent
+                       });
+                   }).value();
+            $scope.cities = _.filter(completeIndicatorJobs, function(job) {
+                return job.scenario === null ||
+                       OTIIndicatorJobManager.isLoaded(job.scenario);
+            });
+            $rootScope.$broadcast(OTICityManager.Events.CitiesUpdated, $scope.cities);
         });
     };
     $scope.init();

@@ -23,7 +23,7 @@ fi
 # http://stackoverflow.com/questions/8546759/how-to-check-if-a-postgres-user-exists
 has_db_user=`psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'"`
 if [ "1" != "$has_db_user" ]; then
-    createuser $DB_USER --no-superuser --createdb --no-createrole
+    createuser $DB_USER --superuser --createdb --no-createrole
     psql -d postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';"
 else
     echo "Database user $DB_USER already exists; not creating it."
@@ -40,8 +40,8 @@ if [ 0 -ne $has_spatial_db ]; then
     # need to be accessed from within Django, which is why they are not set up as models.
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/setup_gtfs.sql
 
-    # add database triggers
-    psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_trigger.sql
+    # add function to calculate routes served by stops
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/stops_routes_function.sql
 
     # Populate the UTM zone->srid lookup table
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/utm_zone_boundaries.sql

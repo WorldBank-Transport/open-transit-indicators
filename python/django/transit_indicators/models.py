@@ -1,5 +1,6 @@
 # coding=UTF-8
 import csv
+from datetime import datetime
 import uuid
 
 from django.conf import settings
@@ -22,11 +23,33 @@ class GTFSRouteType(models.Model):
     # Integer route type, is unique
     route_type = models.IntegerField(unique=True, choices=GTFSRouteTypes.CHOICES)
 
-    # String description of gtfs route type
-    description = models.CharField(max_length=255)
-
     class Meta(object):
         db_table = 'gtfs_route_types'
+
+class OTICityName(models.Model):
+    """ User-configurable name for their city; set with GTFS upload.
+        There should only be a single entry in this table at any time.
+    """
+    city_name = models.CharField(blank=False, max_length=255, primary_key=True)
+
+    def __unicode__(self):
+        return self.city_name
+
+
+class GTFSRoute(models.Model):
+    route_id = models.TextField(primary_key=True)
+    agency_id = models.TextField(blank=True)
+    route_short_name = models.TextField(blank=True)
+    route_long_name = models.TextField(blank=True)
+    route_desc = models.TextField(blank=True)
+    route_type = models.IntegerField(blank=True, null=True)
+    route_url = models.TextField(blank=True)
+    route_color = models.TextField(blank=True)
+    route_text_color = models.TextField(blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'gtfs_routes'
 
 
 class OTIIndicatorsConfig(models.Model):
@@ -44,14 +67,14 @@ class OTIIndicatorsConfig(models.Model):
     # bus stop."
     nearby_buffer_distance_m = models.FloatField()
 
+    # The time to arrive to a location by for use in calculating travelsheds.
+    # This is in 'seconds from midnight'.
+    arrive_by_time_s = models.PositiveIntegerField()
+
     # The maximum allowable commute time (seconds). Used by the job accessibility
     # indicator to generate a travelshed for access to designated job
     # locations.
     max_commute_time_s = models.PositiveIntegerField()
-
-    # Maximum allowable walk time (seconds). Also used by the job accessibility indicator
-    # when generating its travelshed.
-    max_walk_time_s = models.PositiveIntegerField()
 
     # Setting related_name to '+' prevents Django from creating the reverse
     # relationship, which prevents a conflict because otherwise each Boundary
@@ -118,9 +141,9 @@ class SamplePeriod(models.Model):
         WEEKEND = 'weekend'
         CHOICES = (
             (ALLTIME, _(u'All Time')),
-            (MORNING, _(u'Morning Rush')),
+            (MORNING, _(u'Morning Peak')),
             (MIDDAY, _(u'Mid Day')),
-            (EVENING, _(u'Evening Rush')),
+            (EVENING, _(u'Evening Peak')),
             (NIGHT, _(u'Night')),
             (WEEKEND, _(u'Weekend')),
         )
@@ -131,6 +154,46 @@ class SamplePeriod(models.Model):
 
     # Ending datetime of sample
     period_end = models.DateTimeField()
+
+
+class Scenario(models.Model):
+    """Stores metadata about a scenario"""
+
+    class StatusChoices(object):
+        QUEUED = 'queued'
+        PROCESSING = 'processing'
+        ERROR = 'error'
+        COMPLETE = 'complete'
+        CHOICES = (
+            (QUEUED, _(u'Scenario initialization queued for processing')),
+            (PROCESSING, _(u'Scenario initialization is processing')),
+            (ERROR, _(u'Error initializing scenario')),
+            (COMPLETE, _(u'Completed scenario initialization')),
+        )
+
+    # Name of the database where the scenario is stored
+    db_name = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
+
+    # Optional scenario to base this scenario off of
+    base_scenario = models.ForeignKey('self', blank=True, null=True, to_field='db_name')
+
+    create_date = models.DateTimeField(auto_now_add=True, default=datetime.now)
+    last_modify_date = models.DateTimeField(auto_now=True, default=datetime.now)
+    job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
+    sample_period = models.ForeignKey(SamplePeriod)
+    created_by = models.ForeignKey(OTIUser)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+
+""" Helper method to find the city name set for the database.
+"""
+def get_city_name():
+    try:
+        city_name = OTICityName.objects.get().city_name
+    except OTICityName.DoesNotExist:
+        city_name = settings.OTI_CITY_NAME
+    return city_name
 
 
 class IndicatorJob(models.Model):
@@ -149,21 +212,42 @@ class IndicatorJob(models.Model):
             (COMPLETE, _(u'Completed indicator calculation')),
         )
 
+    class ErrorType(object):
+        """Error types are encoded so that helpful error messages can be generated
+        on the front end"""
+        NONE = ''
+        SCALA_UNKNOWN_ERROR = 'scala_unknown_error'
+        CHOICES = (
+            (NONE, _(u'None applicable')),
+            (SCALA_UNKNOWN_ERROR, _(u'Scala died during processing')),
+        )
+
     job_status = models.CharField(max_length=10, choices=StatusChoices.CHOICES)
-    version = models.CharField(max_length=40, unique=True, default=uuid.uuid4)
-    is_latest_version = models.BooleanField(default=False)
-    sample_periods = models.ManyToManyField(SamplePeriod)
+    error_type = models.CharField(max_length=20,
+                                  choices=ErrorType.CHOICES,
+                                  blank=True,
+                                  null=True,
+                                  default=ErrorType.NONE
+    )
     created_by = models.ForeignKey(OTIUser)
+
+    # Optional scenario to calculate indicators for.
+    # If a scenario isn't provided, the base data will be used.
+    scenario = models.ForeignKey(Scenario, blank=True, null=True)
+
     # A city name used to differentiate indicator sets
     # external imports must provide a city name as part of the upload
-    city_name = models.CharField(max_length=255, default=settings.OTI_CITY_NAME)
+    city_name = models.CharField(max_length=255, default=get_city_name)
+
+    # json string map of indicator name to status
+    calculation_status = models.TextField(default='{}')
 
 
 class Indicator(models.Model):
     """Stores a single indicator calculation"""
 
-    field_names = ['aggregation', 'city_bounded', 'city_name', 'formatted_value', 'id', 'route_id', 'route_type',
-                   'sample_period', 'type', 'value', 'version']
+    field_names = ['aggregation', 'city_bounded', 'city_name', 'id', 'route_id', 'route_type',
+                   'sample_period', 'type', 'value', 'calculation_job']
 
     class LoadStatus(object):
         """Stores status of the load class method"""
@@ -173,15 +257,6 @@ class Indicator(models.Model):
             self.success = False
             self.count = 0
             self.errors = []
-
-    def save(self, *args, **kwargs):
-        units = Indicator.IndicatorTypes.INDICATOR_UNITS.get(self.type, None) if self.type else None
-        if units:
-            self.formatted_value = u"%s %s" % (round(self.value, 2), units)
-        else:
-            self.formatted_value = u"%s" % round(self.value, 2)
-
-        super(Indicator, self).save(*args, **kwargs)
 
     @classmethod
     def load(cls, data, city_name, user):
@@ -202,16 +277,10 @@ class Indicator(models.Model):
             response.success = False
             return response
         try:
-            # first, invalidate previous indicator calculations uploaded for this city
-            IndicatorJob.objects.filter(city_name=city_name).update(is_latest_version=False)
-            # create new job for this import, so the version number may be set
-            # Always has is_latest_version true to indicate that these indicators are available
-            # for display
-            import_job = IndicatorJob(job_status=IndicatorJob.StatusChoices.PROCESSING,
+            import_job = IndicatorJob.objects.create(job_status=IndicatorJob.StatusChoices.PROCESSING,
                                       created_by=user, city_name=city_name)
             num_saved = 0
-            dict_reader = csv.DictReader(data, fieldnames=cls.field_names)
-            dict_reader.next()
+            dict_reader = csv.DictReader(data)
             with transaction.atomic():
                 for row in dict_reader:
                     # check that the exported city name matches the one the user specified
@@ -220,10 +289,8 @@ class Indicator(models.Model):
                     if this_city != city_name:
                         continue
                     sp_type = row.pop('sample_period', None)
-                    version = row.pop('version', None)
-                    if not import_job.version:
-                        import_job.version = version
-                        import_job.save()
+                    calculation_job = row.pop('version', None)
+                    row.pop('formatted_value', None)
                     if not sp_type:
                         continue
                     sample_period = sample_period_cache.get(sp_type, None)
@@ -233,13 +300,16 @@ class Indicator(models.Model):
                     # autonumber ID field (do not use imported ID)
                     row.pop('id')
                     value = float(row.pop('value'))
-                    indicator = cls(sample_period=sample_period, version=import_job, value=value, **row)
+                    # We are going to ignore the csv's calculation_job field because that depends
+                    # upon the database in which the indicators are originally stored rather than
+                    # the database that we're now uploading to
+                    row.pop('calculation_job')
+                    indicator = cls(sample_period=sample_period, calculation_job=import_job, value=value, **row)
                     indicator.save()
                     num_saved += 1
                 response.count = num_saved
                 response.success = True
                 import_job.job_status = IndicatorJob.StatusChoices.COMPLETE
-                import_job.is_latest_version = True
                 import_job.save()
 
         except Exception as e:
@@ -264,7 +334,6 @@ class Indicator(models.Model):
         ACCESS_INDEX = 'access_index'
         AFFORDABILITY = 'affordability'
         AVG_SERVICE_FREQ = 'avg_service_freq'
-        COVERAGE = 'coverage'
         COVERAGE_STOPS = 'coverage_ratio_stops_buffer'
         DISTANCE_STOPS = 'distance_stops'
         DWELL_TIME = 'dwell_time'
@@ -280,6 +349,7 @@ class Indicator(models.Model):
         ON_TIME_PERF = 'on_time_perf'
         REGULARITY_HEADWAYS = 'regularity_headways'
         SERVICE_FREQ_WEIGHTED = 'service_freq_weighted'
+        SERVICE_FREQ_WEIGHTED_LOW = 'service_freq_weighted_low'
         STOPS_ROUTE_LENGTH = 'stops_route_length'
         SUBURBAN_LINES = 'ratio_suburban_lines'
         SYSTEM_ACCESS = 'system_access'
@@ -287,25 +357,26 @@ class Indicator(models.Model):
         TIME_TRAVELED_STOPS = 'time_traveled_stops'
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
+        JOBS_TRAVELSHED = 'jobs_travelshed'
 
         class Units(object):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
             AVG_FREQ_DEVIATION = _(u'avg deviation from scheduled frequency')
             AVG_SCHEDULE_DEVIATION = _(u'avg deviation from scheduled time')
-            FREQ_WEIGHTED_BY_POP = _(u'stops per hr/pop within 500m')
+            SECONDS = _(u'secs')
+            MINUTES = _(u'mins')
             HOURS = _(u'hrs')
             KILOMETERS = _(u'km')
-            KM_PER_AREA = _(u'km/km²')
-            LOW_INCOME_POP_PER_500_METERS = _(u'low-income population within 500m of a stop')
-            MINUTES = _(u'min')
-            POP_PER_500_METERS = _(u'population within 500m of a stop')
-            STOPS_PER_500_METERS = _(u'stops/500m radius')
-            STOPS_PER_ROUTE_LENGTH = _(u'stops/route length, in km')
+            KM_PER_AREA = _(u'transit length/km²')
+            LOW_INCOME_POP_PER_STOP = _(u'percent population served by a stop')
+            POP_PER_STOP = _(u'percent population served by a stop')
+            PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
+            STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
-                            AVG_SERVICE_FREQ: Units.HOURS,
-                            COVERAGE_STOPS: Units.STOPS_PER_500_METERS,
+                            AVG_SERVICE_FREQ: Units.MINUTES,
+                            COVERAGE_STOPS: Units.PERCENT_STOP_COVERAGE,
                             DISTANCE_STOPS: Units.KILOMETERS,
                             DWELL_TIME: Units.AVG_DWELL_DEVIATION,
                             HOURS_SERVICE: Units.HOURS,
@@ -313,35 +384,34 @@ class Indicator(models.Model):
                             LINE_NETWORK_DENSITY: Units.KM_PER_AREA,
                             ON_TIME_PERF: Units.AVG_SCHEDULE_DEVIATION,
                             REGULARITY_HEADWAYS: Units.AVG_FREQ_DEVIATION,
-                            SERVICE_FREQ_WEIGHTED: Units.FREQ_WEIGHTED_BY_POP,
+                            SERVICE_FREQ_WEIGHTED: Units.MINUTES,
+                            SERVICE_FREQ_WEIGHTED_LOW: Units.MINUTES,
                             STOPS_ROUTE_LENGTH: Units.STOPS_PER_ROUTE_LENGTH,
-                            SYSTEM_ACCESS: Units.POP_PER_500_METERS,
-                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_500_METERS,
-                            TIME_TRAVELED_STOPS: Units.HOURS,
-                            TRAVEL_TIME: Units.HOURS,
+                            SYSTEM_ACCESS: Units.POP_PER_STOP,
+                            SYSTEM_ACCESS_LOW: Units.LOW_INCOME_POP_PER_STOP,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
-                            WEEKDAY_END_FREQ: Units.HOURS
+                            TRAVEL_TIME: Units.MINUTES,
+                            TIME_TRAVELED_STOPS: Units.MINUTES,
+                            WEEKDAY_END_FREQ: Units.MINUTES,
+                            JOBS_TRAVELSHED: Units.SECONDS
         }
-        
+
         # indicators to display on the map
         INDICATORS_TO_MAP = frozenset([
                               LENGTH,
                               NUM_STOPS,
-                              HOURS_SERVICE,
                               STOPS_ROUTE_LENGTH,
                               DISTANCE_STOPS,
                               TIME_TRAVELED_STOPS,
-                              WEEKDAY_END_FREQ,
                               ON_TIME_PERF,
                               REGULARITY_HEADWAYS,
-                              COVERAGE
+                              COVERAGE_STOPS
         ])
 
         CHOICES = (
             (ACCESS_INDEX, _(u'Access index')),
             (AFFORDABILITY, _(u'Affordability')),
             (AVG_SERVICE_FREQ, _(u'Average Service Frequency')),
-            (COVERAGE, _(u'System coverage')),
             (COVERAGE_STOPS, _(u'Coverage of transit stops')),
             (DISTANCE_STOPS, _(u'Distance between stops')),
             (DWELL_TIME, _(u'Dwell Time Performance')),
@@ -357,13 +427,15 @@ class Indicator(models.Model):
             (ON_TIME_PERF, _(u'On-Time Performance')),
             (REGULARITY_HEADWAYS, _(u'Regularity of Headways')),
             (SERVICE_FREQ_WEIGHTED, _(u'Service frequency weighted by served population')),
+            (SERVICE_FREQ_WEIGHTED_LOW, _(u'Service frequency weighted by population metric 2')),
             (STOPS_ROUTE_LENGTH, _(u'Ratio of number of stops to route-length')),
             (SUBURBAN_LINES, _(u'Ratio of the Transit-Pattern Operating Suburban Lines')),
             (SYSTEM_ACCESS, _(u'System accessibility')),
-            (SYSTEM_ACCESS_LOW, _(u'System accessibility - low-income')),
+            (SYSTEM_ACCESS_LOW, _(u'System accessibility - population metric 2')),
             (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
             (TRAVEL_TIME, _(u'Travel Time Performance')),
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
+            (JOBS_TRAVELSHED, _(u'Number of jobs that can be reached by an area.'))
         )
 
     # Slice of time used for calculating this indicator
@@ -386,16 +458,11 @@ class Indicator(models.Model):
     # Whether or not this calculation is contained within the defined city boundaries
     city_bounded = models.BooleanField(default=False)
 
-    # Version of data this indicator was calculated against. For the moment, this field
-    # is a placeholder. The versioning logic still needs to be solidified -- e.g. versions
-    # will need to be added to the the GTFS (and other data) rows.
-    version = models.ForeignKey(IndicatorJob, to_field='version')
+    # The job that calculated this indicator
+    calculation_job = models.ForeignKey(IndicatorJob)
 
     # Numerical value of the indicator calculation
     value = models.FloatField(default=0)
-
-    # Value of the calculation, formatted for display
-    formatted_value = models.CharField(max_length=255, null=True)
 
     # Cached geometry for this indicator only used by Windshaft
     the_geom = models.GeometryField(srid=4326, null=True)
@@ -405,4 +472,4 @@ class Indicator(models.Model):
     class Meta(object):
         # An indicators uniqueness is determined by all of these things together
         # Note that route_id and route_type can be null.
-        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type", "version"),)
+        unique_together = (("sample_period", "type", "aggregation", "route_id", "route_type", "calculation_job"),)

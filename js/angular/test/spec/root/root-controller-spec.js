@@ -12,7 +12,8 @@ describe('OTIRootController', function () {
         scope = $rootScope.$new();
         state = $state;
         rootCtl = $controller('OTIRootController', {
-            $scope: scope
+            $scope: scope,
+            user: {}
         });
     }));
 

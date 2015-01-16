@@ -2,13 +2,13 @@
 
 angular.module('transitIndicators')
 .controller('OTIConfigurationController',
-        ['$scope', '$q', 'OTIConfigurationService',
-        function ($scope, $q, OTIConfigurationService) {
+        ['$scope', '$q', 'OTISettingsService', 'OTIConfigurationService',
+        function ($scope, $q, OTISettingsService, OTIConfigurationService) {
 
     // Datepicker Options
     $scope.datepickerFormat = 'dd MMMM yyyy';
     $scope.dateOptions = {
-        startingDay: 1,
+        startingDay: 0,
         showWeeks: false
     };
 
@@ -19,6 +19,11 @@ angular.module('transitIndicators')
 
     $scope.config = null;
     $scope.samplePeriods = null;
+    $scope.serviceStart = null;
+    $scope.serviceEnd = null;
+
+    $scope.arrive_by_time = null;
+    $scope.max_commute_time_min = null;
 
     $scope.savePeriodsButton = {
         text: 'STATUS.SAVE',
@@ -30,6 +35,10 @@ angular.module('transitIndicators')
     };
     $scope.samplePeriodsError = false;
     $scope.configError = false;
+    $scope.configSuccess = false;
+
+    // Error displayed to the user if there's a problem (i.e. GTFS data hasn't been loaded)
+    $scope.errorMessage = null;
 
     /**
      * Helper setter for $scope.saveConfigButton
@@ -73,8 +82,13 @@ angular.module('transitIndicators')
     var setConfig = function (config) {
         $scope.config = config;
         if (config) {
+            // default arrive by time to 9 AM
+            $scope.arrive_by_time = config.arrive_by_time_s / 60 / 60 || 9;
+            if (config.arrive_by_time_s === 0) {
+                config.arrive_by_time_s = $scope.arrive_by_time * 60 * 60;
+            }
+
             $scope.max_commute_time_min = config.max_commute_time_s / 60 || 0;
-            $scope.max_walk_time_min = config.max_walk_time_s / 60 || 0;
         }
     };
 
@@ -122,31 +136,30 @@ angular.module('transitIndicators')
      */
     var createDefaultPeriods = function () {
         var promises = [];
-        var SamplePeriod = OTIConfigurationService.SamplePeriod;
+        var SamplePeriod = OTISettingsService.samplePeriods;
 
-        var date = new Date(2014, 0, 1);
         var morning = new SamplePeriod({type: 'morning'});
-        morning.period_start = createWeekdayDateTime(date, 7);
-        morning.period_end = createWeekdayDateTime(date, 9);
+        morning.period_start = createWeekdayDateTime($scope.weekdayDate, 7);
+        morning.period_end = createWeekdayDateTime($scope.weekdayDate, 9);
         promises.push(morning.$update());
 
         var midday = new SamplePeriod({type: 'midday'});
-        midday.period_start = createWeekdayDateTime(date, 9);
-        midday.period_end = createWeekdayDateTime(date, 16);
+        midday.period_start = createWeekdayDateTime($scope.weekdayDate, 9);
+        midday.period_end = createWeekdayDateTime($scope.weekdayDate, 16);
         promises.push(midday.$update());
 
         var evening = new SamplePeriod({type: 'evening'});
-        evening.period_start = createWeekdayDateTime(date, 16);
-        evening.period_end = createWeekdayDateTime(date, 18);
+        evening.period_start = createWeekdayDateTime($scope.weekdayDate, 16);
+        evening.period_end = createWeekdayDateTime($scope.weekdayDate, 18);
         promises.push(evening.$update());
 
         var night = new SamplePeriod({type: 'night'});
-        night.period_start = createWeekdayDateTime(date, 18);
-        night.period_end = createWeekdayDateTime(date, 24 + 7);
+        night.period_start = createWeekdayDateTime($scope.weekdayDate, 18);
+        night.period_end = createWeekdayDateTime($scope.weekdayDate, 24 + 7);
         promises.push(night.$update());
 
         var weekend = new SamplePeriod({type: 'weekend'});
-        var weekendDates = createWeekendDateTimes(new Date(2014, 0, 4));
+        var weekendDates = createWeekendDateTimes($scope.weekendDate);
         weekend.period_start = weekendDates[0];
         weekend.period_end = weekendDates[1];
         promises.push(weekend.$update());
@@ -178,8 +191,13 @@ angular.module('transitIndicators')
         $scope.morningPeakEnd = morningEnd.getHours();
         $scope.eveningPeakStart = eveningStart.getHours();
         $scope.eveningPeakEnd = eveningEnd.getHours();
-        $scope.weekdayDate = morningStart;
-        $scope.weekendDate = weekendStart;
+
+        $scope.weekdayDate = morningStart.toISOString();
+        $scope.weekendDate = weekendStart.toISOString();
+
+        // now values are set, trigger validation
+        $scope.validateWeekday();
+        $scope.validateWeekend();
     };
 
     var setSidebarCheckmark = function () {
@@ -187,15 +205,17 @@ angular.module('transitIndicators')
         $scope.setSidebarCheckmark('configuration', isValid);
     };
 
-    $scope.saveConfig = function () {
+    $scope.saveConfigPromise = function () {
+        var deferred = $q.defer();
         $scope.configError = false;
-        setSaveConfigButton(false);
         $scope.config.$update($scope.config, function (data) {
-            setSaveConfigButton(true);
+            deferred.resolve();
         }, function () {
-            setSaveConfigButton(true);
+            deferred.reject();
             $scope.configError = true;
         });
+
+        return deferred.promise;
     };
 
     /**
@@ -207,18 +227,17 @@ angular.module('transitIndicators')
      * For weekend, we save 00:00:00-23:59:59 since API rejects a full 24 hours.
      *
      */
-    $scope.saveSamplePeriods = function () {
+    $scope.saveSamplePeriodsPromise = function () {
 
         if ($scope.samplePeriodsForm.$invalid) {
             return;
         }
 
-        setSavePeriodsButton(false);
         $scope.samplePeriodsError = false;
         var promises = [];
 
-        var weekdayDate = $scope.weekdayDate;
-        var weekendDate = $scope.weekendDate;
+        var weekdayDate = new Date($scope.weekdayDate);
+        var weekendDate = new Date($scope.weekendDate);
 
         var morning = $scope.samplePeriods.morning;
         morning.period_start = createWeekdayDateTime(weekdayDate, $scope.morningPeakStart);
@@ -246,11 +265,27 @@ angular.module('transitIndicators')
         weekend.period_end = weekendDates[1];
         promises.push(weekend.$update());
 
-        $q.all(promises).then(function (data) {
-            setSavePeriodsButton(true);
-        }, function (error) {
-            setSavePeriodsButton(true);
+        return $q.all(promises).catch(function () {
             $scope.samplePeriodsError = true;
+        });
+    };
+
+    $scope.saveAllConfig = function () {
+        var promises = [];
+
+        $scope.configSuccess = false;
+
+        // make save button not clickable
+        setSaveConfigButton(false);
+
+        promises.push($scope.saveSamplePeriodsPromise());
+        promises.push($scope.saveConfigPromise());
+
+        $q.all(promises).then(function () {
+            $scope.configSuccess = true;
+        })['finally'](function () {
+            // make button clickable again
+            setSaveConfigButton(true);
         });
     };
 
@@ -267,19 +302,45 @@ angular.module('transitIndicators')
     };
 
     /**
-     * Invalidate samplePeriodsForm if weekdayDate is not a weekday
+     * Invalidate samplePeriodsForm if weekdayDate is not a weekday in service date range
      */
     $scope.validateWeekday = function () {
-        var isValid = OTIConfigurationService.isWeekday($scope.weekdayDate);
+        if (!$scope.weekdayDate) {
+            return;
+        }
+        var validateDay = new Date($scope.weekdayDate);
+        var isValid = OTIConfigurationService.isWeekday(validateDay) &&
+                      isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekdayDate.$setValidity('weekdayDate', isValid);
     };
 
     /**
-     * Invalidate samplePeriodsForm if weekendDate is not a weekend
+     * Invalidate samplePeriodsForm if weekendDate is not a weekend in service date range
      */
     $scope.validateWeekend = function () {
-        var isValid = OTIConfigurationService.isWeekend($scope.weekendDate);
+        if (!$scope.weekendDate) {
+            return;
+        }
+        var validateDay = new Date($scope.weekendDate);
+        var isValid = OTIConfigurationService.isWeekend(validateDay) &&
+                      isInServiceRange(validateDay);
         $scope.samplePeriodsForm.weekendDate.$setValidity('weekendDate', isValid);
+    };
+
+    /**
+     * Returns true if the given Date object is within the feed's service range
+     */
+    var isInServiceRange = function (date) {
+        if (!$scope.serviceStart || !$scope.serviceEnd) {
+            console.log('missing service start and/or end!');
+            return true;
+        }
+
+        if (date && date >= $scope.serviceStart && date <= $scope.serviceEnd) {
+            return true;
+        }
+
+        return false;
     };
 
     /**
@@ -323,11 +384,58 @@ angular.module('transitIndicators')
     };
 
     /**
+     * Get the start and end dates for the feed's service from the query response object.
+     * Once it returns, use it to set default sample period to date within range.
+     * Also used by datepicker popup to filter selectable date range.
+     */
+    var setServiceDateRange = function (obj) {
+        var serviceDates = obj.serviceDates;
+        if (serviceDates !== null) {
+            $scope.serviceStart = OTIConfigurationService.createDateFromISO(serviceDates.start);
+            $scope.serviceEnd = OTIConfigurationService.createDateFromISO(serviceDates.end);
+            $scope.serviceEnd.setDate($scope.serviceEnd.getDate() + 1);
+            var nextDay = null;
+
+            // if dates have not been chosen yet, default to second valid date in range
+            if (!$scope.weekdayDate) {
+                nextDay = new Date($scope.serviceStart);
+                nextDay.setDate(nextDay.getDate() + 1);
+                while (!OTIConfigurationService.isWeekday(nextDay)) {
+                  nextDay.setDate(nextDay.getDate() + 1);
+                }
+                $scope.weekdayDate = nextDay;
+            }
+
+            if (!$scope.weekendDate) {
+                nextDay = new Date($scope.serviceStart);
+                nextDay.setDate(nextDay.getDate() + 1);
+                while (!OTIConfigurationService.isWeekend(nextDay)) {
+                  nextDay.setDate(nextDay.getDate() + 1);
+                }
+                $scope.weekendDate = nextDay;
+            }
+        } else {
+            var error = obj.error;
+            if (error) {
+                console.log('Server returned error fetching feed service dates:');
+                console.log(error);
+            } else {
+                // No service dates found; GTFS probably isn't loaded yet.
+                $scope.errorMessage = "SETTINGS.UPLOAD_GTFS";
+            }
+        }
+    };
+
+    /**
+     * Create a JS Date object from an ISO-formatted date string
+     */
+
+    /**
      * Initialize config page with data
      */
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.Config.query({}, function (configs) {
+        OTISettingsService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
                 $scope.configLoadError = true;
                 return;
@@ -337,26 +445,32 @@ angular.module('transitIndicators')
             $scope.configLoadError = true;
         });
 
-        OTIConfigurationService.SamplePeriod.get({type: 'morning'}, function () {
-            // Configs exist, set UI
-            OTIConfigurationService.SamplePeriod.query(function (data) {
-                setSamplePeriods(data);
+        // get service date range
+        OTIConfigurationService.ServiceDates.get({}, function (data) {
+            setServiceDateRange(data);
+
+            // do not attempt to set default sample period until service date range found
+            OTISettingsService.samplePeriods.get({type: 'morning'}, function () {
+                // Configs exist, set UI
+                OTISettingsService.samplePeriods.query(function (data) {
+                    setSamplePeriods(data);
+                }, function () {
+                    // Unable to make web request, so hide the samplePeriods form and show
+                    //  static error message
+                    $scope.samplePeriodsLoadError = true;
+                    $scope.samplePeriods = {};
+                });
             }, function () {
-                // Unable to make web request, so hide the samplePeriods form and show
-                //  static error message
-                $scope.samplePeriodsLoadError = true;
-                $scope.samplePeriods = {};
-            });
-        }, function () {
-            // No configs exist, so create sensible defaults,
-            //  then set the UI
-            // TODO: Move to service?
-            createDefaultPeriods().then(function (data) {
-                setSamplePeriods(data);
-            }, function () {
-                // Hide the samplePeriods form and show static error message
-                $scope.samplePeriodsLoadError = true;
-                $scope.samplePeriods = {};
+                // No configs exist, so create sensible defaults,
+                //  then set the UI
+                // TODO: Move to service?
+                createDefaultPeriods().then(function (data) {
+                    setSamplePeriods(data);
+                }, function () {
+                    // Hide the samplePeriods form and show static error message
+                    $scope.samplePeriodsLoadError = true;
+                    $scope.samplePeriods = {};
+                });
             });
         });
     };

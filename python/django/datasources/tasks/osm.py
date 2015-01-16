@@ -116,6 +116,7 @@ def run_osm_import(osmdata_id):
                          '-U', db_user,
                          '-H', db_host,
                          '-d', db_name,
+                         '-s', # use slim mode to cache to DB rather than in-memory
                          '-E', str(utm_projection),
                          temp_filename]
     try:

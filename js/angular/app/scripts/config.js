@@ -131,8 +131,7 @@ angular.module('transitIndicators').constant('config', {
                         continuousWorld: true
                     }
                 }
-            },
-            overlays: {}
+            }
         },
         markers: [],
         legend: {},
@@ -140,10 +139,18 @@ angular.module('transitIndicators').constant('config', {
             minZoom: 3,
             maxZoom: 16,
             zoomControl: true,
+            zoomControlPosition: 'bottomleft',
             doubleClickZoom: true,
             scrollWheelZoom: true,
             keyboard: true,
-            dragging: true
+            dragging: true,
+            controls: {
+                layers: {
+                    collapsed: true,
+                    position: 'bottomleft',
+                    visible: true
+                }
+            }
         },
         events: {
             layers: {
@@ -176,6 +183,36 @@ angular.module('transitIndicators').constant('config', {
         },
         {
             id: 'users'
+        }
+    ],
+
+    scenarioViews: [
+        {
+            id: 'list'
+        },
+        {
+            id: 'new'
+        },
+        {
+            id: 'new-success'
+        },
+        {
+            id: 'routes'
+        },
+        {
+            id: 'route-edit'
+        },
+        {
+            id: 'route-stops'
+        },
+        {
+            id: 'route-shapes'
+        },
+        {
+            id: 'route-times'
+        },
+        {
+            id: 'route-done'
         }
     ]
 

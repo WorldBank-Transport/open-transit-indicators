@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-25 22:10+0000\n"
+"POT-Creation-Date: 2015-01-16 17:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,19 +62,19 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: datasources/tasks/gtfs.py:108
+#: datasources/tasks/gtfs.py:110
 msgid "Unable to calculate route and system length without a shapes.txt"
 msgstr ""
 
-#: datasources/tasks/gtfs.py:112
+#: datasources/tasks/gtfs.py:114
 msgid "Unable to calculate length"
 msgstr ""
 
-#: datasources/tasks/gtfs.py:140
+#: datasources/tasks/gtfs.py:139
 msgid "GTFS Data load failed"
 msgstr ""
 
-#: datasources/tasks/gtfs.py:141
+#: datasources/tasks/gtfs.py:140
 msgid "Unknown Error"
 msgstr ""
 
@@ -594,206 +594,230 @@ msgstr ""
 msgid "Horse-drawn Carriage"
 msgstr ""
 
-#: transit_indicators/models.py:120
+#: transit_indicators/models.py:143
 msgid "All Time"
 msgstr ""
 
-#: transit_indicators/models.py:121
-msgid "Morning Rush"
+#: transit_indicators/models.py:144
+msgid "Morning Peak"
 msgstr ""
 
-#: transit_indicators/models.py:122
+#: transit_indicators/models.py:145
 msgid "Mid Day"
 msgstr ""
 
-#: transit_indicators/models.py:123
-msgid "Evening Rush"
-msgstr ""
-
-#: transit_indicators/models.py:124
-msgid "Night"
-msgstr ""
-
-#: transit_indicators/models.py:125
-msgid "Weekend"
-msgstr ""
-
 #: transit_indicators/models.py:146
-msgid "Job queued for processing"
+msgid "Evening Peak"
 msgstr ""
 
 #: transit_indicators/models.py:147
-msgid "Indicators being processed and calculated"
+msgid "Night"
 msgstr ""
 
 #: transit_indicators/models.py:148
+msgid "Weekend"
+msgstr ""
+
+#: transit_indicators/models.py:168
+msgid "Scenario initialization queued for processing"
+msgstr ""
+
+#: transit_indicators/models.py:169
+msgid "Scenario initialization is processing"
+msgstr ""
+
+#: transit_indicators/models.py:170
+msgid "Error initializing scenario"
+msgstr ""
+
+#: transit_indicators/models.py:171
+msgid "Completed scenario initialization"
+msgstr ""
+
+#: transit_indicators/models.py:209
+msgid "Job queued for processing"
+msgstr ""
+
+#: transit_indicators/models.py:210
+msgid "Indicators being processed and calculated"
+msgstr ""
+
+#: transit_indicators/models.py:211
 msgid "Error calculating indicators"
 msgstr ""
 
-#: transit_indicators/models.py:149
+#: transit_indicators/models.py:212
 msgid "Completed indicator calculation"
 msgstr ""
 
-#: transit_indicators/models.py:258
+#: transit_indicators/models.py:221
+msgid "None applicable"
+msgstr ""
+
+#: transit_indicators/models.py:222
+msgid "Scala died during processing"
+msgstr ""
+
+#: transit_indicators/models.py:328
 msgid "Route"
 msgstr ""
 
-#: transit_indicators/models.py:259
+#: transit_indicators/models.py:329
 msgid "Mode"
 msgstr ""
 
-#: transit_indicators/models.py:260
+#: transit_indicators/models.py:330
 msgid "System"
 msgstr ""
 
-#: transit_indicators/models.py:292
+#: transit_indicators/models.py:363
 msgid "avg deviation from scheduled dwell time"
 msgstr ""
 
-#: transit_indicators/models.py:293
+#: transit_indicators/models.py:364
 msgid "avg deviation from scheduled frequency"
 msgstr ""
 
-#: transit_indicators/models.py:294
+#: transit_indicators/models.py:365
 msgid "avg deviation from scheduled time"
 msgstr ""
 
-#: transit_indicators/models.py:295
-msgid "stops per hr/pop within 500m"
+#: transit_indicators/models.py:366
+msgid "secs"
 msgstr ""
 
-#: transit_indicators/models.py:296
+#: transit_indicators/models.py:367
+msgid "mins"
+msgstr ""
+
+#: transit_indicators/models.py:368
 msgid "hrs"
 msgstr ""
 
-#: transit_indicators/models.py:297
+#: transit_indicators/models.py:369
 msgid "km"
 msgstr ""
 
-#: transit_indicators/models.py:298
-msgid "km/km²"
+#: transit_indicators/models.py:370
+msgid "transit length/km²"
 msgstr ""
 
-#: transit_indicators/models.py:299
-msgid "low-income population within 500m of a stop"
+#: transit_indicators/models.py:371 transit_indicators/models.py:372
+msgid "percent population served by a stop"
 msgstr ""
 
-#: transit_indicators/models.py:300
-msgid "min"
+#: transit_indicators/models.py:373
+msgid "percent stop coverage"
 msgstr ""
 
-#: transit_indicators/models.py:301
-msgid "population within 500m of a stop"
+#: transit_indicators/models.py:374
+msgid "stops/km"
 msgstr ""
 
-#: transit_indicators/models.py:302
-msgid "stops/500m radius"
-msgstr ""
-
-#: transit_indicators/models.py:303
-msgid "stops/route length, in km"
-msgstr ""
-
-#: transit_indicators/models.py:341
+#: transit_indicators/models.py:412
 msgid "Access index"
 msgstr ""
 
-#: transit_indicators/models.py:342
+#: transit_indicators/models.py:413
 msgid "Affordability"
 msgstr ""
 
-#: transit_indicators/models.py:343
+#: transit_indicators/models.py:414
 msgid "Average Service Frequency"
 msgstr ""
 
-#: transit_indicators/models.py:344
-msgid "System coverage"
-msgstr ""
-
-#: transit_indicators/models.py:345
+#: transit_indicators/models.py:415
 msgid "Coverage of transit stops"
 msgstr ""
 
-#: transit_indicators/models.py:346
+#: transit_indicators/models.py:416
 msgid "Distance between stops"
 msgstr ""
 
-#: transit_indicators/models.py:347
+#: transit_indicators/models.py:417
 msgid "Dwell Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:348
+#: transit_indicators/models.py:418
 msgid "Weekly number of hours of service"
 msgstr ""
 
-#: transit_indicators/models.py:349
+#: transit_indicators/models.py:419
 msgid "Job accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:350
+#: transit_indicators/models.py:420
 msgid "Transit system length"
 msgstr ""
 
-#: transit_indicators/models.py:351
+#: transit_indicators/models.py:421
 msgid "Ratio of transit lines length over road length"
 msgstr ""
 
-#: transit_indicators/models.py:352
+#: transit_indicators/models.py:422
 msgid "Transit line network density"
 msgstr ""
 
-#: transit_indicators/models.py:353
+#: transit_indicators/models.py:423
 msgid "Number of modes"
 msgstr ""
 
-#: transit_indicators/models.py:354
+#: transit_indicators/models.py:424
 msgid "Number of routes"
 msgstr ""
 
-#: transit_indicators/models.py:355
+#: transit_indicators/models.py:425
 msgid "Number of stops"
 msgstr ""
 
-#: transit_indicators/models.py:356
+#: transit_indicators/models.py:426
 msgid "Number of route types"
 msgstr ""
 
-#: transit_indicators/models.py:357
+#: transit_indicators/models.py:427
 msgid "On-Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:358
+#: transit_indicators/models.py:428
 msgid "Regularity of Headways"
 msgstr ""
 
-#: transit_indicators/models.py:359
+#: transit_indicators/models.py:429
 msgid "Service frequency weighted by served population"
 msgstr ""
 
-#: transit_indicators/models.py:360
+#: transit_indicators/models.py:430
+msgid "Service frequency weighted by population metric 2"
+msgstr ""
+
+#: transit_indicators/models.py:431
 msgid "Ratio of number of stops to route-length"
 msgstr ""
 
-#: transit_indicators/models.py:361
+#: transit_indicators/models.py:432
 msgid "Ratio of the Transit-Pattern Operating Suburban Lines"
 msgstr ""
 
-#: transit_indicators/models.py:362
+#: transit_indicators/models.py:433
 msgid "System accessibility"
 msgstr ""
 
-#: transit_indicators/models.py:363
-msgid "System accessibility - low-income"
+#: transit_indicators/models.py:434
+msgid "System accessibility - population metric 2"
 msgstr ""
 
-#: transit_indicators/models.py:364
+#: transit_indicators/models.py:435
 msgid "Time traveled between stops"
 msgstr ""
 
-#: transit_indicators/models.py:365
+#: transit_indicators/models.py:436
 msgid "Travel Time Performance"
 msgstr ""
 
-#: transit_indicators/models.py:366
+#: transit_indicators/models.py:437
 msgid "Weekday / weekend frequency"
+msgstr ""
+
+#: transit_indicators/models.py:438
+msgid "Number of jobs that can be reached by an area."
 msgstr ""

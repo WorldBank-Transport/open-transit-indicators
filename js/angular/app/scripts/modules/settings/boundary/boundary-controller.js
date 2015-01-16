@@ -2,8 +2,8 @@
 
 angular.module('transitIndicators')
 .controller('OTIBoundaryController',
-    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIConfigurationService', 'OTIBoundaryService',
-    function ($scope, $rootScope, $timeout, $upload, OTIConfigurationService, OTIBoundaryService) {
+    ['$scope', '$rootScope', '$timeout', '$upload', 'OTIConfigurationService', 'OTISettingsService',
+    function ($scope, $rootScope, $timeout, $upload, OTIConfigurationService, OTISettingsService) {
 
     var isCityUpload = function (upload) {
         return $scope.uploadCity && upload.id === $scope.uploadCity.id;
@@ -17,7 +17,7 @@ angular.module('transitIndicators')
         var uploadProblems = isCityUpload(upload) ?
                              $scope.uploadProblemsCity : $scope.uploadProblemsRegion;
 
-        OTIBoundaryService.boundaryProblems.query({ boundary: upload.id }, function(data) {
+        OTISettingsService.boundaryProblems.query({ boundary: upload.id }, function(data) {
             uploadProblems.warnings = _.filter(data, function (problem) {
                 return problem.type === 'war' && problem.boundary === upload.id;
             });
@@ -84,7 +84,7 @@ angular.module('transitIndicators')
         pollingTimeoutMs: 1000
     };
 
-    $scope.BoundaryUploads = OTIBoundaryService.boundaryUploads;
+    $scope.BoundaryUploads = OTISettingsService.boundaryUploads;
     $scope.uploadProblemsCity = {
         warnings: [],
         errors: []
@@ -101,7 +101,7 @@ angular.module('transitIndicators')
      $scope.uploadRegion = {};
     $scope.init = function () {
         // get the global configuration object
-        OTIConfigurationService.Config.query({}, function (configs) {
+        OTISettingsService.configs.query({}, function (configs) {
             if (configs.length !== 1) {
                 console.error('Expected a single configuration, but found: ', configs);
                 return;
@@ -112,12 +112,12 @@ angular.module('transitIndicators')
 
             // check for boundaries
             if (cityId) {
-                OTIBoundaryService.boundaryUploads.get({ id: cityId }, function (upload) {
+                OTISettingsService.boundaryUploads.get({ id: cityId }, function (upload) {
                     $scope.uploadCity = upload;
                 });
             }
             if (regionId) {
-                OTIBoundaryService.boundaryUploads.get({ id: regionId }, function (upload) {
+                OTISettingsService.boundaryUploads.get({ id: regionId }, function (upload) {
                     $scope.uploadRegion = upload;
                 });
             }

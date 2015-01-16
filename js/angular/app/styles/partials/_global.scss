@@ -10,3 +10,19 @@
     }
   }
 }
+
+.leaflet-control-layers-toggle {
+  width: 26px;
+  height: 26px;
+  background-size: 75%;
+}
+
+.progress-bar {
+  color: #000;
+}
+
+table > tbody > tr {
+  &:last-child {
+    border-bottom: 0;
+  }
+}

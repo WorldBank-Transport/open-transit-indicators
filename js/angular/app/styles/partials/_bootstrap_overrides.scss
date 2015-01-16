@@ -9,3 +9,11 @@ body {
 .btn {
   font-size: $h5;
 }
+
+a {
+	cursor: pointer;
+  &:hover {
+    text-decoration: none;
+    opacity: .8;
+  }
+}

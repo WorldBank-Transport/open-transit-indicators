@@ -9,7 +9,7 @@ angular.module('transitIndicators')
 
     otiUploadStatus.get = function () {
         var dfd = $q.defer();
-        $http.get('/api/upload-statuses').success(function (data) {
+        $http.get('/api/upload-statuses/').success(function (data) {
             dfd.resolve(data);
         }).error(function (error) {
             console.error('OTISettingsService.getUploadStatuses:', error);

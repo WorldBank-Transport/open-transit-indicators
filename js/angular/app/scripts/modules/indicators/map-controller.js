@@ -2,37 +2,93 @@
 
 angular.module('transitIndicators')
 .controller('OTIIndicatorsMapController',
-        ['config', '$cookieStore', '$scope', '$state', 'leafletData', 'OTIEvents', 'OTIIndicatorsService', 'OTIIndicatorsMapService',
-        function (config, $cookieStore, $scope, $state, leafletData, OTIEvents, OTIIndicatorsService, OTIIndicatorsMapService) {
-
-    var defaultIndicator = new OTIIndicatorsService.IndicatorConfig({
-        version: 0,
-        type: 'num_stops',
-        sample_period: 'morning',
-        aggregation: 'route'
-    });
+        ['$scope', '$state', '$translate', 'leafletData',
+         'OTICityManager', 'OTIEvents', 'OTIIndicatorManager', 'OTIIndicatorModel',
+         'OTIIndicatorJobManager', 'OTIMapStyleService', 'OTIMapService', 'OTISettingsService',
+        function ($scope, $state, $translate, leafletData,
+                  OTICityManager, OTIEvents, OTIIndicatorManager, OTIIndicatorModel,
+                  OTIIndicatorJobManager, OTIMapStyleService, OTIMapService, OTISettingsService) {
 
     $scope.$state = $state;
     $scope.dropdown_aggregation_open = false;
     $scope.dropdown_type_open = false;
+    $scope.dropdown_indicatorjob_selection_open = false;
+    $scope.selectedCity = _.findWhere($scope.cities, {id: OTIIndicatorManager.getConfig().calculation_job });
 
-    // Object used to configure the indicator displayed on the map
-    // Retrieve last selected indicator from session cookie, if available
-    $scope.indicator = $cookieStore.get('indicator') || defaultIndicator;
+    OTIMapService.setScenario();
+    $scope.indicator = OTIIndicatorManager.getConfig();
+    var layerOptions = angular.extend($scope.indicator, {scenario: OTIMapService.getScenario()});
+
+    // Cache legend names since they're used in a few different places.
+    // Translation triggers a full page refresh, so this should be safe.
+    var legendNames = {
+        jobs: $translate.instant('MAP.JOBS_INDICATOR_LAYER'),
+        pop1: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER'),
+        pop2: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER'),
+        dest: $translate.instant('MAP.DESTINATION_METRIC_LAYER'),
+
+        // Only shown when ranges can't be retrieved
+        fewer: $translate.instant('MAP.JOBS_INDICATOR_FEWER'),
+        more: $translate.instant('MAP.JOBS_INDICATOR_MORE')
+    };
+
+
+    angular.extend($scope.indicator,
+        { modes: OTIMapService.getTransitModes() });
+    OTIIndicatorManager.setConfig($scope.indicator);
 
     /* LEAFLET CONFIG */
     var overlays = {
-        indicator: {
-            name: 'GTFS Indicator',
+        jobs_indicator: {
+            name: legendNames.jobs,
+            type: 'wms',
+            url: 'gt/travelshed/jobs/render',
+            visible: false,
+            layerParams: {
+                format: 'image/png',
+                jobId: layerOptions.calculation_job
+            },
+            layerOptions: { opacity: 0.7 }
+        },
+        pop_metric_1: {
+            name: legendNames.pop1,
             type: 'xyz',
-            url: OTIIndicatorsMapService.getIndicatorUrl('png'),
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'population_metric_1', opacity: 0.7 }
+        },
+        pop_metric_2: {
+            name: legendNames.pop2,
+            type: 'xyz',
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'population_metric_2', opacity: 0.7 }
+        },
+        dest_metric_1: { // This is destination, not demographic, despite the i18n key name.
+            name: legendNames.dest,
+            type: 'xyz',
+            url: OTIMapService.demographicsUrl(),
+            visible: false,
+            layerOptions: { metric: 'destination_metric_1', opacity: 0.7 }
+        },
+        indicator: {
+            name: $translate.instant('MAP.GTFS_INDICATOR_LAYER'),
+            type: 'xyz',
+            url: OTIMapService.indicatorUrl('png'),
             visible: true,
-            layerOptions: $scope.indicator
+            layerOptions: layerOptions
+        },
+        boundary: {
+            name: $translate.instant('MAP.BOUNDARY'),
+            type: 'xyz',
+            url: OTIMapService.boundaryUrl(),
+            visible: true,
+            layerOptions: layerOptions
         },
         utfgrid: {
-            name: 'GTFS Indicator Interactivity',
+            name: $translate.instant('MAP.INDICATOR_INTERACTIVITY_LAYER'),
             type: 'utfGrid',
-            url: OTIIndicatorsMapService.getIndicatorUrl('utfgrid'),
+            url: OTIMapService.indicatorUrl('utfgrid'),
             visible: true,
             // When copied to the internal L.Utfgrid class, these options end up on
             //  layer.options, same as for TileLayers
@@ -41,41 +97,75 @@ angular.module('transitIndicators')
     };
     $scope.updateLeafletOverlays(overlays);
 
+    // Set calculation job
+    $scope.selectCity = function (city) {
+        $scope.selectedCity = city;
+        OTIIndicatorManager.setConfig({ calculation_job: city.id });
+    };
+
     // Create utfgrid popup from leaflet event
-    var utfGridMarker = function (leafletEvent) {
-        if (leafletEvent && leafletEvent.data) {
-            // use $apply so popup appears right away
-            // (otherwise it doesn't show up until the next time the mouse gets moved)
-            $scope.$apply(function() {
-                var marker = {
-                    lat: leafletEvent.latlng.lat,
-                    lng: leafletEvent.latlng.lng,
-                    focus: true,
-                    draggable: false,
-                    message: 'Indicator Value: ' + leafletEvent.data.value,
-                    // we need something to bind the popup to, so use a marker with an empty icon
-                    icon: {
-                        type: 'div',
-                        iconSize: [0, 0],
-                        popupAnchor:  [0, 0]
-                    }
-                };
-                $scope.leaflet.markers.push(marker);
-            });
+    var utfGridMarker = function (leafletEvent, indicator) {
+        if (leafletEvent && leafletEvent.data && indicator) {
+            var marker = {
+                lat: leafletEvent.latlng.lat,
+                lng: leafletEvent.latlng.lng,
+                focus: true,
+                draggable: false,
+                message: indicator.formatted_value,
+                // we need something to bind the popup to, so use a marker with an empty icon
+                icon: {
+                    type: 'div',
+                    iconSize: [0, 0],
+                    popupAnchor:  [0, 0]
+                }
+            };
+            $scope.leaflet.markers.push(marker);
         }
     };
 
-    var setIndicator = function (indicator) {
-        angular.extend($scope.indicator, indicator);
-        $cookieStore.put('indicator', $scope.indicator);
-        $scope.$broadcast(OTIEvents.Indicators.IndicatorUpdated, $scope.indicator);
+    $scope.leaflet.coverageLegend = {
+        show: false,
+        coverage: null,
+        bufferDistance: null
     };
 
-    // TODO: Update this method to allow changes on aggregation, version, sample_period
-    $scope.setIndicator = function (type) {
-        $scope.indicator.type = type;
-        $scope.updateIndicatorLayers($scope.indicator);
-        $scope.indicator_dropdown_open = false;
+    // Coverage ratio stops buffer requires a special bit of massaging because it is systemic rather than per route
+    // this means it requires its own directive to be shown
+    var updateIndicatorLegend = function (indicator) {
+        var params = angular.extend({}, indicator, {
+            'ordering': 'value'
+        });
+        if (indicator.type && indicator.type === 'coverage_ratio_stops_buffer') {
+            $scope.leaflet.legend = {};
+            var minimalParams = {
+                calculation_job: params.calculation_job,
+                sample_period: params.sample_period,
+                type: 'coverage_ratio_stops_buffer'
+            };
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'coverage_ratio_stops_buffer'}))
+                .$promise.then(function(indicatorResult) {
+                    // Draw coverage legend
+                    $scope.leaflet.coverageLegend.show = indicatorResult[0] ? true : false;
+                    $scope.leaflet.coverageLegend.coverage = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access'}))
+                .$promise.then(function(indicatorResult) {
+                    $scope.leaflet.coverageLegend.access1 = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTIIndicatorModel.search(_.extend({}, minimalParams, {type: 'system_access_low'}))
+                .$promise.then(function(indicatorResult) {
+                    $scope.leaflet.coverageLegend.access2 = indicatorResult[0] ? indicatorResult[0].value : null;
+                });
+            OTISettingsService.configs.query().$promise.then(function(config){
+                $scope.leaflet.coverageLegend.bufferDistance = config[0] ? config[0].nearby_buffer_distance_m : null;
+            });
+        } else {
+            OTIIndicatorModel.search(params, function (data) {
+                // Redraw new
+                $scope.leaflet.legend = OTIMapStyleService.getLegend(indicator.type, data);
+                $scope.leaflet.coverageLegend = {};
+            });
+        }
     };
 
     /**
@@ -87,52 +177,114 @@ angular.module('transitIndicators')
      * @param indicator: OTIIndicatorsService.Indicator instance
      */
     $scope.updateIndicatorLayers = function (indicator) {
-        $cookieStore.put("indicator", $scope.indicator);
-        leafletData.getMap().then(function(map) {
-            map.eachLayer(function (layer) {
-                // layer is one of the indicator overlays -- only redraw them
-                if (layer && layer.options && layer.options.type) {
-                    angular.extend(layer.options, indicator);
-                    if (layer.redraw) {
-                        layer.redraw();
-                    } else if (layer._update) {
-                        // Temporary hack for Leaflet.Utfgrid. It doesn't have a redraw function
-                        layer._cache = {};
-                        layer._update();
-                    }
-                }
-            });
-        });
+        OTIMapService.refreshLayers();
+        updateIndicatorLegend(indicator);
     };
 
     $scope.selectType = function (type) {
         $scope.dropdown_type_open = false;
-        setIndicator({type: type});
+        OTIIndicatorManager.setConfig({type: type});
     };
 
     $scope.selectAggregation = function (aggregation) {
         $scope.dropdown_aggregation_open = false;
-        setIndicator({aggregation: aggregation});
+        OTIIndicatorManager.setConfig({aggregation: aggregation});
     };
 
     $scope.$on('leafletDirectiveMap.utfgridClick', function(event, leafletEvent) {
         $scope.leaflet.markers.length = 0;
-        utfGridMarker(leafletEvent);
+        if (leafletEvent.data && leafletEvent.data.indicator_id) {
+            OTIIndicatorModel.get({id: leafletEvent.data.indicator_id}, function (indicator) {
+                utfGridMarker(leafletEvent, indicator);
+            });
+        }
     });
 
-    $scope.$on(OTIEvents.Indicators.IndicatorUpdated, function (event, indicator) {
+    $scope.$on(OTIIndicatorManager.Events.IndicatorConfigUpdated, function (event, indicator) {
         $scope.updateIndicatorLayers(indicator);
     });
 
-    $scope.$on(OTIEvents.Indicators.SamplePeriodUpdated, function (event, sample_period) {
-        setIndicator({sample_period: sample_period});
+    $scope.$on(OTIIndicatorManager.Events.SamplePeriodUpdated, function (event, sample_period) {
+        OTIIndicatorManager.setConfig({sample_period: sample_period});
     });
 
-    $scope.$on(OTIEvents.Indicators.IndicatorVersionUpdated, function (event, version) {
-        setIndicator({version: version});
+    $scope.$on(OTIIndicatorJobManager.Events.JobUpdated, function (event, calculation_job) {
+        OTIIndicatorManager.setConfig({calculation_job: calculation_job, city_name: ''}); // TODO: add city name
     });
+
+    // Bind events that will hide/show legends when the respective layer is hidden / shown
+    leafletData.getMap().then(function(map) {
+        var setLegendVisibility = function(layerName, legendState) {
+            switch(layerName) {
+                case legendNames.jobs:
+                    $scope.leaflet.jobsLegend.show = legendState;
+                    break;
+                case legendNames.pop1:
+                    $scope.leaflet.pop1Legend.show = legendState;
+                    break;
+                case legendNames.pop2:
+                    $scope.leaflet.pop2Legend.show = legendState;
+                    break;
+                case legendNames.dest:
+                    $scope.leaflet.dest1Legend.show = legendState;
+                    break;
+            }
+        };
+        map.on('overlayadd', function(eventLayer) {
+            setLegendVisibility(eventLayer.name, true);
+        });
+        map.on('overlayremove', function(eventLayer) {
+            setLegendVisibility(eventLayer.name, false);
+        });
+    });
+
+    /**
+     * Helper for making a legend
+     * Retrieves the min/max range, constructs the legend, and assigns it to the leaflet variable
+     *
+     * @param getRangeName: String, OTIMapService function name to call for retrieving the range
+     * @param legendName: String, Name of variable to set on leaflet object
+     * @param color: String, Color of legend -- ending in a number which denotes the number of bins
+     * @param title: String, Translatable identifier for use in displaying the legend title
+     */
+    function makeLegend(getRangeName, legendName, color, title) {
+        // Start off with "Fewer/More", just in case ranges can't be fetched
+        $scope.leaflet[legendName] = OTIMapStyleService.getDemographicLegend(color, {
+            show: false,
+            title: $translate.instant(title),
+            range: {
+                min: legendNames.fewer,
+                max: legendNames.more
+            }
+        });
+
+        OTIMapService[getRangeName](layerOptions.calculation_job).then(function(range) {
+            $scope.leaflet[legendName].range = range;
+        }, function(err) {
+            console.error('Error fetching ranges for: ' + legendName + ' -- ', err.data.error);
+        });
+    }
 
     $scope.init = function () {
+        if($scope.cities.length > 0) {
+            if (!$scope.selectedCity) {
+                $scope.selectedCity = $scope.cities[0];
+            }
+            $scope.selectCity($scope.selectedCity);
+        }
+        updateIndicatorLegend($scope.indicator);
+        OTIMapService.getLegendData();
+
+        // Set up demographic legends (static)
+        makeLegend('getTravelShedRange', 'jobsLegend', 'green8', 'MAP.JOBS_INDICATOR_TITLE');
+        makeLegend('getPopOneRange', 'pop1Legend', 'red5', 'MAP.POPULATION_METRIC_ONE_LAYER');
+        makeLegend('getPopTwoRange', 'pop2Legend', 'orange5', 'MAP.POPULATION_METRIC_TWO_LAYER');
+        makeLegend('getDestOneRange', 'dest1Legend', 'blue5', 'MAP.DESTINATION_METRIC_LAYER');
     };
+
+    $scope.$on(OTICityManager.Events.CitiesUpdated, function () {
+        $scope.init();
+    });
+
     $scope.init();
 }]);

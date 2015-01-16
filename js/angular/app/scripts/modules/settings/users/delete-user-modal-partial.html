@@ -1,11 +1,11 @@
 <div class="modal-header">
-  <h1>Delete User</h1>
+  <h1>{{ 'DELETE_USER.TITLE' | translate }}</h1>
 </div>
 <div class="modal-body">
-  <h2>Warning</h2>
-  <p>This action will delete <b>{{user.username}}</b>.</p>
+  <h2>{{ 'DELETE_USER.WARNING' | translate }}</h2>
+  <p>{{ 'DELETE_USER.WILL_DELETE' | translate }} <b>{{user.username}}</b>.</p>
 
-  <p>This action cannot be undone. All data for <b>{{user.username}}</b> will be lost.</p>
-  <div class="btn btn-warning" ng-click="deleteUser()">Delete User</div>
-  <div class="btn btn-primary" ng-click="close()">Cancel</div>
+  <p>{{ 'DELETE_USER.NO_UNDO' | translate }} <b>{{user.username}}</b> {{ 'DELETE_USER.WILL_BE_LOST' | translate }}.</p>
+  <div class="btn btn-warning" ng-click="deleteUser()">{{ 'DELETE_USER.TITLE' | translate }}</div>
+  <div class="btn btn-primary" ng-click="close()">{{ 'DELETE_USER.CANCEL' | translate }}</div>
 </div>
