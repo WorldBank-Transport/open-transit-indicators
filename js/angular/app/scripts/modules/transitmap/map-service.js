@@ -137,17 +137,9 @@ angular.module('transitIndicators')
      * @param jobId: String, job id associated with travel shed
      */
     module.getTravelShedRange = function(jobId) {
-        var r = $resource('/gt/travelshed/jobs/minmax');
-        var dfd = $q.defer();
-
-        var result = r.get({ JOBID: jobId }, function() {
-            if (result) {
-                dfd.resolve(result);
-            } else {
-                dfd.reject('No travel shed range available');
-            }
-        });
-        return dfd.promise;
+        return $resource('/gt/travelshed/jobs/minmax')
+            .get({ JOBID: jobId })
+            .$promise;
     };
 
     /**
@@ -156,17 +148,9 @@ angular.module('transitIndicators')
      * @param demographicName: String, type of demographic to retrieve
      */
     module.getDemographicRange = function(demographicName) {
-        var r = $resource('/api/demographics-ranges/');
-        var dfd = $q.defer();
-
-        var result = r.get({ type: demographicName }, function() {
-            if (result) {
-                dfd.resolve(result);
-            } else {
-                dfd.reject('No demographic range available for: ', demographicName);
-            }
-        });
-        return dfd.promise;
+        return $resource('/api/demographics-ranges/')
+            .get({ type: demographicName })
+            .$promise;
     };
 
     /**

@@ -25,7 +25,11 @@ angular.module('transitIndicators')
         jobs: $translate.instant('MAP.JOBS_INDICATOR_LAYER'),
         pop1: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER'),
         pop2: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER'),
-        dest: $translate.instant('MAP.DESTINATION_METRIC_LAYER')
+        dest: $translate.instant('MAP.DESTINATION_METRIC_LAYER'),
+
+        // Only shown when ranges can't be retrieved
+        fewer: $translate.instant('MAP.JOBS_INDICATOR_FEWER'),
+        more: $translate.instant('MAP.JOBS_INDICATOR_MORE')
     };
 
 
@@ -243,13 +247,21 @@ angular.module('transitIndicators')
      * @param color: String, Color of legend -- ending in a number which denotes the number of bins
      * @param title: String, Translatable identifier for use in displaying the legend title
      */
-     function makeLegend(getRangeName, legendName, color, title) {
+    function makeLegend(getRangeName, legendName, color, title) {
+        // Start off with "Fewer/More", just in case ranges can't be fetched
+        $scope.leaflet[legendName] = OTIMapStyleService.getDemographicLegend(color, {
+            show: false,
+            title: $translate.instant(title),
+            range: {
+                min: legendNames.fewer,
+                max: legendNames.more
+            }
+        });
+
         OTIMapService[getRangeName](layerOptions.calculation_job).then(function(range) {
-            $scope.leaflet[legendName] = OTIMapStyleService.getDemographicLegend(color, {
-                show: false,
-                title: $translate.instant(title),
-                range: range
-            });
+            $scope.leaflet[legendName].range = range;
+        }, function(err) {
+            console.error('Error fetching ranges for: ' + legendName + ' -- ', err.data.error);
         });
     }
 

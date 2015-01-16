@@ -185,10 +185,15 @@ class DemographicDataRanges(APIView):
     def get(self, request, *args, **kwargs):
         get_type = request.QUERY_PARAMS.get('type', None)
         if not get_type:
-            return Response("type parameter is required", status=status.HTTP_200_OK)
+            response = {'error': 'type parameter is required'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-        agg = DemographicDataFeature.objects.all().aggregate(min=Min(get_type), max=Max(get_type))
-        return Response(agg, status=status.HTTP_200_OK)
+        try:
+            agg = DemographicDataFeature.objects.all().aggregate(min=Min(get_type), max=Max(get_type))
+            return Response(agg, status=status.HTTP_200_OK)
+        except:
+            response = {'error': 'Invalid type'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST);
 
 
 class UploadStatusChoices(APIView):
