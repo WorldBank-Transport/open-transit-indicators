@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-16 17:50+0000\n"
+"POT-Creation-Date: 2015-01-16 21:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -620,10 +620,8 @@ msgid "Weekend"
 msgstr "周末"
 
 #: transit_indicators/models.py:168
-#, fuzzy
-#| msgid "Job queued for processing"
 msgid "Scenario initialization queued for processing"
-msgstr "任务已排队等待处理"
+msgstr ""
 
 #: transit_indicators/models.py:169
 msgid "Scenario initialization is processing"
@@ -634,10 +632,8 @@ msgid "Error initializing scenario"
 msgstr "初始化方案错误"
 
 #: transit_indicators/models.py:171
-#, fuzzy
-#| msgid "Completed indicator calculation"
 msgid "Completed scenario initialization"
-msgstr "指标计算已完成"
+msgstr ""
 
 #: transit_indicators/models.py:209
 msgid "Job queued for processing"
@@ -660,10 +656,8 @@ msgid "None applicable"
 msgstr ""
 
 #: transit_indicators/models.py:222
-#, fuzzy
-#| msgid "Job queued for processing"
 msgid "Scala died during processing"
-msgstr "任务已排队等待处理"
+msgstr ""
 
 #: transit_indicators/models.py:328
 msgid "Route"
@@ -706,20 +700,16 @@ msgid "km"
 msgstr "公里"
 
 #: transit_indicators/models.py:370
-#, fuzzy
-#| msgid "Transit system length"
 msgid "transit length/km²"
-msgstr "公交系统长度/平方公里"
+msgstr ""
 
 #: transit_indicators/models.py:371 transit_indicators/models.py:372
 msgid "percent population served by a stop"
 msgstr "站点服务的人口百分比"
 
 #: transit_indicators/models.py:373
-#, fuzzy
-#| msgid "System coverage"
 msgid "percent stop coverage"
-msgstr "系统覆盖率"
+msgstr ""
 
 #: transit_indicators/models.py:374
 msgid "stops/km"
@@ -798,10 +788,8 @@ msgid "Service frequency weighted by served population"
 msgstr "按服务人口加权的服务频率"
 
 #: transit_indicators/models.py:430
-#, fuzzy
-#| msgid "Service frequency weighted by served population"
 msgid "Service frequency weighted by population metric 2"
-msgstr "按服务人口加权的服务频率"
+msgstr ""
 
 #: transit_indicators/models.py:431
 msgid "Ratio of number of stops to route-length"
@@ -816,10 +804,8 @@ msgid "System accessibility"
 msgstr "系统可达性"
 
 #: transit_indicators/models.py:434
-#, fuzzy
-#| msgid "System accessibility - low-income"
 msgid "System accessibility - population metric 2"
-msgstr "系统可达性--低收入"
+msgstr ""
 
 #: transit_indicators/models.py:435
 msgid "Time traveled between stops"
@@ -836,32 +822,3 @@ msgstr "平常日/周末日频率"
 #: transit_indicators/models.py:438
 msgid "Number of jobs that can be reached by an area."
 msgstr ""
-
-#~ msgid "low-income pop served by stop"
-#~ msgstr "每个站点服务的低收入人口"
-
-#, fuzzy
-#~| msgid "Service frequency weighted by served population"
-#~ msgid "Service frequency weighted by served low-income population"
-#~ msgstr "按服务人口加权的服务频率"
-
-#~ msgid "stops per hr/pop within 500m"
-#~ msgstr "每小时的公交站点数/500米内人数"
-
-#~ msgid "km/km²"
-#~ msgstr "公里/平方公里"
-
-#~ msgid "low-income population within 500m of a stop"
-#~ msgstr "公交站点500米范围内的低收入人口总数"
-
-#~ msgid "min"
-#~ msgstr "分钟"
-
-#~ msgid "population within 500m of a stop"
-#~ msgstr "公交站点500米范围内的人口总数"
-
-#~ msgid "stops/500m radius"
-#~ msgstr "公交站点数/500米半径"
-
-#~ msgid "stops/route length, in km"
-#~ msgstr "公交站点数/路线长度（单位：公里）"
