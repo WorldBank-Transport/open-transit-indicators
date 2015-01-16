@@ -131,7 +131,11 @@ angular.module('transitIndicators')
         return dfd.promise;
     };
 
-    // retrieves travel shed jobs range (min/max for legend)
+    /**
+     * Retrieves travel shed jobs range (min/max for legend)
+     *
+     * @param jobId: String, job id associated with travel shed
+     */
     module.getTravelShedRange = function(jobId) {
         var r = $resource('/gt/travelshed/jobs/minmax');
         var dfd = $q.defer();
