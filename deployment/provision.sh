@@ -49,6 +49,7 @@ SCALA_OTI_ROOT="$SCALA_ROOT/opentransit"
 GEOTRELLIS_REPO_ROOT="$PROJECTS_DIR/geotrellis"
 GEOTRELLIS_REPO_URI="https://github.com/geotrellis/geotrellis.git"
 GEOTRELLIS_REPO_BRANCH="master"
+GEOTRELLIS_REPO_COMMIT="03b56ebe93f37e80832eea1f91ff68336999a5f7"
 
 # Time limit for indicator calculations to finish before retrying
 INDICATOR_SOFT_TIME_LIMIT_SECONDS="10800"
@@ -564,6 +565,7 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     fi
     pushd $GEOTRELLIS_REPO_ROOT
         git pull
+        git reset --hard $GEOTRELLIS_REPO_COMMIT
         ./publish-local.sh
     popd
 
