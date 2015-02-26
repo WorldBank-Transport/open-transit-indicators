@@ -23,7 +23,7 @@ import grizzled.slf4j.Logging
 trait TravelshedIndicator {
   def name: String
 
-  def apply(rasterCache: RasterCache): Unit
+  def run(rasterCache: RasterCache): Double
 }
 
 object JobsTravelshedIndicator {
@@ -43,7 +43,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
 
   def name = JobsTravelshedIndicator.name
 
-  def apply(rasterCache: RasterCache): Unit = {
+  def run(rasterCache: RasterCache): Double = {
     val (graph, index, rasterExtent, arriveTime, duration, crs) = {
       val tg = travelshedGraph
 
@@ -58,7 +58,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     val features: Array[JobsDemographics] =
       regionDemographics.jobsDemographics.toArray
 
-    val (cols, rows) = 
+    val (cols, rows) =
       (rasterExtent.cols, rasterExtent.rows)
 
     val vertexCount = graph.vertexCount
@@ -75,25 +75,31 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
     // Set up a byte that tells if a poly has been added to the sum
     val polyHit = 1.toByte
 
-    // Create the empty tile. We need to fill out the raster first with population values, 
-    // which will be used in the ratio calculation. 
+    // Create the empty tile. We need to fill out the raster first with population values,
+    // which will be used in the ratio calculation.
     val tile = ArrayTile.empty(TypeDouble, cols, rows)
 
+    // Population Tile that will be combined with jobs data
+    val populationTile = ArrayTile.empty(TypeDouble, cols, rows)
+
     // Create an index of the raster cells
-    val mappedCoords = 
+    val mappedCoords =
       GridBounds(0, 0, tile.cols - 1, tile.rows - 1).coords.map { case (col, row) =>
         (col, row, rasterExtent.gridColToMap(col), rasterExtent.gridRowToMap(row))
       }
-    val tileIndex = 
+    val tileIndex =
       SpatialIndex(mappedCoords) { case (col, row, x, y) =>
         (x, y)
       }
     val cellArea = rasterExtent.cellwidth * rasterExtent.cellheight
 
-
+    var totalJobs: Double = 0.0
+    var totalPopulation: Double = 0.0
     cfor(0)(_ < features.size, _ + 1) { polyIndex =>
       val feature = features(polyIndex)
       val envelope = feature.geom.envelope
+      totalJobs += feature.jobs
+      totalPopulation += feature.population
 
       // Fill out the raster cells with the population
       val cellsContained = tileIndex.pointsInExtent(envelope).toArray
@@ -103,7 +109,7 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
         cfor(0)(_ < cellsContainedLen, _ + 1) { i =>
           val (col, row, x, y) = cellsContained(i)
           if(feature.geom.contains(x, y)) {
-            tile.setDouble(col, row, population)
+            populationTile.setDouble(col, row, population)
           }
         }
       }
@@ -122,109 +128,112 @@ class JobsTravelshedIndicator(travelshedGraph: TravelshedGraph,
 
     // SPT parameters
     val maxDuration = duration.toInt
-    val edgeTypes = 
-      Walking :: 
+    val edgeTypes =
+      Walking ::
         graph.transitEdgeModes
           .map(_.service)
           .toSet
           .map { s: String => ScheduledTransit(s, EveryDaySchedule) }.toList
 
+    var totalJobAccessNumerator = 0.0
+
     info(s"Running shortest path query. $rasterExtent. $rows, $cols")
     Timer.timedTask(s"Created the jobs indicator tile") {
       cfor(0)(_ < rows, _ + 1) { row =>
     //    Timer.timedTask(s"  Ran for row $row") {
-          cfor(0)(_ < cols, _ + 1) { col =>
-            val population = tile.getDouble(col, row)
-
-            if(isData(population) && population > 0.0) {
-
-              val polyHits = zeros.clone
-              /**
-                * Array containing departure times of the current shortest
-                * path to the index vertex.
-                */
-              val shortestPathTimes = emptySptArray.clone
+        cfor(0)(_ < cols, _ + 1) { col =>
+          val polyHits = zeros.clone
+          /**
+            * Array containing departure times of the current shortest
+            * path to the index vertex.
+            */
+          val shortestPathTimes = emptySptArray.clone
 
 
-              // Find the nearest start vertex (TODO: Do time calcuation on travel to that vertex)
-              val (x, y) = rasterExtent.gridToMap(col, row)
-              val (startVertex, _, _) = index.nearest(x, y)
-              val startPolyId = vertexToPolyId(startVertex)
+          // Find the nearest start vertex (TODO: Do time calcuation on travel to that vertex)
+          val (x, y) = rasterExtent.gridToMap(col, row)
+          val (startVertex, _, _) = index.nearest(x, y)
+          val startPolyId = vertexToPolyId(startVertex)
 
-              var sum =
-                if(startPolyId != -1) {
-                  polyHits(startPolyId) = polyHit
-                  polyIdToValue(startPolyId) / population
-                } else {
-                  0.0
-                }
+          var sum =
+            if(startPolyId != -1) {
+              polyHits(startPolyId) = polyHit
+              polyIdToValue(startPolyId)
+            } else {
+              0.0
+            }
 
-              // SHORTEST PATH CALCULATION
+          // SHORTEST PATH CALCULATION
 
-              shortestPathTimes(startVertex) = 0
+          shortestPathTimes(startVertex) = 0
 
-              // dijkstra's
+          // dijkstra's
 
-              val queue = new IntPriorityQueue(shortestPathTimes)
+          val queue = new IntPriorityQueue(shortestPathTimes)
 
-              val tripEnd = arriveTime.toInt
-              val tripStart = tripEnd - maxDuration
+          val tripEnd = arriveTime.toInt
+          val tripStart = tripEnd - maxDuration
 
-              val edgeIterator =
-                graph.getEdgeIterator(edgeTypes, EdgeDirection.Outgoing)
+          val edgeIterator =
+            graph.getEdgeIterator(edgeTypes, EdgeDirection.Outgoing)
 
 
-              edgeIterator.foreachEdge(startVertex, tripStart) { (target,weight) =>
-                val t = tripStart + weight
-                if(t <= tripEnd) {
-                  shortestPathTimes(target) = t
-                  queue += target
-                  val polyId = vertexToPolyId(target)
-                  if(polyId != -1 && polyHits(polyId) != polyHit) {
-                    sum += (polyIdToValue(polyId) / population)
-                    polyHits(polyId) = polyHit
-                  }
-                }
-              }
-
-              while(!queue.isEmpty) {
-                val currentVertex = queue.dequeue
-                val currentVertexShortestPathTime = shortestPathTimes(currentVertex)
-
-                edgeIterator.foreachEdge(currentVertex, currentVertexShortestPathTime) { (target, weight) =>
-                  val t = currentVertexShortestPathTime + weight
-                  if(t <= tripEnd) {
-                    val timeAtTarget = shortestPathTimes(target)
-                    if(timeAtTarget == -1 || t < timeAtTarget) {
-                      val polyId = vertexToPolyId(target)
-                      if(polyId != -1 && polyHits(polyId) != polyHit) {
-                        sum += (polyIdToValue(polyId) / population)
-                        polyHits(polyId) = polyHit
-                      }
-
-                      shortestPathTimes(target) = t
-                      queue += target
-                    }
-                  }
-                }
-              }
-
-              if(sum > 0) {
-                tile.setDouble(col, row, sum)
-              } else {
-                tile.setDouble(col, row, Double.NaN)
+          edgeIterator.foreachEdge(startVertex, tripStart) { (target,weight) =>
+            val t = tripStart + weight
+            if(t <= tripEnd) {
+              shortestPathTimes(target) = t
+              queue += target
+              val polyId = vertexToPolyId(target)
+              if(polyId != -1 && polyHits(polyId) != polyHit) {
+                sum += polyIdToValue(polyId)
+                polyHits(polyId) = polyHit
               }
             }
           }
+
+          while(!queue.isEmpty) {
+            val currentVertex = queue.dequeue
+            val currentVertexShortestPathTime = shortestPathTimes(currentVertex)
+
+            edgeIterator.foreachEdge(currentVertex, currentVertexShortestPathTime) { (target, weight) =>
+              val t = currentVertexShortestPathTime + weight
+              if(t <= tripEnd) {
+                val timeAtTarget = shortestPathTimes(target)
+                if(timeAtTarget == -1 || t < timeAtTarget) {
+                  val polyId = vertexToPolyId(target)
+                  if(polyId != -1 && polyHits(polyId) != polyHit) {
+                    sum += polyIdToValue(polyId)
+                    polyHits(polyId) = polyHit
+                  }
+
+                  shortestPathTimes(target) = t
+                  queue += target
+                }
+              }
+            }
+          }
+
+          if(sum > 0) {
+            val population = populationTile.getDouble(col, row)
+            val numerator = sum * population
+            totalJobAccessNumerator += numerator
+            tile.setDouble(col, row, numerator / totalJobs)
+          } else {
+            tile.setDouble(col, row, Double.NaN)
+          }
         }
+      }
     }
-    
+
     // Reproject
     println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator.")
-    val (rTile, rExtent) = 
+    val (rTile, rExtent) =
       tile.reproject(rasterExtent.extent, crs, WebMercator)
 
     println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
+
+    val regionalJobAccess = totalJobAccessNumerator / totalPopulation
+    regionalJobAccess
   }
 }

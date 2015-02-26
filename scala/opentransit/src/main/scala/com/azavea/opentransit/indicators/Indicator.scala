@@ -8,7 +8,7 @@ import com.azavea.opentransit.indicators.travelshed._
 
 object Indicators {
   case class Requirements(requirements: Boolean*) { val fulfilled = requirements.foldLeft(true)(_ && _) }
-  implicit class RequiresWrapper[T](val indicator: T) { 
+  implicit class RequiresWrapper[T](val indicator: T) {
     def requires(requirements: Boolean*): (T, Requirements) = (indicator, Requirements(requirements: _*))
    }
   implicit def indicatorWithRequirements[T](indicator: T): (T, Requirements) = (indicator, Requirements())
@@ -16,7 +16,7 @@ object Indicators {
   def list(params: IndicatorParams): List[Indicator] = {
     val settings = params.settings
 
-    List[(Indicator, Requirements)]( 
+    List[(Indicator, Requirements)](
       AverageServiceFrequency,
       Length,
       NumRoutes,
@@ -24,19 +24,7 @@ object Indicators {
       TimeTraveledStops,
       InterstopDistance,
       StopsToLength,
-      new RatioLinesRoads(params) requires settings.hasOsm,
-      new CoverageRatioStopsBuffer(params) requires settings.hasCityBounds,
-      new TransitNetworkDensity(params) requires settings.hasRegionBounds,
-      new HeadwayRegularity(params) requires settings.hasObserved,
-      new TravelTimePerformance(params) requires settings.hasObserved,
-      new OnTimePerformance(params) requires settings.hasObserved,
-      new DwellTimePerformance(params) requires settings.hasObserved,
-      new RatioSuburbanLines(params) requires settings.hasCityBounds,
-      new AllWeightedServiceFrequency(params) requires settings.hasDemographics,
-      new LowIncomeWeightedServiceFrequency(params) requires settings.hasDemographics,
-      new AllAccessibility(params) requires settings.hasDemographics,
-      new LowIncomeAccessibility(params) requires settings.hasDemographics,
-      new Affordability(params)
+      new RatioLinesRoads(params) requires settings.hasOsm
     ).flatMap { case (indicator, requirements) => if(requirements.fulfilled) Some(indicator) else None }
   }
 }

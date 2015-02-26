@@ -79,47 +79,47 @@ object CalculateIndicators {
     request: IndicatorCalculationRequest,
     db: Database,
     trackStatus: (String, String, JobStatus) => Unit
-  ): Unit = {
+  ): Option[Double] = {
     // Run travelshed indicators
     val reqs = request.paramsRequirements
     // Alright, we needto decide whether or not the jobs field of demographics must be set for
     // any demographics indicators to be run or if a more granular approach to demographics data
     // is worth exploring IF SO TODO: set request.paramsRequirements.jobDemographics based upon whether
     // or not the demographics data has job information
-    if(reqs.demographics && reqs.osm) {
-      println("Now running travelshed")
-      db withSession { implicit session: Session =>
-        TravelshedGraph(
-          periods,
-          builder,
-          100,  // TODO: How do we decide on the resolution?
-          request.arriveByTime,
-          request.maxCommuteTime,
-          RoadsTable.allRoads
-        )
-      } match {
-        case Some(travelshedGraph) =>
-          val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db), request.id.toString)
-          val name = indicator.name
-          trackStatus("alltime", name, JobStatus.Processing)
-          try {
-            println("Calculating travelshed indicator...")
-            timedTask("Processed indicator: Travelshed") {
-              indicator(Main.rasterCache)
-            }
-            trackStatus("alltime", name, JobStatus.Complete)
-          } catch {
-            case e: Exception =>
-              println(e.getMessage)
-              println(e.getStackTrace.mkString("\n"))
 
-              trackStatus("alltime", name, JobStatus.Failed)
+    println("Now running travelshed")
+    db withSession { implicit session: Session =>
+      TravelshedGraph(
+        periods,
+        builder,
+        100,  // TODO: How do we decide on the resolution?
+        request.arriveByTime,
+        request.maxCommuteTime,
+        RoadsTable.allRoads
+      )
+    } match {
+      case Some(travelshedGraph) =>
+        val indicator = new JobsTravelshedIndicator(travelshedGraph, RegionDemographics(db), request.id.toString)
+        val name = indicator.name
+        trackStatus("alltime", name, JobStatus.Processing)
+        try {
+          println("Calculating travelshed indicator...")
+          val regionalJobAccess: Option[Double] = timedTask("Processed indicator: Travelshed") {
+            Option(indicator.run(Main.rasterCache))
           }
-        case None =>
-          println("Could not create travelshed graph")
-      }
+          trackStatus("alltime", name, JobStatus.Complete)
+          regionalJobAccess
+        } catch {
+          case e: Exception =>
+            println(e.getMessage)
+            println(e.getStackTrace.mkString("\n"))
+            trackStatus("alltime", name, JobStatus.Failed)
+            None
+        }
+      case None =>
+        println("Could not create travelshed graph")
+        None
     }
-    System.gc()
   }
 
   def genSysGeom(
@@ -218,7 +218,11 @@ object CalculateIndicators {
 
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
-    runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
+    val reqs = request.paramsRequirements
+    val travelshedResult: Option[Double] = (reqs.demographics && reqs.osm) match {
+      case true => runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
+      case _ => None
+    }
 
     for (period <- periods) {
       println(s"Calculating indicators in period: ${period.periodType}...")
