@@ -219,8 +219,11 @@ object CalculateIndicators {
     // This iterator will run through all the periods, generating a system for each
     // The bulk of calculations are done here
     val reqs = request.paramsRequirements
-    val travelshedResult: Option[Double] = (reqs.demographics && reqs.osm) match {
-      case true => runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
+    (reqs.demographics && reqs.osm) match {
+      case true => {
+        val travelshedRes: Option[Double] = runTravelshed(periods, builder, request, dbByName(request.auxDbName), trackStatus)
+        JobAccess.run(travelshedRes, overallLineGeoms)
+      }
       case _ => None
     }
 
