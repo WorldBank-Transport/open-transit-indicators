@@ -80,7 +80,7 @@ class JobsTravelshedIndicatorSpec
       }
     }
 
-    val roads = 
+    val roads =
       List[Line](
         Line(stopWest, Point(stopWest.x - 3.0, stopWest.y - 3.0)),
         Line(stopCenter, Point(stopCenter.x - 0.5, stopCenter.y - 0.5)),
@@ -100,27 +100,35 @@ class JobsTravelshedIndicatorSpec
 
     val resolution = 2.0
 
-    it("should only include the start vertex if you can't go anywhere") {
+    it("should only include the start vertex if you can't go anywhere in a simple system") {
       val arriveTime = 9 * 60 * 60
       val duration = 1
 
       val travelshedGraph = TravelshedGraph(periods, builder, resolution, arriveTime, duration, roads).get
       val rasterExtent = travelshedGraph.rasterExtent
 
-      val indicator = new JobsTravelshedIndicator(travelshedGraph, regionDemographics(rasterExtent), "0")
-
       val rasterCache = new MockRasterCache
-      indicator.apply(rasterCache)
+      val results = JobsTravelshedIndicator.calculate(travelshedGraph,
+        regionDemographics(rasterExtent), "0", rasterCache)
+
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
-      
+
       val (colWest, rowWest) = rasterExtent.mapToGrid(stopWest.x, stopWest.y)
       val (colCenter, rowCenter) = rasterExtent.mapToGrid(stopCenter.x, stopCenter.y)
       val (colEast, rowEast) = rasterExtent.mapToGrid(stopEast.x, stopEast.y)
 
-      tile.getDouble(colWest, rowWest) should be (westJobs)
-      tile.getDouble(colCenter, rowCenter) should be (centerJobs)
-      tile.getDouble(colEast, rowEast) should be (eastJobs)
+      val cellArea = rasterExtent.cellwidth * rasterExtent.cellheight
+      val westPop = ((stopWest.buffer(5.0).area / cellArea) / stopWest.buffer(5.0).area) * cellArea
+      val centerPop = ((stopCenter.buffer(5.0).area / cellArea) / stopCenter.buffer(5.0).area) * cellArea
+      val eastPop = ((stopEast.buffer(5.0).area / cellArea) / stopEast.buffer(5.0).area) * cellArea
+
+      val totalJobs = westJobs + centerJobs + eastJobs
+      val westResultTile = tile.getDouble(colWest, rowWest)
+
+      tile.getDouble(colWest, rowWest) should be ((westJobs * westPop) / totalJobs)
+      tile.getDouble(colCenter, rowCenter) should be ((centerJobs * centerPop) / totalJobs)
+      tile.getDouble(colEast, rowEast) should be ((eastJobs * eastPop) / totalJobs)
 
     }
 
@@ -132,20 +140,27 @@ class JobsTravelshedIndicatorSpec
       val travelshedGraph = TravelshedGraph(periods, builder, resolution, arriveTime, duration, roads).get
       val rasterExtent = travelshedGraph.rasterExtent
 
-      val indicator = new JobsTravelshedIndicator(travelshedGraph, regionDemographics(rasterExtent), "0")
-
       val rasterCache = new MockRasterCache
-      indicator.apply(rasterCache)
+      val results = JobsTravelshedIndicator.calculate(travelshedGraph,
+        regionDemographics(rasterExtent), "0", rasterCache)
+
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
-      
+
       val (colWest, rowWest) = rasterExtent.mapToGrid(stopWest.x, stopWest.y)
       val (colCenter, rowCenter) = rasterExtent.mapToGrid(stopCenter.x, stopCenter.y)
       val (colEast, rowEast) = rasterExtent.mapToGrid(stopEast.x, stopEast.y)
 
-      tile.getDouble(colWest, rowWest) should be (westJobs)
-      tile.getDouble(colCenter, rowCenter) should be (centerJobs + westJobs)
-      tile.getDouble(colEast, rowEast) should be (eastJobs + centerJobs + westJobs)
+      val cellArea = rasterExtent.cellwidth * rasterExtent.cellheight
+      val westPop = ((stopWest.buffer(5.0).area / cellArea) / stopWest.buffer(5.0).area) * cellArea
+      val centerPop = ((stopCenter.buffer(5.0).area / cellArea) / stopCenter.buffer(5.0).area) * cellArea
+      val eastPop = ((stopEast.buffer(5.0).area / cellArea) / stopEast.buffer(5.0).area) * cellArea
+
+      val totalJobs = westJobs + centerJobs + eastJobs
+
+      tile.getDouble(colWest, rowWest) should be ((westJobs * westPop) / totalJobs)
+      tile.getDouble(colCenter, rowCenter) should be (((centerJobs + westJobs) * centerPop) / totalJobs)
+      tile.getDouble(colEast, rowEast) should be (((eastJobs + centerJobs + westJobs) * eastPop) / totalJobs)
     }
   }
 
@@ -196,7 +211,7 @@ class JobsTravelshedIndicatorSpec
       }
     }
 
-    val roads = 
+    val roads =
       List[Line](
         Line(stopWest, Point(stopWest.x - 3.0, stopWest.y - 3.0)),
         Line(stopCenter, Point(stopCenter.x - 0.5, stopCenter.y - 0.5)),
@@ -224,20 +239,26 @@ class JobsTravelshedIndicatorSpec
       val rasterExtent = travelshedGraph.rasterExtent
       val cellArea = rasterExtent.cellwidth * rasterExtent.cellheight
 
-      val indicator = new JobsTravelshedIndicator(travelshedGraph, regionDemographics(rasterExtent), "0")
-
       val rasterCache = new MockRasterCache
-      indicator.apply(rasterCache)
+      val results = JobsTravelshedIndicator.calculate(travelshedGraph,
+        regionDemographics(rasterExtent), "0", rasterCache)
+
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
-      
+
       val (colWest, rowWest) = rasterExtent.mapToGrid(stopWest.x, stopWest.y)
       val (colCenter, rowCenter) = rasterExtent.mapToGrid(stopCenter.x, stopCenter.y)
       val (colEast, rowEast) = rasterExtent.mapToGrid(stopEast.x, stopEast.y)
 
-      tile.getDouble(colWest, rowWest) should be (westJobs / cellArea)
-      tile.getDouble(colCenter, rowCenter) should be (centerJobs / cellArea)
-      tile.getDouble(colEast, rowEast) should be (eastJobs / cellArea)
+      val westPop = ((stopWest.buffer(5.0).area) / stopWest.buffer(5.0).area) * cellArea
+      val centerPop = ((stopCenter.buffer(5.0).area) / stopCenter.buffer(5.0).area) * cellArea
+      val eastPop = ((stopEast.buffer(5.0).area) / stopEast.buffer(5.0).area) * cellArea
+
+      val totalJobs = westJobs + centerJobs + eastJobs
+
+      tile.getDouble(colWest, rowWest) should be ((westJobs * westPop) / totalJobs)
+      tile.getDouble(colCenter, rowCenter) should be ((centerJobs * centerPop) / totalJobs)
+      tile.getDouble(colEast, rowEast) should be ((eastJobs * eastPop) / totalJobs)
 
     }
 
@@ -250,20 +271,26 @@ class JobsTravelshedIndicatorSpec
       val rasterExtent = travelshedGraph.rasterExtent
       val cellArea = rasterExtent.cellwidth * rasterExtent.cellheight
 
-      val indicator = new JobsTravelshedIndicator(travelshedGraph, regionDemographics(rasterExtent), "0")
-
       val rasterCache = new MockRasterCache
-      indicator.apply(rasterCache)
+      val results = JobsTravelshedIndicator.calculate(travelshedGraph,
+        regionDemographics(rasterExtent), "0", rasterCache)
+
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
-      
+
       val (colWest, rowWest) = rasterExtent.mapToGrid(stopWest.x, stopWest.y)
       val (colCenter, rowCenter) = rasterExtent.mapToGrid(stopCenter.x, stopCenter.y)
       val (colEast, rowEast) = rasterExtent.mapToGrid(stopEast.x, stopEast.y)
 
-      tile.getDouble(colWest, rowWest) should be (westJobs / cellArea)
-      tile.getDouble(colCenter, rowCenter) should be ((centerJobs + westJobs) / cellArea)
-      tile.getDouble(colEast, rowEast) should be ((eastJobs + centerJobs + westJobs) / cellArea)
+      val westPop = ((stopWest.buffer(5.0).area) / stopWest.buffer(5.0).area) * cellArea
+      val centerPop = ((stopCenter.buffer(5.0).area) / stopCenter.buffer(5.0).area) * cellArea
+      val eastPop = ((stopEast.buffer(5.0).area) / stopEast.buffer(5.0).area) * cellArea
+
+      val totalJobs = westJobs + centerJobs + eastJobs
+
+      tile.getDouble(colWest, rowWest) should be ((westJobs * westPop) / totalJobs)
+      tile.getDouble(colCenter, rowCenter) should be (((centerJobs + westJobs) * centerPop) / totalJobs)
+      tile.getDouble(colEast, rowEast) should be (((eastJobs + centerJobs + westJobs) * eastPop) / totalJobs)
     }
 
     it("should work with varying population features and include everything going east to west for a long travel time") {
@@ -316,13 +343,13 @@ class JobsTravelshedIndicatorSpec
         }
       }
 
-      val indicator = new JobsTravelshedIndicator(travelshedGraph, regionDemographics, "0")
-
       val rasterCache = new MockRasterCache
-      indicator.apply(rasterCache)
+      val results = JobsTravelshedIndicator.calculate(travelshedGraph,
+        regionDemographics, "0", rasterCache)
+
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
-      
+
       val (colWest, rowWest) = rasterExtent.mapToGrid(stopWest.x, stopWest.y)
       val (colCenter, rowCenter) = rasterExtent.mapToGrid(stopCenter.x, stopCenter.y)
       val (colEast, rowEast) = rasterExtent.mapToGrid(stopEast.x, stopEast.y)
@@ -331,9 +358,15 @@ class JobsTravelshedIndicatorSpec
       val cm =  3 / cellArea
       val em = 4 / cellArea
 
-      tile.getDouble(colWest, rowWest) should be (wm * westJobs)
-      tile.getDouble(colCenter, rowCenter) should be (cm * (westJobs + centerJobs))
-      tile.getDouble(colEast, rowEast) should be (em * (westJobs + centerJobs + eastJobs))
+      val westPop = ((stopWest.buffer(5.0).area / 2) / stopWest.buffer(5.0).area) * cellArea
+      val centerPop = ((stopCenter.buffer(5.0).area / 3) / stopCenter.buffer(5.0).area) * cellArea
+      val eastPop = ((stopEast.buffer(5.0).area / 4) / stopEast.buffer(5.0).area) * cellArea
+
+      val totalJobs = westJobs + centerJobs + eastJobs
+
+      tile.getDouble(colWest, rowWest) should be ((westPop * westJobs) / totalJobs)
+      tile.getDouble(colCenter, rowCenter) should be ((centerPop * (westJobs + centerJobs)) / totalJobs)
+      tile.getDouble(colEast, rowEast) should be ((eastPop * (westJobs + centerJobs + eastJobs)) / totalJobs)
     }
   }
 }
