@@ -26,3 +26,131 @@ table > tbody > tr {
     border-bottom: 0;
   }
 }
+
+.container-ui {
+  display: block;
+  max-width: 1140px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+
+  .print-only {
+    display: block;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  svg {
+    margin: 0 auto;
+    max-width: 540px;
+  }
+
+  .app-view {
+    padding: 0;
+  }
+
+  .button--navigationsecondary {
+    border: 0 !important;
+    padding: 0 !important;
+  }
+
+  .indicator-control {
+    float: left;
+    margin: 4px 35px 0 0;
+    h5 {
+      font-size: 11px;
+    }
+  }
+
+  .application-title {
+    font-size: 24px !important;
+    margin-bottom: 0;
+    padding-bottom: 1rem;
+  }
+
+  .indicators-heading {
+    padding: 0;
+    min-height: 0;
+  }
+
+  .indicators-description {
+    font-weight: normal;
+    font-size: 18px;
+    margin-bottom: 3rem;
+  }
+
+  header,
+  .navigationsecondary,
+  #permalink,
+  .leaflet-control,
+  .indicator-control.ng-binding,
+  .caret,
+  .mode-selector,
+  .glyphicon-save {
+    display: none !important;
+  }
+
+  .legend {
+    position: absolute !important;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .indicator-controls {
+    width: 100%;
+    border: 0;
+    left: 0;
+    top: 0;
+    padding: 0;
+  }
+
+  .indicators-cell.indicators-data {
+    font-size: 21px !important;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .indicators-cell {
+    font-size: 11px;
+  }
+
+  .legend-labels span {
+    -webkit-print-color-adjust: exact;
+  }
+
+  html{
+    height: 100%;
+    max-width: 100%;
+  }
+
+  .angular-leaflet-map {
+    position: absolute !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 2px solid #333;
+    border-color: #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .indicators-label {
+    width: 1.75in;
+    h3 {
+      font-size: 14px !important;
+    }
+    p {
+     font-size: 11px !important;
+     line-height: 1.3;
+    }
+  }
+
+}

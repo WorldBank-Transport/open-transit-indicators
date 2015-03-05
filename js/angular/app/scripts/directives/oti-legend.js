@@ -40,7 +40,7 @@ angular.module('transitIndicators')
         '<div class="legend-scale">',
             '<ul class="legend-labels">',
                 '<li ng-repeat="color in colors">',
-                    '<span style="background:{{ color }};"></span>',
+                    '<span style="background:{{ color }}!important;"></span>',
                     '{{ labels[$index] | legendValue }}{{ labels[$index] ? units : "" }}',
                 '</li>',
             '</ul>',
