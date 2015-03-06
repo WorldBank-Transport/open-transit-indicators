@@ -249,7 +249,7 @@ object JobsTravelshedIndicator {
     println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
 
-    val regionalJobAccess = totalJobAccessNumerator / totalPopulation
+    val regionalJobAccess = (totalJobAccessNumerator / totalPopulation) / polyCount
     regionalJobAccess
   }
 }
