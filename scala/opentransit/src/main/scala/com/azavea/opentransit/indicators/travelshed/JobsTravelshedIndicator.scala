@@ -148,7 +148,8 @@ object JobsTravelshedIndicator {
           .toSet
           .map { s: String => ScheduledTransit(s, EveryDaySchedule) }.toList
 
-    var totalJobAccessNumerator = 0.0
+    var totalJobAccessResult = 0.0
+    var tileCount = 0
 
     println(s"Running shortest path query. $rasterExtent. $rows, $cols")
     Timer.timedTask(s"Created the jobs indicator tile") {
@@ -231,8 +232,9 @@ object JobsTravelshedIndicator {
               case tile => tile
             }
             val numerator = sum * population
-            totalJobAccessNumerator += numerator
             val result = numerator / totalJobs
+            totalJobAccessResult += result
+            tileCount += 1
             tile.setDouble(col, row, result)
           } else {
             tile.setDouble(col, row, Double.NaN)
@@ -249,7 +251,7 @@ object JobsTravelshedIndicator {
     println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
     rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
 
-    val regionalJobAccess = (totalJobAccessNumerator / totalPopulation) / polyCount
+    val regionalJobAccess = totalJobAccessResult / tileCount
     regionalJobAccess
   }
 }
