@@ -8,7 +8,7 @@ import com.azavea.opentransit.indicators.travelshed._
 
 object Indicators {
   case class Requirements(requirements: Boolean*) { val fulfilled = requirements.foldLeft(true)(_ && _) }
-  implicit class RequiresWrapper[T](val indicator: T) { 
+  implicit class RequiresWrapper[T](val indicator: T) {
     def requires(requirements: Boolean*): (T, Requirements) = (indicator, Requirements(requirements: _*))
    }
   implicit def indicatorWithRequirements[T](indicator: T): (T, Requirements) = (indicator, Requirements())

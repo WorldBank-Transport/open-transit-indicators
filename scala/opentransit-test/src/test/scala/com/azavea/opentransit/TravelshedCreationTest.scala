@@ -19,12 +19,12 @@ import com.azavea.opentransit.testkit._
 
 /** Note: This is not a unit test that is run in the suite.
   * This is an integration test you can run with `test:run`
-  * 
+  *
   * Requires that the OSM and GTFS data is loaded into the database.
   */
 object TravelshedCreationTest {
   def main(args: Array[String]): Unit = {
-    val db = 
+    val db =
       Database.forURL(s"jdbc:postgresql:transit_indicators", driver = "org.postgresql.Driver",
         user = "transit_indicators", password = "transit_indicators")
 
@@ -105,8 +105,8 @@ object TravelshedCreationTest {
         }
       }
 
-    val indicator = new JobsTravelshedIndicator(travelshedGraph.get, RegionDemographics(db), "1")
-    indicator.apply(Main.rasterCache)
+    val results = JobsTravelshedIndicator.calculate(travelshedGraph.get,
+      RegionDemographics(db), "1", Main.rasterCache)
 
     try {
 

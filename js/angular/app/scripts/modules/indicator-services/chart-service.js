@@ -155,6 +155,9 @@ angular.module('transitIndicators')
     };
 
     module.IndicatorConfig = {
+        'job_access': {
+            'system': 'number'
+        },
         'affordability': {
             'mode': 'bar',
             'system': 'number'
