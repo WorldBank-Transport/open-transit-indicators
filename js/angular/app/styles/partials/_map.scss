@@ -72,9 +72,8 @@ Use class legend + (stacked-legend || flat-legend)
 
 .legend {
     font: 14px/16px Arial, Helvetica, sans-serif;
-    background: rgba(255,255,255, 1);
+    background: #fff !important;
     padding: 6px 8px;
-    width: 300px;
     line-height: 18px;
     color: #555;
     position: fixed;
