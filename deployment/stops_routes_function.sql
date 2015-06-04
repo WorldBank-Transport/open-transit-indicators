@@ -16,7 +16,7 @@ CREATE OR REPLACE FUNCTION stops_routes() RETURNS void AS $stops_routes$
         -- Populate routes_desc column on stops table for UTFGrid interactivity;
         -- show stop description and the routes it serves.
         EXECUTE 'INSERT INTO gtfs_stops_info (SELECT DISTINCT s.stop_id, s.the_geom,
-            CONCAT(''<strong>'', s.stop_name, ''</strong><br />'',
+            CONCAT(''<strong>'', s.stop_id, '': '', s.stop_name, ''</strong><br />'',
                 array_to_string(array(
                     SELECT r.route_short_name
                     FROM gtfs_routes AS r INNER JOIN gtfs_stops_routes_join AS srj
