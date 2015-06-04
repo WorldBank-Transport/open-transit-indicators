@@ -93,6 +93,37 @@ angular.module('transitIndicators')
             // When copied to the internal L.Utfgrid class, these options end up on
             //  layer.options, same as for TileLayers
             pluginOptions: angular.extend({ 'useJsonP': false }, $scope.indicator)
+        },
+        gtfs_shapes: {
+            name: $translate.instant('MAP.TRANSIT_ROUTES'),
+            type: 'xyz',
+            url: OTIMapService.gtfsShapesUrl(),
+            visible: false,
+            layerOptions: {
+                modes: OTIMapService.getTransitModes(),
+                scenario: OTIMapService.getScenario()
+            }
+        },
+        gtfs_stops: {
+            name: $translate.instant('MAP.TRANSIT_STOPS'),
+            type: 'xyz',
+            url: OTIMapService.gtfsStopsUrl('png'),
+            visible: true,
+            layerOptions: {
+                modes: OTIMapService.getTransitModes(),
+                scenario: OTIMapService.getScenario()
+            }
+        },
+        gtfs_stops_utfgrid: {
+            name: $translate.instant('MAP.TRANSIT_STOPS_INTERACTIVITY'),
+            type: 'utfGrid',
+            url: OTIMapService.gtfsStopsUrl('utfgrid'),
+            visible: false,
+            pluginOptions: {
+                'useJsonP': false,
+                modes: OTIMapService.getTransitModes(),
+                scenario: OTIMapService.getScenario()
+            }
         }
     };
     $scope.updateLeafletOverlays(overlays);
