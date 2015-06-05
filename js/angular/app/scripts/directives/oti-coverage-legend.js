@@ -48,7 +48,7 @@ angular.module('transitIndicators')
             access2: '='
         },
         template: template,
-        link: function (scope) {
+        link: function () {
         }
     };
 }]);
