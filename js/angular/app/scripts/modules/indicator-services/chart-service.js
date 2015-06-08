@@ -158,6 +158,12 @@ angular.module('transitIndicators')
         'job_access': {
             'system': 'number'
         },
+        'job_absolute_access': {
+            'system': 'number'
+        },
+        'job_percentage_access': {
+            'system': 'number'
+        },
         'affordability': {
             'mode': 'bar',
             'system': 'number'
