@@ -18,8 +18,6 @@ import java.io._
 import java.nio.file._
 
 trait TravelshedGeotiffRoute extends Route { self: DatabaseInstance =>
-  final val directoryName = "indicator-geotiffs"
-
   // Endpoint for downloading GeoTIFF of jobs travelshed raster.
   // Pulled from raster cache in ARG format, then converted to GeoTIFF.
   def travelshedGeotiffRoute =
@@ -40,8 +38,12 @@ trait TravelshedGeotiffRoute extends Route { self: DatabaseInstance =>
               // return 404 if empty
               rejectEmptyResponse {
                 encodeResponse(Gzip) {
-                  complete {
-                    HttpData(geotiffBytes)
+                  val filename = indicatorName + ".tif"
+                  respondWithHeader(HttpHeaders.`Content-Disposition`.apply(
+                                    "attachment", Map("filename" -> filename))) {
+                    complete {
+                      HttpData(geotiffBytes)
+                    }
                   }
                 }
               }
