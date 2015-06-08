@@ -45,7 +45,7 @@ trait TravelshedGeotiffRoute extends Route { self: DatabaseInstance =>
                   Files.write(geotiffPath, Array[Byte]())
                 }
 
-              encodeResponse(Gzip) {
+              rejectEmptyResponse {
                 getFromFile(pathStr)
               }
             }
