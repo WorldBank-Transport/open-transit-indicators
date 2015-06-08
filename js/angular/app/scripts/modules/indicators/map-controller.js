@@ -303,6 +303,15 @@ angular.module('transitIndicators')
             }
             $scope.selectCity($scope.selectedCity);
         }
+
+        // only show current city and its scenarios on map page drop-down
+        OTISettingsService.cityName.get({}, function (data) {
+            var cityName = data.city_name;
+            $scope.current_scenarios = _.filter($scope.cities, function(city) {
+                return (city.city_name === cityName || city.scenario !== null);
+            });
+        });
+
         updateIndicatorLegend($scope.indicator);
         OTIMapService.getLegendData();
 
