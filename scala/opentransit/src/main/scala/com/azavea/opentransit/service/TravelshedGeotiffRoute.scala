@@ -2,7 +2,7 @@ package com.azavea.opentransit.service
 
 import com.azavea.opentransit._
 
-import geotrellis.raster.io.geotiff.GeoTiffWriter
+import geotrellis.raster.io.geotiff._
 import geotrellis.proj4.LatLng
 
 import spray.routing._
@@ -26,27 +26,24 @@ trait TravelshedGeotiffRoute extends Route { self: DatabaseInstance =>
     pathPrefix("jobs") {
       path("geotiff") {
         get {
-            parameters('JOBID) { (jobId) =>
-              // create geotiff directory if it does not exist
-              val directory = new java.io.File(directoryName)
-              if(!directory.exists) {
-                directory.mkdirs
-              } else if(!directory.isDirectory) {
-                sys.error(s"Indicator geotiff path ${directory.getAbsolutePath} exists but is not a directory.")
-              }
-              val pathStr = new java.io.File(directory, "jobs_travelshed.tif").getPath()
-              val geotiffPath = Paths.get(pathStr)
-              // only have one job travelshed geotiff in directory at a time
-              Files.deleteIfExists(geotiffPath)
-              Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name + jobId)) match {
+            // INDICATOR parameter is indicator name property
+            // (indicators.travelshed.JobsTravelshedIndicator.name for base jobs indicator)
+            parameters('JOBID,
+                       'INDICATOR) { (jobId, indicatorName) =>
+              val geotiffBytes = Main.rasterCache.get(RasterCacheKey(indicatorName + jobId)) match {
                 case Some((tile, extent)) =>
-                    GeoTiffWriter.write(pathStr, tile, extent, LatLng)
+                    GeoTiff.render(tile, extent, LatLng, Uncompressed)
                 case _ =>
-                  Files.write(geotiffPath, Array[Byte]())
+                  Array[Byte]()
                 }
 
+              // return 404 if empty
               rejectEmptyResponse {
-                getFromFile(pathStr)
+                encodeResponse(Gzip) {
+                  complete {
+                    HttpData(geotiffBytes)
+                  }
+                }
               }
             }
           }
