@@ -23,6 +23,8 @@ angular.module('transitIndicators')
     // Translation triggers a full page refresh, so this should be safe.
     var legendNames = {
         jobs: $translate.instant('MAP.JOBS_INDICATOR_LAYER'),
+        absoluteJobs: $translate.instant('MAP.ABSOLUTE_JOBS_INDICATOR_LAYER'),
+        percentageJobs: $translate.instant('MAP.PERCENTAGE_JOBS_INDICATOR_LAYER'),
         pop1: $translate.instant('MAP.POPULATION_METRIC_ONE_LAYER'),
         pop2: $translate.instant('MAP.POPULATION_METRIC_TWO_LAYER'),
         dest: $translate.instant('MAP.DESTINATION_METRIC_LAYER'),
@@ -46,7 +48,32 @@ angular.module('transitIndicators')
             visible: false,
             layerParams: {
                 format: 'image/png',
-                jobId: layerOptions.calculation_job
+                jobId: layerOptions.calculation_job,
+                indicator: 'jobs_travelshed'
+            },
+            layerOptions: { opacity: 0.7 }
+        },
+        jobs_absolute_indicator: {
+            name: legendNames.absoluteJobs,
+            type: 'wms',
+            url: 'gt/travelshed/jobs/render',
+            visible: false,
+            layerParams: {
+                format: 'image/png',
+                jobId: layerOptions.calculation_job,
+                indicator: 'jobs_absolute_travelshed'
+            },
+            layerOptions: { opacity: 0.7 }
+        },
+        jobs_percentage_indicator: {
+            name: legendNames.percentageJobs,
+            type: 'wms',
+            url: 'gt/travelshed/jobs/render',
+            visible: false,
+            layerParams: {
+                format: 'image/png',
+                jobId: layerOptions.calculation_job,
+                indicator: 'jobs_percentage_travelshed'
             },
             layerOptions: { opacity: 0.7 }
         },
@@ -250,6 +277,12 @@ angular.module('transitIndicators')
                 case legendNames.jobs:
                     $scope.leaflet.jobsLegend.show = legendState;
                     break;
+                case legendNames.absoluteJobs:
+                    $scope.leaflet.absoluteJobsLegend.show = legendState;
+                    break;
+                case legendNames.percentageJobs:
+                    $scope.leaflet.percentageJobsLegend.show = legendState;
+                    break;
                 case legendNames.pop1:
                     $scope.leaflet.pop1Legend.show = legendState;
                     break;
@@ -317,6 +350,8 @@ angular.module('transitIndicators')
 
         // Set up demographic legends (static)
         makeLegend('getTravelShedRange', 'jobsLegend', 'green8', 'MAP.JOBS_INDICATOR_TITLE');
+        makeLegend('getTravelShedRange', 'absoluteJobsLegend', 'green8', 'MAP.ABSOLUTE_JOBS_INDICATOR_TITLE');
+        makeLegend('getTravelShedRange', 'percentageJobsLegend', 'green8', 'MAP.PERCENTAGE_JOBS_INDICATOR_TITLE');
         makeLegend('getPopOneRange', 'pop1Legend', 'red5', 'MAP.POPULATION_METRIC_ONE_LAYER');
         makeLegend('getPopTwoRange', 'pop2Legend', 'orange5', 'MAP.POPULATION_METRIC_TWO_LAYER');
         makeLegend('getDestOneRange', 'dest1Legend', 'blue5', 'MAP.DESTINATION_METRIC_LAYER');

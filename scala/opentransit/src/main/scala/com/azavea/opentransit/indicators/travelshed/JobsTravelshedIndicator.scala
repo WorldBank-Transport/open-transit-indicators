@@ -23,20 +23,37 @@ import grizzled.slf4j.Logging
 /**
  * Build rasters for jobs accessibility by population.
  *
+ * This calcuates and stores three related job accessibility indicators.
+ *
  * @param travelshedGraph the actual graph of jobs accessibility
  * @param regionDemographics the input demographic data
  * @param cacheId string uniquely identifying current indicator calculation set, used to key cached rasters
  */
 
+/*
+ * Response from `calculate`
+ */
+case class JobAccessStatistics(basic: Double, absolute: Double, percentage: Double)
 
 object JobsTravelshedIndicator {
+
+  // indicator names
   val name = "jobs_travelshed"
+  val absoluteName = "jobs_absolute_travelshed"
+  val percentageName = "jobs_percentage_travelshed"
+
+  // names of the summary indicator values stored to django database
+  val basicSummaryName = "job_access"
+  val absoluteSummaryName = "job_absolute_access"
+  val percentageSummaryName = "job_percentage_access"
+
 
   def writeToDatabase(result: Double,
+                      summaryIndicatorName: String,
                       overallLineGeoms: SystemLineGeometries,
                       statusManager: CalculationStatusManager): Unit = {
     val aggResults = AggregatedResults.systemOnly(result)
-    val results = OverallIndicatorResult.createContainerGenerators("job_access",
+    val results = OverallIndicatorResult.createContainerGenerators(summaryIndicatorName,
       aggResults,
       overallLineGeoms)
     statusManager.indicatorFinished(results)
@@ -49,14 +66,20 @@ object JobsTravelshedIndicator {
           overallLineGeoms: SystemLineGeometries,
           statusManager: CalculationStatusManager): Unit = {
 
-    val result = calculate(travelshedGraph, regionDemographics, cacheId, rasterCache)
-    writeToDatabase(result, overallLineGeoms, statusManager)
+    val results = calculate(travelshedGraph, regionDemographics, cacheId, rasterCache)
+
+    // write the three results to the database
+    writeToDatabase(results.basic, basicSummaryName, overallLineGeoms, statusManager)
+    writeToDatabase(results.absolute, absoluteSummaryName, overallLineGeoms, statusManager)
+    writeToDatabase(results.percentage, percentageSummaryName, overallLineGeoms, statusManager)
   }
 
   def calculate(travelshedGraph: TravelshedGraph,
     regionDemographics: RegionDemographics,
     cacheId: String,
-    rasterCache: RasterCache): Double = {
+    rasterCache: RasterCache
+  // return the three calculated results as named values
+  ): JobAccessStatistics = {
     val (graph, index, rasterExtent, arriveTime, duration, crs) = {
       val tg = travelshedGraph
 
@@ -66,7 +89,7 @@ object JobsTravelshedIndicator {
       (tg.graph, tg.index, tg.rasterExtent, arriveTime, duration, tg.crs)
     }
 
-    println(s"RUNNING JOB INDICATORS FOR ARRIVAL TIME $arriveTime WITH $duration TRAVEL TIME")
+    println(s"RUNNING BASE JOB ACCESS INDICATOR FOR ARRIVAL TIME $arriveTime AND $duration TRAVEL TIME")
 
     val features: Array[JobsDemographics] =
       regionDemographics.jobsDemographics.toArray
@@ -88,16 +111,18 @@ object JobsTravelshedIndicator {
     // Set up a byte that tells if a poly has been added to the sum
     val polyHit = 1.toByte
 
-    // Create the empty tile. This will be filled with the number of jobs
-    // accessible from the tile
-    val tile = ArrayTile.empty(TypeDouble, cols, rows)
+    // Create the empty tiles. This will be filled with the number of jobs
+    // accessible from the tile for each indicator.
+    val basicTile = ArrayTile.empty(TypeDouble, cols, rows)
+    val absoluteTile = ArrayTile.empty(TypeDouble, cols, rows)
+    val percentageTile = ArrayTile.empty(TypeDouble, cols, rows)
 
     // Population Tile that will be combined with jobs data
     val populationTile = ArrayTile.empty(TypeDouble, cols, rows)
 
     // Create an index of the raster cells
     val mappedCoords =
-      GridBounds(0, 0, tile.cols - 1, tile.rows - 1).coords.map { case (col, row) =>
+      GridBounds(0, 0, basicTile.cols - 1, basicTile.rows - 1).coords.map { case (col, row) =>
         (col, row, rasterExtent.gridColToMap(col), rasterExtent.gridRowToMap(row))
       }
     val tileIndex =
@@ -148,11 +173,13 @@ object JobsTravelshedIndicator {
           .toSet
           .map { s: String => ScheduledTransit(s, EveryDaySchedule) }.toList
 
-    var totalJobAccessResult = 0.0
+    var basicTotalJobAccessResult = 0.0
+    var absolutePercentageTotalJobAccessResult = 0.0
+
     var tileCount = 0
 
     println(s"Running shortest path query. $rasterExtent. $rows, $cols")
-    Timer.timedTask(s"Created the jobs indicator tile") {
+    Timer.timedTask(s"Created jobs indicator tiles") {
       cfor(0)(_ < rows, _ + 1) { row =>
     //    Timer.timedTask(s"  Ran for row $row") {
         cfor(0)(_ < cols, _ + 1) { col =>
@@ -231,13 +258,33 @@ object JobsTravelshedIndicator {
               case tile if tile.isNaN => 0.0
               case tile => tile
             }
-            val numerator = sum * population
-            val result = numerator / totalJobs
-            totalJobAccessResult += result
+
+            // calculate each indicator result, where `sum` is the number of jobs accessible
+            // from the current cell
+            val basicResult = (sum * population) / totalJobs
+
+            // intermediate results for absolute and percentage overall indicators are the same
+            val absolutePercentageResult = (sum / totalJobs) * population
+
+            // accumulate totals for each indicator
+            basicTotalJobAccessResult += basicResult
+            absolutePercentageTotalJobAccessResult += absolutePercentageResult
+
             tileCount += 1
-            tile.setDouble(col, row, result)
+
+            basicTile.setDouble(col, row, basicResult)
+
+            // for "absolute" tile, raster cell simply represents accessible jobs as absolute number
+            absoluteTile.setDouble(col, row, sum)
+
+            // for "percentage" tile, raster cell represents accessible jobs / total jobs in city,
+            // to present as a percentage
+            percentageTile.setDouble(col, row, (sum / totalJobs))
+
           } else {
-            tile.setDouble(col, row, Double.NaN)
+            basicTile.setDouble(col, row, Double.NaN)
+            absoluteTile.setDouble(col, row, Double.NaN)
+            percentageTile.setDouble(col, row, Double.NaN)
           }
         }
       }
@@ -245,13 +292,22 @@ object JobsTravelshedIndicator {
 
     // Reproject
     println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator.")
-    val (rTile, rExtent) =
-      tile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rBasicTile, rBasicExtent) =
+      basicTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rAbsoluteTile, rAbsoluteExtent) =
+      absoluteTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rPercentageTile, rPercentageExtent) =
+      percentageTile.reproject(rasterExtent.extent, crs, WebMercator)
 
-    println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
-    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
+    println(s"Setting results of job indicator calculation to raster-cache-key $cacheId")
+    rasterCache.set(RasterCacheKey(name + cacheId), (rBasicTile, rBasicExtent))
+    rasterCache.set(RasterCacheKey(absoluteName + cacheId), (rAbsoluteTile, rAbsoluteExtent))
+    rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
 
-    val regionalJobAccess = totalJobAccessResult / tileCount
-    regionalJobAccess
+    val basic = basicTotalJobAccessResult / tileCount
+    val absolute = absolutePercentageTotalJobAccessResult / tileCount // average
+    val percentage = absolutePercentageTotalJobAccessResult / totalJobs
+
+    new JobAccessStatistics(basic, absolute, percentage)
   }
 }

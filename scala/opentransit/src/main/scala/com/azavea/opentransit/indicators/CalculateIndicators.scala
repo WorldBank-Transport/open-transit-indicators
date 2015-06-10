@@ -101,8 +101,15 @@ object CalculateIndicators {
       )
     } match {
       case Some(travelshedGraph) =>
+        // three named indicator results to track
         val name = JobsTravelshedIndicator.name
+        val absoluteName = JobsTravelshedIndicator.absoluteName
+        val percentageName = JobsTravelshedIndicator.percentageName
+
         trackStatus("alltime", name, JobStatus.Processing)
+        trackStatus("alltime", absoluteName, JobStatus.Processing)
+        trackStatus("alltime", percentageName, JobStatus.Processing)
+
         try {
           println("Calculating travelshed indicator...")
           timedTask("Processed indicator: Travelshed") {
@@ -115,11 +122,17 @@ object CalculateIndicators {
             )
           }
           trackStatus("alltime", name, JobStatus.Complete)
+          trackStatus("alltime", absoluteName, JobStatus.Complete)
+          trackStatus("alltime", percentageName, JobStatus.Complete)
         } catch {
           case e: Exception =>
             println(e.getMessage)
             println(e.getStackTrace.mkString("\n"))
+
             trackStatus("alltime", name, JobStatus.Failed)
+            trackStatus("alltime", absoluteName, JobStatus.Failed)
+            trackStatus("alltime", percentageName, JobStatus.Failed)
+
             None
         }
       case None =>
