@@ -62,6 +62,7 @@ Use class legend + (stacked-legend || flat-legend)
     bottom: 2px;
     .dropdown-menu {
       transform: translateY(-100%);
+      -webkit-transform: translateY(-100%);
       margin: -32px 0 20px;
     }
     button {
