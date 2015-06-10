@@ -60,6 +60,7 @@ Use class legend + (stacked-legend || flat-legend)
     position: fixed;
     left: 39px;
     bottom: 2px;
+    z-index: 1000;
     .dropdown-menu {
       transform: translateY(-100%);
       -webkit-transform: translateY(-100%);
