@@ -30,6 +30,10 @@ import grizzled.slf4j.Logging
  * @param cacheId string uniquely identifying current indicator calculation set, used to key cached rasters
  */
 
+/*
+ * Response from `calculate`
+ */
+case class JobAccessStatistics(basic: Double, absolute: Double, percentage: Double)
 
 object JobsTravelshedIndicator {
 
@@ -75,7 +79,7 @@ object JobsTravelshedIndicator {
     cacheId: String,
     rasterCache: RasterCache
   // return the three calculated results as named values
-  ): {val basic: Double; val absolute: Double; val percentage: Double} = {
+  ): JobAccessStatistics = {
     val (graph, index, rasterExtent, arriveTime, duration, crs) = {
       val tg = travelshedGraph
 
@@ -300,11 +304,10 @@ object JobsTravelshedIndicator {
     rasterCache.set(RasterCacheKey(absoluteName + cacheId), (rAbsoluteTile, rAbsoluteExtent))
     rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
 
-    // return anonymous structure with named members
-    new {
-      val basic = basicTotalJobAccessResult / tileCount
-      val absolute = absolutePercentageTotalJobAccessResult / tileCount // average
-      val percentage = absolutePercentageTotalJobAccessResult / totalJobs
-    }
+    val basic = basicTotalJobAccessResult / tileCount
+    val absolute = absolutePercentageTotalJobAccessResult / tileCount // average
+    val percentage = absolutePercentageTotalJobAccessResult / totalJobs
+
+    new JobAccessStatistics(basic, absolute, percentage)
   }
 }
