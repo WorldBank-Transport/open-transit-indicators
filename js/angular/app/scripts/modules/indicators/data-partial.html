@@ -15,6 +15,7 @@
         <div ng-repeat="city in cities" class="indicators-cell">
           {{ city.city_name }}
           <oti-csv-export job="city"></oti-csv-export>
+          <oti-geotiff-download job="city"></oti-geotiff-download>
         </div>
     </div>
 </div>

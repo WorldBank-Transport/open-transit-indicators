@@ -1,0 +1,14 @@
+<div class="container-fluid geotiff-modal">
+  <div class="modal-header">
+    <h3 class="modal-title">{{ message | translate }}</h3>
+  </div>
+  <div class="modal-body">
+    <div ng-repeat="indicator in indicators">
+      <button class="btn btn-primary" ng-click="selected(indicator.name)">{{ indicator.display_name }}</button>
+      <br />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">{{ 'STATUS.CANCEL' | translate}}</button>
+  </div>
+</div>
