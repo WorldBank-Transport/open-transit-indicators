@@ -13,9 +13,11 @@
     <div class="indicators-row indicators-row-heading">
         <div class="indicators-cell indicators-label">{{ 'CALCULATION.CITY' | translate }}</div>
         <div ng-repeat="city in cities" class="indicators-cell">
-          {{ city.city_name }}
-          <oti-csv-export job="city"></oti-csv-export>
-          <oti-geotiff-download job="city"></oti-geotiff-download>
+            {{ city.city_name }}
+            <oti-csv-export job="city"></oti-csv-export>
+            <span ng-if="indicatorData.job_access">
+                <oti-geotiff-download job="city"></oti-geotiff-download>
+            </span>
         </div>
     </div>
 </div>
