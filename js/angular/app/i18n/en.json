@@ -98,7 +98,8 @@
         "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
         "CALCULATION_ERROR": "Exception thrown while calculating indicators: does your data have errors?",
         "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: ",
-        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes.",
+        "DOWNLOAD_GEOTIFF_MODAL_TEXT": "Which accessibility indicator GeoTIFF would you like to download?"
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
@@ -281,7 +282,9 @@
             "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible.",
             "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
             "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
-            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc.",
+            "DOWNLOAD_INDICATORS_CSV": "Download CSV file with indicator results",
+            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results"
         }
     },
     "SETTINGS": {

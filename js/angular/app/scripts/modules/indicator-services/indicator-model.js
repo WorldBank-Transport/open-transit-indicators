@@ -29,6 +29,21 @@ angular.module('transitIndicators')
                     csv: csv
                 };
             }
+        },
+        'geotiff': {
+            method: 'GET',
+            url: '/gt/travelshed/jobs/geotiff',
+            transformResponse: function(data) {
+                var geotiff;
+                if (data) {
+                    geotiff = new Blob([data], {
+                        type: 'application/octet-stream'
+                    });
+                }
+                return {
+                    geotiff: geotiff
+                };
+            }
         }
     }, {
         stripTrailingSlashes: false

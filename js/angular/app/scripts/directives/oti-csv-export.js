@@ -8,6 +8,7 @@ angular.module('transitIndicators')
 function ($document, $modal, $window, OTIIndicatorModel) {
     var template = [
         '<a ng-click="exportCsv()" type="button" ',
+        'tooltip="{{\'UI.TOOLTIP.DOWNLOAD_INDICATORS_CSV\'|translate}}" ',
         'class="button button--small button--secondary default glyphicon glyphicon-save">',
         '</a>'
     ].join('');

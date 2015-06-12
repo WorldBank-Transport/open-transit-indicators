@@ -98,7 +98,8 @@
         "SCALA_UNKNOWN_ERROR": "计算指标时出现致命错误: 您的服务器有足够的内存吗？",
         "CALCULATION_ERROR": "计算指标时出现异常: 您的数据有错误吗？",
         "MISSING_OBS": "抽样时间内实时数据缺失 ",
-        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes.",
+        "DOWNLOAD_GEOTIFF_MODAL_TEXT": "Which accessibility indicator GeoTIFF would you like to download?"
     },
     "SCENARIO": {
         "SCENARIO": "方案",
@@ -280,7 +281,9 @@
             "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。",
             "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
             "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
-            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc.",
+            "DOWNLOAD_INDICATORS_CSV": "Download CSV file with indicator results",
+            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results"
         }
     },
     "SETTINGS": {

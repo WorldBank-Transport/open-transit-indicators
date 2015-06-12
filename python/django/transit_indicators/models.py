@@ -446,9 +446,9 @@ class Indicator(models.Model):
             (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
             (TRAVEL_TIME, _(u'Travel Time Performance')),
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
-            (JOBS_TRAVELSHED, _(u'Number of jobs that can be reached by an area')),
-            (JOBS_ABSOLUTE_TRAVELSHED, _(u'Average number of jobs that can be reached by an area')),
-            (JOBS_PERCENTAGE_TRAVELSHED, _(u'Percent of total jobs that can be reached by an area'))
+            (JOBS_TRAVELSHED, _(u'Number of jobs reachable by an area')),
+            (JOBS_ABSOLUTE_TRAVELSHED, _(u'Absolute number of jobs reachable by an area')),
+            (JOBS_PERCENTAGE_TRAVELSHED, _(u'Percent of total jobs reachable by an area'))
         )
 
     # Slice of time used for calculating this indicator
