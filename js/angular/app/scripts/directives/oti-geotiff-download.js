@@ -8,7 +8,6 @@ angular.module('transitIndicators')
 function ($document, $modal, $window, OTIIndicatorModel, OTITypes) {
     var template = [
         '<a ng-click="downloadGeotiff()" type="button" ',
-        // TODO: USE $translate.instant INSTEAD OF ESCAPING?
         'tooltip="{{\'UI.TOOLTIP.DOWNLOAD_JOB_GEOTIFF\'|translate}}" ',
         'class="button button--small button--secondary default glyphicon glyphicon-globe">',
         '</a>'
@@ -54,9 +53,6 @@ function ($document, $modal, $window, OTIIndicatorModel, OTITypes) {
                         element[0].click();
                         element.remove();
                     }
-                }, function(error) {
-                    console.error('geotiff download error:');
-                    console.error(error);
                 });
             }
 

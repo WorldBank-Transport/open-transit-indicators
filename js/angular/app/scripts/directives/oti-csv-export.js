@@ -6,8 +6,6 @@ Directive that allows a user to download indicator results as a CSV
 angular.module('transitIndicators')
 .directive('otiCsvExport', ['$document', '$modal', '$window', 'OTIIndicatorModel',
 function ($document, $modal, $window, OTIIndicatorModel) {
-    // TODO: USE $translate.instant INSTEAD OF ESCAPING?
-    //var tooltipText = $translate.instant('UI.TOOLTIP.DOWNLOAD_INDICATORS_CSV');
     var template = [
         '<a ng-click="exportCsv()" type="button" ',
         'tooltip="{{\'UI.TOOLTIP.DOWNLOAD_INDICATORS_CSV\'|translate}}" ',

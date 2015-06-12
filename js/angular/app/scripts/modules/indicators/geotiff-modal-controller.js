@@ -1,22 +1,6 @@
 'use strict';
 /*
- TODO: UPDATE COMMENTS
-                          
- Basic modal that displays a message and buttons for 'Yes' and 'No'. Example usage:
-
-   $modal.open({
-       templateUrl: 'scripts/modules/indicators/yes-no-modal-partial.html',
-       controller: 'OTIYesNoModalController',
-       windowClass: 'yes-no-modal-window',
-       resolve: {
-           getMessage: function() {
-               return 'CALCULATION.REDIRECT';
-           }
-       }
-   }).result.then(function() {
-       $state.go('calculation');
-   });
-
+ Modal to prompt user which jobs accessibility geotiff to download (or cancel out).
 */
 angular.module('transitIndicators')
 .controller('OTIGeotiffModalController',
