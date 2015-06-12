@@ -17,6 +17,9 @@ object Main {
 
   val rasterCache = RasterCache(actorSystem)
 
+  // This is the simplest possible cache - it represents some data or none and has no namespacing
+  var csvCache = CSVCache
+
   // This call sets all processing jobs to an failed state
   def failLeftoverJobs(): Unit = {
     val jobsTable = new IndicatorJobsTable {}
