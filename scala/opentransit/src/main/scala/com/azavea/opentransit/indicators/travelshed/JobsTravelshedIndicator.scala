@@ -66,12 +66,12 @@ object JobsTravelshedIndicator {
   def run(
     travelshedGraph: TravelshedGraph,
     calcParams: RegionDemographics,
-    cacheId: String,
+    request: IndicatorCalculationRequest,
     rasterCache: RasterCache,
     overallLineGeoms: SystemLineGeometries,
     statusManager: CalculationStatusManager
   ): Unit = {
-    val results = calculate(travelshedGraph, calcParams, cacheId, rasterCache)
+    val results = calculate(travelshedGraph, calcParams, request, rasterCache)
 
     // write the three results to the database
     writeToDatabase(results.basic, basicSummaryName, overallLineGeoms, statusManager)
@@ -82,7 +82,7 @@ object JobsTravelshedIndicator {
   def calculate(
     travelshedGraph: TravelshedGraph,
     calcParams: RegionDemographics,
-    cacheId: String,
+    request: IndicatorCalculationRequest,
     rasterCache: RasterCache
   // return the three calculated results as named values
   ): JobAccessStatistics = {
@@ -94,6 +94,7 @@ object JobsTravelshedIndicator {
 
       (tg.graph, tg.index, tg.rasterExtent, arriveTime, duration, tg.crs)
     }
+  val cacheId: String = request.id.toString
 
     println(s"RUNNING BASE JOB ACCESS INDICATOR FOR ARRIVAL TIME $arriveTime AND $duration TRAVEL TIME")
 
@@ -301,8 +302,13 @@ object JobsTravelshedIndicator {
       }
     }
 
-    CalculateStationStats.calculate(calcParams,
-      Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent))
+    Timer.timedTask(s"Created station CSV") {
+      CalculateStationStats.calculate(
+        request.nearbyBufferDistance,
+        request.maxCommuteTime,
+        Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent)
+      )
+    }
 
     // Reproject
     println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator.")

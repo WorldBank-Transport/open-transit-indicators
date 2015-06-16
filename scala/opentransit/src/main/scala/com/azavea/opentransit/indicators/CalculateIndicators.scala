@@ -116,7 +116,7 @@ object CalculateIndicators {
             JobsTravelshedIndicator.run(
               travelshedGraph,
               RegionDemographics(db),
-              request.id.toString,
+              request,
               Main.rasterCache,
               overallLineGeoms,
               statusManager

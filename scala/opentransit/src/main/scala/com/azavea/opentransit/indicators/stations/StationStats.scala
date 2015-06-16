@@ -8,12 +8,19 @@ import org.apache.commons.csv.CSVStrategy.DEFAULT_STRATEGY
 import java.io.{ByteArrayOutputStream, OutputStreamWriter, FileOutputStream}
 import java.util.UUID
 
-class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputStream())
-    extends CSVPrinter(new OutputStreamWriter(outputStream)) {
-  def value: String = outputStream.toByteArray.mkString
-  def save(status: CSVStatus): Unit = {
-    StationCSVStorage.set(CSVJob(status, outputStream.toByteArray))
-  }
+class StationStatsCSV(
+  bufferDistance: Double,
+  commuteTime: Int,
+  csvStore: StationCSVStore = StationCSVDatabase,
+  outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
+) extends CSVPrinter(new OutputStreamWriter(outputStream)) {
+  private val wrapper = this
+
+  def value: String = new String(outputStream.toByteArray)
+
+  def save(status: CSVStatus): Unit =
+    csvStore.set(CSVJob(status, bufferDistance, commuteTime, outputStream.toByteArray))
+
   def writeFile(path: String): Unit = {
     val fos = new FileOutputStream(path)
     try {
@@ -22,8 +29,6 @@ class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputS
       fos.close()
     }
   }
-
-  val wrapper = this
 
   case class StationStats(
     id: String,
@@ -57,10 +62,14 @@ class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputS
   }
 }
 
-object StationStats {
-  def apply(): StationStatsCSV = {
-    val printer = new StationStatsCSV()
-    StationCSVStorage.set(CSVJob(Processing, Array.empty))
+object StationStatsCSV {
+  def apply(
+    bufferDistance: Double,
+    commuteTime: Int,
+    csvStore: StationCSVStore = StationCSVDatabase
+  ): StationStatsCSV = {
+    val printer = new StationStatsCSV(bufferDistance, commuteTime)
+    csvStore.set(CSVJob(Processing, bufferDistance, commuteTime, Array.empty))
     printer.setStrategy(DEFAULT_STRATEGY)
     printer.attachHeader()
     printer

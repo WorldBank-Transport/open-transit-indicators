@@ -13,11 +13,12 @@ import com.typesafe.config.{ConfigFactory, Config}
 object CalculateStationStats {
 
   def calculate(
-    params: RegionDemographics,
+    bufferRadius: Double,
+    commuteTime: Int,
     interpolator: Interpolation
   ): Unit = {
     // New CSV
-    val csv = StationStats()
+    val csv = StationStatsCSV(bufferRadius, commuteTime)
 
     // Configuration
     val config = ConfigFactory.load
@@ -30,8 +31,9 @@ object CalculateStationStats {
     val stops: Seq[Stop] = db withSession { implicit session =>
       GtfsRecords.fromDatabase(dbGeomNameUtm).stops
     }
-    val bufferRadius: Double = StopsBuffersTable.bufferRadius(db)
-    val allDemographics: Seq[Demographic] = ???
+    val allDemographics: List[Demographic] = db withSession { implicit session =>
+      DemographicsTable.allDemographics
+    }
 
     cfor(0)(_ < stops.size, _ + 1) { stopId =>
       val workingStop = stops(stopId)

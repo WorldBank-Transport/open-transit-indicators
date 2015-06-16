@@ -22,9 +22,21 @@ object CSVStatus {
   }
 }
 
-case class CSVJob(status: CSVStatus, data: Array[Byte] = Array.empty)
+case class CSVJob(
+  status: CSVStatus,
+  bufferDistance: Double,
+  commuteTime: Int,
+  data: Array[Byte] = Array.empty)
 
-object StationCSVStorage {
+trait StationCSVStore {
+  def get(): Option[CSVJob]
+  def set(csvJob: CSVJob): Unit
+}
+
+/**
+ * This object provides very simple storage for CSV data and CSV creation status
+**/
+object StationCSVDatabase extends StationCSVStore {
   import PostgresDriver.simple._
   // Configuration
   private val config = ConfigFactory.load()
@@ -32,16 +44,18 @@ object StationCSVStorage {
   private val dbi = new ProductionDatabaseInstance {}
   private val db: DatabaseDef = dbi.dbByName(dbName)
 
-  def serialize(csvJob: CSVJob): Option[(Int, String, Array[Byte])] =
-    Some((1, csvJob.status.stringRep, csvJob.data))
-  def deserialize(csvJobTuple: (Int, String, Array[Byte])): CSVJob =
-    CSVJob(CSVStatus(csvJobTuple._2), csvJobTuple._3)
+  def serialize(csvJob: CSVJob): Option[(Int, String, Double, Int, Array[Byte])] =
+    Some((1, csvJob.status.stringRep, csvJob.bufferDistance, csvJob.commuteTime, csvJob.data))
+  def deserialize(csvJobTuple: (Int, String, Double, Int, Array[Byte])): CSVJob =
+    CSVJob(CSVStatus(csvJobTuple._2), csvJobTuple._3, csvJobTuple._4, csvJobTuple._5)
 
   class stationCSVTable(tag: Tag) extends Table[CSVJob](tag, "station_csv") {
     def id = column[Int]("id")
     def status = column[String]("status")
+    def bufferDistance = column[Double]("buffer_distance")
+    def commuteTime = column[Int]("commute_time")
     def data = column[Array[Byte]]("data")
-    def * = (id, status, data) <> (deserialize, serialize)
+    def * = (id, status, bufferDistance, commuteTime, data) <> (deserialize, serialize)
   }
   val csvStore = TableQuery[stationCSVTable]
 

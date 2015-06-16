@@ -52,6 +52,10 @@ class JobsTravelshedIndicatorSpec
     with Matchers {
   import TestGtfsRecords.stopLocations._
 
+  val mockRequest = IndicatorCalculationRequest("", 0, 0.0, 0.0, 0, 0, 0, 0, 0.0, "", "", List.empty,
+    Requirements.empty
+  )
+
   describe("working with a simple system (just subway)") {
     val westJobs = 1.0
     val centerJobs = 2.0
@@ -128,7 +132,7 @@ class JobsTravelshedIndicatorSpec
 
       val rasterCache = new MockRasterCache
       val results = JobsTravelshedIndicator.calculate(travelshedGraph,
-        regionDemographics(rasterExtent), "0", rasterCache)
+        regionDemographics(rasterExtent), mockRequest, rasterCache)
 
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
@@ -161,7 +165,7 @@ class JobsTravelshedIndicatorSpec
 
       val rasterCache = new MockRasterCache
       val results = JobsTravelshedIndicator.calculate(travelshedGraph,
-        regionDemographics(rasterExtent), "0", rasterCache)
+        regionDemographics(rasterExtent), mockRequest, rasterCache)
 
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
@@ -260,7 +264,7 @@ class JobsTravelshedIndicatorSpec
 
       val rasterCache = new MockRasterCache
       val results = JobsTravelshedIndicator.calculate(travelshedGraph,
-        regionDemographics(rasterExtent), "0", rasterCache)
+        regionDemographics(rasterExtent), mockRequest, rasterCache)
 
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
@@ -292,7 +296,7 @@ class JobsTravelshedIndicatorSpec
 
       val rasterCache = new MockRasterCache
       val results = JobsTravelshedIndicator.calculate(travelshedGraph,
-        regionDemographics(rasterExtent), "0", rasterCache)
+        regionDemographics(rasterExtent), mockRequest, rasterCache)
 
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
@@ -364,7 +368,7 @@ class JobsTravelshedIndicatorSpec
 
       val rasterCache = new MockRasterCache
       val results = JobsTravelshedIndicator.calculate(travelshedGraph,
-        regionDemographics, "0", rasterCache)
+        regionDemographics, mockRequest, rasterCache)
 
       val (tile, _) = rasterCache.get(RasterCacheKey("")).get
       val extent = rasterExtent.extent
