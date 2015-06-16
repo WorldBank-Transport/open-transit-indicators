@@ -38,7 +38,7 @@ object StationCSVStorage {
     CSVJob(CSVStatus(csvJobTuple._2), csvJobTuple._3)
 
   class stationCSVTable(tag: Tag) extends Table[CSVJob](tag, "station_csv") {
-    def id = column[Int]("feature_id")
+    def id = column[Int]("id")
     def status = column[String]("status")
     def data = column[Array[Byte]]("data")
     def * = (id, status, data) <> (deserialize, serialize)
@@ -50,6 +50,9 @@ object StationCSVStorage {
     csvStore.firstOption
   }
   def set(csvJob: CSVJob): Unit = db withSession { implicit session =>
-    csvStore += csvJob
+    csvStore.firstOption match {
+      case Some(_) => csvStore.update(csvJob)
+      case None => csvStore.insert(csvJob)
+    }
   }
 }

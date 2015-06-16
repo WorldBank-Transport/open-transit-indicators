@@ -5,8 +5,7 @@ import com.azavea.opentransit.database._
 
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVStrategy.DEFAULT_STRATEGY
-import java.io.{ByteArrayOutputStream, OutputStreamWriter}
-import java.io.{Writer, File}
+import java.io.{ByteArrayOutputStream, OutputStreamWriter, FileOutputStream}
 import java.util.UUID
 
 class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputStream())
@@ -15,6 +14,15 @@ class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputS
   def save(status: CSVStatus): Unit = {
     StationCSVStorage.set(CSVJob(status, outputStream.toByteArray))
   }
+  def writeFile(path: String): Unit = {
+    val fos = new FileOutputStream(path)
+    try {
+      fos.write(outputStream.toByteArray)
+    } finally {
+      fos.close()
+    }
+  }
+
   val wrapper = this
 
   case class StationStats(
