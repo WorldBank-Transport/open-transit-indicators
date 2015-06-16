@@ -1,6 +1,7 @@
 package com.azavea.opentransit.indicators.stations
 
 import com.azavea.opentransit._
+import com.azavea.opentransit.database._
 
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVStrategy.DEFAULT_STRATEGY
@@ -12,7 +13,7 @@ class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputS
     extends CSVPrinter(new OutputStreamWriter(outputStream)) {
   def value: String = outputStream.toByteArray.mkString
   def save(status: CSVStatus): Unit = {
-    Main.csvCache.set(CSVJob(status, outputStream.toByteArray))
+    StationCSVStorage.set(CSVJob(status, outputStream.toByteArray))
   }
   val wrapper = this
 
@@ -51,7 +52,7 @@ class StationStatsCSV(outputStream: ByteArrayOutputStream = new ByteArrayOutputS
 object StationStats {
   def apply(): StationStatsCSV = {
     val printer = new StationStatsCSV()
-    CSVCache.set(CSVJob(Pending, Array.empty))
+    StationCSVStorage.set(CSVJob(Processing, Array.empty))
     printer.setStrategy(DEFAULT_STRATEGY)
     printer.attachHeader()
     printer
