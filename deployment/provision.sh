@@ -805,12 +805,11 @@ fi
 
 # Set time zone by geolocating IP address
 # derived from: http://askubuntu.com/a/565139
-echo "Setting time zone..."
-export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'` &&  timedatectl set-timezone $tz
-export tz=`timedatectl status | grep 'Time zone' | awk '{print $3}'`
+echo "Setting time zone from geoip..."
+export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'` &&  echo $tz > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 echo "Time zone set to $tz"
 
-# Also remind user to set their timezone interactively
+# Also remind to set their timezone interactively
 echo ''
 echo 'Setup completed successfully.'
 echo "SU Username: $APP_SU_USERNAME"

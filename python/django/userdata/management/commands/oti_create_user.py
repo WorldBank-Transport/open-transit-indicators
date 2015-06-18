@@ -74,5 +74,11 @@ class Command(BaseCommand):
             user = OTIUser.objects.create_user(username,
                                                email=email,
                                                password=password)
+
+        # set last login time to something long ago
+        # (default in django 1.8 is None; we're on 1.7 with non-null constraint)
+        user.last_login = '1984-01-01 00:00'
+        user.save()
+
         log_message = 'Created user (%s)' % (username)
         LOGGER.info(log_message)

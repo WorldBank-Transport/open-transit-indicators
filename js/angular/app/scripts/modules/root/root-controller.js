@@ -85,6 +85,14 @@ angular.module('transitIndicators')
         });
     };
 
+    $scope.changeTimezone = function() {
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-timezone.html',
+            controller: 'OTIUserdataChangeTimezoneController',
+            size: 'sm'
+        });
+    };
+
     // zoom to the new extent whenever a GTFS file is uploaded
     $scope.$on(OTIEvents.Settings.Upload.GTFSDone, function() {
         zoomToDataExtent();

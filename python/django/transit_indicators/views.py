@@ -52,6 +52,24 @@ class OTICityNameView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class OTILanguagesView(APIView):
+    """ Endpoint to GET translated versions of the available languages.
+    """
+
+    def get(self, request, *args, **kwargs):
+        langs = {'foo', 'FOO'}
+        return Response(langs, status=status.HTTP_200_OK)
+
+
+class OTITimeZonesView(APIView):
+    """ Endpoing to GET translated names for the available timezones.
+    """
+
+    def get(self, request, *args, **kwargs):
+        timezones = {'bar', 'BAR'}
+        return Response(timezones, status=status.HTTP_200_OK)
+
+
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
     """ Viewset for OTIIndicatorsConfig objects """
 
@@ -440,3 +458,5 @@ sample_period_types = SamplePeriodTypes.as_view()
 scenarios = ScenarioViewSet.as_view()
 gtfs_route_types = GTFSRouteTypes.as_view()
 city_name = OTICityNameView.as_view()
+available_languages = OTILanguagesView.as_view()
+available_timezones = OTITimeZonesView.as_view()
