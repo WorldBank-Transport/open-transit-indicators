@@ -14,6 +14,8 @@ import os
 # Celery
 from kombu import Exchange, Queue
 
+from django.utils.translation import ugettext_lazy as _
+
 # Import stuff created by the provision script
 from secret_key import *
 from provision_settings import *
@@ -72,7 +74,17 @@ WSGI_APPLICATION = 'transit_indicators.wsgi.application'
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
+
+UNICODE_JSON = True
+
+# restrict language choices to those for which we have translations
+LANGUAGES = (
+    ('es', _('Spanish')),
+    ('en', _('English')),
+    ('vi', _('Vietnamese')),
+    ('zh', _('Simplified Chinese'))
+)
 
 LANGUAGE_COOKIE_NAME = 'openTransitLanguage'
 

@@ -1,15 +1,18 @@
+from babel import Locale
 import django_filters
 from datetime import datetime, time
 import pytz
 
 from django.conf import settings
 from django.db import connection, ProgrammingError
+from django.utils.translation import get_language
 
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
+from rest_framework.renderers import UnicodeJSONRenderer, BrowsableAPIRenderer
 from rest_framework_csv.renderers import CSVRenderer
 
 from viewsets import OTIBaseViewSet, OTIAdminViewSet, OTIIndicatorViewSet
@@ -22,6 +25,7 @@ from models import (OTIIndicatorsConfig,
                     Scenario,
                     GTFSRouteType,
                     GTFSRoute)
+from transit_indicators.settings import LANGUAGES, LANGUAGE_CODE
 from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
                          SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
@@ -56,18 +60,37 @@ class OTILanguagesView(APIView):
     """ Endpoint to GET translated versions of the available languages.
     """
 
+    renderer_classes = (UnicodeJSONRenderer, BrowsableAPIRenderer)
+
     def get(self, request, *args, **kwargs):
-        langs = {'foo', 'FOO'}
-        return Response(langs, status=status.HTTP_200_OK)
+        try:
+            languages = dict(LANGUAGES)
+            return Response({'languages': languages, 'default': LANGUAGE_CODE}, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OTITimeZonesView(APIView):
     """ Endpoing to GET translated names for the available timezones.
     """
 
+    renderer_classes = (UnicodeJSONRenderer, BrowsableAPIRenderer)
+
     def get(self, request, *args, **kwargs):
-        timezones = {'bar', 'BAR'}
-        return Response(timezones, status=status.HTTP_200_OK)
+        try:
+            current_language = get_language()
+            # strip country suffix if present
+            found_hyphen = current_language.find('-')
+            if found_hyphen >= 0:
+                current_language = current_language[0:found_hyphen]
+
+            # build dictionary of timezone: translated city name
+            locale = Locale(current_language)
+            timezones = dict([(k, locale.time_zones.get(k).get('city'))
+                             for k in locale.time_zones.keys()])
+            return Response(timezones, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
