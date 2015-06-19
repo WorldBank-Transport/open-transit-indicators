@@ -1,4 +1,5 @@
 from babel import Locale
+from babel.dates import get_timezone_name
 import django_filters
 from datetime import datetime, time
 import pytz
@@ -91,22 +92,21 @@ class OTITimeZonesView(APIView):
         try:
             # build dictionary of timezone: translated city name
             locale = get_tz_locale()
-            timezones = dict([(k, locale.time_zones.get(k).get('city'))
-                             for k in locale.time_zones.keys()])
+            timezones = dict([(tz, get_timezone_name(tz, locale=locale))
+                             for tz in pytz.all_timezones])
             return Response(timezones, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
-        print(request.DATA)
         try:
             timezone = request.DATA.get('timezone')
             if not timezone:
                 return Response({'error': 'No timezone sent with request.'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if not get_tz_locale().time_zones.get(timezone):
-                return Response({'error': 'Invalid timezone for locale.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+            # check that it is a valid timezone name by trying to instantiate it
+            pytz.timezone(timezone)
+            # go set it
             subprocess.check_call(['sudo', 'sh', '-c', "echo " + timezone + " > /etc/timezone"])
             subprocess.check_call(['sudo',
                                   'dpkg-reconfigure',
@@ -120,6 +120,9 @@ class OTITimeZonesView(APIView):
                             err.returncode,
                             err.output)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except pytz.UnknownTimeZoneError:
+            return Response({'error': 'Invalid timezone name.'},
+                            status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
