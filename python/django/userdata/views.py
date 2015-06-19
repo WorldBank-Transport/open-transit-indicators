@@ -1,5 +1,7 @@
+from datetime import datetime
 import random
 import string
+import pytz
 
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,6 +14,9 @@ from transit_indicators.viewsets import OTIAdminViewSet
 
 from userdata.models import OTIUser
 from userdata.serializers import OTIUserSerializer
+
+
+LOGIN_FLAG_DATE = pytz.utc.localize(datetime(2000, 01, 01))
 
 
 class OTIUserViewSet(OTIAdminViewSet):
@@ -72,8 +77,24 @@ class OTIObtainAuthToken(ObtainAuthToken):
         serializer = self.serializer_class(data=request.DATA)
         if serializer.is_valid():
             user = serializer.object['user']
+
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'user': token.user_id})
+
+            # check if first login
+            print(user)
+            userObject = OTIUser.objects.get(username=user)
+            print(userObject.last_login)
+
+             # check if this is the first time user has logged in
+            first_login = False
+            if userObject and userObject.last_login < LOGIN_FLAG_DATE:
+                first_login = True
+
+            # set last login to now (does not get updated when token is fetched)
+            userObject.last_login = datetime.utcnow()
+            userObject.save()
+
+            return Response({'token': token.key, 'user': token.user_id, 'firstLogin': first_login})
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
