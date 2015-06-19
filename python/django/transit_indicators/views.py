@@ -92,8 +92,8 @@ class OTITimeZonesView(APIView):
         try:
             # build dictionary of timezone: translated city name
             locale = get_tz_locale()
-            timezones = dict([(tz, get_timezone_name(tz, locale=locale))
-                             for tz in pytz.all_timezones])
+            timezones = [{'zone': tz, 'name': get_timezone_name(tz, locale=locale)}
+                         for tz in pytz.all_timezones]
             return Response(timezones, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

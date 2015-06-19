@@ -5,7 +5,7 @@ angular.module('transitIndicators')
             function (config, $scope, OTILocalization, timezones) {
 
     $scope.selectTimezone = function(timezone) {
-        OTILocalization.setTimeZone(timezone).then(function(response) {
+        OTILocalization.setTimeZone(timezone.zone).then(function(response) {
             location.reload();
         });
     };
