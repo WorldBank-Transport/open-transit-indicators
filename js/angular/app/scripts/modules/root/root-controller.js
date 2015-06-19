@@ -93,9 +93,11 @@ angular.module('transitIndicators')
     };
 
     $scope.changeTimezone = function() {
+        // do not allow user to close modal until they have picked a time zone
         $modal.open({
             templateUrl: 'scripts/modules/userdata/change-timezone.html',
             controller: 'OTIUserdataChangeTimezoneController',
+            backdrop: 'static',
             resolve: {
                 timezones: function() {
                     return OTILocalization.getTimeZones();

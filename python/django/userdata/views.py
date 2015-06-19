@@ -80,10 +80,8 @@ class OTIObtainAuthToken(ObtainAuthToken):
 
             token, created = Token.objects.get_or_create(user=user)
 
-            # check if first login
+            # check if this is the first time user has logged in
             userObject = OTIUser.objects.get(username=user)
-
-             # check if this is the first time user has logged in
             first_login = False
             if userObject and userObject.last_login < LOGIN_FLAG_DATE:
                 first_login = True
