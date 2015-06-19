@@ -2,6 +2,7 @@ from babel import Locale
 import django_filters
 from datetime import datetime, time
 import pytz
+import subprocess
 
 from django.conf import settings
 from django.db import connection, ProgrammingError
@@ -70,25 +71,55 @@ class OTILanguagesView(APIView):
             return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# helper function to fetch current timezone locale
+def get_tz_locale():
+    current_language = get_language()
+    # strip country suffix if present
+    found_hyphen = current_language.find('-')
+    if found_hyphen >= 0:
+        current_language = current_language[0:found_hyphen]
+    return Locale(current_language)
+
 class OTITimeZonesView(APIView):
-    """ Endpoing to GET translated names for the available timezones.
+    """ Endpoing to GET translated names for the available timezones, and
+        POST to set system timezone.
     """
 
     renderer_classes = (UnicodeJSONRenderer, BrowsableAPIRenderer)
 
     def get(self, request, *args, **kwargs):
         try:
-            current_language = get_language()
-            # strip country suffix if present
-            found_hyphen = current_language.find('-')
-            if found_hyphen >= 0:
-                current_language = current_language[0:found_hyphen]
-
             # build dictionary of timezone: translated city name
-            locale = Locale(current_language)
+            locale = get_tz_locale()
             timezones = dict([(k, locale.time_zones.get(k).get('city'))
                              for k in locale.time_zones.keys()])
             return Response(timezones, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, *args, **kwargs):
+        print(request.DATA)
+        try:
+            timezone = request.DATA.get('timezone')
+            if not timezone:
+                return Response({'error': 'No timezone sent with request.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if not get_tz_locale().time_zones.get(timezone):
+                return Response({'error': 'Invalid timezone for locale.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            subprocess.check_call(['sudo', 'sh', '-c', "echo " + timezone + " > /etc/timezone"])
+            subprocess.check_call(['sudo',
+                                  'dpkg-reconfigure',
+                                  '--frontend',
+                                  'noninteractive',
+                                  'tzdata'])
+            return Response({'timezone': timezone}, status=status.HTTP_201_CREATED)
+        except subprocess.CalledProcessError as err:
+            return Response({'error': '%s returned %s status. Output: %s' % (
+                            err.cmd,
+                            err.returncode,
+                            err.output)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
