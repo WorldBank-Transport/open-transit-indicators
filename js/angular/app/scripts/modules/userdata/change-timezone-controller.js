@@ -1,12 +1,13 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIUserdataChangeTimezoneController',
-            ['config', '$scope', 'OTILocalization', 'timezones',
-            function (config, $scope, OTILocalization, timezones) {
+            ['config', '$modalInstance', '$scope', '$state', '$cookieStore', 'OTILocalization', 'timezones',
+            function (config, $modalInstance, $scope, $state, $cookieStore, OTILocalization, timezones) {
 
     $scope.selectTimezone = function(timezone) {
         OTILocalization.setTimeZone(timezone.zone).then(function(response) {
-            location.reload();
+            $modalInstance.close();
+            $state.go('transit');
         });
     };
 
