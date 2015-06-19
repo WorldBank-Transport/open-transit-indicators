@@ -8,7 +8,8 @@
         "SCENARIO": "!Scenario",
         "INDICATORS": "!Indicators",
         "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
-        "CHANGE_LANGUAGE": "!Change Language"
+        "CHANGE_LANGUAGE": "!Change Language",
+        "CHANGE_TIMEZONE": "Change Time Zone"
     },
     "STATUS": {
         "CANCELLED": "!Cancelled",
@@ -35,6 +36,7 @@
     },
     "TERM": {
         "LANGUAGE": "!Language",
+        "TIMEZONE": "Time Zone",
         "INDICATOR": "!Indicator",
         "LOGIN": "!Login",
         "USERNAME": "!Username",

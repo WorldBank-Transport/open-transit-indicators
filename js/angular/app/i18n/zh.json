@@ -8,7 +8,8 @@
         "SCENARIO": "方案",
         "INDICATORS": "指标",
         "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
-        "CHANGE_LANGUAGE": "!Change Language"
+        "CHANGE_LANGUAGE": "!Change Language",
+        "CHANGE_TIMEZONE": "Change Time Zone"
     },
     "STATUS": {
         "CANCELLED": "已取消",
@@ -35,6 +36,7 @@
     },
     "TERM": {
         "LANGUAGE": "语言",
+        "TIMEZONE": "Time Zone",
         "INDICATOR": "指标",
         "LOGIN": "登入",
         "USERNAME": "用户名",
