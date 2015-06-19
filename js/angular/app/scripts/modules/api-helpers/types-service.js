@@ -6,32 +6,6 @@ angular.module('transitIndicators')
 
     var module = {};
 
-    module.getLanguages = function () {
-        var dfd = $q.defer();
-        $http.get('/api/languages/', {
-            cache: true
-        }).success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTILanguages.getLanguages', error.error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    }
-
-    module.getTimeZones = function () {
-        var dfd = $q.defer();
-        $http.get('/api/timezones/', {
-            cache: true
-        }).success(function (data) {
-            dfd.resolve(data);
-        }).error(function (error) {
-            console.error('OTILanguages.getTimeZones', error.error);
-            dfd.resolve({});
-        });
-        return dfd.promise;
-    }
-
     module.getIndicatorTypes = function () {
         var dfd = $q.defer();
         $http.get('/api/indicator-types/', {

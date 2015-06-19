@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIUserdataChangeTimezoneController',
-            ['config', '$scope', 'timezones',
-            function (config, $scope, timezones) {
+            ['config', '$scope', 'OTILocalization', 'timezones',
+            function (config, $scope, OTILocalization, timezones) {
 
     $scope.selectTimezone = function(timezone) {
         // TODO:

@@ -3,11 +3,11 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIIndicatorManager', 'OTIMapService', 'OTITypes',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIMapService', 'OTILocalization',
              'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, OTIIndicatorManager, OTIMapService, OTITypes,
+                      OTIEvents, OTIIndicatorManager, OTIMapService, OTILocalization,
                       authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
@@ -84,8 +84,8 @@ angular.module('transitIndicators')
             templateUrl: 'scripts/modules/userdata/change-language.html',
             controller: 'OTIUserdataChangeLanguageController',
             resolve: {
-                languageInfo: function(OTITypes) {
-                    return OTITypes.getLanguages();
+                languageInfo: function() {
+                    return OTILocalization.getLanguages();
                 }
             },
             size: 'sm'
@@ -97,8 +97,8 @@ angular.module('transitIndicators')
             templateUrl: 'scripts/modules/userdata/change-timezone.html',
             controller: 'OTIUserdataChangeTimezoneController',
             resolve: {
-                timezones: function(OTITypes) {
-                    return OTITypes.getTimeZones();
+                timezones: function() {
+                    return OTILocalization.getTimeZones();
                 }
             },
             size: 'sm'
