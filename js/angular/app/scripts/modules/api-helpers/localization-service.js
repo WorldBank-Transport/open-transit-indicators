@@ -34,11 +34,8 @@ angular.module('transitIndicators')
 
     module.setTimeZone = function (timezone) {
         var dfd = $q.defer();
-        $http.post('/api/timezones/', {
-            data: {
-                timezone: timezone
-            }
-        }).success(function (data) {
+        $http.post('/api/timezones/', { timezone: timezone }
+        ).success(function (data) {
             dfd.resolve(data);
         }).error(function (error) {
             console.error('OTILanguages.setTimeZone', error.error);
