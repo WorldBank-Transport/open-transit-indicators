@@ -1,15 +1,20 @@
+from babel import Locale
+from babel.dates import get_timezone_name
 import django_filters
 from datetime import datetime, time
 import pytz
+import subprocess
 
 from django.conf import settings
 from django.db import connection, ProgrammingError
+from django.utils.translation import get_language
 
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
+from rest_framework.renderers import UnicodeJSONRenderer, BrowsableAPIRenderer
 from rest_framework_csv.renderers import CSVRenderer
 
 from viewsets import OTIBaseViewSet, OTIAdminViewSet, OTIIndicatorViewSet
@@ -22,6 +27,7 @@ from models import (OTIIndicatorsConfig,
                     Scenario,
                     GTFSRouteType,
                     GTFSRoute)
+from transit_indicators.settings import LANGUAGES, LANGUAGE_CODE
 from transit_indicators.tasks import start_indicator_calculation, start_scenario_creation
 from serializers import (OTIIndicatorsConfigSerializer, OTIDemographicConfigSerializer,
                          SamplePeriodSerializer, IndicatorSerializer, IndicatorJobSerializer,
@@ -50,6 +56,75 @@ class OTICityNameView(APIView):
             serializer.save() # save the new one
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OTILanguagesView(APIView):
+    """ Endpoint to GET translated versions of the available languages.
+    """
+
+    renderer_classes = (UnicodeJSONRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            languages = dict(LANGUAGES)
+            return Response({'languages': languages, 'default': LANGUAGE_CODE}, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# helper function to fetch current timezone locale
+def get_tz_locale():
+    current_language = get_language()
+    # strip country suffix if present
+    found_hyphen = current_language.find('-')
+    if found_hyphen >= 0:
+        current_language = current_language[0:found_hyphen]
+    return Locale(current_language)
+
+class OTITimeZonesView(APIView):
+    """ Endpoing to GET translated names for the available timezones, and
+        POST to set system timezone.
+    """
+
+    renderer_classes = (UnicodeJSONRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # build dictionary of timezone: translated city name
+            locale = get_tz_locale()
+            timezones = [{'zone': tz, 'name': get_timezone_name(tz, locale=locale)}
+                         for tz in pytz.all_timezones]
+            return Response(timezones, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            timezone = request.DATA.get('timezone')
+            if not timezone:
+                return Response({'error': 'No timezone sent with request.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            # check that it is a valid timezone name by trying to instantiate it
+            pytz.timezone(timezone)
+            # go set it
+            subprocess.check_call(['sudo', 'sh', '-c', "echo " + timezone + " > /etc/timezone"])
+            subprocess.check_call(['sudo',
+                                  'dpkg-reconfigure',
+                                  '--frontend',
+                                  'noninteractive',
+                                  'tzdata'])
+            return Response({'timezone': timezone}, status=status.HTTP_201_CREATED)
+        except subprocess.CalledProcessError as err:
+            return Response({'error': '%s returned %s status. Output: %s' % (
+                            err.cmd,
+                            err.returncode,
+                            err.output)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except pytz.UnknownTimeZoneError:
+            return Response({'error': 'Invalid timezone name.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return Response({'error': ex.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OTIIndicatorsConfigViewSet(OTIAdminViewSet):
@@ -440,3 +515,5 @@ sample_period_types = SamplePeriodTypes.as_view()
 scenarios = ScenarioViewSet.as_view()
 gtfs_route_types = GTFSRouteTypes.as_view()
 city_name = OTICityNameView.as_view()
+available_languages = OTILanguagesView.as_view()
+available_timezones = OTITimeZonesView.as_view()

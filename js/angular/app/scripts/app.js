@@ -103,6 +103,25 @@ angular.module('transitIndicators', [
             url: '/settings',
             templateUrl: 'scripts/modules/settings/settings-partial.html',
             controller: 'OTISettingsController'
+        })
+        .state('timezone', {
+            url: "/timezone",
+            onEnter: ['$modal', '$state', 'OTILocalization', function($modal, $state, OTILocalization) {
+                $state.go('map');
+                $modal.open({
+                    templateUrl: 'scripts/modules/userdata/change-timezone.html',
+                    controller: 'OTIUserdataChangeTimezoneController',
+                    resolve: {
+                        timezones: function() {
+                            return OTILocalization.getTimeZones();
+                        }
+                    },
+                    size: 'sm'
+                }).result.finally(function() {
+                    $state.go('transit');
+                    return;
+                });
+            }]
         });
 
         /*
@@ -201,6 +220,18 @@ angular.module('transitIndicators', [
                 event.preventDefault();
                 $state.go('transit');
                 return;
+            }
+
+            // Load modal to set timezone the first time the primary administrator logs in
+            if (authService.isAuthenticated()) {
+                if ($cookies['authService.firstLogin'] === "true" &&
+                    $cookies['authService.userId'] === "1") {
+                    event.preventDefault();
+                    // unset cookie so page doesn't reload endlessly
+                    $cookies['authService.firstLogin'] = false;
+                    $state.go('timezone');
+                    return;
+                }
             }
         });
 

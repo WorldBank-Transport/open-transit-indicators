@@ -803,9 +803,15 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     echo "http://$HOST/monitoring/; user / pass: oti-admin / oti-admin"
 fi
 
-# Remind user to set their timezone -- interactive, so can't be done in provisioner script
+# Set time zone by geolocating IP address
+# derived from: http://askubuntu.com/a/565139
+echo "Setting time zone from geoip..."
+export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'` &&  echo $tz > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+echo "Time zone set to $tz"
+
+# Also remind to set their timezone interactively
 echo ''
 echo 'Setup completed successfully.'
 echo "SU Username: $APP_SU_USERNAME"
 echo "Username: $APP_USERNAME"
-echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.' >&2
+echo 'Now run `dpkg-reconfigure tzdata` to set your time zone.' >&2

@@ -2,8 +2,10 @@
 Management command to create an OTIUser
 """
 
+from datetime import datetime
 import getpass
 import logging
+import pytz
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
@@ -74,5 +76,11 @@ class Command(BaseCommand):
             user = OTIUser.objects.create_user(username,
                                                email=email,
                                                password=password)
+
+        # set last login time to something long ago
+        # (default in django 1.8 is None; we're on 1.7 with non-null constraint)
+        user.last_login = pytz.utc.localize(datetime(1984, 01, 01))
+        user.save()
+
         log_message = 'Created user (%s)' % (username)
         LOGGER.info(log_message)

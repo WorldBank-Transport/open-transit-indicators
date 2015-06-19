@@ -7,6 +7,7 @@ angular.module('transitIndicators')
 
     var userIdCookieString = 'authService.userId';
     var tokenCookieString = 'authService.token';
+    var firstLoginCookieString = 'authService.firstLogin';
     var cookieTimeout = null;
     var cookieTimeoutMillis = 24 * 60 * 60 * 1000;      // 24 hours
 
@@ -56,6 +57,7 @@ angular.module('transitIndicators')
                 if (data && data.token) {
                     setToken(data.token);
                 }
+                $cookieStore.put(firstLoginCookieString, data.firstLogin);
                 result.isAuthenticated = authService.isAuthenticated();
                 if (result.isAuthenticated) {
                     $rootScope.$broadcast(OTIEvents.Auth.LoggedIn);
@@ -94,6 +96,7 @@ angular.module('transitIndicators')
 
         logout: function () {
             setUserId(null);
+            $cookieStore.remove(firstLoginCookieString);
             $cookieStore.remove(tokenCookieString);
             $rootScope.$broadcast(OTIEvents.Auth.LoggedOut);
             if (cookieTimeout) {

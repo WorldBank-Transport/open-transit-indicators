@@ -36,6 +36,8 @@ urlpatterns = patterns('',  # NOQA
     url(r'^api/indicator-aggregation-types/', 'transit_indicators.views.indicator_aggregation_types'),
     url(r'^api/indicator-cities/', 'transit_indicators.views.indicator_cities'),
     url(r'^api/city-name/', 'transit_indicators.views.city_name'),
+    url(r'^api/languages/', 'transit_indicators.views.available_languages'),
+    url(r'^api/timezones/', 'transit_indicators.views.available_timezones'),
     url(r'^api/sample-period-types/', 'transit_indicators.views.sample_period_types'),
     url(r'^api/gtfs-route-types/', 'transit_indicators.views.gtfs_route_types'),
     url(r'^api/upload-statuses/', 'datasources.views.upload_status_choices'),

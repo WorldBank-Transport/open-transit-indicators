@@ -28,13 +28,6 @@ angular.module('transitIndicators').constant('config', {
 
     debug: true,
 
-    languages: {
-        'English': 'en',
-        'Chinese': 'zh',
-        'Vietnamese': 'vi',
-        'Spanish': 'es'
-    },
-
     defaultLanguage: 'en',
 
     worldExtent: {
