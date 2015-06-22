@@ -80,7 +80,7 @@ trait ScenarioGtfsRoute extends Route {
               }
             }}
           } ~
-          delete { /** Delete RouteRecord and all it's trips */
+          delete { /** Delete RouteRecord and all its trips */
             complete { future {
               scenarioDB withTransaction { implicit s =>
                 deleteRoute(routeId)

@@ -54,9 +54,14 @@ object GTFSDeltaStore {
   }
   val gtfsDeltas = TableQuery[GTFSDeltaTable]
 
-  def gtfsHighlights(deltaType: DeltaType, dbName: String): MultiLine = dbi.dbByName(dbName) withSession { implicit session =>
+  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSAddition, tripShape))
+
+  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSRemoval, tripShape))
+
+  def gtfsHighlights(deltaType: DeltaType)(implicit sess: Session): MultiLine = {
     val query =
       for { d <- gtfsDeltas if d.deltaType === deltaType.intRep } yield d.geom
+
     query.run.map(_.geom).foldLeft(MultiLine.EMPTY) {
       (union, geom) => union.union(geom) match {
         case LineResult(l) => MultiLine(l)
