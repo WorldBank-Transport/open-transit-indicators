@@ -16,8 +16,21 @@ DECLARE
   intersection_area NUMERIC;
   contained_proportion NUMERIC;
 BEGIN
-  RAISE INFO 'Going to clip demographics features to region boundary.';
   region := geom FROM datasources_boundary WHERE id = (SELECT region_boundary_id FROM transit_indicators_otiindicatorsconfig);
+  IF (region IS NULL) THEN
+    -- check for city bounds instead
+    region := geom FROM datasources_boundary WHERE id = (SELECT city_boundary_id FROM transit_indicators_otiindicatorsconfig);
+    IF (region IS NULL) THEN
+      RAISE WARNING 'Found neither city nor region bounds to which to clip demographics.';
+      -- nothing to do; bail
+      RETURN;
+    ELSE
+      RAISE INFO 'Going to clip demographics features to city boundary (region boundary not found).';
+    END IF;
+  ELSE
+    RAISE INFO 'Going to clip demographics features to region boundary.';
+  END IF;
+
   min_feature_id := min(id) FROM datasources_demographicdatafeature;
   max_feature_id := max(id) FROM datasources_demographicdatafeature;
 
