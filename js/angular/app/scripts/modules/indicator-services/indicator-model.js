@@ -33,6 +33,8 @@ angular.module('transitIndicators')
         'geotiff': {
             method: 'GET',
             url: '/gt/travelshed/jobs/geotiff',
+            responseType: 'arraybuffer',
+            cache: false,
             transformResponse: function(data) {
                 var geotiff;
                 if (data) {
