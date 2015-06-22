@@ -113,6 +113,8 @@ class OTITimeZonesView(APIView):
                                   '--frontend',
                                   'noninteractive',
                                   'tzdata'])
+            # restart scala services to pick up the timezone change
+            subprocess.check_call(['sudo', 'service', 'oti-geotrellis', 'restart'])
             return Response({'timezone': timezone}, status=status.HTTP_201_CREATED)
         except subprocess.CalledProcessError as err:
             return Response({'error': '%s returned %s status. Output: %s' % (
