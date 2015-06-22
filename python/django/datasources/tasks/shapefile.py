@@ -279,9 +279,10 @@ def run_load_shapefile_data(demographicdata_id, pop1_field, pop2_field, dest1_fi
             except ValueError as e:
                 error_factory.warn('Could not import 1 feature.', str(e))
 
-        # make raw SQL query to execute function that processes demographic data
-        # into regular point grid
+        # make raw SQL query to execute function that processes demographic data, first
+        # clipping it to region boundary, then turning it into a regular point grid
         with connection.cursor() as c:
+            c.execute('SELECT ClipDemographics();')
             c.execute('SELECT CreateGrid();')
 
         demog_data.status = DemographicDataSource.Statuses.COMPLETE
