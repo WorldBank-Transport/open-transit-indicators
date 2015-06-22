@@ -4,6 +4,7 @@ import scala.math.max
 
 import com.azavea.opentransit._
 import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.indicators.stations._
 import com.azavea.opentransit.indicators.parameters._
 import com.azavea.gtfs.Timer
 
@@ -13,6 +14,7 @@ import geotrellis.raster._
 import geotrellis.raster.reproject._
 import geotrellis.slick._
 import geotrellis.proj4._
+import geotrellis.raster.interpolation._
 
 import geotrellis.network._
 import geotrellis.network.graph._
@@ -26,7 +28,7 @@ import grizzled.slf4j.Logging
  * This calcuates and stores three related job accessibility indicators.
  *
  * @param travelshedGraph the actual graph of jobs accessibility
- * @param regionDemographics the input demographic data
+ * @param calcParams the input demographic data with stopbuffers for CSV production
  * @param cacheId string uniquely identifying current indicator calculation set, used to key cached rasters
  */
 
@@ -48,10 +50,12 @@ object JobsTravelshedIndicator {
   val percentageSummaryName = "job_percentage_access"
 
 
-  def writeToDatabase(result: Double,
-                      summaryIndicatorName: String,
-                      overallLineGeoms: SystemLineGeometries,
-                      statusManager: CalculationStatusManager): Unit = {
+  def writeToDatabase(
+    result: Double,
+    summaryIndicatorName: String,
+    overallLineGeoms: SystemLineGeometries,
+    statusManager: CalculationStatusManager
+  ): Unit = {
     val aggResults = AggregatedResults.systemOnly(result)
     val results = OverallIndicatorResult.createContainerGenerators(summaryIndicatorName,
       aggResults,
@@ -59,14 +63,15 @@ object JobsTravelshedIndicator {
     statusManager.indicatorFinished(results)
   }
 
-  def run(travelshedGraph: TravelshedGraph,
-          regionDemographics: RegionDemographics,
-          cacheId: String,
-          rasterCache: RasterCache,
-          overallLineGeoms: SystemLineGeometries,
-          statusManager: CalculationStatusManager): Unit = {
-
-    val results = calculate(travelshedGraph, regionDemographics, cacheId, rasterCache)
+  def run(
+    travelshedGraph: TravelshedGraph,
+    calcParams: RegionDemographics,
+    request: IndicatorCalculationRequest,
+    rasterCache: RasterCache,
+    overallLineGeoms: SystemLineGeometries,
+    statusManager: CalculationStatusManager
+  ): Unit = {
+    val results = calculate(travelshedGraph, calcParams, request, rasterCache)
 
     // write the three results to the database
     writeToDatabase(results.basic, basicSummaryName, overallLineGeoms, statusManager)
@@ -74,9 +79,10 @@ object JobsTravelshedIndicator {
     writeToDatabase(results.percentage, percentageSummaryName, overallLineGeoms, statusManager)
   }
 
-  def calculate(travelshedGraph: TravelshedGraph,
-    regionDemographics: RegionDemographics,
-    cacheId: String,
+  def calculate(
+    travelshedGraph: TravelshedGraph,
+    calcParams: RegionDemographics,
+    request: IndicatorCalculationRequest,
     rasterCache: RasterCache
   // return the three calculated results as named values
   ): JobAccessStatistics = {
@@ -88,11 +94,12 @@ object JobsTravelshedIndicator {
 
       (tg.graph, tg.index, tg.rasterExtent, arriveTime, duration, tg.crs)
     }
+  val cacheId: String = request.id.toString
 
     println(s"RUNNING BASE JOB ACCESS INDICATOR FOR ARRIVAL TIME $arriveTime AND $duration TRAVEL TIME")
 
     val features: Array[JobsDemographics] =
-      regionDemographics.jobsDemographics.toArray
+      calcParams.jobsDemographics.toArray
 
     val (cols, rows) =
       (rasterExtent.cols, rasterExtent.rows)
@@ -119,6 +126,9 @@ object JobsTravelshedIndicator {
 
     // Population Tile that will be combined with jobs data
     val populationTile = ArrayTile.empty(TypeDouble, cols, rows)
+
+    // Job Tile to be used for CSV generation
+    val jobsTile = ArrayTile.empty(TypeFloat, cols, rows)
 
     // Create an index of the raster cells
     val mappedCoords =
@@ -253,6 +263,8 @@ object JobsTravelshedIndicator {
             }
           }
 
+          jobsTile.set(col, row, sum.toInt)
+
           if(sum > 0) {
             val population = populationTile.getDouble(col, row) match {
               case tile if tile.isNaN => 0.0
@@ -288,6 +300,14 @@ object JobsTravelshedIndicator {
           }
         }
       }
+    }
+
+    Timer.timedTask(s"Created station CSV") {
+      CalculateStationStats.calculate(
+        request.nearbyBufferDistance,
+        request.maxCommuteTime,
+        Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent)
+      )
     }
 
     // Reproject

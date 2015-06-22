@@ -113,9 +113,10 @@ object CalculateIndicators {
         try {
           println("Calculating travelshed indicator...")
           timedTask("Processed indicator: Travelshed") {
-            JobsTravelshedIndicator.run(travelshedGraph,
+            JobsTravelshedIndicator.run(
+              travelshedGraph,
               RegionDemographics(db),
-              request.id.toString,
+              request,
               Main.rasterCache,
               overallLineGeoms,
               statusManager

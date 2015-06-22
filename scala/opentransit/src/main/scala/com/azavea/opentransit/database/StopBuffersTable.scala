@@ -6,7 +6,7 @@ import geotrellis.slick._
 import grizzled.slf4j.Logging
 
 import scala.slick.driver.{JdbcDriver, JdbcProfile, PostgresDriver}
-
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
 /**
  * A buffer around a set of GTFS stops. Used for calculating stop coverage indicators
  */
@@ -33,6 +33,10 @@ object StopsBuffersTable extends Logging {
   }
 
   def stopsBufferTable = TableQuery[StopsBuffers]
+
+  def bufferRadius(db: DatabaseDef): Double = db withSession { implicit session =>
+    stopsBufferTable.first.radius
+  }
 
   /**
    * Returns a StopsBuffer (union of buffered Stops)

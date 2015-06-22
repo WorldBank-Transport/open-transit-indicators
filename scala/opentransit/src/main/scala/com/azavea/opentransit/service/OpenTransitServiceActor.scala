@@ -42,15 +42,16 @@ class OpenTransitServiceActor extends Actor
 
 trait OpenTransitService
   extends Route
-  with IngestRoute
-  with IndicatorsRoute
-  with ScenarioRoute
-  with ScenarioGtfsRoute
-  with MapInfoRoute
-  with ServiceDateRangeRoute
-  with TravelshedIndicatorRoute
-  with TravelshedGeotiffRoute
-  with TravelshedMinMaxRoute
+     with IngestRoute
+     with IndicatorsRoute
+     with ScenarioRoute
+     with ScenarioGtfsRoute
+     with MapInfoRoute
+     with ServiceDateRangeRoute
+     with TravelshedIndicatorRoute
+     with TravelshedGeotiffRoute
+     with TravelshedMinMaxRoute
+     with StationStatsCSVRoute
 { self: DatabaseInstance with DjangoClientComponent =>
 
   def openTransitRoute =
@@ -61,7 +62,8 @@ trait OpenTransitService
         serviceDateRangeRoute
       } ~
       pathPrefix("indicators") {
-        indicatorsRoute
+        indicatorsRoute ~
+        stationStatsCSVRoute
       } ~
       pathPrefix("scenarios") {
         scenariosRoute

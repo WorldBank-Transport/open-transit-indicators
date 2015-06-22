@@ -15,7 +15,7 @@ object Build extends Build {
         name := "gtfs",
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.5",
         scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
@@ -28,12 +28,12 @@ object Build extends Build {
 
       libraryDependencies ++=
         Seq(
+          "commons-io" % "commons-io" % "2.4",
           "org.apache.servicemix.bundles" % "org.apache.servicemix.bundles.commons-csv" % "1.0-r706900_3",
 
           "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test",
           "com.github.nscala-time" %% "nscala-time" % "1.4.0",
 
-          "commons-io" % "commons-io" % "2.4",
 
           "com.azavea.geotrellis" %% "geotrellis-vector" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-proj4" % "0.10.0-SNAPSHOT",
@@ -51,7 +51,7 @@ object Build extends Build {
         name := "gtfs-test",
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.5",
         scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
@@ -73,7 +73,7 @@ object Build extends Build {
         name := "gtfs-parser",
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.5",
         scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
@@ -84,19 +84,24 @@ object Build extends Build {
             "-language:existentials",
             "-feature"),
         libraryDependencies ++= Seq(
-          "io.spray" % "spray-routing" % "1.2.0",
-          "io.spray" % "spray-can" % "1.2.0",
-          "io.spray" % "spray-client" % "1.2.0",
-          "io.spray" %% "spray-json" % "1.2.6",
-          "io.spray" % "spray-httpx" % "1.2.0",
+          "io.spray" % "spray-routing" % "1.2.3",
+          "io.spray" % "spray-can" % "1.2.3",
+          "io.spray" % "spray-client" % "1.2.3",
+          "io.spray" %% "spray-json" % "1.3.1",
+          "io.spray" % "spray-httpx" % "1.2.3",
           "com.typesafe.akka" %% "akka-actor" % "2.2.4",
           "com.github.nscala-time" %% "nscala-time" % "1.4.0",
-          "org.scalatest" %% "scalatest" % "2.1.5" % "test",
-          "org.scala-lang" % "scala-compiler" % "2.10.3",
+
           "ch.qos.logback" % "logback-classic" % "1.1.1",
           "org.clapper" %% "grizzled-slf4j" % "1.0.2",
 
-          "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT"
+          "commons-io" % "commons-io" % "2.4",
+          "org.apache.servicemix.bundles" % "org.apache.servicemix.bundles.commons-csv" % "1.0-r706900_3",
+
+          "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT",
+
+          "org.scala-lang" % "scala-compiler" % "2.10.5",
+          "org.scalatest" %% "scalatest" % "2.1.5" % "test"
         )
        )
       .settings(spray.revolver.RevolverPlugin.Revolver.settings:_*)
@@ -109,7 +114,7 @@ object Build extends Build {
         organization := "com.azavea",
         fork := true,
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.5",
         scalacOptions ++=
           Seq("-deprecation",
             "-unchecked",
@@ -132,7 +137,7 @@ object Build extends Build {
         name := "opentransit-testkit",
         organization := "com.azavea",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.5",
         libraryDependencies ++= Seq(
           "com.typesafe" % "config" % "1.2.1",
           "com.azavea.geotrellis" %% "geotrellis-slick" % "0.10.0-SNAPSHOT",
@@ -147,7 +152,7 @@ object Build extends Build {
         organization := "com.azavea.geotrellis",
         name := "geotrellis-transit",
         version := "0.1.0-SNAPSHOT",
-        scalaVersion := "2.10.3",     
+        scalaVersion := "2.10.5",     
         parallelExecution := false,
         fork in run := true,
         mainClass := Some("geotrellis.transit.Main"),
@@ -167,9 +172,9 @@ object Build extends Build {
         libraryDependencies ++= Seq(
           "com.azavea.geotrellis" %% "geotrellis-engine" % "0.10.0-SNAPSHOT",
           "com.azavea.geotrellis" %% "geotrellis-geotools" % "0.10.0-SNAPSHOT",
-          "io.spray"        % "spray-client"  % "1.2.1",
-          "io.spray"        % "spray-routing" % "1.2.1",
-          "io.spray"        % "spray-httpx"   % "1.2.1",
+          "io.spray"        % "spray-client"  % "1.2.3",
+          "io.spray"        % "spray-routing" % "1.2.3",
+          "io.spray"        % "spray-httpx"   % "1.2.3",
           "com.typesafe" % "config" % "1.0.2",
           "org.spire-math" %% "spire" % "0.3.0",
           "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
