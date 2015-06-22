@@ -29,8 +29,8 @@ case class CSVJob(
   data: Array[Byte] = Array.empty)
 
 trait StationCSVStore {
-  def get(): Option[CSVJob]
-  def set(csvJob: CSVJob): Unit
+  def get(dbName: String): Option[CSVJob]
+  def set(csvJob: CSVJob, dbName: String): Unit
 }
 
 /**
@@ -39,10 +39,7 @@ trait StationCSVStore {
 object StationCSVDatabase extends StationCSVStore {
   import PostgresDriver.simple._
   // Configuration
-  private val config = ConfigFactory.load()
-  private val dbName = config.getString("database.name")
   private val dbi = new ProductionDatabaseInstance {}
-  private val db: DatabaseDef = dbi.dbByName(dbName)
 
   def serialize(csvJob: CSVJob): Option[(Int, String, Double, Int, Array[Byte])] =
     Some((1, csvJob.status.stringRep, csvJob.bufferDistance, csvJob.commuteTime, csvJob.data))
@@ -60,10 +57,11 @@ object StationCSVDatabase extends StationCSVStore {
   val csvStore = TableQuery[stationCSVTable]
 
 
-  def get(): Option[CSVJob] = db withSession { implicit session =>
+  def get(dbName: String): Option[CSVJob] = dbi.dbByName(dbName) withSession { implicit session =>
     csvStore.firstOption
   }
-  def set(csvJob: CSVJob): Unit = db withSession { implicit session =>
+
+  def set(csvJob: CSVJob, dbName: String): Unit = dbi.dbByName(dbName) withSession { implicit session =>
     csvStore.firstOption match {
       case Some(_) => csvStore.update(csvJob)
       case None => csvStore.insert(csvJob)

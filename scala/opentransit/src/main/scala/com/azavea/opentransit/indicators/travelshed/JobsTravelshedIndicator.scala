@@ -309,11 +309,7 @@ object JobsTravelshedIndicator {
     }
 
     Timer.timedTask(s"Created station CSV") {
-      CalculateStationStats.calculate(
-        request.nearbyBufferDistance,
-        request.maxCommuteTime,
-        Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent)
-      )
+      CalculateStationStats(request, Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent))
     }
 
     // Reproject

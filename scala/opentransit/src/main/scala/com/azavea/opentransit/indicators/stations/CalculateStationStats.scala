@@ -2,6 +2,7 @@ package com.azavea.opentransit.indicators.stations
 
 import com.azavea.gtfs._
 import com.azavea.opentransit._
+import com.azavea.opentransit.indicators._
 import com.azavea.opentransit.indicators.parameters._
 import com.azavea.opentransit.database._
 
@@ -12,19 +13,22 @@ import com.typesafe.config.{ConfigFactory, Config}
 
 object CalculateStationStats {
 
-  def calculate(
-    bufferRadius: Double,
-    commuteTime: Int,
+  def apply(
+    request: IndicatorCalculationRequest,
     interpolator: Interpolation
   ): Unit = {
-    // New CSV
-    val csv = StationStatsCSV(bufferRadius, commuteTime)
 
     // Configuration
+    val commuteTime = request.maxCommuteTime
+    val bufferRadius = request.nearbyBufferDistance
+    val dbName = request.gtfsDbName
+
     val config = ConfigFactory.load
-    val dbName = config.getString("database.name")
     val dbGeomNameUtm = config.getString("database.geom-name-utm")
     val dbi = new ProductionDatabaseInstance {}
+
+    // New CSV
+    val csv = StationStatsCSV(bufferRadius, commuteTime, dbName)
 
     // Top level vals
     val db = dbi.dbByName(dbName)

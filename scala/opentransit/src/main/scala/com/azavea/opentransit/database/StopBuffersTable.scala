@@ -34,10 +34,6 @@ object StopsBuffersTable extends Logging {
 
   def stopsBufferTable = TableQuery[StopsBuffers]
 
-  def bufferRadius(db: DatabaseDef): Double = db withSession { implicit session =>
-    stopsBufferTable.first.radius
-  }
-
   /**
    * Returns a StopsBuffer (union of buffered Stops)
    * Constructs a stops buffer from the passed Seq[Stops] and then saves it to the database

@@ -30,7 +30,7 @@ trait ScenarioRoute extends Route with ScenarioGtfsRoute  with Logging {
 
   // Endpoint for creating a new scenario
   def scenariosRoute = {
-    /** Create Scenario DB and prepare it's transactions */
+    /** Create Scenario DB and prepare its transactions */
     pathEnd {
       post {
         entity(as[ScenarioCreationRequest]) { request =>

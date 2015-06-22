@@ -20,24 +20,25 @@ trait StationStatsCSVRoute extends Route { self: DatabaseInstance =>
   def stationStatsCSVRoute =
     path("station-csv") {
       get {
-        encodeResponse(Gzip) {
-          rejectEmptyResponse {  // 404 just in case None
-            println(StationCSVDatabase.get())
-            StationCSVDatabase.get() match {
-              case Some(csvJob) => {
-                csvJob.status match {
-                  case Success =>
-                    val filename = s"bufferD${csvJob.bufferDistance}commuteT${csvJob.commuteTime}stats.csv"
-                      respondWithHeader(HttpHeaders.`Content-Disposition`.apply(
-                        "attachment", Map("filename" -> filename))) {
-                        complete {
-                          HttpData(csvJob.data)
+        parameters('gtfsdb) { gtfsDbName =>
+          encodeResponse(Gzip) {
+            rejectEmptyResponse {  // 404 just in case None
+              StationCSVDatabase.get(gtfsDbName) match {
+                case Some(csvJob) => {
+                  csvJob.status match {
+                    case Success =>
+                      val filename = s"bufferD${csvJob.bufferDistance}commuteT${csvJob.commuteTime}stats.csv"
+                        respondWithHeader(HttpHeaders.`Content-Disposition`.apply(
+                          "attachment", Map("filename" -> filename))) {
+                          complete {
+                            HttpData(csvJob.data)
+                          }
                         }
-                      }
-                  case _ => complete(StatusCodes.NotFound)
+                    case _ => complete(StatusCodes.NotFound)
+                  }
                 }
+                case _ => complete(StatusCodes.NotFound)
               }
-              case _ => complete(StatusCodes.NotFound)
             }
           }
         }
