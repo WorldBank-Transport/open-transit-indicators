@@ -28,7 +28,7 @@ function ($document, $modal, $window, OTIIndicatorModel, OTITypes) {
                 OTITypes.getIndicatorTypes().then(function(indicators) {
                     travelshedIndicators = [];
                     _.each(indicators, function(obj, key) {
-                        if (key.endsWith("travelshed")) {
+                        if (key.endsWith('travelshed')) {
                             obj.name = key;
                             travelshedIndicators.push(obj);
                         }
