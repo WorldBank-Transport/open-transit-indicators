@@ -1,78 +1,3 @@
-<<<<<<< Updated upstream
-package com.azavea.opentransit.database
-
-import com.azavea.opentransit._
-import com.azavea.gtfs._
-
-import geotrellis.slick._
-import geotrellis.vector._
-
-import scala.slick.driver.{JdbcDriver, JdbcProfile, PostgresDriver}
-import scala.slick.jdbc.JdbcBackend.DatabaseDef
-
-
-// The performance characteristics of postgres enums should be the same as integers.
-// Instead of introducing a dependency for PG enums (something we should do from the start),
-// I'll use scala typesafety and the `DeltaType` sum type.
-sealed trait DeltaType { val intRep: Int }
-case object GTFSAddition extends DeltaType { val intRep = 1 }
-case object GTFSRemoval extends DeltaType { val intRep = -1 }
-
-object DeltaType {
-  def apply(intRep: Int) = intRep match {
-    case GTFSAddition.intRep => GTFSAddition
-    case GTFSRemoval.intRep => GTFSRemoval
-    case _ => throw new Exception("GTFSDelta must be 1 or -1")
-  }
-}
-
-case class GTFSDelta(deltaType: DeltaType, tripShape: TripShape)
-
-/**
- *
-**/
-object GTFSDeltaStore {
-  import PostgresDriver.simple._
-  private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
-  import gisSupport._
-
-  private val dbi = new ProductionDatabaseInstance {}
-
-  def serialize(gtfsDelta: GTFSDelta): Option[(String, Int, Projected[Line])] =
-    Some((gtfsDelta.tripShape.id, gtfsDelta.deltaType.intRep, gtfsDelta.tripShape.line))
-  def deserialize(gtfsDeltaTuple: (String, Int, Projected[Line])): GTFSDelta =
-    GTFSDelta(
-      DeltaType(gtfsDeltaTuple._2),
-      TripShape(gtfsDeltaTuple._1, gtfsDeltaTuple._3)
-    )
-
-  class GTFSDeltaTable(tag: Tag) extends Table[GTFSDelta](tag, "gtfs_delta") {
-    def id = column[String]("id", O.PrimaryKey)
-    def deltaType = column[Int]("deltaType")
-    def geom = column[Projected[Line]]("geom")
-
-    def * = (id, deltaType, geom) <> (deserialize, serialize)
-  }
-  val gtfsDeltas = TableQuery[GTFSDeltaTable]
-
-  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSAddition, tripShape))
-
-  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSRemoval, tripShape))
-
-  def gtfsHighlights(deltaType: DeltaType)(implicit sess: Session): MultiLine = {
-    val query =
-      for { d <- gtfsDeltas if d.deltaType === deltaType.intRep } yield d.geom
-
-    query.run.map(_.geom).foldLeft(MultiLine.EMPTY) {
-      (union, geom) => union.union(geom) match {
-        case LineResult(l) => MultiLine(l)
-        case MultiLineResult(ml) => ml
-      }
-    }
-  }
-}
-||||||| merged common ancestors
-=======
 package com.azavea.opentransit.database
 
 import com.azavea.opentransit._
@@ -100,41 +25,41 @@ object DeltaType {
   }
 }
 
-case class GTFSDelta(deltaType: DeltaType, tripShape: TripShape)
+case class TripDelta(deltaType: DeltaType, tripShape: TripShape)
+case class StopDelta(deltaType: DeltaType, stop: Stop)
 
-/**
- *
-**/
-object GTFSDeltaStore {
+object TripDeltaStore {
   import PostgresDriver.simple._
   private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
   import gisSupport._
 
-  def serialize(gtfsDelta: GTFSDelta): Option[(String, Int, Projected[Line])] =
-    Some((gtfsDelta.tripShape.id, gtfsDelta.deltaType.intRep, gtfsDelta.tripShape.line))
+  def serialize(tripDelta: TripDelta): Option[(Int, String, Projected[Line])] =
+    Some((tripDelta.deltaType.intRep, tripDelta.tripShape.id, tripDelta.tripShape.line))
 
-  def deserialize(gtfsDeltaTuple: (String, Int, Projected[Line])): GTFSDelta =
-    GTFSDelta(
-      DeltaType(gtfsDeltaTuple._2),
-      TripShape(gtfsDeltaTuple._1, gtfsDeltaTuple._3)
+  def deserialize(tripDeltaTuple: (Int, String, Projected[Line])): TripDelta =
+    TripDelta(
+      DeltaType(tripDeltaTuple._1),
+      TripShape(tripDeltaTuple._2, tripDeltaTuple._3)
     )
 
-  class GTFSDeltaTable(tag: Tag) extends Table[GTFSDelta](tag, "gtfs_delta") {
+  class TripDeltaTable(tag: Tag) extends Table[TripDelta](tag, "trip_delta") {
     def id = column[String]("id", O.PrimaryKey)
-    def deltaType = column[Int]("deltaType")
     def geom = column[Projected[Line]]("geom")
+    def deltaType = column[Int]("deltaType")
 
-    def * = (id, deltaType, geom) <> (deserialize, serialize)
+    def * = (deltaType, id, geom) <> (deserialize, serialize)
   }
-  val gtfsDeltas = TableQuery[GTFSDeltaTable]
+  val tripDeltas = TableQuery[TripDeltaTable]
 
-  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSAddition, tripShape))
+  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit =
+    tripDeltas.insert(TripDelta(GTFSAddition, tripShape))
 
-  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit = gtfsDeltas.insert(GTFSDelta(GTFSRemoval, tripShape))
+  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit =
+    tripDeltas.insert(TripDelta(GTFSRemoval, tripShape))
 
-  def gtfsHighlights(deltaType: DeltaType)(implicit sess: Session): MultiLine = {
+  def tripHighlights(deltaType: DeltaType)(implicit sess: Session): MultiLine = {
     val query =
-      for { d <- gtfsDeltas if d.deltaType === deltaType.intRep } yield d.geom
+      for { d <- tripDeltas if d.deltaType === deltaType.intRep } yield d.geom
 
     query.run.map(_.geom).foldLeft(MultiLine.EMPTY) {
       (union, geom) => union.union(geom) match {
@@ -144,4 +69,53 @@ object GTFSDeltaStore {
     }
   }
 }
->>>>>>> Stashed changes
+
+object StopDeltaStore {
+  import PostgresDriver.simple._
+  private val gisSupport = new PostGisProjectionSupport(PostgresDriver)
+  import gisSupport._
+
+  def serialize(stopDelta: StopDelta): Option[(Int, String, String, Option[String], Projected[Point])] =
+    Some(Tuple5(
+      stopDelta.deltaType.intRep,
+      stopDelta.stop.id,
+      stopDelta.stop.name,
+      stopDelta.stop.description,
+      stopDelta.stop.point
+    ))
+
+  def deserialize(stopDeltaTuple: (Int, String, String, Option[String], Projected[Point])): StopDelta =
+    StopDelta(
+      DeltaType(stopDeltaTuple._1),
+      Stop(stopDeltaTuple._2, stopDeltaTuple._3, stopDeltaTuple._4, stopDeltaTuple._5)
+    )
+
+  class StopDeltaTable(tag: Tag) extends Table[StopDelta](tag, "gtfs_delta") {
+    def id = column[String]("id", O.PrimaryKey)
+    def name = column[String]("name")
+    def description = column[Option[String]]("description")
+    def geom = column[Projected[Point]]("geom")
+    def deltaType = column[Int]("deltaType")
+
+    def * = (deltaType, id, name, description, geom) <> (deserialize, serialize)
+  }
+  val stopDeltas = TableQuery[StopDeltaTable]
+
+  def addStop(stop: Stop)(implicit sess: Session): Unit =
+    stopDeltas.insert(StopDelta(GTFSAddition, stop))
+
+  def removeStop(stop: Stop)(implicit sess: Session): Unit =
+    stopDeltas.insert(StopDelta(GTFSRemoval, stop))
+
+  def stopHighlights(deltaType: DeltaType)(implicit sess: Session): MultiPoint = {
+    val query =
+      for { d <- stopDeltas if d.deltaType === deltaType.intRep } yield d.geom
+
+    query.run.map(_.geom).foldLeft(MultiPoint.EMPTY) {
+      (union, geom) => union.union(geom) match {
+        case PointResult(p) => MultiPoint(p)
+        case MultiPointResult(mp) => mp
+      }
+    }
+  }
+}

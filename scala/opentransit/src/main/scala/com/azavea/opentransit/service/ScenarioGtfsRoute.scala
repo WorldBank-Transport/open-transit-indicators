@@ -191,16 +191,20 @@ object ScenarioGtfsRoute {
 
   private def deleteTrip(tripId: String)(implicit s: Session): Unit = {
     //Delete stops created through this service, if they exist for this trip
-    ( tables.stopsTable
-      filter ( stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%"))
-      delete
-    )
+    val stopsQ = tables.stopsTable.filter {
+      stop => stop.id.like(s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}%")
+    }
+
     tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
+    val tripShapeQ = tables.tripShapesTable.filter(_.id === s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}")
     tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
     tables.tripRecordsTable.filter(_.id === tripId).delete
-    val tsQuery = tables.tripShapesTable.filter(_.id === s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}")
-    tsQuery.firstOption map { GTFSDeltaStore.removeTripShape(_) }
-    tsQuery.delete
+
+    stopsQ.list map { StopDeltaStore.removeStop(_) }
+    tripShapeQ.list map { TripDeltaStore.removeTripShape(_) }
+
+    tripShapeQ.delete
+    stopsQ.delete
   }
 
   private def saveTripPattern(pattern: TripTuple)(implicit s: Session): Unit = {
@@ -209,7 +213,9 @@ object ScenarioGtfsRoute {
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
     pattern.shape map { tables.tripShapesTable.insert }
-    pattern.shape map { GTFSDeltaStore.addTripShape(_) }
+
+    pattern.stopTimes.map(_._2) map { StopDeltaStore.addStop(_) }
+    pattern.shape map { TripDeltaStore.addTripShape(_) }
     (Q.u +
       s"UPDATE gtfs_stops SET geom = ST_Transform(the_geom, Find_SRID('public','gtfs_stops','geom')) WHERE geom is null;").execute
     (Q.u +

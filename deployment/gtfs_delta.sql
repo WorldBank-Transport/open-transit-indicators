@@ -1,28 +1,27 @@
-<<<<<<< Updated upstream
 --
--- Name: gtfs_delta; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Name: trip_delta; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
 --
 
-CREATE TABLE public.gtfs_delta (
+CREATE TABLE public.trip_delta (
   id text PRIMARY KEY,
-  deltaType integer NOT NULL,
   geom geometry(LineString,4326) NOT NULL,
+  deltaType integer NOT NULL,
 );
 
-ALTER TABLE public.station_csv OWNER TO transit_indicators;
+ALTER TABLE public.trip_delta OWNER TO transit_indicators;
 
-||||||| merged common ancestors
-=======
+
 --
--- Name: gtfs_delta; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
+-- Name: stop_delta; Type: TABLE; Schema: public; Owner: transit_indicators; Tablespace:
 --
 
-CREATE TABLE public.gtfs_delta (
+CREATE TABLE public.stop_delta (
   id text PRIMARY KEY,
+  name text NOT NULL,
+  description text,
+  geom geometry(Point,4326) NOT NULL,
   deltaType integer NOT NULL,
-  geom geometry(LineString,4326) NOT NULL,
 );
 
-ALTER TABLE public.gtfs_delta OWNER TO transit_indicators;
+ALTER TABLE public.stop_delta OWNER TO transit_indicators;
 
->>>>>>> Stashed changes
