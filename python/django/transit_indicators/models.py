@@ -362,6 +362,7 @@ class Indicator(models.Model):
         JOBS_TRAVELSHED = 'jobs_travelshed'
         JOBS_ABSOLUTE_TRAVELSHED = 'jobs_absolute_travelshed'
         JOBS_PERCENTAGE_TRAVELSHED = 'jobs_percentage_travelshed'
+        TRAVELSHED_POPULATION = 'population_travelshed'
 
         class Units(object):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
@@ -379,6 +380,7 @@ class Indicator(models.Model):
             JOBS_ACCESSIBLE = _(u'avg jobs within x min * pop / total jobs in city.')
             JOBS_ACCESSIBLE_ABSOLUTE = _(u'jobs within x minutes')
             JOBS_ACCESSIBLE_PERCENTAGE = _(u'percent jobs within x minutes')
+            POPULATION = _(u'population')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
@@ -402,7 +404,8 @@ class Indicator(models.Model):
                             WEEKDAY_END_FREQ: Units.MINUTES,
                             JOBS_TRAVELSHED: Units.JOBS_ACCESSIBLE,
                             JOBS_ABSOLUTE_TRAVELSHED: Units.JOBS_ACCESSIBLE_ABSOLUTE,
-                            JOBS_PERCENTAGE_TRAVELSHED: Units.JOBS_ACCESSIBLE_PERCENTAGE
+                            JOBS_PERCENTAGE_TRAVELSHED: Units.JOBS_ACCESSIBLE_PERCENTAGE,
+                            TRAVELSHED_POPULATION: Units.POPULATION
         }
 
         # indicators to display on the map
@@ -448,7 +451,8 @@ class Indicator(models.Model):
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
             (JOBS_TRAVELSHED, _(u'Number of jobs reachable by an area')),
             (JOBS_ABSOLUTE_TRAVELSHED, _(u'Absolute number of jobs reachable by an area')),
-            (JOBS_PERCENTAGE_TRAVELSHED, _(u'Percent of total jobs reachable by an area'))
+            (JOBS_PERCENTAGE_TRAVELSHED, _(u'Percent of total jobs reachable by an area')),
+            (TRAVELSHED_POPULATION, _(u'Population used for calculating jobs travelsheds'))
         )
 
     # Slice of time used for calculating this indicator

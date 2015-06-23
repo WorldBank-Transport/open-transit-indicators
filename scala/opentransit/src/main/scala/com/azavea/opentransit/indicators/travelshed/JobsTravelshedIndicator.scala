@@ -43,6 +43,12 @@ object JobsTravelshedIndicator {
   val name = "jobs_travelshed"
   val absoluteName = "jobs_absolute_travelshed"
   val percentageName = "jobs_percentage_travelshed"
+  val populationName = "population_travelshed" // Something of a misnomer; this is the population
+                                               // used for calculating the travelsheds, which is
+                                               // different than what is used to calculate some of the
+                                               // other population-based metrics, but the frontend
+                                               // uses this suffix to determine which indicators have
+                                               // associated GeoTiffs
 
   // names of the summary indicator values stored to django database
   val basicSummaryName = "job_access"
@@ -318,8 +324,11 @@ object JobsTravelshedIndicator {
       absoluteTile.reproject(rasterExtent.extent, crs, WebMercator)
     val (rPercentageTile, rPercentageExtent) =
       percentageTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rPopulationTile, rPopulationExtent) =
+      populationTile.reproject(rasterExtent.extent, crs, WebMercator)
 
     println(s"Setting results of job indicator calculation to raster-cache-key $cacheId")
+    rasterCache.set(RasterCacheKey(populationName + cacheId), (rPopulationTile, rPopulationExtent))
     rasterCache.set(RasterCacheKey(name + cacheId), (rBasicTile, rBasicExtent))
     rasterCache.set(RasterCacheKey(absoluteName + cacheId), (rAbsoluteTile, rAbsoluteExtent))
     rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
