@@ -4,6 +4,7 @@ import com.azavea.gtfs.io.database.{DatabaseRecordImport, DefaultProfile, GtfsTa
 import com.azavea.gtfs._
 import com.azavea.opentransit.service.json.ScenariosGtfsRouteJsonProtocol
 import com.azavea.opentransit.{TaskQueue, DatabaseInstance}
+import com.azavea.opentransit.database._
 import com.sun.xml.internal.ws.encoding.soap.DeserializationException
 import geotrellis.slick.Projected
 import geotrellis.vector.{Line, Point}
@@ -197,7 +198,9 @@ object ScenarioGtfsRoute {
     tables.stopTimeRecordsTable.filter(_.trip_id === tripId).delete
     tables.frequencyRecordsTable.filter(_.trip_id === tripId).delete
     tables.tripRecordsTable.filter(_.id === tripId).delete
-    tables.tripShapesTable.filter(_.id === s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}").delete
+    val tsQuery = tables.tripShapesTable.filter(_.id === s"${ScenariosGtfsRouteJsonProtocol.STOP_PREFIX}-${tripId}")
+    tsQuery.firstOption map { GTFSDeltaStore.removeTripShape(_) }
+    tsQuery.delete
   }
 
   private def saveTripPattern(pattern: TripTuple)(implicit s: Session): Unit = {
@@ -206,6 +209,7 @@ object ScenarioGtfsRoute {
     tables.stopTimeRecordsTable.insertAll(pattern.stopTimes map {_._1}:_*)
     tables.stopsTable.insertAll(pattern.stopTimes map {_._2}:_*)
     pattern.shape map { tables.tripShapesTable.insert }
+    pattern.shape map { GTFSDeltaStore.addTripShape(_) }
     (Q.u +
       s"UPDATE gtfs_stops SET geom = ST_Transform(the_geom, Find_SRID('public','gtfs_stops','geom')) WHERE geom is null;").execute
     (Q.u +

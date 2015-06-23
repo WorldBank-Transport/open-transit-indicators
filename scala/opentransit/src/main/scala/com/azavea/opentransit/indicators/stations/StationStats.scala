@@ -53,7 +53,7 @@ class StationStatsCSV(
   private var header = false
   def attachHeader(): Unit = {
     if (!header) {
-      wrapper.print("stationId")
+      wrapper.print("stationID")
       wrapper.print("stationName")
       wrapper.print("proximalPop1")
       wrapper.print("proximalPop2")
