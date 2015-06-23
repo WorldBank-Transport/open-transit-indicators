@@ -46,6 +46,21 @@ angular.module('transitIndicators')
                     geotiff: geotiff
                 };
             }
+        },
+        'stationsCsv': {
+            method: 'GET',
+            url: '/gt/indicators/station-csv',
+            transformResponse: function(data) {
+                var csv;
+                if (data) {
+                    csv = new Blob([data], {
+                        type: 'application/csv'
+                    });
+                }
+                return {
+                    csv: csv
+                };
+            }
         }
     }, {
         stripTrailingSlashes: false
