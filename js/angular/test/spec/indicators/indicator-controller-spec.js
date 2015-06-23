@@ -1,5 +1,6 @@
 'use strict';
 
+/*jshint camelcase: false */
 describe('OTIIndicatorsController', function () {
     var indicatorsCtl;
     var scope;
@@ -40,3 +41,4 @@ describe('OTIIndicatorsController', function () {
     });
 
 });
+/*jshint camelcase: true */
