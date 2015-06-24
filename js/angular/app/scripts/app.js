@@ -105,7 +105,7 @@ angular.module('transitIndicators', [
             controller: 'OTISettingsController'
         })
         .state('timezone', {
-            url: "/timezone",
+            url: '/timezone',
             onEnter: ['$modal', '$state', 'OTILocalization', function($modal, $state, OTILocalization) {
                 $state.go('map');
                 $modal.open({
@@ -224,8 +224,8 @@ angular.module('transitIndicators', [
 
             // Load modal to set timezone the first time the primary administrator logs in
             if (authService.isAuthenticated()) {
-                if ($cookies['authService.firstLogin'] === "true" &&
-                    $cookies['authService.userId'] === "1") {
+                if ($cookies['authService.firstLogin'] === 'true' &&
+                    $cookies['authService.userId'] === '1') {
                     event.preventDefault();
                     // unset cookie so page doesn't reload endlessly
                     $cookies['authService.firstLogin'] = false;

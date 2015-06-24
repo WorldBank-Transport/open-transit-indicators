@@ -286,7 +286,8 @@
             "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
             "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc.",
             "DOWNLOAD_INDICATORS_CSV": "Download CSV file with indicator results",
-            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results"
+            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results",
+            "DOWNLOAD_STATIONS_CSV": "Download CSV file with stations data"
         }
     },
     "SETTINGS": {
