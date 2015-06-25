@@ -31,6 +31,7 @@ class MockRasterCache extends RasterCache {
       case keyName if keyName.startsWith(JobsTravelshedIndicator.name) => basicRaster
       case keyName if keyName.startsWith(JobsTravelshedIndicator.absoluteName) => absoluteRaster
       case keyName if keyName.startsWith(JobsTravelshedIndicator.percentageName) => percentageRaster
+      case _ => basicRaster
     }
   }
 
