@@ -42,20 +42,30 @@ object TripDeltaStore {
       TripShape(tripDeltaTuple._2, tripDeltaTuple._3)
     )
 
-  class TripDeltaTable(tag: Tag) extends Table[TripDelta](tag, "trip_delta") {
+  class TripDeltaTable(tag: Tag) extends Table[TripDelta](tag, "trip_deltas") {
     def id = column[String]("id", O.PrimaryKey)
     def geom = column[Projected[Line]]("geom")
-    def deltaType = column[Int]("deltaType")
+    def deltaType = column[Int]("delta_type")
 
     def * = (deltaType, id, geom) <> (deserialize, serialize)
   }
   val tripDeltas = TableQuery[TripDeltaTable]
 
-  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit =
-    tripDeltas.insert(TripDelta(GTFSAddition, tripShape))
+  def addTripShape(tripShape: TripShape)(implicit sess: Session): Unit = {
+    val query = tripDeltas.filter(_.id === tripShape.id).map(_.deltaType)
+    query.firstOption match {
+      case Some(_) => ()
+      case None => tripDeltas.insert(TripDelta(GTFSAddition, tripShape))
+    }
+  }
 
-  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit =
-    tripDeltas.insert(TripDelta(GTFSRemoval, tripShape))
+  def removeTripShape(tripShape: TripShape)(implicit sess: Session): Unit = {
+    val query = tripDeltas.filter(_.id === tripShape.id)
+    query.firstOption match {
+      case Some(_) => query.delete
+      case None => tripDeltas.insert(TripDelta(GTFSRemoval, tripShape))
+    }
+  }
 
   def tripHighlights(deltaType: DeltaType)(implicit sess: Session): MultiLine = {
     val query =
@@ -90,22 +100,32 @@ object StopDeltaStore {
       Stop(stopDeltaTuple._2, stopDeltaTuple._3, stopDeltaTuple._4, stopDeltaTuple._5)
     )
 
-  class StopDeltaTable(tag: Tag) extends Table[StopDelta](tag, "gtfs_delta") {
+  class StopDeltaTable(tag: Tag) extends Table[StopDelta](tag, "stop_deltas") {
     def id = column[String]("id", O.PrimaryKey)
     def name = column[String]("name")
     def description = column[Option[String]]("description")
     def geom = column[Projected[Point]]("geom")
-    def deltaType = column[Int]("deltaType")
+    def deltaType = column[Int]("delta_type")
 
     def * = (deltaType, id, name, description, geom) <> (deserialize, serialize)
   }
   val stopDeltas = TableQuery[StopDeltaTable]
 
-  def addStop(stop: Stop)(implicit sess: Session): Unit =
-    stopDeltas.insert(StopDelta(GTFSAddition, stop))
+  def addStop(stop: Stop)(implicit sess: Session): Unit = {
+    val query = stopDeltas.filter(_.id === stop.id).map(_.deltaType)
+    query.firstOption match {
+      case Some(_) => ()
+      case None => stopDeltas.insert(StopDelta(GTFSAddition, stop))
+    }
+  }
 
-  def removeStop(stop: Stop)(implicit sess: Session): Unit =
-    stopDeltas.insert(StopDelta(GTFSRemoval, stop))
+  def removeStop(stop: Stop)(implicit sess: Session): Unit = {
+    val query = stopDeltas.filter(_.id === stop.id)
+    query.firstOption match {
+      case Some(_) => query.delete
+      case None => stopDeltas.insert(StopDelta(GTFSRemoval, stop))
+    }
+  }
 
   def stopHighlights(deltaType: DeltaType)(implicit sess: Session): MultiPoint = {
     val query =
