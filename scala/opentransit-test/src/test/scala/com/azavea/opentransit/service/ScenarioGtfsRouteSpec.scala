@@ -5,6 +5,7 @@ import com.azavea.opentransit.service.json.ScenariosGtfsRouteJsonProtocol
 import com.azavea.opentransit.testkit.TestGtfsRecords
 import com.azavea.opentransit.util.TestDatabaseFixture
 import org.scalatest.{FunSuite, Matchers}
+import spray.httpx.SprayJsonSupport
 import spray.http.StatusCodes
 import spray.json._
 import spray.testkit.ScalatestRouteTest
