@@ -21,10 +21,10 @@ function ($document, $modal, $window, OTIIndicatorModel) {
         template: template,
         link: function (scope) {
             /**
-             * Exports indicator results for a given job as a CSV and downloads to a user's machine
+             * Exports station stats for a given city as a CSV and downloads to a user's machine
              */
             scope.exportStationsCsv = function () {
-                var params = {};
+                var params = {'jobId': scope.job.id};
                 var cityName = scope.job.city_name.replace(/ /g, '_').toLowerCase();
                 var fileName = cityName + '_stations.csv';
 

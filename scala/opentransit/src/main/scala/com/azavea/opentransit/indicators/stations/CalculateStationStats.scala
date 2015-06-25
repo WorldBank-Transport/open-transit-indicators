@@ -22,13 +22,14 @@ object CalculateStationStats {
     val commuteTime = request.maxCommuteTime
     val bufferRadius = request.nearbyBufferDistance
     val dbName = request.gtfsDbName
+    val jobId = request.id
 
     val config = ConfigFactory.load
     val dbGeomNameUtm = config.getString("database.geom-name-utm")
     val dbi = new ProductionDatabaseInstance {}
 
     // New CSV
-    val csv = StationStatsCSV(bufferRadius, commuteTime, dbName)
+    val csv = StationStatsCSV(bufferRadius, commuteTime, jobId)
 
     // Top level vals
     val db = dbi.dbByName(dbName)

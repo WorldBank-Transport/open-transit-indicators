@@ -20,10 +20,11 @@ trait StationStatsCSVRoute extends Route { self: DatabaseInstance =>
   def stationStatsCSVRoute =
     path("station-csv") {
       get {
-        parameters('gtfsdb) { gtfsDbName =>
+        parameters('jobId) { jobId =>
           encodeResponse(Gzip) {
             rejectEmptyResponse {  // 404 just in case None
-              StationCSVDatabase.get(gtfsDbName) match {
+              println(StationCSVDatabase.get(jobId.toInt))
+              StationCSVDatabase.get(jobId.toInt) match {
                 case Some(csvJob) => {
                   csvJob.status match {
                     case Success =>
