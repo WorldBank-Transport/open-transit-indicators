@@ -56,6 +56,7 @@ var styles = {
             '[route_type=5] {line-color: #e31a1c; } ' +
             '[route_type=6] {line-color: #fdbf6f; } ' +
             '[route_type=7] {line-color: #ff7f00; } ' +
+            '[delta_type=1] {line-color: #f3f315; line-width: 5;} ' +
             '}';
         return cartocss;
     },
@@ -118,11 +119,14 @@ GTFSShapes.prototype.getSql = function (modes) {
         modestr += ')';
     }
     var sqlString =
-        "(SELECT distinct r.route_id, r.route_type, s.shape_id, s.the_geom as the_geom " +
+        "(SELECT * FROM ((SELECT distinct r.route_id, r.route_type, s.shape_id, 0 AS delta_type, s.the_geom as the_geom " +
         "FROM gtfs_shape_geoms AS s LEFT JOIN gtfs_trips t ON s.shape_id = t.shape_id " +
         "LEFT JOIN gtfs_routes r ON r.route_id = t.route_id WHERE r.route_id IS NOT NULL " +
-        modestr + ") " +
-        "AS " + result_tablename;
+        modestr + ") UNION " +
+        "(SELECT null AS route_id, null AS route_type, null AS shape_id, delta_type, geom AS the_geom " +
+        "FROM trip_deltas)) AS STUFF" +
+        " ORDER BY CASE delta_type WHEN 1 THEN 1 WHEN -1 THEN 2 ELSE 3 END) AS " + result_tablename
+    ;
     return sqlString;
 };
 
