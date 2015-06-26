@@ -23,7 +23,6 @@ trait StationStatsCSVRoute extends Route { self: DatabaseInstance =>
         parameters('jobId) { jobId =>
           encodeResponse(Gzip) {
             rejectEmptyResponse {  // 404 just in case None
-              println(StationCSVDatabase.get(jobId.toInt))
               StationCSVDatabase.get(jobId.toInt) match {
                 case Some(csvJob) => {
                   csvJob.status match {
