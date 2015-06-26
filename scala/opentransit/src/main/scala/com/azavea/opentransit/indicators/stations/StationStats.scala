@@ -11,6 +11,7 @@ import java.util.UUID
 class StationStatsCSV(
   bufferDistance: Double,
   commuteTime: Int,
+  jobId: Int,
   csvStore: StationCSVStore = StationCSVDatabase,
   outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
 ) extends CSVPrinter(new OutputStreamWriter(outputStream)) {
@@ -19,7 +20,7 @@ class StationStatsCSV(
   def value: String = new String(outputStream.toByteArray)
 
   def save(status: CSVStatus): Unit =
-    csvStore.set(CSVJob(status, bufferDistance, commuteTime, outputStream.toByteArray))
+    csvStore.set(CSVJob(status, bufferDistance, commuteTime, jobId, outputStream.toByteArray))
 
   def writeFile(path: String): Unit = {
     val fos = new FileOutputStream(path)
@@ -52,7 +53,7 @@ class StationStatsCSV(
   private var header = false
   def attachHeader(): Unit = {
     if (!header) {
-      wrapper.print("stationId")
+      wrapper.print("stationID")
       wrapper.print("stationName")
       wrapper.print("proximalPop1")
       wrapper.print("proximalPop2")
@@ -68,10 +69,11 @@ object StationStatsCSV {
   def apply(
     bufferDistance: Double,
     commuteTime: Int,
+    jobId: Int,
     csvStore: StationCSVStore = StationCSVDatabase
   ): StationStatsCSV = {
-    val printer = new StationStatsCSV(bufferDistance, commuteTime)
-    csvStore.set(CSVJob(Processing, bufferDistance, commuteTime, Array.empty))
+    val printer = new StationStatsCSV(bufferDistance, commuteTime, jobId)
+    csvStore.set(CSVJob(Processing, bufferDistance, commuteTime, jobId, Array.empty))
     printer.setStrategy(DEFAULT_STRATEGY)
     printer.attachHeader()
     printer

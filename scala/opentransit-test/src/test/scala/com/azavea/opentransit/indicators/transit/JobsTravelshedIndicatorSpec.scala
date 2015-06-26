@@ -53,8 +53,8 @@ class JobsTravelshedIndicatorSpec
     with Matchers {
   import TestGtfsRecords.stopLocations._
 
-  val mockRequest = IndicatorCalculationRequest("", 0, 0.0, 0.0, 0, 0, 0, 0, 0.0, "", "", List.empty,
-    Requirements.empty
+  val mockRequest = IndicatorCalculationRequest("", 10, 10.0, 10.0, 10, 10, 10, 10, 10.0, "", "", List.empty,
+    Requirements.all
   )
 
   describe("working with a simple system (just subway)") {
