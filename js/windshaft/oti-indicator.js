@@ -56,12 +56,31 @@ var styles = {
             '[route_type=5] {line-color: #e31a1c; } ' +
             '[route_type=6] {line-color: #fdbf6f; } ' +
             '[route_type=7] {line-color: #ff7f00; } ' +
-            '[delta_type=1] {line-color: #f3f315; line-width: 5;} ' +
+            '}';
+        return cartocss;
+    },
+    gtfs_shape_deltas: function() {
+        var cartocss = '#' + result_tablename + ' {' +
+            'line-color: #f3f315;' +
+            'line-opacity: 1;' +
+            'line-width: 5;' +
+            '}';
+        return cartocss;
+    },
+    gtfs_stop_deltas: function() {
+        var cartocss = '#' + result_tablename + ' {' +
+            'marker-opacity: 1;' +
+            'marker-line-color: #CCC;' +
+            'marker-line-width: 0.5;' +
+            'marker-fill: #f3f315;' +
+            'marker-width: 14;' +
+            'marker-line-opacity: 1;' +
+            'marker-placement: point;' +
             '}';
         return cartocss;
     },
     gtfs_stops: function () {
-       var cartocss =  '#' + result_tablename + ' {' +
+        var cartocss =  '#' + result_tablename + ' {' +
             'marker-opacity: 1;' +
             'marker-line-color: #CCC;' +
             'marker-line-width: 0.5;' +
@@ -119,19 +138,46 @@ GTFSShapes.prototype.getSql = function (modes) {
         modestr += ')';
     }
     var sqlString =
-        "(SELECT * FROM ((SELECT distinct r.route_id, r.route_type, s.shape_id, 0 AS delta_type, s.the_geom as the_geom " +
+        "(SELECT distinct r.route_id, r.route_type, s.shape_id, s.the_geom as the_geom " +
         "FROM gtfs_shape_geoms AS s LEFT JOIN gtfs_trips t ON s.shape_id = t.shape_id " +
         "LEFT JOIN gtfs_routes r ON r.route_id = t.route_id WHERE r.route_id IS NOT NULL " +
-        modestr + ") UNION " +
-        "(SELECT null AS route_id, null AS route_type, null AS shape_id, delta_type, geom AS the_geom " +
-        "FROM trip_deltas)) AS STUFF" +
-        " ORDER BY CASE delta_type WHEN 1 THEN 1 WHEN -1 THEN 2 ELSE 3 END) AS " + result_tablename
-    ;
+        modestr + ") " +
+        "AS " + result_tablename;
     return sqlString;
 };
 
 GTFSShapes.prototype.getStyle = function () {
     return styles.gtfs_shapes() || "";
+};
+
+/**
+ * Gtfs Shape Deltas
+ */
+var GTFSShapeDeltas = function () {};
+
+GTFSShapeDeltas.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT geom AS the_geom FROM trip_deltas WHERE delta_type = 1) AS " + result_tablename;
+    return sqlString;
+};
+
+GTFSShapeDeltas.prototype.getStyle = function () {
+    return styles.gtfs_shape_deltas() || "";
+};
+
+/**
+ * Gtfs Stop Deltas
+ */
+var GTFSStopDeltas = function () {};
+
+GTFSStopDeltas.prototype.getSql = function () {
+    var sqlString =
+        "(SELECT geom AS the_geom FROM stop_deltas WHERE delta_type = 1) AS " + result_tablename;
+    return sqlString;
+};
+
+GTFSStopDeltas.prototype.getStyle = function () {
+    return styles.gtfs_stop_deltas() || "";
 };
 
 /**
@@ -302,7 +348,9 @@ Indicator.prototype.getStyle = function () {
 
 exports.Indicator = Indicator;
 exports.GTFSShapes = GTFSShapes;
+exports.GTFSShapeDeltas = GTFSShapeDeltas;
 exports.GTFSStops = GTFSStops;
+exports.GTFSStopDeltas = GTFSStopDeltas;
 exports.GTFSStopsBuffers = GTFSStopsBuffers;
 exports.datasourcesBoundary = datasourcesBoundary;
 exports.DatasourcesDemographics = DatasourcesDemographics;
