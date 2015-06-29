@@ -42,6 +42,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # JVM Profiling
   config.vm.network :forwarded_port, guest: 3333, host: 3333
 
+  # Postgres admin
+  config.vm.network :forwarded_port, guest: 5432, host: 5432
+
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network :private_network, ip: "192.168.4.2"

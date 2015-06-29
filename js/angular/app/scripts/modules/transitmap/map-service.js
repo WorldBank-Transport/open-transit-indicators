@@ -225,6 +225,16 @@ angular.module('transitIndicators')
         url += '/tiles/{scenario}/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png?modes={modes}';
         return url;
     };
+    module.gtfsShapeDeltasUrl = function () {
+        var url = getWindshaftHost();
+        url += '/tiles/{scenario}/0/gtfs_shape_deltas/morning/route/{z}/{x}/{y}.png?modes={modes}';
+        return url;
+    };
+    module.gtfsStopDeltasUrl = function () {
+        var url = getWindshaftHost();
+        url += '/tiles/{scenario}/0/gtfs_stop_deltas/morning/route/{z}/{x}/{y}.png?modes={modes}';
+        return url;
+    };
 
     /**
      * Create windshaft url for gtfs stops overlay

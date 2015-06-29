@@ -25,6 +25,26 @@ angular.module('transitIndicators')
                 visible: true,
                 layerOptions: boundaryIndicator
             },
+            gtfs_stop_deltas: {
+                name: $translate.instant('MAP.TRANSIT_ROUTES'),
+                type: 'xyz',
+                url: OTIMapService.gtfsStopDeltasUrl(),
+                visible: true,
+                layerOptions: {
+                    modes: OTIMapService.getTransitModes(),
+                    scenario: OTIMapService.getScenario()
+                }
+            },
+            gtfs_shape_deltas: {
+                name: $translate.instant('MAP.TRANSIT_ROUTES'),
+                type: 'xyz',
+                url: OTIMapService.gtfsShapeDeltasUrl(),
+                visible: true,
+                layerOptions: {
+                    modes: OTIMapService.getTransitModes(),
+                    scenario: OTIMapService.getScenario()
+                }
+            },
             gtfs_shapes: {
                 name: $translate.instant('MAP.TRANSIT_ROUTES'),
                 type: 'xyz',
