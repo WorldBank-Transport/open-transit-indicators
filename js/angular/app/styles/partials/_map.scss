@@ -11,6 +11,11 @@
     }
 }
 
+.leaflet-control-layers-expanded {
+    max-height: 25rem;
+    overflow: auto;
+}
+
 .gtfs-map-controls {
     position: absolute;
     top: 1rem;
