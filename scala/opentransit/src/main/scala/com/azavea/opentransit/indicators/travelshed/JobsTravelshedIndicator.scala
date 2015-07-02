@@ -273,7 +273,7 @@ object JobsTravelshedIndicator {
 
           if(sum > 0) {
             val population: Double = populationTile.getDouble(col, row) match {
-              case cell if cell.isNaN => 0.0
+              case cell if isNoData(cell) => 0.0
               case cell => cell
             }
 
@@ -291,12 +291,13 @@ object JobsTravelshedIndicator {
 
             // for "percentage" tile, raster cell represents accessible jobs / total jobs in city,
             // to present as a percentage
-            percentageTile.setDouble(col, row, (sum / totalJobs))
+            println((sum / totalJobs) * 100)
+            percentageTile.setDouble(col, row, ((sum / totalJobs) * 100))
 
           } else {
-            basicTile.setDouble(col, row, 0.0)
-            absoluteTile.setDouble(col, row, 0.0)
-            percentageTile.setDouble(col, row, 0.0)
+            basicTile.setDouble(col, row, NODATA)
+            absoluteTile.setDouble(col, row, NODATA)
+            percentageTile.setDouble(col, row, NODATA)
           }
         }
       }
