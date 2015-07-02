@@ -71,7 +71,9 @@ trait OpenTransitService
       pathPrefix("travelshed") {
         travelshedIndicatorRoute ~
         travelshedGeotiffRoute ~
-        travelshedMinMaxRoute
+        jobsTravelshedMinMaxRoute ~
+        absoluteJobsMinMaxRoute ~
+        percentageJobsMinMaxRoute
       }
     }
 }

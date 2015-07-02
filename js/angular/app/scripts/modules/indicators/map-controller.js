@@ -349,9 +349,12 @@ angular.module('transitIndicators')
         OTIMapService.getLegendData();
 
         // Set up demographic legends (static)
-        makeLegend('getTravelShedRange', 'jobsLegend', 'green8', 'MAP.JOBS_INDICATOR_TITLE');
-        makeLegend('getTravelShedRange', 'absoluteJobsLegend', 'green8', 'MAP.ABSOLUTE_JOBS_INDICATOR_TITLE');
-        makeLegend('getTravelShedRange', 'percentageJobsLegend', 'green8', 'MAP.PERCENTAGE_JOBS_INDICATOR_TITLE');
+        makeLegend('getJobsTravelShedRange', 'jobsLegend',
+                'green8', 'MAP.JOBS_INDICATOR_TITLE');
+        makeLegend('getAbsoluteJobsTravelShedRange', 'absoluteJobsLegend',
+                'green8', 'MAP.ABSOLUTE_JOBS_INDICATOR_TITLE');
+        makeLegend('getPercentageJobsTravelShedRange', 'percentageJobsLegend',
+                'green8', 'MAP.PERCENTAGE_JOBS_INDICATOR_TITLE');
         makeLegend('getPopOneRange', 'pop1Legend', 'red5', 'MAP.POPULATION_METRIC_ONE_LAYER');
         makeLegend('getPopTwoRange', 'pop2Legend', 'orange5', 'MAP.POPULATION_METRIC_TWO_LAYER');
         makeLegend('getDestOneRange', 'dest1Legend', 'blue5', 'MAP.DESTINATION_METRIC_LAYER');

@@ -19,8 +19,15 @@ import scala.slick.jdbc.JdbcBackend.Session
 import scala.concurrent._
 
 trait TravelshedMinMaxRoute extends Route { self: DatabaseInstance =>
+  def minMaxForTravelShed(indicator: String, jobId: String) = {
+    val (min, max) = Main.rasterCache.get(RasterCacheKey(indicator + jobId)) match {
+      case Some((tile, extent)) => tile.findMinMax
+      case _ => (0,0)
+    }
+    JsObject("min" -> JsNumber(min), "max" -> JsNumber(max))
+  }
 
-  def travelshedMinMaxRoute =
+  def jobsTravelshedMinMaxRoute =
     pathPrefix("jobs") {
       path("minmax") {
         get {
@@ -28,17 +35,37 @@ trait TravelshedMinMaxRoute extends Route { self: DatabaseInstance =>
               'JOBID
             ) { (jobId) =>
               complete {
-                println(jobId)
+                minMaxForTravelShed(indicators.travelshed.JobsTravelshedIndicator.name, jobId)
+            }
+          }
+        }
+      }
+    }
 
+  def absoluteJobsMinMaxRoute =
+    pathPrefix("abs-jobs") {
+      path("minmax") {
+        get {
+            parameters(
+              'JOBID
+            ) { (jobId) =>
+              complete {
+                minMaxForTravelShed(indicators.travelshed.JobsTravelshedIndicator.absoluteName, jobId)
+            }
+          }
+        }
+      }
+    }
 
-                val (min, max) =
-                  Main.rasterCache.get(RasterCacheKey(indicators.travelshed.JobsTravelshedIndicator.name + jobId)) match {
-                    case Some((tile, extent)) =>
-                      tile.findMinMax
-                    case _ =>
-                      (0,0)
-                  }
-                JsObject("min" -> JsNumber(min), "max" -> JsNumber(max))
+  def percentageJobsMinMaxRoute =
+    pathPrefix("pct-jobs") {
+      path("minmax") {
+        get {
+            parameters(
+              'JOBID
+            ) { (jobId) =>
+              complete {
+                minMaxForTravelShed(indicators.travelshed.JobsTravelshedIndicator.percentageName, jobId)
             }
           }
         }
