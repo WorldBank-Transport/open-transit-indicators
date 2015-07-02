@@ -23,10 +23,11 @@ object AverageServiceFrequency extends Indicator
         .flatMap(_.schedule).toList                 // List[ScheduledStops]
         .groupBy(_.stop)                            // Map[Stop, List[ScheduledStops]]
         .values.toList                              // List[List[ScheduledStop]]
-        .map(_.map(_.arrivalTime))                  // List[List[LocalDateTime]]
+        .map(
+          _.map(_.arrivalTime).sorted)              // List[List[LocalDateTime]]
         .map {
-          _.sliding(2).toList.map { dt: List[LocalDateTime] =>
-            Seconds.secondsBetween(dt(0), dt(1)).getSeconds
+          _.sliding(2).toList.filter(_.size > 1).map { dt: List[LocalDateTime] =>
+            Seconds.secondsBetween(dt(0), dt(1)).getSeconds.abs
           }.foldLeft((0.0, 0)) { case ((total, count), diff) =>
             (total + diff, count + 1)               // Count up the interservice spaces and add up times
           }
