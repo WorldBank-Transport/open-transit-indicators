@@ -12,7 +12,7 @@
 }
 
 .leaflet-control-layers-expanded {
-    max-height: 25rem;
+    max-height: calc(100vh - 37rem);
     overflow: auto;
 }
 

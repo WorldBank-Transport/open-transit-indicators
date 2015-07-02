@@ -291,8 +291,7 @@ object JobsTravelshedIndicator {
 
             // for "percentage" tile, raster cell represents accessible jobs / total jobs in city,
             // to present as a percentage
-            println((sum / totalJobs) * 100)
-            percentageTile.setDouble(col, row, ((sum / totalJobs) * 100))
+            percentageTile.setDouble(col, row, (sum / totalJobs) * 100)
 
           } else {
             basicTile.setDouble(col, row, NODATA)
