@@ -35,7 +35,7 @@ import grizzled.slf4j.Logging
 /*
  * Response from `calculate`
  */
-case class JobAccessStatistics(basic: Double, absolute: Double, percentage: Double)
+case class JobAccessStatistics(basic: Double, percentage: Double)
 
 object JobsTravelshedIndicator {
 
@@ -77,11 +77,11 @@ object JobsTravelshedIndicator {
     overallLineGeoms: SystemLineGeometries,
     statusManager: CalculationStatusManager
   ): Unit = {
-    val results = calculate(travelshedGraph, calcParams, request, rasterCache)
+    val results: JobAccessStatistics =
+      calculate(travelshedGraph, calcParams, request, rasterCache)
 
     // write the three results to the database
     writeToDatabase(results.basic, basicSummaryName, overallLineGeoms, statusManager)
-    writeToDatabase(results.absolute, absoluteSummaryName, overallLineGeoms, statusManager)
     writeToDatabase(results.percentage, percentageSummaryName, overallLineGeoms, statusManager)
   }
 
@@ -272,21 +272,15 @@ object JobsTravelshedIndicator {
           jobsTile.set(col, row, sum.toInt)
 
           if(sum > 0) {
-            val population = populationTile.getDouble(col, row) match {
-              case tile if tile.isNaN => 0.0
-              case tile => tile
+            val population: Double = populationTile.getDouble(col, row) match {
+              case cell if isNoData(cell) => 0.0
+              case cell => cell
             }
 
             // calculate each indicator result, where `sum` is the number of jobs accessible
             // from the current cell
             val basicResult = (sum * population) / totalJobs
-
-            // intermediate results for absolute and percentage overall indicators are the same
-            val absolutePercentageResult = (sum / totalJobs) * population
-
-            // accumulate totals for each indicator
             basicTotalJobAccessResult += basicResult
-            absolutePercentageTotalJobAccessResult += absolutePercentageResult
 
             tileCount += 1
 
@@ -297,12 +291,12 @@ object JobsTravelshedIndicator {
 
             // for "percentage" tile, raster cell represents accessible jobs / total jobs in city,
             // to present as a percentage
-            percentageTile.setDouble(col, row, (sum / totalJobs))
+            percentageTile.setDouble(col, row, (sum / totalJobs) * 100)
 
           } else {
-            basicTile.setDouble(col, row, Double.NaN)
-            absoluteTile.setDouble(col, row, Double.NaN)
-            percentageTile.setDouble(col, row, Double.NaN)
+            basicTile.setDouble(col, row, NODATA)
+            absoluteTile.setDouble(col, row, NODATA)
+            percentageTile.setDouble(col, row, NODATA)
           }
         }
       }
@@ -330,9 +324,8 @@ object JobsTravelshedIndicator {
     rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
 
     val basic = basicTotalJobAccessResult / tileCount
-    val absolute = absolutePercentageTotalJobAccessResult / tileCount // average
-    val percentage = absolutePercentageTotalJobAccessResult / totalJobs
+    val percentage = basicTotalJobAccessResult / totalPopulation
 
-    new JobAccessStatistics(basic, absolute, percentage)
+    new JobAccessStatistics(basic, percentage)
   }
 }
