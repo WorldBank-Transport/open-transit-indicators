@@ -381,7 +381,7 @@ class Indicator(models.Model):
             JOBS_ACCESSIBLE = _(u'avg jobs within x min * pop / total jobs in city.')
             JOBS_ACCESSIBLE_ABSOLUTE = _(u'jobs within x minutes')
             JOBS_ACCESSIBLE_PERCENTAGE = _(u'percent jobs within x minutes')
-            JOB_PERCENTAGE_ACCESS = _(u'percent population able to reach jobs within configured commute')
+            JOB_PERCENTAGE_ACCESS = _(u'person-accessible jobs as a percent of total jobs')
             POPULATION = _(u'population')
 
         # units of measurement for the IndicatorTypes
