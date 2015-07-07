@@ -8,7 +8,8 @@
         "SCENARIO": "!Scenario",
         "INDICATORS": "!Indicators",
         "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
-        "CHANGE_LANGUAGE": "!Change Language"
+        "CHANGE_LANGUAGE": "!Change Language",
+        "CHANGE_TIMEZONE": "!Change Time Zone"
     },
     "STATUS": {
         "CANCELLED": "Đã Hủy",
@@ -35,6 +36,7 @@
     },
     "TERM": {
         "LANGUAGE": "!Language",
+        "TIMEZONE": "!Time Zone",
         "INDICATOR": "Chỉ báo",
         "LOGIN": "Đăng nhập",
         "USERNAME": "Tên tài khoản",
@@ -98,7 +100,8 @@
         "SCALA_UNKNOWN_ERROR": "Fatal error while calculating indicators: does your server have enough memory?",
         "CALCULATION_ERROR": "Exception thrown while calculating indicators: does your data have errors?",
         "MISSING_OBS": "Observed, 'real-time' data missing from this sample period: ",
-        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes.",
+        "DOWNLOAD_GEOTIFF_MODAL_TEXT": "Which accessibility indicator GeoTIFF would you like to download?"
     },
     "SCENARIO": {
         "SCENARIO": "Scenario",
@@ -213,6 +216,8 @@
         "TRAVEL_TIME": "The average variance in minutes of travel time (requires observed stop times).",
         "HOURS_SERVICE": "The number of hours per week that the system provides service.",
         "JOB_ACCESS": "The number of individuals who can reach a job location (destination metric) within the configured commute time. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
+        "JOB_ABSOLUTE_ACCESS": "The total number of jobs (destination metric) accessible within the configured commute time. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
+        "JOB_PERCENTAGE_ACCESS": "The percentage of jobs (destination metric) accessible within the configured commute time, as a percentage of the total population. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
         "LENGTH": "Quãng đường của một hệ thống giao thông tính theo km cho từng dạng dữ liệu thu thập",
         "LINES_ROADS": "The ratio of transit system length to the length of the road network. This indicator accounts for multiple routes sharing the same roadway.",
         "LINE_NETWORK_DENSITY": "An index value: the total length of the transit network in comparison to the total area of the urban area.",
@@ -278,7 +283,10 @@
             "JOB_ARRIVE_BY_TIME": "The time by which one could arrive at in order to count the jobs in that area as accessible.",
             "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
             "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
-            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc.",
+            "DOWNLOAD_INDICATORS_CSV": "Download CSV file with indicator results",
+            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results",
+            "DOWNLOAD_STATIONS_CSV": "Download CSV file with stations data"
         }
     },
     "SETTINGS": {
@@ -368,10 +376,14 @@
         "TRANSIT_STOPS_INTERACTIVITY": "Transit Stops Interactivity",
         "SYSTEM_SELECTION": "System/Scenario Selection",
         "JOBS_INDICATOR_TITLE": "Jobs Accessible Per Person",
+        "ABSOLUTE_JOBS_INDICATOR_TITLE": "Total Jobs Accessible",
+        "PERCENTAGE_JOBS_INDICATOR_TITLE": "Percentage Jobs Accessible to Total Jobs",
         "JOBS_INDICATOR_FEWER": "Fewer",
         "JOBS_INDICATOR_MORE": "More",
         "INDICATOR_INTERACTIVITY_LAYER": "GTFS Indicator Interactivity",
         "JOBS_INDICATOR_LAYER": "Jobs Indicator",
+        "ABSOLUTE_JOBS_INDICATOR_LAYER": "Absolute Jobs Indicator",
+        "PERCENTAGE_JOBS_INDICATOR_LAYER": "Percentage Jobs Indicator",
         "GTFS_INDICATOR_LAYER": "GTFS Indicator",
         "POPULATION_METRIC_ONE_LAYER": "Population Metric 1",
         "POPULATION_METRIC_TWO_LAYER": "Population Metric 2",

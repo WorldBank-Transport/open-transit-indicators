@@ -4,6 +4,7 @@ import scala.math.max
 
 import com.azavea.opentransit._
 import com.azavea.opentransit.indicators._
+import com.azavea.opentransit.indicators.stations._
 import com.azavea.opentransit.indicators.parameters._
 import com.azavea.gtfs.Timer
 
@@ -13,6 +14,7 @@ import geotrellis.raster._
 import geotrellis.raster.reproject._
 import geotrellis.slick._
 import geotrellis.proj4._
+import geotrellis.raster.interpolation._
 
 import geotrellis.network._
 import geotrellis.network.graph._
@@ -23,40 +25,73 @@ import grizzled.slf4j.Logging
 /**
  * Build rasters for jobs accessibility by population.
  *
+ * This calcuates and stores three related job accessibility indicators.
+ *
  * @param travelshedGraph the actual graph of jobs accessibility
- * @param regionDemographics the input demographic data
+ * @param calcParams the input demographic data with stopbuffers for CSV production
  * @param cacheId string uniquely identifying current indicator calculation set, used to key cached rasters
  */
 
+/*
+ * Response from `calculate`
+ */
+case class JobAccessStatistics(basic: Double, percentage: Double)
 
 object JobsTravelshedIndicator {
-  val name = "jobs_travelshed"
 
-  def writeToDatabase(result: Double,
-                      overallLineGeoms: SystemLineGeometries,
-                      statusManager: CalculationStatusManager): Unit = {
+  // indicator names
+  val name = "jobs_travelshed"
+  val absoluteName = "jobs_absolute_travelshed"
+  val percentageName = "jobs_percentage_travelshed"
+  val populationName = "population_travelshed" // Something of a misnomer; this is the population
+                                               // used for calculating the travelsheds, which is
+                                               // different than what is used to calculate some of the
+                                               // other population-based metrics, but the frontend
+                                               // uses this suffix to determine which indicators have
+                                               // associated GeoTiffs
+
+  // names of the summary indicator values stored to django database
+  val basicSummaryName = "job_access"
+  val absoluteSummaryName = "job_absolute_access"
+  val percentageSummaryName = "job_percentage_access"
+
+
+  def writeToDatabase(
+    result: Double,
+    summaryIndicatorName: String,
+    overallLineGeoms: SystemLineGeometries,
+    statusManager: CalculationStatusManager
+  ): Unit = {
     val aggResults = AggregatedResults.systemOnly(result)
-    val results = OverallIndicatorResult.createContainerGenerators("job_access",
+    val results = OverallIndicatorResult.createContainerGenerators(summaryIndicatorName,
       aggResults,
       overallLineGeoms)
     statusManager.indicatorFinished(results)
   }
 
-  def run(travelshedGraph: TravelshedGraph,
-          regionDemographics: RegionDemographics,
-          cacheId: String,
-          rasterCache: RasterCache,
-          overallLineGeoms: SystemLineGeometries,
-          statusManager: CalculationStatusManager): Unit = {
+  def run(
+    travelshedGraph: TravelshedGraph,
+    calcParams: RegionDemographics,
+    request: IndicatorCalculationRequest,
+    rasterCache: RasterCache,
+    overallLineGeoms: SystemLineGeometries,
+    statusManager: CalculationStatusManager
+  ): Unit = {
+    val results: JobAccessStatistics =
+      calculate(travelshedGraph, calcParams, request, rasterCache)
 
-    val result = calculate(travelshedGraph, regionDemographics, cacheId, rasterCache)
-    writeToDatabase(result, overallLineGeoms, statusManager)
+    // write the three results to the database
+    writeToDatabase(results.basic, basicSummaryName, overallLineGeoms, statusManager)
+    writeToDatabase(results.percentage, percentageSummaryName, overallLineGeoms, statusManager)
   }
 
-  def calculate(travelshedGraph: TravelshedGraph,
-    regionDemographics: RegionDemographics,
-    cacheId: String,
-    rasterCache: RasterCache): Double = {
+  def calculate(
+    travelshedGraph: TravelshedGraph,
+    calcParams: RegionDemographics,
+    request: IndicatorCalculationRequest,
+    rasterCache: RasterCache
+  // return the three calculated results as named values
+  ): JobAccessStatistics = {
     val (graph, index, rasterExtent, arriveTime, duration, crs) = {
       val tg = travelshedGraph
 
@@ -65,11 +100,12 @@ object JobsTravelshedIndicator {
 
       (tg.graph, tg.index, tg.rasterExtent, arriveTime, duration, tg.crs)
     }
+  val cacheId: String = request.id.toString
 
-    println(s"RUNNING JOB INDICATORS FOR ARRIVAL TIME $arriveTime WITH $duration TRAVEL TIME")
+    println(s"RUNNING BASE JOB ACCESS INDICATOR FOR ARRIVAL TIME $arriveTime AND $duration TRAVEL TIME")
 
     val features: Array[JobsDemographics] =
-      regionDemographics.jobsDemographics.toArray
+      calcParams.jobsDemographics.toArray
 
     val (cols, rows) =
       (rasterExtent.cols, rasterExtent.rows)
@@ -88,16 +124,21 @@ object JobsTravelshedIndicator {
     // Set up a byte that tells if a poly has been added to the sum
     val polyHit = 1.toByte
 
-    // Create the empty tile. This will be filled with the number of jobs
-    // accessible from the tile
-    val tile = ArrayTile.empty(TypeDouble, cols, rows)
+    // Create the empty tiles. This will be filled with the number of jobs
+    // accessible from the tile for each indicator.
+    val basicTile = ArrayTile.empty(TypeDouble, cols, rows)
+    val absoluteTile = ArrayTile.empty(TypeDouble, cols, rows)
+    val percentageTile = ArrayTile.empty(TypeDouble, cols, rows)
 
     // Population Tile that will be combined with jobs data
     val populationTile = ArrayTile.empty(TypeDouble, cols, rows)
 
+    // Job Tile to be used for CSV generation
+    val jobsTile = ArrayTile.empty(TypeFloat, cols, rows)
+
     // Create an index of the raster cells
     val mappedCoords =
-      GridBounds(0, 0, tile.cols - 1, tile.rows - 1).coords.map { case (col, row) =>
+      GridBounds(0, 0, basicTile.cols - 1, basicTile.rows - 1).coords.map { case (col, row) =>
         (col, row, rasterExtent.gridColToMap(col), rasterExtent.gridRowToMap(row))
       }
     val tileIndex =
@@ -148,11 +189,13 @@ object JobsTravelshedIndicator {
           .toSet
           .map { s: String => ScheduledTransit(s, EveryDaySchedule) }.toList
 
-    var totalJobAccessResult = 0.0
+    var basicTotalJobAccessResult = 0.0
+    var absolutePercentageTotalJobAccessResult = 0.0
+
     var tileCount = 0
 
     println(s"Running shortest path query. $rasterExtent. $rows, $cols")
-    Timer.timedTask(s"Created the jobs indicator tile") {
+    Timer.timedTask(s"Created jobs indicator tiles") {
       cfor(0)(_ < rows, _ + 1) { row =>
     //    Timer.timedTask(s"  Ran for row $row") {
         cfor(0)(_ < cols, _ + 1) { col =>
@@ -226,32 +269,63 @@ object JobsTravelshedIndicator {
             }
           }
 
+          jobsTile.set(col, row, sum.toInt)
+
           if(sum > 0) {
-            val population = populationTile.getDouble(col, row) match {
-              case tile if tile.isNaN => 0.0
-              case tile => tile
+            val population: Double = populationTile.getDouble(col, row) match {
+              case cell if isNoData(cell) => 0.0
+              case cell => cell
             }
-            val numerator = sum * population
-            val result = numerator / totalJobs
-            totalJobAccessResult += result
+
+            // calculate each indicator result, where `sum` is the number of jobs accessible
+            // from the current cell
+            val basicResult = (sum * population) / totalJobs
+            basicTotalJobAccessResult += basicResult
+
             tileCount += 1
-            tile.setDouble(col, row, result)
+
+            basicTile.setDouble(col, row, basicResult)
+
+            // for "absolute" tile, raster cell simply represents accessible jobs as absolute number
+            absoluteTile.setDouble(col, row, sum)
+
+            // for "percentage" tile, raster cell represents accessible jobs / total jobs in city,
+            // to present as a percentage
+            percentageTile.setDouble(col, row, (sum / totalJobs) * 100)
+
           } else {
-            tile.setDouble(col, row, Double.NaN)
+            basicTile.setDouble(col, row, NODATA)
+            absoluteTile.setDouble(col, row, NODATA)
+            percentageTile.setDouble(col, row, NODATA)
           }
         }
       }
     }
 
+    Timer.timedTask(s"Created station CSV") {
+      CalculateStationStats(request, Interpolation(NearestNeighbor, jobsTile, rasterExtent.extent))
+    }
+
     // Reproject
     println(s"Reprojecting extent ${rasterExtent.extent} to WebMercator.")
-    val (rTile, rExtent) =
-      tile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rBasicTile, rBasicExtent) =
+      basicTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rAbsoluteTile, rAbsoluteExtent) =
+      absoluteTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rPercentageTile, rPercentageExtent) =
+      percentageTile.reproject(rasterExtent.extent, crs, WebMercator)
+    val (rPopulationTile, rPopulationExtent) =
+      populationTile.reproject(rasterExtent.extent, crs, WebMercator)
 
-    println(s"Setting result of job indicator calculation to raster-cache-key $cacheId")
-    rasterCache.set(RasterCacheKey(JobsTravelshedIndicator.name + cacheId), (rTile, rExtent))
+    println(s"Setting results of job indicator calculation to raster-cache-key $cacheId")
+    rasterCache.set(RasterCacheKey(populationName + cacheId), (rPopulationTile, rPopulationExtent))
+    rasterCache.set(RasterCacheKey(name + cacheId), (rBasicTile, rBasicExtent))
+    rasterCache.set(RasterCacheKey(absoluteName + cacheId), (rAbsoluteTile, rAbsoluteExtent))
+    rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
 
-    val regionalJobAccess = totalJobAccessResult / tileCount
-    regionalJobAccess
+    val basic = basicTotalJobAccessResult / tileCount
+    val percentage = 100 * (basicTotalJobAccessResult / totalPopulation)
+
+    new JobAccessStatistics(basic, percentage)
   }
 }

@@ -3,10 +3,12 @@ angular.module('transitIndicators')
 .controller('OTIRootController',
             ['config', '$cookieStore', '$cookies', '$modal', '$scope', '$rootScope', '$timeout',
              '$translate', '$state', '$stateParams',
-             'OTIEvents', 'OTIIndicatorManager', 'OTIMapService', 'authService','leafletData', 'user',
+             'OTIEvents', 'OTIIndicatorManager', 'OTIMapService', 'OTILocalization',
+             'authService','leafletData', 'user',
             function (config, $cookieStore, $cookies, $modal, $scope, $rootScope, $timeout,
                       $translate, $state, $stateParams,
-                      OTIEvents, OTIIndicatorManager, OTIMapService, authService, leafletData, user) {
+                      OTIEvents, OTIIndicatorManager, OTIMapService, OTILocalization,
+                      authService, leafletData, user) {
 
     var invalidateMapDiv = function () {
         leafletData.getMap().then(function (map) {
@@ -81,6 +83,26 @@ angular.module('transitIndicators')
         $modal.open({
             templateUrl: 'scripts/modules/userdata/change-language.html',
             controller: 'OTIUserdataChangeLanguageController',
+            resolve: {
+                languageInfo: function() {
+                    return OTILocalization.getLanguages();
+                }
+            },
+            size: 'sm'
+        });
+    };
+
+    $scope.changeTimezone = function() {
+        // do not allow user to close modal until they have picked a time zone
+        $modal.open({
+            templateUrl: 'scripts/modules/userdata/change-timezone.html',
+            controller: 'OTIUserdataChangeTimezoneController',
+            backdrop: 'static',
+            resolve: {
+                timezones: function() {
+                    return OTILocalization.getTimeZones();
+                }
+            },
             size: 'sm'
         });
     };

@@ -28,13 +28,6 @@ angular.module('transitIndicators').constant('config', {
 
     debug: true,
 
-    languages: {
-        'English': 'en',
-        'Chinese': 'zh',
-        'Vietnamese': 'vi',
-        'Spanish': 'es'
-    },
-
     defaultLanguage: 'en',
 
     worldExtent: {
@@ -74,6 +67,7 @@ angular.module('transitIndicators').constant('config', {
                         subdomains: ['a', 'b', 'c', 'd'],
                         minZoom: 3,
                         maxZoom: 20,
+                        zIndex: -1,
                         continuousWorld: true
                     }
                 },
@@ -88,6 +82,7 @@ angular.module('transitIndicators').constant('config', {
                         subdomains: ['a', 'b', 'c', 'd'],
                         minZoom: 3,
                         maxZoom: 20,
+                        zIndex: -1,
                         continuousWorld: true
                     }
                 },
@@ -102,6 +97,7 @@ angular.module('transitIndicators').constant('config', {
                         subdomains: ['server', 'services'],
                         minZoom: 3,
                         maxZoom: 20,
+                        zIndex: -1,
                         continuousWorld: true
                     }
                 },
@@ -116,6 +112,7 @@ angular.module('transitIndicators').constant('config', {
                         subdomains: ['server', 'services'],
                         minZoom: 3,
                         maxZoom: 20,
+                        zIndex: -1,
                         continuousWorld: true
                     }
                 },
@@ -128,6 +125,7 @@ angular.module('transitIndicators').constant('config', {
                         subdomains: ['1', '2', '3'],
                         minZoom: 3,
                         maxZoom: 20,
+                        zIndex: -1,
                         continuousWorld: true
                     }
                 }

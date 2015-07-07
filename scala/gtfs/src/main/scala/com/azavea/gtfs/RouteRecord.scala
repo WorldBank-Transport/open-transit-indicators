@@ -10,4 +10,4 @@ case class RouteRecord(
   url: Option[String] = None,
   color: Option[String] = None,
   textColor: Option[String] = None
-) 
+)

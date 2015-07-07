@@ -8,7 +8,8 @@
         "SCENARIO": "方案",
         "INDICATORS": "指标",
         "CHANGE_PASSWORD": "@:CHANGE_PW.CHANGE_PASSWORD",
-        "CHANGE_LANGUAGE": "!Change Language"
+        "CHANGE_LANGUAGE": "!Change Language",
+        "CHANGE_TIMEZONE": "!Change Time Zone"
     },
     "STATUS": {
         "CANCELLED": "已取消",
@@ -35,6 +36,7 @@
     },
     "TERM": {
         "LANGUAGE": "语言",
+        "TIMEZONE": "!Time Zone",
         "INDICATOR": "指标",
         "LOGIN": "登入",
         "USERNAME": "用户名",
@@ -98,7 +100,8 @@
         "SCALA_UNKNOWN_ERROR": "计算指标时出现致命错误: 您的服务器有足够的内存吗？",
         "CALCULATION_ERROR": "计算指标时出现异常: 您的数据有错误吗？",
         "MISSING_OBS": "抽样时间内实时数据缺失 ",
-        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes."
+        "EXPORT_MODAL_TEXT": "Downloading CSV. This may take a few minutes.",
+        "DOWNLOAD_GEOTIFF_MODAL_TEXT": "Which accessibility indicator GeoTIFF would you like to download?"
     },
     "SCENARIO": {
         "SCENARIO": "方案",
@@ -213,6 +216,8 @@
         "TRAVEL_TIME": "The average variance in minutes of travel time (requires observed stop times).",
         "HOURS_SERVICE": "系统每周提供服务的小时数。",
         "JOB_ACCESS": "在设置的通勤时间内到达工作地点（目的地指标）的人数。对每个工作地点计算其旅行时间的等时线，再对该范围内的人口进行加和。每个人口加和的区域组成了全城范围内工作地点可达性。",
+        "JOB_ABSOLUTE_ACCESS": "The total number of jobs (destination metric) accessible within the configured commute time. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
+        "JOB_PERCENTAGE_ACCESS": "The percentage of jobs (destination metric) accessible within the configured commute time, as a percentage of the total population. A travel-time isochrone is calculated for each job location, and the population within that area is summed. Each population-sum area is then overlaid to determine job accessibility.",
         "LENGTH": "公共交通系统所有线路的长度总和。该指标对同一路段的多条线路长度不进行重复计算。",
         "LINES_ROADS": "公共交通系统线路总长度与路网长度之比。该指标对同一路段的多条线路长度进行重复计算。",
         "LINE_NETWORK_DENSITY": "公共交通系统线路总长与城市总面积之比。",
@@ -278,7 +283,10 @@
             "JOB_ARRIVE_BY_TIME": "某工作地点被认为是可达的旅行时间（单位：分钟）。",
             "POPULATION_METRIC_ONE": "The primary population field -- may be total population, working-age population, etc.",
             "POPULATION_METRIC_TWO": "The secondary (comparison) population field -- subset of the population such as low-income, elderly, etc.",
-            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc."
+            "DEMOGRAPHIC_METRIC": "Important destination locations, such as jobs -- could also be used for tourism attractions, retail locations, etc.",
+            "DOWNLOAD_INDICATORS_CSV": "Download CSV file with indicator results",
+            "DOWNLOAD_JOB_GEOTIFF": "Download GeoTIFF file with job travelshed indicator results",
+            "DOWNLOAD_STATIONS_CSV": "Download CSV file with stations data"
         }
     },
     "SETTINGS": {
@@ -368,10 +376,14 @@
         "TRANSIT_STOPS_INTERACTIVITY": "公共交通站点交互",
         "SYSTEM_SELECTION": "系统/方案选择",
         "JOBS_INDICATOR_TITLE": "Jobs Accessible Per Person",
+        "ABSOLUTE_JOBS_INDICATOR_TITLE": "Total Jobs Accessible",
+        "PERCENTAGE_JOBS_INDICATOR_TITLE": "Percentage Jobs Accessible to Total Jobs",
         "JOBS_INDICATOR_FEWER": "Fewer",
         "JOBS_INDICATOR_MORE": "More",
         "INDICATOR_INTERACTIVITY_LAYER": "GTFS Indicator Interactivity",
         "JOBS_INDICATOR_LAYER": "Jobs Indicator",
+        "ABSOLUTE_JOBS_INDICATOR_LAYER": "Absolute Jobs Indicator",
+        "PERCENTAGE_JOBS_INDICATOR_LAYER": "Percentage Jobs Indicator",
         "GTFS_INDICATOR_LAYER": "GTFS Indicator",
         "POPULATION_METRIC_ONE_LAYER": "Population Metric 1",
         "POPULATION_METRIC_TWO_LAYER": "Population Metric 2",

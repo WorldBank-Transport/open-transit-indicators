@@ -11,6 +11,7 @@
           <ul class="dropdown-menu" role="menu">
               <li><a ng-click="changeLanguage()">{{ 'NAV.CHANGE_LANGUAGE' | translate }}</a></li>
               <li><a ng-click="changePassword()">{{ 'NAV.CHANGE_PASSWORD' | translate }}</a></li>
+              <li><a ng-click="changeTimezone()">{{ 'NAV.CHANGE_TIMEZONE' | translate }}</a></li>
               <li><a ng-click="logout()">{{ 'NAV.LOGOUT' | translate }}</a></li>
           </ul>
         </div>
@@ -61,6 +62,18 @@
                       labels="leaflet.jobsLegend.labels"
                       title="leaflet.jobsLegend.title"
                       range="leaflet.jobsLegend.range">
+      </oti-job-legend>
+      <oti-job-legend visible="leaflet.absoluteJobsLegend.show"
+                      colors="leaflet.absoluteJobsLegend.colors"
+                      labels="leaflet.absoluteJobsLegend.labels"
+                      title="leaflet.absoluteJobsLegend.title"
+                      range="leaflet.absoluteJobsLegend.range">
+      </oti-job-legend>
+      <oti-job-legend visible="leaflet.percentageJobsLegend.show"
+                      colors="leaflet.percentageJobsLegend.colors"
+                      labels="leaflet.percentageJobsLegend.labels"
+                      title="leaflet.percentageJobsLegend.title"
+                      range="leaflet.percentageJobsLegend.range">
       </oti-job-legend>
     </div>
     <oti-mode-selector modes="modes"

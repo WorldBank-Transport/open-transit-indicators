@@ -1,5 +1,6 @@
 'use strict';
 
+/*jshint camelcase: false */
 describe('Service: Indicators', function () {
 
     var indicatorsService;
@@ -92,3 +93,4 @@ describe('Service: Indicators', function () {
         });
     });
 });
+/*jshint camelcase: true */

@@ -70,7 +70,6 @@ object IndicatorParams {
       def bufferForPeriod(period: SamplePeriod): Projected[MultiPolygon] =
         stopBuffers.bufferForPeriod(period)
 
-
       def populationMetricForBuffer(buffer: Projected[MultiPolygon], columnName: String) =
         demographics.populationMetricForBuffer(buffer, columnName)
 

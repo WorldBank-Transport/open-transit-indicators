@@ -408,6 +408,8 @@ pushd $PROJECT_ROOT
     sudo -u postgres psql -d $DB_NAME -f ./deployment/fishnet_function.sql
     echo 'Adding Demographic Grid PostgreSQL Function'
     sudo -u postgres psql -d $DB_NAME -f ./deployment/grid_function.sql
+    echo 'Adding PostgreSQL Function to Clip Demographics to Region Bounds'
+    sudo -u postgres psql -d $DB_NAME -f ./deployment/clip_demographics.sql
     # This needs to be run as the transit_indicators user so that it has ownership
     # over the tables, otherwise changing the SRID from GeoTrellis fails.
     echo 'Adding Shapefile reprojection PostgreSQL triggers'
@@ -803,9 +805,15 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
     echo "http://$HOST/monitoring/; user / pass: oti-admin / oti-admin"
 fi
 
-# Remind user to set their timezone -- interactive, so can't be done in provisioner script
+# Set time zone by geolocating IP address
+# derived from: http://askubuntu.com/a/565139
+echo "Setting time zone from geoip..."
+export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'` &&  echo $tz > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+echo "Time zone set to $tz"
+
+# Also remind to set their timezone interactively
 echo ''
 echo 'Setup completed successfully.'
 echo "SU Username: $APP_SU_USERNAME"
 echo "Username: $APP_USERNAME"
-echo 'Now run `dpkg-reconfigure tzdata` to set your timezone.' >&2
+echo 'Now run `dpkg-reconfigure tzdata` to set your time zone.' >&2

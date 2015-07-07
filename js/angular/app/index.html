@@ -20,6 +20,7 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="bower_components/nvd3/src/nv.d3.css" />
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/angular-spinkit/build/angular-spinkit.min.css" />
     <!-- endbower -->
     <!-- endbuild -->
@@ -79,6 +80,7 @@
     <script src="bower_components/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
     <script src="bower_components/leaflet-label/dist/leaflet.label.js"></script>
     <script src="bower_components/leaflet-tilelayer-geojson/TileLayer.GeoJSON.js"></script>
+    <script src="bower_components/leaflet.draw/dist/leaflet.draw-src.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/nvd3/nv.d3.js"></script>
     <script src="bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
@@ -95,11 +97,14 @@
         <script src="scripts/windshaft-config.js"></script>
         <script src="scripts/directives/polling-upload.js"></script>
         <script src="scripts/directives/oti-csv-export.js"></script>
+        <script src="scripts/directives/oti-stations-csv-export.js"></script>
+        <script src="scripts/directives/oti-geotiff-download.js"></script>
         <script src="scripts/directives/oti-legend.js"></script>
         <script src="scripts/directives/oti-job-legend.js"></script>
         <script src="scripts/directives/oti-coverage-legend.js"></script>
         <script src="scripts/directives/oti-mode-selector.js"></script>
         <script src="scripts/modules/events/oti-events.js"></script>
+        <script src="scripts/modules/api-helpers/localization-service.js"></script>
         <script src="scripts/modules/api-helpers/types-service.js"></script>
         <script src="scripts/modules/transitmap/map-service.js"></script>
         <script src="scripts/modules/transitmap/transit-map-service.js"></script>
@@ -116,6 +121,7 @@
         <script src="scripts/modules/userdata/user-service.js"></script>
         <script src="scripts/modules/userdata/change-password-controller.js"></script>
         <script src="scripts/modules/userdata/change-language-controller.js"></script>
+        <script src="scripts/modules/userdata/change-timezone-controller.js"></script>
         <script src="scripts/modules/auth/auth-interceptor.js"></script>
         <script src="scripts/modules/auth/logout-interceptor.js"></script>
         <script src="scripts/modules/auth/auth-controller.js"></script>
@@ -145,6 +151,7 @@
         <script src="scripts/modules/scenarios/route-times/route-times-controller.js"></script>
         <script src="scripts/modules/scenarios/route-done/route-done-controller.js"></script>
         <script src="scripts/modules/indicators/city-modal-controller.js"></script>
+        <script src="scripts/modules/indicators/geotiff-modal-controller.js"></script>
         <script src="scripts/modules/indicators/indicators-controller.js"></script>
         <script src="scripts/modules/indicators/map-controller.js"></script>
         <script src="scripts/modules/indicators/data-controller.js"></script>

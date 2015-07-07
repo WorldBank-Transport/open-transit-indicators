@@ -42,6 +42,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # JVM Profiling
   config.vm.network :forwarded_port, guest: 3333, host: 3333
 
+  # Postgres admin
+  config.vm.network :forwarded_port, guest: 5432, host: 5432
+
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network :private_network, ip: "192.168.4.2"
@@ -61,7 +64,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder "./", "/projects/open-transit-indicators", nfs: true
+  config.vm.synced_folder "./", "/projects/open-transit-indicators", type: "nfs"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

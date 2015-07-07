@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{ 'NAV.CHANGE_TIMEZONE' | translate }}</h3>
+</div>
+<div class="modal-body" >
+    <input type="text"
+        placeholder="{{ 'TERM.TIMEZONE' | translate}}"
+        ng-model="selectedTimezone"
+        class="form-control"
+        typeahead="zone as (zone.zone + ': ' + zone.name) for zone in timezones | filter:$viewValue | limitTo:30"
+        typeahead-on-select="selectTimezone($item)"
+        typeahead-wait-ms="300"
+        typeahead-min-length="2" />
+</div>

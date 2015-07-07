@@ -30,11 +30,19 @@ var config = {
             var gtfsShapes = new oti.GTFSShapes();
             req.params.sql = gtfsShapes.getSql(req.query.modes);
             req.params.style = gtfsShapes.getStyle();
+        } else if (req.params.type === 'gtfs_shape_deltas') {
+            var gtfsShapeDeltas = new oti.GTFSShapeDeltas();
+            req.params.sql = gtfsShapeDeltas.getSql(req.query.modes);
+            req.params.style = gtfsShapeDeltas.getStyle();
         } else if (req.params.type === 'gtfs_stops') {
             var gtfsStops = new oti.GTFSStops();
             var filetype = req.query.interactivity ? 'utfgrid' : 'png';
             req.params.sql = gtfsStops.getSql(filetype, req.query.modes);
             req.params.style = gtfsStops.getStyle();
+        } else if (req.params.type === 'gtfs_stop_deltas') {
+            var gtfsStopDeltas = new oti.GTFSStopDeltas();
+            req.params.sql = gtfsStopDeltas.getSql(req.query.modes);
+            req.params.style = gtfsStopDeltas.getStyle();
         } else if (req.params.type === 'datasources_boundary') {
             var datasourcesBoundary = new oti.datasourcesBoundary();
             req.params.sql = datasourcesBoundary.getSql();

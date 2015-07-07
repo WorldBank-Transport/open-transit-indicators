@@ -1,8 +1,8 @@
 'use strict';
 angular.module('transitIndicators')
 .controller('OTIUserdataChangeLanguageController',
-            ['config', '$scope', '$translate',
-            function (config, $scope, $translate) {
+            ['config', '$scope', '$translate', 'languageInfo',
+            function (config, $scope, $translate, languageInfo) {
 
     $scope.selectLanguage = function(language) {
         $translate.use(language).then(function() { location.reload(); });
@@ -18,7 +18,7 @@ angular.module('transitIndicators')
 
     var initialize = function () {
 
-        $scope.languages = config.languages;
+        $scope.languages = languageInfo.languages;
 
     };
 

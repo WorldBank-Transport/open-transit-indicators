@@ -65,6 +65,10 @@ object TravelshedCreationTest {
           new LocalDateTime("2014-05-02T23:59:59.999"))
       )
 
+    val mockRequest = IndicatorCalculationRequest("", 1, 1.0, 1, 1, 1, 1, 1, 1.0, "", "",
+      List.empty, Requirements.empty
+    )
+
     val params =
       new Boundaries with RegionDemographics {
         val (cityBoundary, regionBoundary) =
@@ -106,7 +110,7 @@ object TravelshedCreationTest {
       }
 
     val results = JobsTravelshedIndicator.calculate(travelshedGraph.get,
-      RegionDemographics(db), "1", Main.rasterCache)
+      RegionDemographics(db), mockRequest, Main.rasterCache)
 
     try {
 

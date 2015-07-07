@@ -339,6 +339,8 @@ class Indicator(models.Model):
         DWELL_TIME = 'dwell_time'
         HOURS_SERVICE = 'hours_service'
         JOB_ACCESS = 'job_access'
+        JOB_ABSOLUTE_ACCESS = 'job_absolute_access'
+        JOB_PERCENTAGE_ACCESS = 'job_percentage_access'
         LENGTH = 'length'
         LINES_ROADS = 'lines_roads'
         LINE_NETWORK_DENSITY = 'line_network_density'
@@ -358,6 +360,10 @@ class Indicator(models.Model):
         TRAVEL_TIME = 'travel_time'
         WEEKDAY_END_FREQ = 'weekday_end_freq'
         JOBS_TRAVELSHED = 'jobs_travelshed'
+        JOBS_ABSOLUTE_TRAVELSHED = 'jobs_absolute_travelshed'
+        JOBS_PERCENTAGE_TRAVELSHED = 'jobs_percentage_travelshed'
+        JOB_PERCENTAGE_ACCESS = 'job_percentage_access'
+        TRAVELSHED_POPULATION = 'population_travelshed'
 
         class Units(object):
             AVG_DWELL_DEVIATION = _(u'avg deviation from scheduled dwell time')
@@ -372,6 +378,11 @@ class Indicator(models.Model):
             POP_PER_STOP = _(u'percent population served by a stop')
             PERCENT_STOP_COVERAGE = _(u'percent stop coverage')
             STOPS_PER_ROUTE_LENGTH = _(u'stops/km')
+            JOBS_ACCESSIBLE = _(u'avg jobs within x min * pop / total jobs in city.')
+            JOBS_ACCESSIBLE_ABSOLUTE = _(u'jobs within x minutes')
+            JOBS_ACCESSIBLE_PERCENTAGE = _(u'percent jobs within x minutes')
+            JOB_PERCENTAGE_ACCESS = _(u'population-weighted percentage of accessible jobs')
+            POPULATION = _(u'population')
 
         # units of measurement for the IndicatorTypes
         INDICATOR_UNITS = {
@@ -393,7 +404,11 @@ class Indicator(models.Model):
                             TRAVEL_TIME: Units.MINUTES,
                             TIME_TRAVELED_STOPS: Units.MINUTES,
                             WEEKDAY_END_FREQ: Units.MINUTES,
-                            JOBS_TRAVELSHED: Units.SECONDS
+                            JOBS_TRAVELSHED: Units.JOBS_ACCESSIBLE,
+                            JOBS_ABSOLUTE_TRAVELSHED: Units.JOBS_ACCESSIBLE_ABSOLUTE,
+                            JOBS_PERCENTAGE_TRAVELSHED: Units.JOBS_ACCESSIBLE_PERCENTAGE,
+                            JOB_PERCENTAGE_ACCESS: Units.JOB_PERCENTAGE_ACCESS,
+                            TRAVELSHED_POPULATION: Units.POPULATION
         }
 
         # indicators to display on the map
@@ -417,6 +432,8 @@ class Indicator(models.Model):
             (DWELL_TIME, _(u'Dwell Time Performance')),
             (HOURS_SERVICE, _(u'Weekly number of hours of service')),
             (JOB_ACCESS, _(u'Job accessibility')),
+            (JOB_ABSOLUTE_ACCESS, _(u'Job accessibility, as absolute number')),
+            (JOB_PERCENTAGE_ACCESS, _(u'Job accessibility, as percentage')),
             (LENGTH, _(u'Transit system length')),
             (LINES_ROADS, _(u'Ratio of transit lines length over road length')),
             (LINE_NETWORK_DENSITY, _(u'Transit line network density')),
@@ -435,7 +452,10 @@ class Indicator(models.Model):
             (TIME_TRAVELED_STOPS, _(u'Time traveled between stops')),
             (TRAVEL_TIME, _(u'Travel Time Performance')),
             (WEEKDAY_END_FREQ, _(u'Weekday / weekend frequency')),
-            (JOBS_TRAVELSHED, _(u'Number of jobs that can be reached by an area.'))
+            (JOBS_TRAVELSHED, _(u'Number of jobs reachable by an area')),
+            (JOBS_ABSOLUTE_TRAVELSHED, _(u'Absolute number of jobs reachable by an area')),
+            (JOBS_PERCENTAGE_TRAVELSHED, _(u'Percent of total jobs reachable by an area')),
+            (TRAVELSHED_POPULATION, _(u'Population used for calculating jobs travelsheds'))
         )
 
     # Slice of time used for calculating this indicator

@@ -36,6 +36,12 @@ if [ 0 -ne $has_spatial_db ]; then
     # Create the app database
     createdb --owner=$DB_USER $DB_NAME --encoding="UTF-8" --template=template_postgis
 
+    # Setup the table for holding station CSV data
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/station_csv.sql
+
+    # Setup the tables for holding GTFS deltas
+    psql -d $DB_NAME -f $PATH_PREFIX/deployment/gtfs_deltas.sql
+
     # Setup the GTFS tables. These are used by GeoTrellis and Windshaft and shouldn't
     # need to be accessed from within Django, which is why they are not set up as models.
     psql -d $DB_NAME -f $PATH_PREFIX/deployment/setup_gtfs.sql

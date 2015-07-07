@@ -53,6 +53,7 @@ object DemographicsTable {
   def demographicsTable = TableQuery[Demographics]
   def regionDemographicsTable = TableQuery[RegionDemographics]
 
+  def allDemographics(implicit session: Session) = demographicsTable.list
   def regionDemographics(implicit session: Session) = regionDemographicsTable.list
 
   /**

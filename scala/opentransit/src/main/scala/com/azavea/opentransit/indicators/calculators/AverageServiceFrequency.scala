@@ -13,44 +13,45 @@ import org.joda.time._
   */
 object AverageServiceFrequency extends Indicator
                                   with AggregatesByAll {
-  type Intermediate = Map[Stop, Seq[LocalDateTime]]
+  type Intermediate = (Double, Int)
 
   val name = "avg_service_freq"
 
   def calculation(period: SamplePeriod) = {
-    def map(trips: Seq[Trip]): Map[Stop, Seq[LocalDateTime]] =
-      trips
-        .flatMap(_.schedule)
-        .groupBy(_.stop)
-        .map { case (k, schedules) =>
-          (k, schedules.map(_.arrivalTime))
-        }.toMap
+    def map(route: Seq[Trip]): Intermediate =
+      route                                         // Seq[Trip]
+        .flatMap(_.schedule).toList                 // List[ScheduledStops]
+        .groupBy(_.stop)                            // Map[Stop, List[ScheduledStops]]
+        .values.toList                              // List[List[ScheduledStop]]
+        .map(
+          _.map(_.arrivalTime).sorted)              // List[List[LocalDateTime]]
+        .map {
+          _.sliding(2).toList.filter(_.size > 1).map { dt: List[LocalDateTime] =>
+            Seconds.secondsBetween(dt(0), dt(1)).getSeconds.abs
+          }.foldLeft((0.0, 0)) { case ((total, count), diff) =>
+            (total + diff, count + 1)               // Count up the interservice spaces and add up times
+          }
+        }.foldLeft((0.0, 0)) { case ((total, count), (tdiff, cdiff)) =>
+          (total + tdiff, count + cdiff)            // Sum up all counts and totals
+        }
 
-    /** This takes the headway between all schedules stops per stop and
-     * calculates the headway between those scheduled stops. This means that
+    /** This takes the headway between all scheduled stops (per stop and per route)
+     * and calculates average. This means that
      * if we are calculating for the whole system, if a bus were to stop
-     * at Stop A and then 5 minutes later a train stopped at stop A, then it
-     * would calculate a headway of 5 minutes. Then all headways for all stops
-     * are averaged.
+     * at Stop A and then 5 minutes later the same bus line were to stop at stop A, it
+     * would calculate a headway of 5 minutes.
      */
-    def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
+    def reduce(stopSchedules: Seq[Intermediate]): Double = {
       // Average all the headways between each stop.
       val (total, count) =
         stopSchedules
-          .combineMaps
-          .flatMap { case (stop, schedules) =>
-            val orderedArrivalTimes = schedules.sorted
-                // Calculate the headways for each stop.
-            orderedArrivalTimes
-              .zip(orderedArrivalTimes.tail)
-              .map { case (a1, a2) =>
-                Seconds.secondsBetween(a1, a2).getSeconds
-              }
+          .foldLeft((0.0, 0)) { case ((total, count), (tdiff, cdiff)) =>
+            (total + tdiff, count + cdiff)          // Sum again
           }
-          .foldLeft((0.0,0)) { case ((total, count), diff) =>
-            (total + diff, count + 1) }
-      if (count > 0) (total / count) / 60 else 0.0 // div60 for minutes
+
+      if (count > 0) (total / count) / 60 else 0.0  // div60 for minutes
     }
+
     perRouteCalculation(map, reduce)
   }
 }

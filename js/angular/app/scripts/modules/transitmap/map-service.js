@@ -134,13 +134,26 @@ angular.module('transitIndicators')
     /**
      * Retrieves travel shed jobs range (min/max for legend)
      *
+     * @param type: String, Travelshed type to get (geotrellis URI path prefix)
      * @param jobId: String, job id associated with travel shed
      */
-    module.getTravelShedRange = function(jobId) {
-        return $resource('/gt/travelshed/jobs/minmax')
+    var _getTravelShedRange = function(type, jobId) {
+        return $resource('/gt/travelshed/'+ type + '/minmax')
             .get({ JOBID: jobId })
             .$promise;
     };
+
+    // External interfaces to _getTravelShedRange for different travelshed types
+    module.getJobsTravelShedRange = function(jobId) {
+        return _getTravelShedRange('jobs', jobId);
+    };
+    module.getAbsoluteJobsTravelShedRange = function(jobId) {
+        return _getTravelShedRange('abs-jobs', jobId);
+    };
+    module.getPercentageJobsTravelShedRange = function(jobId) {
+        return _getTravelShedRange('pct-jobs', jobId);
+    };
+
 
     /**
      * Retrieves demographic range
@@ -223,6 +236,16 @@ angular.module('transitIndicators')
     module.gtfsShapesUrl = function () {
         var url = getWindshaftHost();
         url += '/tiles/{scenario}/0/gtfs_shapes/morning/route/{z}/{x}/{y}.png?modes={modes}';
+        return url;
+    };
+    module.gtfsShapeDeltasUrl = function () {
+        var url = getWindshaftHost();
+        url += '/tiles/{scenario}/0/gtfs_shape_deltas/morning/route/{z}/{x}/{y}.png?modes={modes}';
+        return url;
+    };
+    module.gtfsStopDeltasUrl = function () {
+        var url = getWindshaftHost();
+        url += '/tiles/{scenario}/0/gtfs_stop_deltas/morning/route/{z}/{x}/{y}.png?modes={modes}';
         return url;
     };
 

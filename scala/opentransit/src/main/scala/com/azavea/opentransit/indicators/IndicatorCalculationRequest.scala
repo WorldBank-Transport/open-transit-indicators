@@ -17,6 +17,11 @@ case class Requirements(
   jobDemographics: Boolean
 )
 
+object Requirements {
+  def empty: Requirements = Requirements(false, false, false, false, false, false)
+  def all: Requirements = Requirements(true, true, true, true, true, true)
+}
+
 // Calculation request parameters
 case class IndicatorCalculationRequest(
   token: String,

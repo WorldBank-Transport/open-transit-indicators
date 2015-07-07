@@ -6,7 +6,7 @@ import geotrellis.slick._
 import grizzled.slf4j.Logging
 
 import scala.slick.driver.{JdbcDriver, JdbcProfile, PostgresDriver}
-
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
 /**
  * A buffer around a set of GTFS stops. Used for calculating stop coverage indicators
  */
