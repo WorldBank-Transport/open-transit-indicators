@@ -362,6 +362,7 @@ class Indicator(models.Model):
         JOBS_TRAVELSHED = 'jobs_travelshed'
         JOBS_ABSOLUTE_TRAVELSHED = 'jobs_absolute_travelshed'
         JOBS_PERCENTAGE_TRAVELSHED = 'jobs_percentage_travelshed'
+        JOB_PERCENTAGE_ACCESS = 'job_percentage_access'
         TRAVELSHED_POPULATION = 'population_travelshed'
 
         class Units(object):
@@ -380,6 +381,7 @@ class Indicator(models.Model):
             JOBS_ACCESSIBLE = _(u'avg jobs within x min * pop / total jobs in city.')
             JOBS_ACCESSIBLE_ABSOLUTE = _(u'jobs within x minutes')
             JOBS_ACCESSIBLE_PERCENTAGE = _(u'percent jobs within x minutes')
+            JOB_PERCENTAGE_ACCESS = _(u'population-weighted percentage of accessible jobs')
             POPULATION = _(u'population')
 
         # units of measurement for the IndicatorTypes
@@ -405,6 +407,7 @@ class Indicator(models.Model):
                             JOBS_TRAVELSHED: Units.JOBS_ACCESSIBLE,
                             JOBS_ABSOLUTE_TRAVELSHED: Units.JOBS_ACCESSIBLE_ABSOLUTE,
                             JOBS_PERCENTAGE_TRAVELSHED: Units.JOBS_ACCESSIBLE_PERCENTAGE,
+                            JOB_PERCENTAGE_ACCESS: Units.JOB_PERCENTAGE_ACCESS,
                             TRAVELSHED_POPULATION: Units.POPULATION
         }
 

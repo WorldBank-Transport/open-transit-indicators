@@ -324,7 +324,7 @@ object JobsTravelshedIndicator {
     rasterCache.set(RasterCacheKey(percentageName + cacheId), (rPercentageTile, rPercentageExtent))
 
     val basic = basicTotalJobAccessResult / tileCount
-    val percentage = basicTotalJobAccessResult / totalPopulation
+    val percentage = 100 * (basicTotalJobAccessResult / totalPopulation)
 
     new JobAccessStatistics(basic, percentage)
   }
