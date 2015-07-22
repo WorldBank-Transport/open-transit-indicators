@@ -3,7 +3,8 @@ package com.azavea.opentransit.service
 import com.azavea.opentransit._
 
 import geotrellis.raster.io.geotiff._
-import geotrellis.proj4.LatLng
+import geotrellis.raster.reproject._
+import geotrellis.proj4.{LatLng, WebMercator}
 
 import spray.routing._
 import spray.http._
@@ -29,8 +30,10 @@ trait TravelshedGeotiffRoute extends Route { self: DatabaseInstance =>
             parameters('JOBID,
                        'INDICATOR) { (jobId, indicatorName) =>
               val geotiffBytes = Main.rasterCache.get(RasterCacheKey(indicatorName + jobId)) match {
-                case Some((tile, extent)) =>
-                    GeoTiff.render(tile, extent, LatLng, Uncompressed)
+                case Some((tile, extent)) => {
+                    val (rTile, rExtent) = tile.reproject(extent, WebMercator, LatLng)
+                    GeoTiff.render(rTile, rExtent, LatLng, Uncompressed)
+                }
                 case _ =>
                   Array[Byte]()
                 }
