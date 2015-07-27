@@ -101,6 +101,7 @@ object ObservedStopTimes {
             case Some(t) => t
             case None => new Trip {
               def headsign = None
+              def direction = None
               def id = tripId
               def schedule = Nil
               def tripShape = None
@@ -115,6 +116,7 @@ object ObservedStopTimes {
         def observedTripById(tripId: String): Trip =
           new Trip {
             def headsign = None
+            def direction = None
             def id = ""
             def schedule = Nil
             def tripShape = None
