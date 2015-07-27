@@ -128,7 +128,8 @@ object ScenariosGtfsRouteJsonProtocol extends DefaultJsonProtocol with GeoJsonSu
           val stopTimes = stopTimesJson map { js => stopTimeFormat.read(js)(tripId) }
           val freqs = freqsJson map { js => frequencyFormat.read(js)(tripId) }
           val shape = shapeFormat.read(shapeJson)(tripId)
-          val trip = TripRecord(tripId, TRIP_SERVICE_ID, routeId, headsign.convertTo[Option[String]], shape.map(_.id))
+          // The editor has no concept of a trip's direction, so it is always set to 0.
+          val trip = TripRecord(tripId, TRIP_SERVICE_ID, routeId, headsign.convertTo[Option[String]], Some(0), shape.map(_.id))
           TripTuple(trip, stopTimes, freqs, shape)
         case _ =>  throw new DeserializationException("TripTuple expected")
       }

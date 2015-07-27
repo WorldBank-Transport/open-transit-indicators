@@ -12,5 +12,6 @@ case class TripRecord (
   serviceId: ServiceId,
   routeId: RouteId,
   headsign: Option[String] = None,
+  directionId: Option[Int] = None,
   tripShapeId: Option[String] = None
 )
