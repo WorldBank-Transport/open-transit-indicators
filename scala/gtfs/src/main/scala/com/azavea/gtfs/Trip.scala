@@ -9,6 +9,7 @@ import scala.util.Try
 trait Trip {
   def id: String
   def headsign: Option[String]
+  def direction: Option[Int]
   def tripShape: Option[TripShape]
   def schedule: Seq[ScheduledStop]
 
@@ -22,6 +23,10 @@ object Trip {
     new Trip {
       def id = record.id
       def headsign = record.headsign
+      // This should be a boolean 0/1 value according to the GTFS spec, but I could
+      // imagine that being insufficient for e.g. the Green Line in Chicago,
+      // so I'm going to leave it as a simple integer.
+      def direction = record.directionId
       def tripShape = Try(tripShapes(record.tripShapeId.get)).toOption
       def schedule = scheduledStops
     }

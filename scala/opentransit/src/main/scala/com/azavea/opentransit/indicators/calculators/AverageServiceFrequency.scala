@@ -19,21 +19,34 @@ object AverageServiceFrequency extends Indicator
 
   def calculation(period: SamplePeriod) = {
     def map(route: Seq[Trip]): Intermediate =
-      route                                         // Seq[Trip]
-        .flatMap(_.schedule).toList                 // List[ScheduledStops]
-        .groupBy(_.stop)                            // Map[Stop, List[ScheduledStops]]
-        .values.toList                              // List[List[ScheduledStop]]
+      route                                     // Seq[Trip]
+        .groupBy(_.direction).values            // Seq[List[Trip]]
+        // Now generate a Seq[Intermediate] for each List[Trip] in the sequence, which
+        // corresponds to each direction. This prevents trips in opposite directions from
+        // being included together in the average service frequency because they will be
+        // considered separately until the very end.
         .map(
-          _.map(_.arrivalTime).sorted)              // List[List[LocalDateTime]]
-        .map {
-          _.sliding(2).toList.filter(_.size > 1).map { dt: List[LocalDateTime] =>
-            Seconds.secondsBetween(dt(0), dt(1)).getSeconds.abs
-          }.foldLeft((0.0, 0)) { case ((total, count), diff) =>
-            (total + diff, count + 1)               // Count up the interservice spaces and add up times
-          }
-        }.foldLeft((0.0, 0)) { case ((total, count), (tdiff, cdiff)) =>
-          (total + tdiff, count + cdiff)            // Sum up all counts and totals
+          _.flatMap(_.schedule).toList          // List[ScheduledStops]
+            .groupBy(_.stop)                    // Map[Stop, List[ScheduledStops]]
+            .values.toList                      // List[List[ScheduledStop]]
+            .map(
+              _.map(_.arrivalTime).sorted)      // List[List[LocalDateTime]]
+            .map {
+              _.sliding(2).toList.filter(_.size > 1).map { dt: List[LocalDateTime] =>
+                Seconds.secondsBetween(dt(0), dt(1)).getSeconds.abs
+              }.foldLeft((0.0, 0)) { case ((total, count), diff) =>
+                (total + diff, count + 1)       // Count up the interservice spaces and add up times
+              }
+            }
+            .foldLeft((0.0, 0)) { case ((total, count), (tdiff, cdiff)) =>
+              (total + tdiff, count + cdiff)    // Sum up all counts and totals
+            }                                   // (Double, Int)
+        )                                       // List[(Double, Int)]
+        .foldLeft((0.0, 0)) {
+          case ((totalSum, countSum), (directionTotal, directionCount)) =>
+            (totalSum + directionTotal, countSum + directionCount)
         }
+
 
     /** This takes the headway between all scheduled stops (per stop and per route)
      * and calculates average. This means that

@@ -1,5 +1,7 @@
 package com.azavea.gtfs.io.csv
 
+import scala.util.Try
+
 import com.azavea.gtfs._
 
 object TripsFile extends GtfsFile[TripRecord] {
@@ -13,6 +15,7 @@ object TripsFile extends GtfsFile[TripRecord] {
         t("service_id").get.intern,
         t("route_id").get.intern,
         t("trip_headsign"),
+        Try(t("direction_id").get.toInt).toOption,
         t("shape_id").map(_.intern)
       )
     }).toSeq

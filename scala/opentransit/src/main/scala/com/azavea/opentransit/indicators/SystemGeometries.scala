@@ -137,8 +137,8 @@ object SystemBufferGeometries {
       (for(
         route <- transitSystem.routes.headOption;
         trip <- route.trips.headOption;
-        tripShape <- trip.tripShape
-      ) yield { tripShape.line.srid }) match {
+        schedule <- trip.schedule.headOption
+      ) yield { schedule.stop.point.srid }) match {
         case Some(i) => i
         case None => sys.error(s"Transit system is required to have an SRID")
       }
