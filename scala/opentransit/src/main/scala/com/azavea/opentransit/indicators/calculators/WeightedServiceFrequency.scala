@@ -26,22 +26,26 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
 
 
   def calculation(period: SamplePeriod) = {
-    /** For each trip, return a Map of stops to trip arrival times at said stops */
-    def map(trips: Seq[Trip]): Map[Stop, Seq[LocalDateTime]] = {
+    /** Group the trips by direction, and then for each trip, return a sequence of pairs of stops in
+     * that trip and the arrival times at that stop in the given direction. */
+    def map(trips: Seq[Trip]): Seq[(Stop, Seq[LocalDateTime])] = {
       trips
-        .map(_.schedule)
-        .flatten
-        .groupBy(_.stop)
-        .map { case (stop, schedules) =>
-          (stop, schedules.map(_.arrivalTime))
-        }.toMap
+        .groupBy(_.direction).values              // Seq[List[Trip]]
+        .map(
+          _.map(_.schedule)                       // Seq[Seq[ScheduledStop]]
+          .flatten                                // Seq[ScheduledStop]
+          .groupBy(_.stop).toList                 // Seq[(Stop, Seq[ScheduledStop])]
+          .map { case (stop, schedules) =>
+            (stop, schedules.map(_.arrivalTime))
+          }
+        ).toList.flatten                          // Seq[(Stop, Seq[LocalDateTime])]
     }
 
     /** This is average service frequency weighted by the number of people served
      *  at each stop. So, the more people at a stop, the more that frequency
      *  contributes to the weighted average service frequency.
      */
-    def reduce(stopSchedules: Seq[Map[Stop, Seq[LocalDateTime]]]): Double = {
+    def reduce(stopSchedules: Seq[Seq[(Stop, Seq[LocalDateTime])]]): Double = {
       // Average all the headways between each stop with weight.
 
       /* A "Headway-person" in the code below is a unit of time
@@ -52,8 +56,7 @@ abstract class WeightedServiceFrequency(params: StopBuffers with Demographics)
        * a weighted time per stop.
        */
       val (totalHeadwayPersons, totalStopPersons) =
-        stopSchedules
-          .combineMaps
+        stopSchedules.flatten
           .map { case (stop, schedules) =>
             if (!popMap.contains(stop))
               popMap(stop) = {
