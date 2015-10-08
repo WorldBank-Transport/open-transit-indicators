@@ -566,9 +566,16 @@ if [ "$INSTALL_TYPE" != "travis" ]; then
         popd
     fi
     pushd $GEOTRELLIS_REPO_ROOT
-        git pull
         git reset --hard $GEOTRELLIS_REPO_COMMIT
-        ./publish-local.sh
+
+        # Workaround for getting a working copy of sbt without upgrading GeoTrellis
+        cp $PROJECT_ROOT/scala/sbt .
+
+        # Only build the projects we need to minimize dependency problems (currently gdal won't build)
+        ./sbt "project geotools" publish-local
+        ./sbt "project proj4" publish-local
+        ./sbt "project vector" publish-local
+        ./sbt "project slick" publish-local
     popd
 
     #########################
