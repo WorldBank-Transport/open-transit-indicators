@@ -51,6 +51,7 @@ trait TestDatabaseFixture extends DatabaseInstance with BeforeAndAfterAll  { sel
   }
 
   def deleteDatabase(name: String) = {
+    println(s"going to drop database $name")
     dbByName("postgres") withSession { implicit session: Session =>
       Q.updateNA( s"""DROP DATABASE IF EXISTS "$name";""").execute
     }

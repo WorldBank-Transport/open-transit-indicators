@@ -10,7 +10,7 @@ import spray.http.StatusCodes
 import spray.json._
 import spray.testkit.ScalatestRouteTest
 
-class ScenarioGtfsRouteSpec extends FunSuite  with ScalatestRouteTest
+class ScenarioGtfsRouteSpec extends FunSuite with ScalatestRouteTest
   with Matchers
   with ScenarioGtfsRoute
   with TestDatabaseFixture
